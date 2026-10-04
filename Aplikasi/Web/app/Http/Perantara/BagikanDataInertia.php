@@ -22,6 +22,7 @@ use App\Domain\Tenant\Kueri\RingkasanTenant;
 use App\Domain\Tenant\Model\DokumenLegal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 /**
@@ -56,7 +57,9 @@ final class BagikanDataInertia extends Middleware
             'Edisi' => EdisiAplikasi::AmbilBerjalan()->value,
             // D-20: logo di halaman masuk/daftar menuju situs pemasaran (bisa host lain).
             'UrlPemasaran' => ArahkanDomainAplikasi::BuatUrlPemasaran('/'),
-            'Kilat' => fn () => $request->session()->get('Kilat'),
+            // `always`: ikut di setiap respons (juga muat ulang sebagian), supaya pesan lama tidak menempel dan dialog hasil
+            // tidak muncul lagi setiap polling.
+            'Kilat' => Inertia::always(fn () => $request->session()->get('Kilat')),
             'Pengguna' => fn () => $pengguna instanceof Pengguna ? [
                 'Uuid' => $pengguna->Uuid,
                 'Nama' => $pengguna->Nama,

@@ -26,6 +26,7 @@ import {
 } from '@/Komponen/Ui/sidebar';
 import { cn } from '@/Komponen/Ui/utils';
 import BannerPengumuman from '@/Komponen/Umpan/BannerPengumuman';
+import DialogHasil from '@/Komponen/Umpan/DialogHasil';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
 import { FormatTanggal, FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
 import type { FiturPaket, PropsBersamaAplikasi, TenantAktif } from '@/Tipe/Aplikasi';
@@ -1002,11 +1003,10 @@ export default function TataLetakAplikasi({ judul, jejak = [], children }: Props
                             bolehBayar={PunyaIzinTenant(props.Akses, IzinTenant.LanggananKelola)}
                         />
                     ) : null}
-                    {props.Kilat ? <Pemberitahuan jenis="sukses">{props.Kilat}</Pemberitahuan> : null}
-                    {props.errors.Umum ? <Pemberitahuan jenis="bahaya">{props.errors.Umum}</Pemberitahuan> : null}
                     {children}
                 </main>
             </div>
+            <DialogHasil berhasil={props.Kilat} gagal={props.errors.Umum} penanda={props} />
             <PemberitahuanMelayang />
         </SidebarProvider>
     );

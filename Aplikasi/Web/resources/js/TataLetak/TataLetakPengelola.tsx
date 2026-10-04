@@ -16,6 +16,7 @@ import {
 import JudulHalaman from '@/Komponen/Umpan/JudulHalaman';
 import IkonNavigasi, { type NamaIkonNavigasi } from '@/Komponen/Navigasi/IkonNavigasi';
 import PenandaLingkungan from '@/Komponen/Umpan/PenandaLingkungan';
+import DialogHasil from '@/Komponen/Umpan/DialogHasil';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
 import { IzinPengelola, PunyaIzin, type KunciIzinPengelola, type PropsBersamaPengelola } from '@/Tipe/Pengelola';
 
@@ -246,10 +247,10 @@ export default function TataLetakPengelola({ judul, jejak = [], aksi, children }
                             </ul>
                         </Pemberitahuan>
                     ) : null}
-                    {props.Kilat ? <Pemberitahuan jenis="sukses">{props.Kilat}</Pemberitahuan> : null}
                     {children}
                 </main>
             </div>
+            <DialogHasil berhasil={props.Kilat} gagal={props.errors.Umum} penanda={props} />
             <PemberitahuanMelayang />
         </SidebarProvider>
     );

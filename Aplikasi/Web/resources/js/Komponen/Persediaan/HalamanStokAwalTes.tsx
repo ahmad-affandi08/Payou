@@ -543,6 +543,8 @@ describe('Kelola/Persediaan/StokAwal/Detail (F-05a)', () => {
             />,
         );
 
+        // Galat umum dari server juga dibuka sebagai dialog hasil di tata letak; tutup dulu, lalu buka dialog batal.
+        fireEvent.click(screen.getByRole('button', { name: 'Tutup' }));
         fireEvent.click(screen.getByRole('button', { name: 'Batalkan stok awal' }));
         expect(within(screen.getByRole('alertdialog')).getByText(/sudah berkurang/)).toBeTruthy();
     });

@@ -11,6 +11,7 @@ use App\Domain\Pengelola\TimInternal\Kueri\SuperAdminAktif;
 use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 /**
@@ -38,7 +39,9 @@ final class BagikanDataInertiaPengelola extends Middleware
             ...parent::share($request),
             'NamaAplikasi' => config('app.name'),
             'Lingkungan' => app()->isProduction() ? 'Produksi' : (app()->environment('staging') ? 'Staging' : 'Lokal'),
-            'Kilat' => fn () => $request->session()->get('Kilat'),
+            // `always`: ikut di setiap respons (juga muat ulang sebagian), supaya pesan lama tidak menempel dan dialog hasil
+            // tidak muncul lagi setiap polling.
+            'Kilat' => Inertia::always(fn () => $request->session()->get('Kilat')),
             'Pengguna' => fn () => $pengguna instanceof PenggunaPengelola ? [
                 'Uuid' => $pengguna->Uuid,
                 'Nama' => $pengguna->Nama,
