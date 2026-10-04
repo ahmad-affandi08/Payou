@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sistem_desain/SistemDesain.dart';
 
 import '../Aplikasi/Penyedia.dart';
 import '../Data/NotifikasiPush.dart';
@@ -127,9 +128,13 @@ class _BingkaiPemilikState extends ConsumerState<BingkaiPemilik> {
     final notifier = ref.read(penyediaSesi.notifier);
     final menunggu = ref.watch(penyediaPersetujuan).value?.length ?? 0;
     final belumDibaca = ref.watch(penyediaNotifikasi).value?.belumDibaca ?? 0;
+    final warna = TokenWarna.AmbilDari(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(sesi.namaTenant ?? 'PAYOU Owner'),
+        backgroundColor: warna.brandGelap,
+        foregroundColor: warna.permukaan,
+        surfaceTintColor: warna.brandGelap,
+        title: Text(sesi.namaTenant ?? 'PAYOU Owner', style: const TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             tooltip: belumDibaca > 0 ? 'Notifikasi ($belumDibaca belum dibaca)' : 'Notifikasi',
