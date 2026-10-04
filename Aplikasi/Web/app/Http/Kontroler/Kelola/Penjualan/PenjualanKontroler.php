@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Kontroler\Kelola\Penjualan;
 
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Organisasi\Kueri\PetaUuidOutlet;
 use App\Domain\Penjualan\Enum\KanalPenjualan;
@@ -18,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Halaman penjualan back-office (baca saja, F-07b), izin `laporan.penjualan.lihat`: daftar & detail penjualan, serta
@@ -40,6 +43,35 @@ final class PenjualanKontroler extends DasarKelolaKontroler
                 'OpsiKanal' => array_map(fn (KanalPenjualan $k): array => ['Nilai' => $k->value, 'Label' => $k->AmbilLabel()], KanalPenjualan::cases()),
             ],
         );
+    }
+
+    /**
+     * Ekspor daftar penjualan (Excel/CSV/cetak lewat `?format=`) sesuai saringan & cari yang aktif, maks. 5.000 baris.
+     * Dengan `uuid=a,b,c` (aksi massal "Ekspor terpilih") hanya penjualan itu yang diekspor.
+     */
+    public function Ekspor(Request $permintaan, DaftarPenjualan $daftar): SymfonyResponse
+    {
+        $tabel = DataPermintaanTabel::Dari($permintaan->query(), DaftarPenjualan::KOLOM_URUT, DaftarPenjualan::URUT_BAWAAN, DaftarPenjualan::KOLOM_SARING);
+        $baris = $this->AmbilSemuaBarisTabel($tabel, fn (DataPermintaanTabel $t): array => $daftar->AmbilTabel($t, $this->IdOutletBoleh(), $this->IdTenant()));
+        $terpilih = array_values(array_filter(explode(',', (string) $permintaan->query('uuid')), fn (string $u): bool => preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/i', $u) === 1));
+
+        if ($terpilih !== []) {
+            $baris = array_values(array_filter($baris, fn (array $b): bool => in_array($b['Uuid'], $terpilih, true)));
+        }
+
+        $kolom = [
+            new KolomLaporan('Nomor', JenisKolom::Teks, 26), new KolomLaporan('Waktu', JenisKolom::TanggalWaktu),
+            new KolomLaporan('Tanggal bisnis', JenisKolom::Tanggal), new KolomLaporan('Outlet', JenisKolom::Teks, 24),
+            new KolomLaporan('Kasir', JenisKolom::Teks, 22), new KolomLaporan('Kanal', JenisKolom::Teks, 16),
+            new KolomLaporan('Metode bayar', JenisKolom::Teks, 26), new KolomLaporan('Status', JenisKolom::Teks, 18),
+            new KolomLaporan('Total', JenisKolom::Uang, jumlahkan: true),
+        ];
+        $isi = array_map(fn (array $b): array => [
+            $b['Nomor'], $b['DibuatOfflinePada'], $b['TanggalBisnis'], $b['NamaOutlet'], $b['NamaKasir'], $b['LabelKanal'], implode(', ', $b['Metode']), $b['LabelStatus'], $b['TotalAkhir'],
+        ], $baris);
+        $saringan = $terpilih === [] ? [] : [['Cakupan', count($baris).' penjualan terpilih']];
+
+        return $this->SajikanLaporan($permintaan, 'Daftar Penjualan', 'daftar-penjualan', $kolom, $isi, $saringan);
     }
 
     public function Detail(string $penjualan, DetailPenjualan $detail): Response

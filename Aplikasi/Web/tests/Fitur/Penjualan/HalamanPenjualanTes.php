@@ -236,3 +236,31 @@ describe('F-07b izin penjualan.diskon.setujui', function (): void {
         unset($perangkat);
     });
 });
+
+describe('F-07b ekspor daftar penjualan', function (): void {
+    it('ekspor sesuai saringan dan ekspor terpilih (uuid) memuat nomor, metode, dan total; Uuid tak sah diabaikan; Kasir tanpa izin laporan ditolak', function (): void {
+        $k = BantuanPenjualan::Siapkan($this);
+        $minyak = BantuanPenjualan::BuatProdukBerstok($k['Gudang'], $k['Pemilik']->Id);
+        $item = fn (string $harga) => BantuanPenjualan::Item($k, [
+            'Baris' => [['Produk' => $minyak, 'Jumlah' => '1', 'Harga' => $harga]],
+            'Pembayaran' => [['Metode' => $k['Tunai'], 'Jumlah' => '100000.00']],
+        ]);
+        $pertama = $item('38500.00');
+        $kedua = $item('41000.00');
+        expect(BantuanKasir::KirimRingkas($this, $k['Token'], [$pertama, $kedua]))->toBe([['Diterima', null], ['Diterima', null]]);
+
+        BantuanPersediaan::MasukSebagai($this, $k['Tenant']->Id, PeranTenantBawaan::ManajerOutlet);
+
+        $semua = $this->get('/kelola/penjualan/ekspor?format=csv')->assertOk()->streamedContent();
+        expect($semua)->toContain($pertama['Data']['Nomor'])->and($semua)->toContain($kedua['Data']['Nomor'])->and($semua)->toContain('Tunai');
+
+        // Terpilih: hanya satu; Uuid yang bukan ULID diabaikan, bukan menjadi saringan kosong.
+        $satu = $this->get("/kelola/penjualan/ekspor?format=csv&uuid={$kedua['Uuid']},bukan-uuid")->assertOk()->streamedContent();
+        expect($satu)->toContain($kedua['Data']['Nomor'])->and($satu)->not->toContain($pertama['Data']['Nomor']);
+        $abaikan = $this->get('/kelola/penjualan/ekspor?format=csv&uuid=bukan-uuid')->assertOk()->streamedContent();
+        expect($abaikan)->toContain($pertama['Data']['Nomor'])->and($abaikan)->toContain($kedua['Data']['Nomor']);
+
+        BantuanOrganisasi::Masuk($this, $k['Kasir'], $k['Tenant']->Id);
+        $this->get('/kelola/penjualan/ekspor?format=csv')->assertForbidden();
+    });
+});

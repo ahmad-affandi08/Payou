@@ -2,14 +2,15 @@ import { Link, usePage } from '@inertiajs/react';
 
 import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
 import { kolomPenjualan } from '@/Komponen/Penjualan/KolomPenjualan';
-import TabelData from '@/Komponen/TabelData/TabelData';
+import AksiMassalEkspor from '@/Komponen/TabelData/AksiMassalEkspor';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { DefinisiSaring } from '@/Komponen/TabelData/Tipe';
 import { Button } from '@/Komponen/Ui/button';
 import { PakaiSektor } from '@/Pustaka/Sektor';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 import type { PropsBersamaAplikasi } from '@/Tipe/Aplikasi';
 import { IzinTenant, PunyaIzinTenant } from '@/Tipe/Organisasi';
-import type { PropsDaftarPenjualan } from '@/Tipe/Penjualan';
+import type { BarisPenjualan, PropsDaftarPenjualan } from '@/Tipe/Penjualan';
 
 const alamat = '/kelola/penjualan';
 
@@ -18,8 +19,7 @@ export default function HalamanDaftarPenjualan({ Penjualan, OpsiOutlet, OpsiStat
     const { props } = usePage<PropsBersamaAplikasi>();
     // Bengkel (§9.10): grup menu ini sudah di batas 7 sub-menu (D-27), jadi perintah kerja dibuka dari sini & Ctrl+K.
     // Hanya untuk usaha bengkel (SVC-WRK): toko kelontong, kafe, dsb. tidak perlu melihatnya.
-    const bengkel =
-        PunyaIzinTenant(props.Akses, IzinTenant.BengkelKelola) && PakaiSektor(['SVC-WRK']);
+    const bengkel = PunyaIzinTenant(props.Akses, IzinTenant.BengkelKelola) && PakaiSektor(['SVC-WRK']);
     const saring: DefinisiSaring[] = [
         ...(OpsiOutlet.length > 1
             ? [
@@ -70,6 +70,10 @@ export default function HalamanDaftarPenjualan({ Penjualan, OpsiOutlet, OpsiStat
                 urutBawaan="-DibuatOfflinePada"
                 cari="Cari nomor atau nama kasir"
                 saring={saring}
+                ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true }}
+                aksiMassal={(konteks: KonteksAksiMassal<BarisPenjualan>) => (
+                    <AksiMassalEkspor konteks={konteks} alamat={`${alamat}/ekspor`} ambilUuid={(b) => b.Uuid} />
+                )}
                 alamatDetail={(baris) => `${alamat}/${baris.Uuid}`}
                 kosong={{
                     ilustrasi: true,
