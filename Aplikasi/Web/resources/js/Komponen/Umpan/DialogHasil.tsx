@@ -100,7 +100,7 @@ export default function DialogHasil({ berhasil, gagal, penanda }: PropsDialogHas
                         {isi?.pesan}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter className="sm:justify-center">
+                <AlertDialogFooter className="group-data-[size=sm]/alert-dialog-content:grid-cols-1 group-data-[size=sm]/alert-dialog-content:justify-items-center sm:justify-center">
                     <AlertDialogAction
                         autoFocus
                         className="h-8 px-6 text-label font-semibold pointer-coarse:h-11"
