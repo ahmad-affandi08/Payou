@@ -5,6 +5,7 @@ import HalamanBerandaKelola from '@/Halaman/Kelola/Beranda';
 import HalamanLaporanPajak from '@/Halaman/Kelola/Laporan/Pajak';
 import HalamanLaporanPenjualan from '@/Halaman/Kelola/Laporan/Penjualan';
 import HalamanLaporanStok from '@/Halaman/Kelola/Laporan/Stok';
+import { AmbilHrefEkspor } from '@/Pengujian/InteraksiRadix';
 import { AturHalamanUji, RenderUji, tiruanRouter } from '@/Komponen/Katalog/TiruanInertia';
 import { AmbilMaksimum, HitungPerubahanPersen, HitungTingkatPanas } from '@/Pustaka/Laporan';
 import { PilihOpsi } from '@/Pengujian/InteraksiPilihan';
@@ -188,8 +189,8 @@ describe('F-14a laporan penjualan', () => {
         expect(within(nav).getByRole('link', { name: 'Per produk' }).getAttribute('href')).toBe(
             '/kelola/laporan/penjualan?dari=2026-10-01&sampai=2026-10-07&tab=produk',
         );
-        expect(screen.getByRole('link', { name: 'Ekspor CSV' }).getAttribute('href')).toBe(
-            '/kelola/laporan/penjualan/ekspor?dari=2026-10-01&sampai=2026-10-07&tab=harian',
+        expect(AmbilHrefEkspor('csv', 'Ekspor')).toBe(
+            '/kelola/laporan/penjualan/ekspor?dari=2026-10-01&sampai=2026-10-07&tab=harian&format=csv',
         );
         expect(screen.getByRole('table', { name: 'Ringkasan penjualan harian' })).toBeTruthy();
     });
@@ -331,9 +332,7 @@ describe('F-14a laporan penjualan', () => {
 
         expect(screen.getByText('Minyak Goreng Sawit Bening Kemasan Pouch 2 Liter')).toBeTruthy();
         expect(screen.getByText('Rp 73.150')).toBeTruthy();
-        expect(screen.getByRole('link', { name: /Ekspor CSV/ }).getAttribute('href')).toContain(
-            '/kelola/laporan/penjualan/ekspor',
-        );
+        expect(AmbilHrefEkspor('csv', 'Ekspor')).toContain('/kelola/laporan/penjualan/ekspor?format=csv');
     });
 });
 
@@ -368,8 +367,8 @@ describe('F-14a laporan pajak & stok', () => {
         expect(screen.getByText('PPN 12%')).toBeTruthy();
         expect(screen.getByText('Rp 9.146,50')).toBeTruthy();
         expect(screen.getByText('Tidak ada PB1/PBJT pada periode ini.')).toBeTruthy();
-        expect(screen.getByRole('link', { name: /Ekspor PPN/ }).getAttribute('href')).toBe(
-            '/kelola/laporan/pajak/ekspor?dari=2026-10-01&sampai=2026-10-07&jenis=ppn',
+        expect(AmbilHrefEkspor('csv', /Ekspor PPN/)).toBe(
+            '/kelola/laporan/pajak/ekspor?dari=2026-10-01&sampai=2026-10-07&jenis=ppn&format=csv',
         );
     });
 

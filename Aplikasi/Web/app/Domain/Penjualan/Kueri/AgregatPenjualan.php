@@ -11,6 +11,7 @@ use App\Domain\Bersama\Tabel\Layanan\PenerapKueriTabel;
 use App\Domain\Penjualan\Data\DataAgregatPenjualan;
 use App\Domain\Penjualan\Data\DataSaringLaporanPenjualan;
 use App\Domain\Penjualan\Enum\JenisMetodePembayaran;
+use App\Domain\Penjualan\Enum\KanalPenjualan;
 use App\Domain\Penjualan\Enum\StatusPenjualan;
 use App\Domain\Penjualan\Model\Penjualan;
 use App\Domain\Penjualan\Model\PenjualanDetail;
@@ -64,12 +65,29 @@ final class AgregatPenjualan
 
     public const URUT_BAWAAN_PRODUK = '-Bersih';
 
+    /** Kolom urut laporan detail penjualan per item (D-43). */
+    public const KOLOM_URUT_DETAIL = ['Nomor', 'Waktu', 'NamaProduk', 'Qty', 'HargaSatuan', 'Kotor', 'Diskon', 'Total'];
+
+    public const URUT_BAWAAN_DETAIL = '-Waktu';
+
     /**
      * Angka total untuk saring (tanpa pengelompokan).
      */
     public function Total(DataSaringLaporanPenjualan $saring): DataAgregatPenjualan
     {
         return $this->Agregasi($saring, [])['']['Agregat'] ?? DataAgregatPenjualan::Nol();
+    }
+
+    /** Waktu penjualan terakhir diterima server pada saring ini ("Data terakhir diperbarui" di kop laporan); null bila kosong. */
+    public function WaktuTerakhirDiterima(DataSaringLaporanPenjualan $saring): ?\DateTimeImmutable
+    {
+        if ($saring->CekTanpaOutlet()) {
+            return null;
+        }
+
+        $waktu = $this->KueriJual($saring)->max('Penjualan.DiterimaPada');
+
+        return is_string($waktu) && $waktu !== '' ? new \DateTimeImmutable($waktu, new \DateTimeZone('UTC')) : null;
     }
 
     /**
@@ -318,6 +336,120 @@ final class AgregatPenjualan
         return [
             'Data' => array_values(array_map(fn (stdClass $b): array => self::PetakanProduk($b), $baris->all())),
             'Meta' => ['Halaman' => $halaman, 'PerHalaman' => $tabel->perHalaman, 'Total' => $total, 'JumlahHalaman' => $jumlahHalaman],
+        ];
+    }
+
+    /**
+     * Detail penjualan per item untuk `TabelData` mode server (D-43): satu baris per baris keranjang penjualan bukan
+     * void, dengan nomor transaksi, waktu, outlet, kanal, kasir, dan metode bayar. Cari: nama produk atau nomor.
+     *
+     * @return array{Data: list<array<string, mixed>>, Meta: array{Halaman: int, PerHalaman: int, Total: int, JumlahHalaman: int}}
+     */
+    public function DetailPerItemTabel(DataSaringLaporanPenjualan $saring, DataPermintaanTabel $tabel): array
+    {
+        $kueri = $this->KueriDetailItem($saring, $tabel->cari);
+        $total = DB::query()->fromSub(clone $kueri, 'Detail')->count();
+        $jumlahHalaman = max(1, intdiv($total + $tabel->perHalaman - 1, $tabel->perHalaman));
+        $halaman = min($tabel->halaman, $jumlahHalaman);
+        $diurutkan = false;
+
+        foreach ($tabel->urut as $urut) {
+            if (in_array($urut['Kolom'], self::KOLOM_URUT_DETAIL, true)) {
+                $kueri->orderBy($urut['Kolom'], $urut['Turun'] ? 'desc' : 'asc');
+                $diurutkan = true;
+            }
+        }
+
+        if (! $diurutkan) {
+            $kueri->orderByDesc('Waktu');
+        }
+
+        $baris = $kueri->orderBy('PenjualanDetail.Id')->offset(($halaman - 1) * $tabel->perHalaman)->limit($tabel->perHalaman)->get();
+
+        return [
+            'Data' => array_values(array_map(fn (stdClass $b): array => self::PetakanDetailItem($b), $baris->all())),
+            'Meta' => ['Halaman' => $halaman, 'PerHalaman' => $tabel->perHalaman, 'Total' => $total, 'JumlahHalaman' => $jumlahHalaman],
+        ];
+    }
+
+    /**
+     * Semua baris detail penjualan per item untuk ekspor, dialirkan per potongan (memori tetap kecil).
+     *
+     * @return \Generator<int, array{Id: int, Nomor: string, Waktu: string, NamaOutlet: string, Kanal: string, NamaProduk: string, Qty: string, HargaSatuan: string, Kotor: string, Diskon: string, Pajak: string, Total: string, Metode: string, NamaKasir: string, Catatan: string}>
+     */
+    public function DetailPerItem(DataSaringLaporanPenjualan $saring, string $cari = ''): \Generator
+    {
+        $kueri = $this->KueriDetailItem($saring, $cari)
+            ->orderBy('Penjualan.TanggalBisnis')->orderBy('Penjualan.DibuatOfflinePada')->orderBy('Penjualan.Id')->orderBy('PenjualanDetail.Urutan');
+        $terakhir = 0;
+
+        while (true) {
+            $potongan = (clone $kueri)->offset($terakhir)->limit(2000)->get();
+
+            if ($potongan->isEmpty()) {
+                return;
+            }
+
+            foreach ($potongan as $baris) {
+                yield self::PetakanDetailItem($baris);
+            }
+
+            $terakhir += $potongan->count();
+        }
+    }
+
+    private function KueriDetailItem(DataSaringLaporanPenjualan $saring, string $cari): KueriDasar
+    {
+        $kueri = PenjualanDetail::query()
+            ->join('Penjualan', fn (JoinClause $j) => $j->on('Penjualan.Id', '=', 'PenjualanDetail.IdPenjualan')->on('Penjualan.IdTenant', '=', 'PenjualanDetail.IdTenant'))
+            ->join('Outlet', 'Outlet.Id', '=', 'Penjualan.IdOutlet')
+            ->join('Pengguna', 'Pengguna.Id', '=', 'Penjualan.IdPengguna')
+            ->where('Penjualan.Status', '!=', StatusPenjualan::Void->value)
+            ->when($cari !== '', function (Builder $k) use ($cari): void {
+                $pola = PenerapKueriTabel::PolaCari($cari);
+                $k->where(fn (Builder $q) => $q->where('PenjualanDetail.NamaProduk', 'like', $pola)->orWhere('Penjualan.Nomor', 'like', $pola));
+            });
+        $this->TerapkanSaringJual($kueri, $saring);
+
+        if ($saring->CekTanpaOutlet()) {
+            $kueri->whereRaw('1 = 0');
+        }
+
+        return $kueri->selectRaw(
+            '`PenjualanDetail`.`Id` AS `Id`, `Penjualan`.`Nomor` AS `Nomor`, `Penjualan`.`DibuatOfflinePada` AS `Waktu`, `Outlet`.`Nama` AS `NamaOutlet`, '
+            .'`Penjualan`.`Kanal` AS `Kanal`, `PenjualanDetail`.`NamaProduk` AS `NamaProduk`, `PenjualanDetail`.`Jumlah` AS `Qty`, '
+            .'`PenjualanDetail`.`HargaSatuan` AS `HargaSatuan`, (`PenjualanDetail`.`Bruto` - `PenjualanDetail`.`JumlahPajak` + `PenjualanDetail`.`PajakEksklusif`) AS `Kotor`, '
+            .'(`PenjualanDetail`.`JumlahDiskon` + `PenjualanDetail`.`JumlahDiskonPesanan`) AS `Diskon`, `PenjualanDetail`.`JumlahPajak` AS `Pajak`, '
+            .'`PenjualanDetail`.`TotalBaris` AS `Total`, `Pengguna`.`Nama` AS `NamaKasir`, COALESCE(`PenjualanDetail`.`Catatan`, \'\') AS `Catatan`, '
+            .'COALESCE((SELECT GROUP_CONCAT(`PenjualanPembayaran`.`NamaMetode` ORDER BY `PenjualanPembayaran`.`Urutan` SEPARATOR \', \') FROM `PenjualanPembayaran` '
+            .'WHERE `PenjualanPembayaran`.`IdPenjualan` = `Penjualan`.`Id`), \'\') AS `Metode`'
+        )->toBase();
+    }
+
+    /**
+     * @return array{Id: int, Nomor: string, Waktu: string, NamaOutlet: string, Kanal: string, NamaProduk: string, Qty: string, HargaSatuan: string, Kotor: string, Diskon: string, Pajak: string, Total: string, Metode: string, NamaKasir: string, Catatan: string}
+     */
+    private static function PetakanDetailItem(stdClass $b): array
+    {
+        $kanal = KanalPenjualan::tryFrom(self::Teks($b->Kanal));
+
+        return [
+            'Id' => (int) $b->Id,
+            'Nomor' => self::Teks($b->Nomor),
+            // Disimpan UTC; dikirim sebagai ISO 8601 agar tampilan dan ekspor memakai zona yang sama.
+            'Waktu' => (new \DateTimeImmutable(self::Teks($b->Waktu), new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z'),
+            'NamaOutlet' => self::Teks($b->NamaOutlet),
+            'Kanal' => $kanal === null ? self::Teks($b->Kanal) : $kanal->AmbilLabel(),
+            'NamaProduk' => self::Teks($b->NamaProduk),
+            'Qty' => Kuantitas::Dari(self::Teks($b->Qty))->KeString(),
+            'HargaSatuan' => Uang::Dari(self::Teks($b->HargaSatuan))->KeString(),
+            'Kotor' => Uang::Dari(self::Teks($b->Kotor))->KeString(),
+            'Diskon' => Uang::Dari(self::Teks($b->Diskon))->KeString(),
+            'Pajak' => Uang::Dari(self::Teks($b->Pajak))->KeString(),
+            'Total' => Uang::Dari(self::Teks($b->Total))->KeString(),
+            'Metode' => self::Teks($b->Metode),
+            'NamaKasir' => self::Teks($b->NamaKasir),
+            'Catatan' => self::Teks($b->Catatan),
         ];
     }
 

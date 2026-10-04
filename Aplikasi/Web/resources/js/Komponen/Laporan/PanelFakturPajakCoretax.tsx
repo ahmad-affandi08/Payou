@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import Panel from '@/Komponen/Kelola/Panel';
-import { TautanEkspor } from '@/Komponen/Laporan/NavigasiTab';
+import { TautanUnduh } from '@/Komponen/Laporan/NavigasiTab';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
 import { FormatRupiah } from '@/Pustaka/Format';
 import { KunciKueri } from '@/Pustaka/KunciKueri';
@@ -42,7 +42,7 @@ export default function PanelFakturPajakCoretax({ query }: { query: Record<strin
             keterangan="Dari faktur penjualan grosir pada periode ini. Unduh XML lalu impor di Coretax; nomor Faktur Pajak diisi Coretax, bukan PAYOU."
             aksi={
                 data?.BisaDiekspor ? (
-                    <TautanEkspor
+                    <TautanUnduh
                         alamat={`${alamatRingkas}/ekspor`}
                         query={query}
                         label={`Unduh XML (${String(data.JumlahSiap)} faktur)`}

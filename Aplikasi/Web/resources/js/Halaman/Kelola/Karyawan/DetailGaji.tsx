@@ -10,6 +10,7 @@ import type { KolomTabel } from '@/Komponen/TabelData/Tipe';
 import PemilihTanggal from '@/Komponen/Tanggal/PemilihTanggal';
 import DialogFormulir from '@/Komponen/Tindakan/DialogFormulir';
 import DialogKonfirmasi from '@/Komponen/Tindakan/DialogKonfirmasi';
+import TombolEkspor from '@/Komponen/Laporan/TombolEkspor';
 import { Button } from '@/Komponen/Ui/button';
 import { DialogFooter } from '@/Komponen/Ui/dialog';
 import { DropdownMenuItem } from '@/Komponen/Ui/dropdown-menu';
@@ -120,9 +121,7 @@ export default function HalamanDetailRekapGaji({ Rekap, Baris, OpsiAkunKasBank, 
                     <Link href={alamatDaftar}>Kembali ke rekap gaji</Link>
                 </Button>
                 <div className="flex flex-wrap gap-2">
-                    <Button asChild variant="outline">
-                        <a href={`${alamat}/ekspor`}>Ekspor CSV</a>
-                    </Button>
+                    <TombolEkspor alamat={`${alamat}/ekspor`} className="h-9" />
                     {Baris.length > 0 ? (
                         <Button asChild variant="outline">
                             <a href={`${alamat}/slip`} target="_blank" rel="noreferrer">

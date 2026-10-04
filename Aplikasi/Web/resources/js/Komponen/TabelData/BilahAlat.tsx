@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
+import TombolEkspor from '@/Komponen/Laporan/TombolEkspor';
 import { Button } from '@/Komponen/Ui/button';
 import Tombol from '@/Komponen/Formulir/Tombol';
 import { Checkbox } from '@/Komponen/Ui/checkbox';
@@ -44,7 +45,7 @@ type PropsBilahAlat<T> = {
     teksCari: string;
     cari: string | false;
     saring: DefinisiSaring[];
-    ekspor?: { alamat: string; label?: string; query: string };
+    ekspor?: { alamat: string; label?: string; query: string; laporan?: boolean };
     aksiAlat?: ReactNode;
     AturCari: (teks: string) => void;
     AturSaring: (id: string, nilai: string) => void;
@@ -296,7 +297,15 @@ export default function BilahAlat<T>(props: PropsBilahAlat<T>) {
             </div>
         );
 
-    const ekspor = props.ekspor ? (
+    // Laporan (D-43): satu tombol dengan pilihan Excel, CSV, dan cetak/PDF; ekspor data lain tetap satu tautan.
+    const ekspor = props.ekspor?.laporan ? (
+        <TombolEkspor
+            alamat={props.ekspor.alamat}
+            query={props.ekspor.query}
+            label={props.ekspor.label ?? 'Ekspor'}
+            className={kelasTombolAlat}
+        />
+    ) : props.ekspor ? (
         <Button asChild variant="outline" className={kelasTombolAlat}>
             <a href={props.ekspor.query === '' ? props.ekspor.alamat : `${props.ekspor.alamat}?${props.ekspor.query}`}>
                 <DownloadIcon aria-hidden="true" className="size-4 text-teks-sekunder" />

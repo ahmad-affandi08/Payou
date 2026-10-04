@@ -276,7 +276,7 @@ export default function HalamanNomorSeri({
                         </h2>
                         {TotalHasil > 0 ? (
                             <span className="ml-auto">
-                                <TautanEkspor alamat={`${alamat}/ekspor`} query={queryEkspor} label="Ekspor CSV" />
+                                <TautanEkspor alamat={`${alamat}/ekspor`} query={queryEkspor} />
                             </span>
                         ) : null}
                     </div>

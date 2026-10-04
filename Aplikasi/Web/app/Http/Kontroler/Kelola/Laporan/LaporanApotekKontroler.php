@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Kontroler\Kelola\Laporan;
 
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Laporan\Kueri\LaporanApotek;
-use App\Domain\Laporan\Layanan\PenulisCsvLaporan;
 use App\Domain\Organisasi\Enum\IzinTenant;
 use App\Domain\Organisasi\Kueri\AksesPengguna;
 use App\Domain\Organisasi\Kueri\PetaUuidOutlet;
@@ -18,7 +19,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Laporan apotek (Sektor Apotek bagian 1, PRD §9.5; `/kelola/laporan/apotek`, izin `laporan.penjualan.lihat`, outlet
@@ -49,37 +50,56 @@ final class LaporanApotekKontroler extends DasarKelolaKontroler
         ]);
     }
 
-    /** Ekspor CSV penjualan obat wajib resep sesuai saringan & cari tabel (maks. 5.000 baris terbaru). */
-    public function EksporResep(Request $permintaan, DaftarPenjualanObatResep $daftar): StreamedResponse
+    /** Ekspor penjualan obat wajib resep sesuai saringan & cari tabel (maks. 5.000 baris terbaru). */
+    public function EksporResep(Request $permintaan, DaftarPenjualanObatResep $daftar): SymfonyResponse
     {
         $baris = $daftar->AmbilSemua(self::BacaTabel($permintaan), $this->IdOutletBoleh(), $this->CekLihatPasien());
-
-        return PenulisCsvLaporan::Alirkan('laporan-obat-wajib-resep', [
-            'Tanggal', 'Nomor penjualan', 'Status', 'Produk', 'Golongan', 'Obat Wajib Apotek', 'Jumlah', 'Satuan', 'Batch',
-            'Dengan resep', 'Nomor resep', 'Tanggal resep', 'Dokter', 'No. SIP dokter', 'Pasien', 'Umur pasien', 'Alamat pasien',
-            'Apoteker', 'Kasir',
-        ], array_map(fn (array $b): array => [
+        $kolom = [
+            new KolomLaporan('Tanggal'), new KolomLaporan('Nomor penjualan'), new KolomLaporan('Status', JenisKolom::Teks, 14),
+            new KolomLaporan('Produk', JenisKolom::Teks, 30), new KolomLaporan('Golongan', JenisKolom::Teks, 18),
+            new KolomLaporan('Obat Wajib Apotek', JenisKolom::Teks, 12), new KolomLaporan('Jumlah', JenisKolom::Kuantitas, 10),
+            new KolomLaporan('Satuan', JenisKolom::Teks, 10), new KolomLaporan('Batch', JenisKolom::Teks, 16),
+            new KolomLaporan('Dengan resep', JenisKolom::Teks, 12), new KolomLaporan('Nomor resep'), new KolomLaporan('Tanggal resep'),
+            new KolomLaporan('Dokter'), new KolomLaporan('No. SIP dokter'), new KolomLaporan('Pasien'),
+            new KolomLaporan('Umur pasien', JenisKolom::Teks, 12), new KolomLaporan('Alamat pasien', JenisKolom::Teks, 32),
+            new KolomLaporan('Apoteker'), new KolomLaporan('Kasir'),
+        ];
+        $isi = array_map(fn (array $b): array => [
             self::Teks($b['Tanggal']), self::Teks($b['Nomor']), self::Teks($b['Status']), self::Teks($b['NamaProduk']),
             self::Teks($b['LabelGolongan']), $b['ObatWajibApotek'] === true ? 'Ya' : 'Tidak', self::Teks($b['Jumlah']),
             self::Teks($b['SimbolSatuan']), self::Teks($b['Batch']), $b['DenganResep'] === true ? 'Ya' : 'Tidak',
             self::Teks($b['NomorResep']), self::Teks($b['TanggalResep']), self::Teks($b['NamaDokter']), self::Teks($b['NoSipDokter']),
             self::Teks($b['NamaPasien']), self::Teks($b['UmurPasien']), self::Teks($b['AlamatPasien']), self::Teks($b['NamaApoteker']),
             self::Teks($b['NamaKasir']),
-        ], $baris));
+        ], $baris);
+
+        return $this->SajikanLaporan($permintaan, 'Laporan Obat Wajib Resep', 'laporan-obat-wajib-resep', $kolom, $isi);
     }
 
-    /** Ekspor CSV data pendukung SIPNAP satu bulan (bukan laporan resmi; diisikan apoteker ke SIPNAP). */
-    public function EksporSipnap(Request $permintaan, LaporanApotek $laporan, PetaUuidOutlet $outlet, TanggalBisnisOutlet $tanggal): StreamedResponse
+    /** Ekspor data pendukung SIPNAP satu bulan (bukan laporan resmi; diisikan apoteker ke SIPNAP). */
+    public function EksporSipnap(Request $permintaan, LaporanApotek $laporan, PetaUuidOutlet $outlet, TanggalBisnisOutlet $tanggal): SymfonyResponse
     {
         [$bulan, , $idOutlet] = $this->BacaSaringSipnap($permintaan, $outlet, $tanggal->Hitung(null));
-
-        return PenulisCsvLaporan::Alirkan("data-pendukung-sipnap-{$bulan->format('Y-m')}", [
-            'Bulan', 'Kode produk (SKU)', 'Nama obat', 'Golongan', 'Prekursor', 'Satuan', 'Stok awal', 'Pemasukan dari pemasok',
-            'Pemasukan lain', 'Pengeluaran penjualan', 'Pengeluaran lain', 'Stok akhir',
-        ], array_map(fn (array $b): array => [
+        $kolom = [
+            new KolomLaporan('Bulan', JenisKolom::Teks, 10), new KolomLaporan('Kode produk (SKU)'), new KolomLaporan('Nama obat', JenisKolom::Teks, 30),
+            new KolomLaporan('Golongan', JenisKolom::Teks, 18), new KolomLaporan('Prekursor', JenisKolom::Teks, 11), new KolomLaporan('Satuan', JenisKolom::Teks, 10),
+            new KolomLaporan('Stok awal', JenisKolom::Kuantitas), new KolomLaporan('Pemasukan dari pemasok', JenisKolom::Kuantitas),
+            new KolomLaporan('Pemasukan lain', JenisKolom::Kuantitas), new KolomLaporan('Pengeluaran penjualan', JenisKolom::Kuantitas),
+            new KolomLaporan('Pengeluaran lain', JenisKolom::Kuantitas), new KolomLaporan('Stok akhir', JenisKolom::Kuantitas),
+        ];
+        $isi = array_map(fn (array $b): array => [
             $bulan->format('Y-m'), $b['Sku'] ?? '', $b['NamaProduk'], $b['LabelGolongan'], $b['Prekursor'] ? 'Ya' : 'Tidak', $b['SimbolSatuan'],
             $b['StokAwal'], $b['PemasukanPemasok'], $b['PemasukanLain'], $b['PengeluaranPenjualan'], $b['PengeluaranLain'], $b['StokAkhir'],
-        ], $laporan->DataSipnap($bulan, $idOutlet)));
+        ], $laporan->DataSipnap($bulan, $idOutlet));
+
+        return $this->SajikanLaporan(
+            $permintaan,
+            'Data Pendukung SIPNAP',
+            "data-pendukung-sipnap-{$bulan->format('Y-m')}",
+            $kolom,
+            $isi,
+            [['Bulan', $bulan->copy()->locale('id')->translatedFormat('F Y')]],
+        );
     }
 
     private function CekLihatPasien(): bool

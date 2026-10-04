@@ -5,14 +5,22 @@ declare(strict_types=1);
 namespace App\Http\Kontroler\Kelola;
 
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
+use App\Domain\Bersama\Laporan\ItemRingkasan;
+use App\Domain\Bersama\Laporan\KolomLaporan;
+use App\Domain\Bersama\Laporan\PembuatDefinisiLaporan;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Organisasi\Kueri\AksesPengguna;
 use App\Domain\Organisasi\Model\Outlet;
 use App\Domain\Organisasi\Model\Pengguna;
 use App\Http\Kontroler\Kontroler;
+use App\Http\Respons\PenyajiLaporan;
+use Carbon\CarbonInterface;
+use Closure;
+use DateTimeInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Bantuan bersama kontroler back-office F-02: pelaku yang masuk, tenant aktif, dan pencarian data lewat ID publik
@@ -73,5 +81,61 @@ abstract class DasarKelolaKontroler extends Kontroler
                 ->with('Kilat', 'Draf disimpan.')
                 ->withErrors(['Umum' => 'Belum diproses: '.$galat->getMessage()]);
         }
+    }
+
+    /**
+     * Menyajikan laporan sebagai Excel, CSV, atau halaman cetak sesuai `?format=` dengan kop yang sama di semua laporan
+     * (D-43): judul, nama usaha & logo, cakupan outlet, saringan, ringkasan, tabel, dan jejak waktu.
+     *
+     * @param  list<KolomLaporan>  $kolom
+     * @param  iterable<list<string|int|DateTimeInterface|null>>|Closure(): iterable<list<string|int|DateTimeInterface|null>>  $baris
+     * @param  list<array{0: string, 1: string}>  $saringan
+     * @param  list<ItemRingkasan>|null  $ringkasan  null = jumlah kolom `jumlahkan` dan jumlah baris
+     */
+    protected function SajikanLaporan(
+        Request $permintaan,
+        string $judul,
+        string $namaBerkas,
+        array $kolom,
+        iterable|Closure $baris,
+        array $saringan = [],
+        ?array $ringkasan = null,
+        string $cakupan = 'Semua Outlet',
+        ?DateTimeInterface $dataTerakhir = null,
+    ): SymfonyResponse {
+        // Generator hanya bisa dibaca sekali, sedangkan laporan membaca baris lebih dari sekali (ringkasan, lalu tulis).
+        $isi = $baris instanceof \Generator ? iterator_to_array($baris, false) : $baris;
+        $sumber = $isi instanceof Closure ? $isi : static fn (): iterable => $isi;
+        $definisi = app(PembuatDefinisiLaporan::class)->Buat(
+            idTenant: $this->IdTenant(),
+            judul: $judul,
+            namaBerkas: $namaBerkas,
+            cakupan: $cakupan,
+            saringan: $saringan,
+            ringkasan: $ringkasan,
+            kolom: $kolom,
+            baris: $sumber,
+            dataTerakhir: $dataTerakhir,
+        );
+
+        return PenyajiLaporan::Sajikan($permintaan, $definisi);
+    }
+
+    /** "01 Oktober 2026 - 04 Oktober 2026" untuk blok saringan kop laporan. */
+    protected function LabelPeriode(CarbonInterface $dari, CarbonInterface $sampai): string
+    {
+        $format = static fn (CarbonInterface $t): string => $t->copy()->locale('id')->translatedFormat('d F Y');
+
+        return $format($dari).' - '.$format($sampai);
+    }
+
+    /** Cakupan outlet di kop laporan: nama outlet yang dipilih, atau "Semua Outlet" / "Outlet yang Anda kelola". */
+    protected function LabelCakupan(string $namaOutletDipilih = ''): string
+    {
+        if ($namaOutletDipilih !== '') {
+            return $namaOutletDipilih;
+        }
+
+        return $this->IdOutletBoleh() === null ? 'Semua Outlet' : 'Outlet yang Anda kelola';
     }
 }

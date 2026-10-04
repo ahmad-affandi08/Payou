@@ -1,6 +1,7 @@
 import { DownloadIcon } from 'lucide-react';
 
 import TabTautan from '@/Komponen/Navigasi/TabTautan';
+import TombolEkspor, { type FormatEkspor } from '@/Komponen/Laporan/TombolEkspor';
 import { Button } from '@/Komponen/Ui/button';
 import { BuatQueryLaporan } from '@/Pustaka/Laporan';
 
@@ -31,15 +32,37 @@ export default function NavigasiTab({ label, alamat, query, tabAktif, tab }: Pro
     );
 }
 
-/** Tautan unduh CSV laporan sesuai saring halaman. */
+/** Tombol ekspor laporan sesuai saring halaman: Excel, CSV (data mentah), dan cetak/PDF (D-43). */
 export function TautanEkspor({
     alamat,
     query,
-    label = 'Ekspor CSV',
+    label = 'Ekspor',
+    format,
 }: {
     alamat: string;
     query: Record<string, string>;
     label?: string;
+    format?: readonly FormatEkspor[];
+}) {
+    return (
+        <TombolEkspor
+            alamat={alamat}
+            query={BuatQueryLaporan(query)}
+            label={label}
+            {...(format === undefined ? {} : { format })}
+        />
+    );
+}
+
+/** Tautan unduh satu berkas berformat tetap (XML Coretax, CSV nota retur): bukan laporan Excel/CSV/cetak. */
+export function TautanUnduh({
+    alamat,
+    query,
+    label,
+}: {
+    alamat: string;
+    query: Record<string, string>;
+    label: string;
 }) {
     const teksQuery = BuatQueryLaporan(query);
 

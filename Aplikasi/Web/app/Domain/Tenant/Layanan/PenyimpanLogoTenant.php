@@ -37,6 +37,14 @@ final class PenyimpanLogoTenant
         }
     }
 
+    /** Isi mentah logo untuk kop laporan; null bila berkasnya tidak ada. */
+    public function Baca(string $path): ?string
+    {
+        $disk = $this->AmbilDisk();
+
+        return $disk->exists($path) ? $disk->get($path) : null;
+    }
+
     public function Unduh(string $path): StreamedResponse
     {
         abort_unless($this->AmbilDisk()->exists($path), 404);

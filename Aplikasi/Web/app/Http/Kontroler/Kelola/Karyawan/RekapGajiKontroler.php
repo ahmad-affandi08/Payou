@@ -6,6 +6,8 @@ namespace App\Http\Kontroler\Kelola\Karyawan;
 
 use App\Domain\Akuntansi\Enum\TipeAkun;
 use App\Domain\Akuntansi\Kueri\DaftarAkunPilihan;
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Bersama\Nilai\Uang;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Karyawan\Aksi\KelolaRekapGaji;
@@ -21,7 +23,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Rekap gaji bulanan (F-18 bagian 3, `/kelola/karyawan/gaji`). Seluruhnya butuh `karyawan.kelola` karena memuat gaji.
@@ -127,32 +129,27 @@ final class RekapGajiKontroler extends DasarKelolaKontroler
         ]);
     }
 
-    public function Ekspor(string $rekap, DaftarRekapGaji $daftar): StreamedResponse
+    public function Ekspor(Request $permintaan, string $rekap, DaftarRekapGaji $daftar): SymfonyResponse
     {
         $model = RekapGaji::query()->where('Uuid', $rekap)->firstOrFail();
         $detail = $daftar->AmbilDetail($model);
-        $kolom = ['Nama', 'Jabatan', 'GajiPokok', 'Komisi', 'Tambahan', 'Kotor', 'PotonganKasbon', 'PotonganLain', 'Bersih', 'Catatan'];
+        $kunci = ['Nama', 'Jabatan', 'GajiPokok', 'Komisi', 'Tambahan', 'Kotor', 'PotonganKasbon', 'PotonganLain', 'Bersih', 'Catatan'];
+        $kolom = [
+            new KolomLaporan('Nama'), new KolomLaporan('Jabatan'),
+            new KolomLaporan('Gaji pokok', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Komisi', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Tambahan', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Kotor', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Potongan kasbon', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Potongan lain', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Bersih', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Catatan', JenisKolom::Teks, 30),
+        ];
+        $isi = array_map(fn (array $b): array => array_map(fn (string $k): string => (string) ($b[$k] ?? ''), $kunci), $detail['Baris']);
 
-        return response()->streamDownload(function () use ($detail, $kolom): void {
-            $keluaran = fopen('php://output', 'w');
-
-            if ($keluaran === false) {
-                return;
-            }
-
-            fputcsv($keluaran, $kolom, escape: '');
-
-            foreach ($detail['Baris'] as $b) {
-                fputcsv($keluaran, array_map(fn (string $k): string => self::AmankanSel((string) ($b[$k] ?? '')), $kolom), escape: '');
-            }
-
-            fclose($keluaran);
-        }, "RekapGaji-{$model->Periode}.csv", ['Content-Type' => 'text/csv; charset=UTF-8']);
-    }
-
-    /** Cegah injeksi rumus spreadsheet pada teks bebas (nama, catatan). */
-    private static function AmankanSel(string $nilai): string
-    {
-        return $nilai !== '' && in_array($nilai[0], ['=', '+', '-', '@'], true) && ! is_numeric($nilai) ? "'".$nilai : $nilai;
+        return $this->SajikanLaporan(
+            $permintaan,
+            'Rekap Gaji',
+            "rekap-gaji-{$model->Periode}",
+            $kolom,
+            $isi,
+            [['Periode', (string) $model->Periode]],
+        );
     }
 }

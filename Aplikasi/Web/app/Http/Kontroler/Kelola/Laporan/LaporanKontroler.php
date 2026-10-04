@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Kontroler\Kelola\Laporan;
 
+use App\Domain\Bersama\Laporan\ItemRingkasan;
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
+use App\Domain\Bersama\Laporan\PembuatDefinisiLaporan;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
 use App\Domain\Laporan\Aksi\UbahLanggananInsightMingguan;
@@ -48,7 +52,9 @@ final class LaporanKontroler extends DasarKelolaKontroler
     public function Penjualan(Request $permintaan, LaporanPenjualan $laporan, TanggalBisnisOutlet $tanggal, AksesPengguna $akses, LanggananInsight $langganan): Response|JsonResponse
     {
         $saring = $laporan->BacaSaring($permintaan->query(), $this->IdOutletBoleh(), $tanggal->Hitung(null));
-        $tabel = DataPermintaanTabel::Dari($permintaan->query(), AgregatPenjualan::KOLOM_URUT_PRODUK, AgregatPenjualan::URUT_BAWAAN_PRODUK);
+        $tabel = $saring['Tab'] === 'detail'
+            ? DataPermintaanTabel::Dari($permintaan->query(), AgregatPenjualan::KOLOM_URUT_DETAIL, AgregatPenjualan::URUT_BAWAAN_DETAIL)
+            : DataPermintaanTabel::Dari($permintaan->query(), AgregatPenjualan::KOLOM_URUT_PRODUK, AgregatPenjualan::URUT_BAWAAN_PRODUK);
 
         if (ResponsTabel::MintaData($permintaan)) {
             return response()->json($laporan->AmbilIsiTab($saring['Tab'], $saring['Saring'], $tabel));
@@ -80,14 +86,37 @@ final class LaporanKontroler extends DasarKelolaKontroler
         return back()->with('Kilat', $aktif ? 'Insight penjualan dikirim ke WhatsApp Anda setiap Senin pagi.' : 'Insight mingguan lewat WhatsApp dimatikan.');
     }
 
-    public function EksporPenjualan(Request $permintaan, LaporanPenjualan $laporan, TanggalBisnisOutlet $tanggal): StreamedResponse
+    private const JUDUL_TAB_PENJUALAN = [
+        'harian' => 'Ringkasan Harian', 'detail' => 'Detail Penjualan', 'produk' => 'Penjualan per Produk', 'kategori' => 'Penjualan per Kategori',
+        'jam' => 'Penjualan per Jam', 'kasir' => 'Penjualan per Kasir', 'kanal' => 'Penjualan per Kanal', 'metode' => 'Metode Pembayaran',
+        'diskon' => 'Diskon per Kasir', 'anti-fraud' => 'Anti-fraud Kasir', 'abc' => 'Analisis ABC', 'menu' => 'Menu Engineering',
+    ];
+
+    public function EksporPenjualan(Request $permintaan, LaporanPenjualan $laporan, TanggalBisnisOutlet $tanggal): SymfonyResponse
     {
         $saring = $laporan->BacaSaring($permintaan->query(), $this->IdOutletBoleh(), $tanggal->Hitung(null));
         $cari = is_string($permintaan->query('cari')) ? mb_substr(trim($permintaan->query('cari')), 0, 100) : '';
-        [$judul, $baris] = $laporan->AmbilEkspor($saring['Tab'], $saring['Saring'], $cari);
+        [$kolom, $baris] = $laporan->AmbilEkspor($saring['Tab'], $saring['Saring'], $cari);
         $periode = $saring['Periode'];
+        $label = $laporan->AmbilLabelSaringan($saring, $this->IdOutletBoleh());
+        $judulTab = self::JUDUL_TAB_PENJUALAN[$saring['Tab']] ?? 'Penjualan';
 
-        return PenulisCsvLaporan::Alirkan("laporan-penjualan-{$saring['Tab']}-{$periode->dari->toDateString()}-{$periode->sampai->toDateString()}", $judul, $baris);
+        return $this->SajikanLaporan(
+            $permintaan,
+            $saring['Tab'] === 'detail' ? 'Detail Penjualan' : "Laporan Penjualan | {$judulTab}",
+            PembuatDefinisiLaporan::NamaBerkas('laporan-penjualan', $saring['Tab'], $periode->dari->toDateString(), $periode->sampai->toDateString()),
+            $kolom,
+            $baris,
+            [
+                ['Periode', $this->LabelPeriode($periode->dari, $periode->sampai)],
+                ['Jenis Order', $label['Kanal']],
+                ['Kasir', $label['Kasir']],
+                ['Pencarian', $cari === '' ? '-' : $cari],
+            ],
+            $laporan->RingkasanPeriode($saring['Saring']),
+            $this->LabelCakupan($label['Outlet']),
+            $laporan->WaktuTerakhirDiterima($saring['Saring']),
+        );
     }
 
     public function Pajak(Request $permintaan, LaporanPajak $laporan, PetaUuidOutlet $outlet, TanggalBisnisOutlet $tanggal): Response
@@ -102,20 +131,42 @@ final class LaporanKontroler extends DasarKelolaKontroler
         ]);
     }
 
-    public function EksporPajak(Request $permintaan, LaporanPajak $laporan, PetaUuidOutlet $outlet, TanggalBisnisOutlet $tanggal): StreamedResponse
+    public function EksporPajak(Request $permintaan, LaporanPajak $laporan, PetaUuidOutlet $outlet, TanggalBisnisOutlet $tanggal): SymfonyResponse
     {
-        [$periode, , $idOutlet] = $this->BacaSaringPajak($permintaan, $outlet, $tanggal->Hitung(null));
+        [$periode, $uuidOutlet, $idOutlet] = $this->BacaSaringPajak($permintaan, $outlet, $tanggal->Hitung(null));
         $isi = $laporan->Ambil($periode->dari, $periode->sampai, $idOutlet);
         $ppn = $permintaan->query('jenis') === 'ppn';
-        $kolom = $ppn
+        $pilih = $ppn
             ? ['Bulan', 'NamaJenisPajak', 'Tarif', 'Dpp', 'Pajak', 'DppRetur', 'PajakRetur', 'DppBersih', 'PajakBersih', 'JumlahTransaksi']
             : ['Bulan', 'NamaOutlet', 'NamaJenisPajak', 'Tarif', 'Dpp', 'Pajak', 'DppRetur', 'PajakRetur', 'DppBersih', 'PajakBersih', 'JumlahTransaksi'];
-        $judul = $ppn
-            ? ['Bulan', 'Jenis pajak', 'Tarif (%)', 'DPP', 'Pajak', 'DPP retur', 'Pajak retur', 'DPP bersih', 'Pajak bersih', 'Jumlah transaksi']
-            : ['Bulan', 'Outlet', 'Jenis pajak', 'Tarif (%)', 'DPP', 'Pajak', 'DPP retur', 'Pajak retur', 'DPP bersih', 'Pajak bersih', 'Jumlah transaksi'];
-        $baris = array_map(fn (array $b): array => array_map(fn (string $k): string|int|null => self::Sel($b[$k] ?? null), $kolom), $ppn ? $isi['Ppn'] : $isi['Pbjt']);
+        $angka = [
+            new KolomLaporan('Tarif (%)', JenisKolom::Persen), new KolomLaporan('DPP', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Pajak', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('DPP retur', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Pajak retur', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('DPP bersih', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Pajak bersih', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Jumlah transaksi', JenisKolom::Bilangan, jumlahkan: true),
+        ];
+        $kolom = $ppn
+            ? [new KolomLaporan('Bulan'), new KolomLaporan('Jenis pajak', JenisKolom::Teks, 26), ...$angka]
+            : [new KolomLaporan('Bulan'), new KolomLaporan('Outlet', JenisKolom::Teks, 26), new KolomLaporan('Jenis pajak', JenisKolom::Teks, 26), ...$angka];
+        $baris = array_map(fn (array $b): array => array_map(fn (string $k): string|int|null => self::Sel($b[$k] ?? null), $pilih), $ppn ? $isi['Ppn'] : $isi['Pbjt']);
+        $namaOutlet = '';
 
-        return PenulisCsvLaporan::Alirkan('laporan-pajak-'.($ppn ? 'ppn' : 'pbjt')."-{$periode->dari->toDateString()}-{$periode->sampai->toDateString()}", $judul, $baris);
+        foreach ($outlet->AmbilRingkas($this->IdOutletBoleh()) as $o) {
+            if ($uuidOutlet !== '' && $o['Uuid'] === $uuidOutlet) {
+                $namaOutlet = $o['Nama'];
+            }
+        }
+
+        return $this->SajikanLaporan(
+            $permintaan,
+            $ppn ? 'Laporan Pajak | PPN Keluaran' : 'Laporan Pajak | PB1/PBJT',
+            PembuatDefinisiLaporan::NamaBerkas('laporan-pajak', $ppn ? 'ppn' : 'pbjt', $periode->dari->toDateString(), $periode->sampai->toDateString()),
+            $kolom,
+            $baris,
+            [['Periode', $this->LabelPeriode($periode->dari, $periode->sampai)]],
+            null,
+            $this->LabelCakupan($namaOutlet),
+        );
     }
 
     /** Ringkasan kesiapan ekspor Faktur Pajak Coretax untuk periode & outlet terpilih (JSON; dimuat panel di halaman pajak). */
@@ -186,35 +237,74 @@ final class LaporanKontroler extends DasarKelolaKontroler
         ]);
     }
 
-    public function EksporStok(Request $permintaan, LaporanStok $laporan, TanggalBisnisOutlet $tanggal): StreamedResponse
+    public function EksporStok(Request $permintaan, LaporanStok $laporan, TanggalBisnisOutlet $tanggal): SymfonyResponse
     {
         [$tab, $pada, $uuidGudang, $hari] = $this->BacaSaringStok($permintaan, $tanggal->Hitung(null));
+        $namaGudang = 'Semua Lokasi Stok';
+
+        foreach ($laporan->AmbilGudang($this->IdOutletBoleh()) as $g) {
+            if ($uuidGudang !== '' && $g->uuid === $uuidGudang) {
+                $namaGudang = $g->namaOutlet === null ? $g->nama : "{$g->nama} ({$g->namaOutlet})";
+            }
+        }
+
+        $t = static fn (string $judul, int $lebar = 0): KolomLaporan => new KolomLaporan($judul, JenisKolom::Teks, $lebar > 0 ? $lebar : null);
+        $q = static fn (string $judul): KolomLaporan => new KolomLaporan($judul, JenisKolom::Kuantitas);
+        $n = static fn (string $judul): KolomLaporan => new KolomLaporan($judul, JenisKolom::Bilangan);
+        $saringanGudang = ['Lokasi Stok', $namaGudang];
 
         if ($tab === 'restock') {
             $isi = $laporan->SaranRestock($this->IdOutletBoleh(), $tanggal->Hitung(null), $uuidGudang, $hari)['Baris'];
 
-            return PenulisCsvLaporan::Alirkan("laporan-saran-restock-{$hari}-hari", ['Produk', 'SKU', 'Satuan', 'Lokasi stok', 'Outlet', 'Terpakai 28 hari', 'Rata-rata per hari', 'Faktor musim', 'Perkiraan per hari', 'Saldo', 'Habis dalam (hari)', 'Saran beli'], array_map(
-                fn (array $b): array => [$b['NamaProduk'], $b['Sku'], $b['SimbolSatuan'], $b['NamaGudang'], $b['NamaOutlet'], $b['Pakai'], $b['RataPerHari'], $b['FaktorMusim'], $b['RataPerkiraan'], $b['Saldo'], $b['HariHabis'], $b['SaranBeli']],
-                $isi,
-            ));
+            return $this->SajikanLaporan(
+                $permintaan,
+                'Laporan Stok | Saran Restock',
+                "laporan-saran-restock-{$hari}-hari",
+                [$t('Produk', 32), $t('SKU', 16), $t('Satuan', 10), $t('Lokasi stok', 22), $t('Outlet', 22), $q('Terpakai 28 hari'), $q('Rata-rata per hari'), new KolomLaporan('Faktor musim', JenisKolom::Kuantitas), $q('Perkiraan per hari'), $q('Saldo'), $n('Habis dalam (hari)'), $q('Saran beli')],
+                array_map(
+                    fn (array $b): array => [$b['NamaProduk'], $b['Sku'], $b['SimbolSatuan'], $b['NamaGudang'], $b['NamaOutlet'], $b['Pakai'], $b['RataPerHari'], $b['FaktorMusim'], $b['RataPerkiraan'], $b['Saldo'], $b['HariHabis'], $b['SaranBeli']],
+                    $isi,
+                ),
+                [['Tanggal', $this->LabelPeriode($tanggal->Hitung(null), $tanggal->Hitung(null))], $saringanGudang, ['Cakupan', "{$hari} hari ke depan"]],
+                null,
+                $this->LabelCakupan(),
+            );
         }
 
         if ($tab === 'kritis') {
             $isi = $laporan->StokKritis($this->IdOutletBoleh(), $uuidGudang)['Baris'];
 
-            return PenulisCsvLaporan::Alirkan('laporan-stok-kritis', ['Produk', 'SKU', 'Satuan', 'Lokasi stok', 'Outlet', 'Saldo', 'Stok minimum', 'Kekurangan'], array_map(
-                fn (array $b): array => [$b['NamaProduk'], $b['Sku'], $b['SimbolSatuan'], $b['NamaGudang'], $b['NamaOutlet'], $b['Saldo'], $b['StokMinimum'], $b['Kekurangan']],
-                $isi,
-            ));
+            return $this->SajikanLaporan(
+                $permintaan,
+                'Laporan Stok | Stok Kritis',
+                'laporan-stok-kritis',
+                [$t('Produk', 32), $t('SKU', 16), $t('Satuan', 10), $t('Lokasi stok', 22), $t('Outlet', 22), $q('Saldo'), $q('Stok minimum'), $q('Kekurangan')],
+                array_map(
+                    fn (array $b): array => [$b['NamaProduk'], $b['Sku'], $b['SimbolSatuan'], $b['NamaGudang'], $b['NamaOutlet'], $b['Saldo'], $b['StokMinimum'], $b['Kekurangan']],
+                    $isi,
+                ),
+                [['Per Tanggal', $this->LabelPeriode($tanggal->Hitung(null), $tanggal->Hitung(null))], $saringanGudang],
+                null,
+                $this->LabelCakupan(),
+            );
         }
 
         if ($tab === 'kedaluwarsa') {
             $isi = $laporan->BatchKedaluwarsa($this->IdOutletBoleh(), $tanggal->Hitung(null), $uuidGudang)['Baris'];
 
-            return PenulisCsvLaporan::Alirkan('laporan-batch-kedaluwarsa', ['Produk', 'SKU', 'Satuan', 'Nomor batch', 'Lokasi stok', 'Outlet', 'Kedaluwarsa', 'Sisa hari', 'Status', 'Sisa'], array_map(
-                fn (array $b): array => [$b['NamaProduk'], $b['Sku'], $b['SimbolSatuan'], $b['NomorBatch'], $b['NamaGudang'], $b['NamaOutlet'], $b['TanggalKedaluwarsa'], $b['SisaHari'], $b['Status'], $b['Sisa']],
-                $isi,
-            ));
+            return $this->SajikanLaporan(
+                $permintaan,
+                'Laporan Stok | Batch Kedaluwarsa',
+                'laporan-batch-kedaluwarsa',
+                [$t('Produk', 32), $t('SKU', 16), $t('Satuan', 10), $t('Nomor batch', 18), $t('Lokasi stok', 22), $t('Outlet', 22), new KolomLaporan('Kedaluwarsa', JenisKolom::Tanggal), $n('Sisa hari'), $t('Status', 14), $q('Sisa')],
+                array_map(
+                    fn (array $b): array => [$b['NamaProduk'], $b['Sku'], $b['SimbolSatuan'], $b['NomorBatch'], $b['NamaGudang'], $b['NamaOutlet'], $b['TanggalKedaluwarsa'], $b['SisaHari'], $b['Status'], $b['Sisa']],
+                    $isi,
+                ),
+                [['Per Tanggal', $this->LabelPeriode($tanggal->Hitung(null), $tanggal->Hitung(null))], $saringanGudang],
+                null,
+                $this->LabelCakupan(),
+            );
         }
 
         $isi = $laporan->NilaiPersediaan($pada, $this->IdOutletBoleh(), $uuidGudang);
@@ -223,7 +313,19 @@ final class LaporanKontroler extends DasarKelolaKontroler
             ...array_map(fn (array $b): array => ['Kategori', $b['NamaKategori'], $b['JumlahProduk'], $b['Nilai']], $isi['PerKategori']),
         ];
 
-        return PenulisCsvLaporan::Alirkan("laporan-nilai-persediaan-{$pada->toDateString()}", ['Kelompok', 'Nama', 'Jumlah produk', 'Nilai persediaan'], $baris);
+        return $this->SajikanLaporan(
+            $permintaan,
+            'Laporan Stok | Nilai Persediaan',
+            "laporan-nilai-persediaan-{$pada->toDateString()}",
+            [$t('Kelompok', 16), $t('Nama', 40), $n('Jumlah produk'), new KolomLaporan('Nilai persediaan', JenisKolom::Uang)],
+            $baris,
+            [['Per Tanggal', $this->LabelPeriode($pada, $pada)], $saringanGudang],
+            [
+                new ItemRingkasan('Total Nilai Persediaan', (string) ($isi['Total']['Nilai'] ?? '0.00'), JenisKolom::Uang),
+                new ItemRingkasan('Jumlah Produk', (int) ($isi['Total']['JumlahProduk'] ?? 0), JenisKolom::Bilangan),
+            ],
+            $this->LabelCakupan(),
+        );
     }
 
     /**

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Kontroler\Kelola\Akuntansi;
 
 use App\Domain\Akuntansi\Kueri\DaftarAkunPilihan;
-use App\Domain\Akuntansi\Layanan\PenulisCsvLaporan;
 use App\Domain\Bersama\Dokumen\Enum\StatusDokumenTerposting;
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Penjualan\Aksi\BatalkanPencairan;
 use App\Domain\Penjualan\Aksi\BuatPencairan;
@@ -23,7 +24,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Pencairan dana non-tunai (F-08, BR-08.4, J-08.1, `/kelola/akuntansi/pencairan`): lihat `laporan.keuangan.lihat`,
@@ -51,19 +52,22 @@ final class PencairanKontroler extends DasarAkuntansiKontroler
     }
 
     /**
-     * Ekspor CSV rekap potongan platform untuk **saringan yang sama** dengan daftar (tanggal, metode, status dibaca dari
-     * query yang sama), supaya angka yang dibawa ke platform persis angka di layar. Uang sebagai angka desimal titik.
+     * Ekspor rekap potongan platform untuk **saringan yang sama** dengan daftar (tanggal, metode, status dibaca dari
+     * query yang sama), supaya angka yang dibawa ke platform persis angka di layar.
      */
-    public function EksporRekapPotongan(Request $permintaan, DaftarPencairan $daftar): StreamedResponse
+    public function EksporRekapPotongan(Request $permintaan, DaftarPencairan $daftar): SymfonyResponse
     {
         $tabel = DataPermintaanTabel::Dari($permintaan->query(), DaftarPencairan::KOLOM_URUT, DaftarPencairan::URUT_BAWAAN, DaftarPencairan::KOLOM_SARING);
         $rekap = $daftar->RekapPotongan($tabel, $this->IdOutletBoleh());
+        $kolom = [
+            new KolomLaporan('Metode', JenisKolom::Teks, 28), new KolomLaporan('Jumlah pencairan', JenisKolom::Bilangan, jumlahkan: true),
+            new KolomLaporan('Diserahkan', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Dipotong', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Perkiraan potongan', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Selisih', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Persen efektif', JenisKolom::Persen),
+        ];
+        $isi = array_map(fn (array $r): array => [$r['Nama'], (string) $r['Jumlah'], $r['JumlahKotor'], $r['Biaya'], $r['BiayaDiharapkan'], $r['Selisih'], $r['PersenEfektif']], $rekap);
 
-        return PenulisCsvLaporan::Alirkan(
-            'rekap-potongan-pencairan',
-            ['Metode', 'Jumlah pencairan', 'Diserahkan', 'Dipotong', 'Perkiraan potongan', 'Selisih', 'Persen efektif'],
-            array_map(fn (array $r): array => [$r['Nama'], (string) $r['Jumlah'], $r['JumlahKotor'], $r['Biaya'], $r['BiayaDiharapkan'], $r['Selisih'], $r['PersenEfektif']], $rekap),
-        );
+        return $this->SajikanLaporan($permintaan, 'Rekap Potongan Pencairan', 'rekap-potongan-pencairan', $kolom, $isi);
     }
 
     /**

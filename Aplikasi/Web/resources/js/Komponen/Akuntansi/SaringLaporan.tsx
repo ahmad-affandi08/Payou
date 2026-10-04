@@ -1,10 +1,9 @@
 import { router } from '@inertiajs/react';
-import { DownloadIcon } from 'lucide-react';
 
 import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
 import type { OpsiPilihan } from '@/Komponen/Formulir/PilihanCari';
+import TombolEkspor from '@/Komponen/Laporan/TombolEkspor';
 import PemilihRentangTanggal from '@/Komponen/Tanggal/PemilihRentangTanggal';
-import { Button } from '@/Komponen/Ui/button';
 import { GabungRentang, PecahRentang } from '@/Pustaka/Tanggal';
 import type { SaringLaporanKeuangan } from '@/Tipe/Akuntansi';
 
@@ -34,7 +33,7 @@ type PropsSaringLaporan = {
     opsiOutlet: { Uuid: string; Nama: string }[];
     /** Buku besar: pilihan akun (wajib dipilih sebelum mutasi tampil). */
     opsiAkun?: OpsiPilihan[];
-    /** Tautan unduh CSV dengan saringan yang sama; null = belum bisa diekspor. */
+    /** Tautan ekspor (alamat + query saringan) untuk tombol Excel/CSV/cetak; null = belum bisa diekspor. */
     ekspor?: string | null;
 };
 
@@ -91,17 +90,13 @@ export default function SaringLaporan({ alamat, saring, opsiOutlet, opsiAkun, ek
             {ekspor !== undefined ? (
                 <div className="flex lg:justify-end">
                     {ekspor === null ? (
-                        <Button type="button" variant="outline" disabled className="w-full sm:w-auto">
-                            <DownloadIcon aria-hidden="true" className="size-4" />
-                            Ekspor CSV
-                        </Button>
+                        <TombolEkspor alamat="" nonaktif className="w-full sm:w-auto" />
                     ) : (
-                        <Button asChild variant="outline" className="w-full sm:w-auto">
-                            <a href={ekspor}>
-                                <DownloadIcon aria-hidden="true" className="size-4" />
-                                Ekspor CSV
-                            </a>
-                        </Button>
+                        <TombolEkspor
+                            alamat={ekspor.split('?')[0] ?? ekspor}
+                            query={ekspor.includes('?') ? ekspor.slice(ekspor.indexOf('?') + 1) : ''}
+                            className="w-full sm:w-auto"
+                        />
                     )}
                 </div>
             ) : null}

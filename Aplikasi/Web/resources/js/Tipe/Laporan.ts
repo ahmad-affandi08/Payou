@@ -80,7 +80,18 @@ export type DasborPemilik = {
 };
 
 export type TabLaporanPenjualan =
-    'harian' | 'produk' | 'kategori' | 'jam' | 'kasir' | 'kanal' | 'metode' | 'diskon' | 'anti-fraud' | 'abc' | 'menu';
+    | 'harian'
+    | 'detail'
+    | 'produk'
+    | 'kategori'
+    | 'jam'
+    | 'kasir'
+    | 'kanal'
+    | 'metode'
+    | 'diskon'
+    | 'anti-fraud'
+    | 'abc'
+    | 'menu';
 
 export type SaringLaporanPenjualan = {
     Tab: TabLaporanPenjualan;
@@ -92,6 +103,24 @@ export type SaringLaporanPenjualan = {
 };
 
 export type BarisHarian = AngkaPenjualan & { Tanggal: string };
+/** Satu baris keranjang pada tab Detail penjualan (D-43). `Waktu` ISO 8601 UTC. */
+export type BarisDetailPenjualan = {
+    Id: number;
+    Nomor: string;
+    Waktu: string;
+    NamaOutlet: string;
+    Kanal: string;
+    NamaProduk: string;
+    Qty: string;
+    HargaSatuan: string;
+    Kotor: string;
+    Diskon: string;
+    Pajak: string;
+    Total: string;
+    Metode: string;
+    NamaKasir: string;
+    Catatan: string;
+};
 export type BarisProdukLaporan = {
     IdProduk: number;
     NamaProduk: string;
@@ -209,6 +238,7 @@ export type PropsLaporanPenjualan = {
     Isi:
         | BarisHarian[]
         | HasilTabel<BarisProdukLaporan>
+        | HasilTabel<BarisDetailPenjualan>
         | BarisKategoriLaporan[]
         | IsiJam
         | BarisKasirLaporan[]

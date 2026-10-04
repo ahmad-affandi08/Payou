@@ -8,11 +8,12 @@ import SaringLaporan from '@/Komponen/Laporan/SaringLaporan';
 import LabelStatus from '@/Komponen/Umpan/LabelStatus';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
 import { FormatRupiah } from '@/Pustaka/Format';
-import { FormatTanggal } from '@/Pustaka/FormatWaktu';
+import { FormatTanggal, FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 import type {
     BarisAbcLaporan,
     BarisAntiFraudLaporan,
+    BarisDetailPenjualan,
     BarisDiskonLaporan,
     BarisHarian,
     BarisKanalLaporan,
@@ -33,6 +34,7 @@ const alamat = '/kelola/laporan/penjualan';
 
 const daftarTab: { nilai: TabLaporanPenjualan; label: string }[] = [
     { nilai: 'harian', label: 'Ringkasan harian' },
+    { nilai: 'detail', label: 'Detail penjualan' },
     { nilai: 'produk', label: 'Per produk' },
     { nilai: 'kategori', label: 'Per kategori' },
     { nilai: 'jam', label: 'Per jam' },
@@ -69,6 +71,61 @@ const kolomProduk: KolomTabel<BarisProdukLaporan>[] = [
     KolomQty<BarisProdukLaporan>('Qty', 'Qty'),
     ...KolomAngkaPenjualan<BarisProdukLaporan>(),
     KolomBilangan<BarisProdukLaporan>('JumlahTransaksi', 'Transaksi'),
+];
+
+const kolomDetail: KolomTabel<BarisDetailPenjualan>[] = [
+    {
+        id: 'Nomor',
+        accessorKey: 'Nomor',
+        header: 'No transaksi',
+        meta: { label: 'No transaksi', prioritas: 'utama', wajib: true, kelasSel: 'font-mono whitespace-nowrap' },
+    },
+    {
+        id: 'Waktu',
+        accessorKey: 'Waktu',
+        header: 'Waktu',
+        meta: { label: 'Waktu', prioritas: 'penting', kelasSel: 'whitespace-nowrap text-teks-sekunder' },
+        cell: ({ row }) => FormatTanggalWaktu(row.original.Waktu),
+    },
+    {
+        id: 'NamaProduk',
+        accessorKey: 'NamaProduk',
+        header: 'Produk',
+        meta: { label: 'Produk', prioritas: 'utama' },
+    },
+    KolomQty<BarisDetailPenjualan>('Qty', 'Qty'),
+    KolomUang<BarisDetailPenjualan>('HargaSatuan', 'Harga satuan', 'rendah'),
+    KolomUang<BarisDetailPenjualan>('Kotor', 'Kotor', 'rendah'),
+    KolomUang<BarisDetailPenjualan>('Diskon', 'Diskon', 'rendah'),
+    KolomUang<BarisDetailPenjualan>('Total', 'Total', 'penting'),
+    {
+        id: 'Metode',
+        accessorKey: 'Metode',
+        header: 'Metode bayar',
+        enableSorting: false,
+        meta: { label: 'Metode bayar', prioritas: 'rendah' },
+    },
+    {
+        id: 'Kanal',
+        accessorKey: 'Kanal',
+        header: 'Jenis order',
+        enableSorting: false,
+        meta: { label: 'Jenis order', prioritas: 'rendah' },
+    },
+    {
+        id: 'NamaOutlet',
+        accessorKey: 'NamaOutlet',
+        header: 'Outlet',
+        enableSorting: false,
+        meta: { label: 'Outlet', prioritas: 'rendah' },
+    },
+    {
+        id: 'NamaKasir',
+        accessorKey: 'NamaKasir',
+        header: 'Kasir',
+        enableSorting: false,
+        meta: { label: 'Kasir', prioritas: 'rendah' },
+    },
 ];
 
 const kolomKategori: KolomTabel<BarisKategoriLaporan>[] = [
@@ -312,6 +369,20 @@ const kosong = { judul: 'Belum ada penjualan pada periode dan saring ini.' };
 
 function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenjualan['Isi'] }) {
     switch (tab) {
+        case 'detail':
+            return (
+                <TabelData
+                    id="laporan-penjualan-detail"
+                    label="Detail penjualan per item"
+                    kolom={kolomDetail}
+                    sumber={{ mode: 'server', alamat, awal: isi as HasilTabel<BarisDetailPenjualan> }}
+                    ambilIdBaris={(b) => String(b.Id)}
+                    urutBawaan="-Waktu"
+                    cari="Cari nomor transaksi atau produk"
+                    ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true }}
+                    kosong={kosong}
+                />
+            );
         case 'produk':
             return (
                 <TabelData
@@ -322,7 +393,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                     ambilIdBaris={(b) => String(b.IdProduk)}
                     urutBawaan="-Bersih"
                     cari="Cari nama produk"
-                    ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor CSV' }}
+                    ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true }}
                     kosong={kosong}
                 />
             );
@@ -595,7 +666,7 @@ export default function HalamanLaporanPenjualan(props: PropsLaporanPenjualan) {
                         tabAktif={Saring.Tab}
                         tab={daftarTab}
                     />
-                    {Saring.Tab !== 'produk' ? (
+                    {Saring.Tab !== 'produk' && Saring.Tab !== 'detail' ? (
                         <TautanEkspor alamat={`${alamat}/ekspor`} query={{ ...query, tab: Saring.Tab }} />
                     ) : null}
                 </div>

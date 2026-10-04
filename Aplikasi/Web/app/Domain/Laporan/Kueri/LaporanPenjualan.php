@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Laporan\Kueri;
 
+use App\Domain\Bersama\Laporan\ItemRingkasan;
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Bersama\Nilai\Kuantitas;
 use App\Domain\Bersama\Nilai\Uang;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
@@ -23,6 +26,8 @@ use App\Domain\Penjualan\Enum\KanalPenjualan;
 use App\Domain\Penjualan\Kueri\AgregatPenjualan;
 use App\Domain\Tenant\Kueri\PengaturanKasirTenant;
 use Carbon\CarbonImmutable;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -37,7 +42,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 final class LaporanPenjualan
 {
-    public const TAB = ['harian', 'produk', 'kategori', 'jam', 'kasir', 'kanal', 'metode', 'diskon', 'anti-fraud', 'abc', 'menu'];
+    public const TAB = ['harian', 'detail', 'produk', 'kategori', 'jam', 'kasir', 'kanal', 'metode', 'diskon', 'anti-fraud', 'abc', 'menu'];
 
     public function __construct(
         private readonly AgregatPenjualan $agregat,
@@ -134,6 +139,8 @@ final class LaporanPenjualan
     {
         return match ($tab) {
             'produk' => $this->agregat->PerProdukTabel($saring, $tabel),
+            // D-43: detail penjualan per item (mirip "Detail Penjualan" Majoo), TabelData mode server.
+            'detail' => $this->agregat->DetailPerItemTabel($saring, $tabel),
             'kategori' => $this->PerKategori($saring),
             'jam' => $this->PerJam($saring),
             'kasir' => $this->PerKasir($saring),
@@ -400,31 +407,102 @@ final class LaporanPenjualan
     }
 
     /**
-     * Isi ekspor CSV tab aktif (semua baris sesuai saring; tab produk mengikuti kata cari).
+     * Nama outlet/kasir/kanal yang dipilih untuk blok saringan kop laporan (D-43). Kosong = "Semua ...".
      *
-     * @return array{0: list<string>, 1: list<list<string|int|null>>}
+     * @param  array{Tab: string, Periode: DataPeriodeLaporan, UuidOutlet: string, UuidKasir: string, Kanal: string, Saring: DataSaringLaporanPenjualan}  $saring
+     * @param  list<int>|null  $idOutletBoleh
+     * @return array{Outlet: string, Kasir: string, Kanal: string}
+     */
+    public function AmbilLabelSaringan(array $saring, ?array $idOutletBoleh): array
+    {
+        $namaOutlet = '';
+
+        foreach ($this->outlet->AmbilRingkas($idOutletBoleh) as $o) {
+            if ($o['Uuid'] === $saring['UuidOutlet']) {
+                $namaOutlet = $o['Nama'];
+            }
+        }
+
+        $namaKasir = 'Semua Kasir';
+
+        foreach ($this->AmbilOpsiKasir($idOutletBoleh) as $opsi) {
+            if ($saring['UuidKasir'] !== '' && $opsi['Nilai'] === $saring['UuidKasir']) {
+                $namaKasir = $opsi['Label'];
+            }
+        }
+
+        return [
+            'Outlet' => $namaOutlet,
+            'Kasir' => $namaKasir,
+            'Kanal' => KanalPenjualan::tryFrom($saring['Kanal'])?->AmbilLabel() ?? 'Semua Kanal',
+        ];
+    }
+
+    /**
+     * Blok ringkasan kop laporan penjualan: angka periode dan saring yang sama dengan isi tabel (D-43).
+     *
+     * @return list<ItemRingkasan>
+     */
+    public function RingkasanPeriode(DataSaringLaporanPenjualan $saring): array
+    {
+        $total = $this->agregat->Total($saring);
+
+        return [
+            new ItemRingkasan('Penjualan Kotor', $total->kotor->KeString(), JenisKolom::Uang),
+            new ItemRingkasan('Diskon', $total->diskon->KeString(), JenisKolom::Uang),
+            new ItemRingkasan('Retur', $total->retur->KeString(), JenisKolom::Uang),
+            new ItemRingkasan('Penjualan Bersih', $total->Bersih()->KeString(), JenisKolom::Uang),
+            new ItemRingkasan('Laba Kotor', $total->LabaKotor()->KeString(), JenisKolom::Uang),
+            new ItemRingkasan('Total Transaksi', $total->jumlahTransaksi, JenisKolom::Bilangan),
+        ];
+    }
+
+    public function WaktuTerakhirDiterima(DataSaringLaporanPenjualan $saring): ?DateTimeImmutable
+    {
+        return $this->agregat->WaktuTerakhirDiterima($saring);
+    }
+
+    /**
+     * Kolom dan baris ekspor satu tab sesuai saring (D-43): tiap kolom diberi jenis (uang, bilangan, kuantitas, persen,
+     * tanggal) supaya Excel menyimpannya sebagai nilai asli, dan `jumlahkan` menandai kolom yang dijumlah di kaki tabel.
+     * Uang dan kuantitas tetap string desimal dari kueri (tanpa float).
+     *
+     * @return array{0: list<KolomLaporan>, 1: iterable<list<string|int|DateTimeInterface|null>>}
      */
     public function AmbilEkspor(string $tab, DataSaringLaporanPenjualan $saring, string $cari = ''): array
     {
+        $t = static fn (string $judul, int $lebar = 0): KolomLaporan => new KolomLaporan($judul, JenisKolom::Teks, $lebar > 0 ? $lebar : null);
+        $u = static fn (string $judul, bool $jumlah = true): KolomLaporan => new KolomLaporan($judul, JenisKolom::Uang, jumlahkan: $jumlah);
+        $n = static fn (string $judul, bool $jumlah = true): KolomLaporan => new KolomLaporan($judul, JenisKolom::Bilangan, jumlahkan: $jumlah);
+        $q = static fn (string $judul, bool $jumlah = false): KolomLaporan => new KolomLaporan($judul, JenisKolom::Kuantitas, jumlahkan: $jumlah);
+        $pr = static fn (string $judul): KolomLaporan => new KolomLaporan($judul, JenisKolom::Persen);
         $angka = ['Kotor', 'Diskon', 'Retur', 'Bersih', 'Pajak', 'BiayaLayanan', 'Hpp', 'LabaKotor', 'JumlahTransaksi', 'JumlahRetur'];
-        $judulAngka = ['Kotor', 'Diskon', 'Retur', 'Bersih', 'Pajak', 'Biaya layanan', 'HPP', 'Laba kotor', 'Jumlah transaksi', 'Jumlah retur'];
+        $kolomAngka = [$u('Kotor'), $u('Diskon'), $u('Retur'), $u('Bersih'), $u('Pajak'), $u('Biaya layanan'), $u('HPP'), $u('Laba kotor'), $n('Jumlah transaksi'), $n('Jumlah retur')];
         $ambil = fn (array $baris, array $kolom): array => array_values(array_map(fn (array $b): array => array_values(array_map(fn (string $k): string|int|null => self::Sel($b[$k] ?? null), $kolom)), $baris));
 
         return match ($tab) {
-            'produk' => [['Produk', 'Qty (satuan dasar)', ...$judulAngka], $ambil($this->agregat->PerProduk($saring, $cari), ['NamaProduk', 'Qty', ...$angka])],
-            'kategori' => [['Kategori', 'Jumlah produk', 'Qty (satuan dasar)', 'Kotor', 'Diskon', 'Retur', 'Bersih', 'Pajak', 'HPP', 'Laba kotor'], $ambil($this->PerKategori($saring), ['NamaKategori', 'JumlahProduk', 'Qty', 'Kotor', 'Diskon', 'Retur', 'Bersih', 'Pajak', 'Hpp', 'LabaKotor'])],
-            'jam' => [['Hari', 'Jam', 'Bersih', 'Jumlah transaksi'], $ambil(array_map(fn (array $s): array => [...$s, 'Hari' => self::NamaHari($s['Hari']), 'Jam' => sprintf('%02d:00', $s['Jam'])], $this->PerJam($saring)['Sel']), ['Hari', 'Jam', 'Bersih', 'JumlahTransaksi'])],
-            'kasir' => [['Kasir', ...$judulAngka, 'Rata-rata keranjang'], $ambil($this->PerKasir($saring), ['NamaKasir', ...$angka, 'RataRataKeranjang'])],
-            'kanal' => [['Kanal', ...$judulAngka, 'Rata-rata keranjang'], $ambil($this->PerKanal($saring), ['LabelKanal', ...$angka, 'RataRataKeranjang'])],
-            'metode' => [['Metode bayar', 'Jenis', 'Diterima', 'Refund', 'Bersih', 'Jumlah transaksi'], $ambil($this->PerMetode($saring), ['NamaMetode', 'LabelJenis', 'Diterima', 'Refund', 'Bersih', 'JumlahTransaksi'])],
-            'diskon' => [['Kasir', 'Jumlah transaksi', 'Transaksi berdiskon', 'Diskon disetujui', 'Diskon baris', 'Diskon pesanan', 'Total diskon', 'Kotor'], $ambil($this->Diskon($saring), ['NamaKasir', 'JumlahTransaksi', 'JumlahBerdiskon', 'JumlahDisetujui', 'DiskonBaris', 'DiskonPesanan', 'TotalDiskon', 'Kotor'])],
+            'detail' => [
+                [$t('No Transaksi', 22), new KolomLaporan('Waktu Transaksi', JenisKolom::TanggalWaktu), $t('Outlet', 24), $t('Jenis Order', 16), $t('Nama Produk', 32), $q('Quantity', true), $u('Harga Satuan', false), $u('Kotor'), $u('Diskon'), $u('Pajak'), $u('Total'), $t('Metode Pembayaran', 24), $t('Kasir', 22), $t('Catatan', 28)],
+                (function () use ($saring, $cari): \Generator {
+                    foreach ($this->agregat->DetailPerItem($saring, $cari) as $b) {
+                        yield [$b['Nomor'], new DateTimeImmutable($b['Waktu']), $b['NamaOutlet'], $b['Kanal'], $b['NamaProduk'], $b['Qty'], $b['HargaSatuan'], $b['Kotor'], $b['Diskon'], $b['Pajak'], $b['Total'], $b['Metode'], $b['NamaKasir'], $b['Catatan']];
+                    }
+                })(),
+            ],
+            'produk' => [[$t('Produk', 32), $q('Qty (satuan dasar)'), ...$kolomAngka], $ambil($this->agregat->PerProduk($saring, $cari), ['NamaProduk', 'Qty', ...$angka])],
+            'kategori' => [[$t('Kategori', 28), $n('Jumlah produk', false), $q('Qty (satuan dasar)'), $u('Kotor'), $u('Diskon'), $u('Retur'), $u('Bersih'), $u('Pajak'), $u('HPP'), $u('Laba kotor')], $ambil($this->PerKategori($saring), ['NamaKategori', 'JumlahProduk', 'Qty', 'Kotor', 'Diskon', 'Retur', 'Bersih', 'Pajak', 'Hpp', 'LabaKotor'])],
+            'jam' => [[$t('Hari', 14), $t('Jam', 10), $u('Bersih'), $n('Jumlah transaksi')], $ambil(array_map(fn (array $s): array => [...$s, 'Hari' => self::NamaHari($s['Hari']), 'Jam' => sprintf('%02d:00', $s['Jam'])], $this->PerJam($saring)['Sel']), ['Hari', 'Jam', 'Bersih', 'JumlahTransaksi'])],
+            'kasir' => [[$t('Kasir', 26), ...$kolomAngka, $u('Rata-rata keranjang', false)], $ambil($this->PerKasir($saring), ['NamaKasir', ...$angka, 'RataRataKeranjang'])],
+            'kanal' => [[$t('Kanal', 20), ...$kolomAngka, $u('Rata-rata keranjang', false)], $ambil($this->PerKanal($saring), ['LabelKanal', ...$angka, 'RataRataKeranjang'])],
+            'metode' => [[$t('Metode bayar', 26), $t('Jenis', 16), $u('Diterima'), $u('Refund'), $u('Bersih'), $n('Jumlah transaksi')], $ambil($this->PerMetode($saring), ['NamaMetode', 'LabelJenis', 'Diterima', 'Refund', 'Bersih', 'JumlahTransaksi'])],
+            'diskon' => [[$t('Kasir', 26), $n('Jumlah transaksi'), $n('Transaksi berdiskon'), $n('Diskon disetujui'), $u('Diskon baris'), $u('Diskon pesanan'), $u('Total diskon'), $u('Kotor')], $ambil($this->Diskon($saring), ['NamaKasir', 'JumlahTransaksi', 'JumlahBerdiskon', 'JumlahDisetujui', 'DiskonBaris', 'DiskonPesanan', 'TotalDiskon', 'Kotor'])],
             'anti-fraud' => [
-                ['Kasir', 'Skor risiko', 'Tingkat', 'Transaksi', 'Void', 'Nilai void', 'Void tunai cepat', 'Retur', 'Nilai retur', 'Transaksi berdiskon', 'Total diskon', 'Buka laci manual', 'Shift kas kurang', 'Total kas kurang', 'Alasan'],
+                [$t('Kasir', 26), $n('Skor risiko', false), $t('Tingkat', 12), $n('Transaksi'), $n('Void'), $u('Nilai void'), $n('Void tunai cepat'), $n('Retur'), $u('Nilai retur'), $n('Transaksi berdiskon'), $u('Total diskon'), $n('Buka laci manual'), $n('Shift kas kurang'), $u('Total kas kurang'), $t('Alasan', 60)],
                 $ambil(array_map(fn (array $b): array => [...$b, 'Alasan' => implode('; ', $b['Alasan'])], $this->AntiFraud($saring)), ['NamaKasir', 'Skor', 'Tingkat', 'JumlahTransaksi', 'JumlahVoid', 'NilaiVoid', 'VoidCepatTunai', 'JumlahRetur', 'NilaiRetur', 'JumlahBerdiskon', 'TotalDiskon', 'BukaLaciManual', 'ShiftSelisihKurang', 'SelisihKurang', 'Alasan']),
             ],
-            'abc' => [['Produk', 'Qty (satuan dasar)', 'Bersih', 'Porsi %', 'Kumulatif %', 'Kelas'], $ambil($this->insight->Abc($this->agregat->PerProduk($saring))['Baris'], ['NamaProduk', 'Qty', 'Bersih', 'Porsi', 'PorsiKumulatif', 'Kelas'])],
-            'menu' => [['Produk', 'Qty (satuan dasar)', 'Bersih', 'HPP', 'Margin per unit', 'Porsi qty %', 'Kelas'], $ambil($this->insight->Menu($this->agregat->PerProduk($saring))['Baris'], ['NamaProduk', 'Qty', 'Bersih', 'Hpp', 'MarginPerUnit', 'PorsiQty', 'Kelas'])],
-            default => [['Tanggal', ...$judulAngka, 'Rata-rata keranjang'], $ambil($this->Harian($saring), ['Tanggal', ...$angka, 'RataRataKeranjang'])],
+            'abc' => [[$t('Produk', 32), $q('Qty (satuan dasar)'), $u('Bersih'), $pr('Porsi %'), $pr('Kumulatif %'), $t('Kelas', 10)], $ambil($this->insight->Abc($this->agregat->PerProduk($saring))['Baris'], ['NamaProduk', 'Qty', 'Bersih', 'Porsi', 'PorsiKumulatif', 'Kelas'])],
+            'menu' => [[$t('Produk', 32), $q('Qty (satuan dasar)'), $u('Bersih'), $u('HPP'), $u('Margin per unit', false), $pr('Porsi qty %'), $t('Kelas', 14)], $ambil($this->insight->Menu($this->agregat->PerProduk($saring))['Baris'], ['NamaProduk', 'Qty', 'Bersih', 'Hpp', 'MarginPerUnit', 'PorsiQty', 'Kelas'])],
+            default => [[new KolomLaporan('Tanggal', JenisKolom::Tanggal), ...$kolomAngka, $u('Rata-rata keranjang', false)], $ambil($this->Harian($saring), ['Tanggal', ...$angka, 'RataRataKeranjang'])],
         };
     }
 

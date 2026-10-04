@@ -141,7 +141,7 @@ describe('F-18 bagian 3 rekap gaji', function (): void {
             ->where('Rekap.Jurnal.Nomor', $jurnal->Nomor)
             ->where('Rekap.AkunBeban', '6-1000 Beban Gaji & Komisi'));
         $csv = $this->get("/kelola/karyawan/gaji/{$rekap->Uuid}/ekspor")->assertOk()->streamedContent();
-        expect($csv)->toContain('Nama,Jabatan,GajiPokok')->toContain('Dewi Junior')->toContain('650000.00');
+        expect($csv)->toContain('Nama,Jabatan,Gaji pokok')->toContain('Dewi Junior')->toContain('650000.00');
     });
 
     it('draf bisa dihapus; periode yang dipakai kembali tersedia; butuh karyawan.kelola; tenant lain tidak bisa mengakses', function (): void {

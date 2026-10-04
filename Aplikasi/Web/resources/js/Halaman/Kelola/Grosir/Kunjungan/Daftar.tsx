@@ -157,7 +157,7 @@ export default function HalamanDaftarKunjunganSales({
                 urutBawaan="-MasukPada"
                 cari="Cari nama pelanggan"
                 saring={BuatSaringKunjungan(OpsiSalesman, OpsiHasil)}
-                ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor CSV' }}
+                ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true }}
                 kosong={{
                     ilustrasi: true,
                     judul: 'Belum ada kunjungan. Kunjungan muncul di sini setelah salesman check-out dari aplikasi.',

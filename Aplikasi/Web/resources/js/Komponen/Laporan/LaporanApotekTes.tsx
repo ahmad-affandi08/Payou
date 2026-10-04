@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { AmbilHrefEkspor } from '@/Pengujian/InteraksiRadix';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import HalamanLaporanApotek, { SusunOpsiBulan } from '@/Halaman/Kelola/Laporan/Apotek';
@@ -157,9 +158,9 @@ describe('Laporan › Laporan apotek', () => {
         expect(screen.getAllByText('Diazepam 2 mg Tablet').length).toBeGreaterThan(0);
         expect(screen.getAllByText('120').length).toBeGreaterThan(0);
         expect(screen.getByText(/bukan laporan resmi/)).toBeTruthy();
-        const ekspor = screen.getByRole('link', { name: /Ekspor CSV/ });
-        expect(ekspor.getAttribute('href')).toContain('/kelola/laporan/apotek/sipnap/ekspor?');
-        expect(ekspor.getAttribute('href')).toContain('bulan=2026-09');
+        const ekspor = AmbilHrefEkspor('csv', 'Ekspor');
+        expect(ekspor).toContain('/kelola/laporan/apotek/sipnap/ekspor?');
+        expect(ekspor).toContain('bulan=2026-09');
     });
 
     it('opsi bulan: 24 bulan mundur melewati pergantian tahun', () => {

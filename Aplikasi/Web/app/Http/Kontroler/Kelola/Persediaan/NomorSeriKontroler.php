@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Kontroler\Kelola\Persediaan;
 
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Katalog\Kueri\InfoProdukStok;
-use App\Domain\Laporan\Layanan\PenulisCsvLaporan;
 use App\Domain\Organisasi\Enum\IzinTenant;
 use App\Domain\Persediaan\Enum\StatusNomorSeri;
 use App\Domain\Persediaan\Kueri\RiwayatNomorSeri;
@@ -15,7 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * F-05h riwayat nomor seri/IMEI (`/kelola/persediaan/kartu-stok/nomor-seri`, rumahnya di entri menu Kartu stok), izin
@@ -69,19 +70,21 @@ final class NomorSeriKontroler extends DasarPersediaanKontroler
         ]);
     }
 
-    /** Unduh CSV hasil pencarian sesuai saring halaman (sampai `BATAS_EKSPOR` baris). */
-    public function Ekspor(Request $permintaan, RiwayatNomorSeri $riwayat): StreamedResponse
+    /** Unduh hasil pencarian sesuai saring halaman (sampai `BATAS_EKSPOR` baris). */
+    public function Ekspor(Request $permintaan, RiwayatNomorSeri $riwayat): SymfonyResponse
     {
         [$status, $uuidProduk] = $this->BacaSaring($permintaan);
         $baris = $this->SaringIzin($riwayat->Cari(trim($permintaan->string('cari')->toString()), $this->IdOutletBoleh(), $status, $uuidProduk, RiwayatNomorSeri::BATAS_EKSPOR)['Baris']);
+        $kolom = [
+            new KolomLaporan('Nomor seri', JenisKolom::Teks, 24), new KolomLaporan('Produk', JenisKolom::Teks, 30), new KolomLaporan('SKU'),
+            new KolomLaporan('Status', JenisKolom::Teks, 14), new KolomLaporan('Lokasi stok'), new KolomLaporan('Nomor penjualan'),
+            new KolomLaporan('Tanggal jual', JenisKolom::Teks, 14), new KolomLaporan('Pembeli'), new KolomLaporan('Garansi sampai', JenisKolom::Teks, 14),
+        ];
+        $isi = array_map(fn (array $b): array => [
+            $b['Nomor'], $b['NamaProduk'], $b['Sku'], $b['LabelStatus'], $b['NamaGudang'], $b['NomorPenjualan'], $b['TanggalJual'], $b['NamaPelanggan'], $b['GaransiSampai'],
+        ], $baris);
 
-        return PenulisCsvLaporan::Alirkan(
-            'nomor-seri',
-            ['Nomor seri', 'Produk', 'SKU', 'Status', 'Lokasi stok', 'Nomor penjualan', 'Tanggal jual', 'Pembeli', 'Garansi sampai'],
-            array_map(fn (array $b): array => [
-                $b['Nomor'], $b['NamaProduk'], $b['Sku'], $b['LabelStatus'], $b['NamaGudang'], $b['NomorPenjualan'], $b['TanggalJual'], $b['NamaPelanggan'], $b['GaransiSampai'],
-            ], $baris),
-        );
+        return $this->SajikanLaporan($permintaan, 'Riwayat Nomor Seri', 'nomor-seri', $kolom, $isi);
     }
 
     /** Alamat lama sebelum riwayat nomor seri pindah ke bawah Kartu stok; tautan tersimpan & tombol lama tetap bekerja. */

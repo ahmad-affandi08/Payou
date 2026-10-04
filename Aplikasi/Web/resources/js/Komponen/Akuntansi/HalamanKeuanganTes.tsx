@@ -14,7 +14,7 @@ import HalamanNeracaSaldo from '@/Halaman/Kelola/Akuntansi/Laporan/NeracaSaldo';
 import HalamanPemetaanAkun from '@/Halaman/Kelola/Akuntansi/Pemetaan/Daftar';
 import { AturHalamanUji, RenderUji, tiruanRouter } from '@/Komponen/Katalog/TiruanInertia';
 import { AmbilNilaiPilihan, UbahNilai } from '@/Pengujian/InteraksiPilihan';
-import { BukaMenu } from '@/Pengujian/InteraksiRadix';
+import { AmbilHrefEkspor, BukaMenu } from '@/Pengujian/InteraksiRadix';
 import { CekMenuAktif, SaringMenuTerlihat } from '@/TataLetak/TataLetakAplikasi';
 import type {
     BarisJadwalKasBank,
@@ -529,7 +529,7 @@ describe('F-13a laporan keuangan', () => {
         };
         RenderUji(<HalamanBukuBesar {...kosong} />);
         expect(screen.getByText('Pilih akun untuk melihat buku besarnya.')).toBeTruthy();
-        expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Ekspor CSV' }).disabled).toBe(true);
+        expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Ekspor' }).disabled).toBe(true);
         UbahNilai(screen.getByRole('combobox', { name: 'Akun' }), 'K1');
         expect(tiruanRouter.get).toHaveBeenCalledWith(
             '/kelola/akuntansi/laporan/buku-besar?akun=K1&dari=2026-09-01&sampai=2026-09-30',
@@ -578,8 +578,8 @@ describe('F-13a laporan keuangan', () => {
         expect(screen.getByRole('link', { name: 'KB/2026/09/0001' }).getAttribute('href')).toBe(
             '/kelola/akuntansi/kas-bank/X1',
         );
-        expect(screen.getByRole('link', { name: 'Ekspor CSV' }).getAttribute('href')).toBe(
-            '/kelola/akuntansi/laporan/buku-besar/ekspor?akun=K1&dari=2026-09-01&sampai=2026-09-30',
+        expect(AmbilHrefEkspor('csv', 'Ekspor')).toBe(
+            '/kelola/akuntansi/laporan/buku-besar/ekspor?akun=K1&dari=2026-09-01&sampai=2026-09-30&format=csv',
         );
     });
 
@@ -634,8 +634,8 @@ describe('F-13a laporan keuangan', () => {
         expect(screen.getByRole('link', { name: 'Kas Outlet' }).getAttribute('href')).toBe(
             '/kelola/akuntansi/laporan/buku-besar?akun=K1&dari=2026-09-01&sampai=2026-09-30&outlet=O1',
         );
-        expect(screen.getByRole('link', { name: 'Ekspor CSV' }).getAttribute('href')).toBe(
-            '/kelola/akuntansi/laporan/neraca-saldo/ekspor?dari=2026-09-01&sampai=2026-09-30&outlet=O1',
+        expect(AmbilHrefEkspor('csv', 'Ekspor')).toBe(
+            '/kelola/akuntansi/laporan/neraca-saldo/ekspor?dari=2026-09-01&sampai=2026-09-30&outlet=O1&format=csv',
         );
     });
 
@@ -774,8 +774,8 @@ describe('F-13a laporan keuangan', () => {
         expect(screen.getAllByText('Laba tahun berjalan').length).toBeGreaterThan(0);
         expect(screen.getAllByText('−Rp 1.224.500').length).toBeGreaterThan(0);
         expect(screen.getByText('Tidak seimbang')).toBeTruthy();
-        expect(screen.getByRole('link', { name: 'Ekspor CSV' }).getAttribute('href')).toBe(
-            '/kelola/akuntansi/laporan/neraca/ekspor?dari=2026-09-01&sampai=2026-09-30',
+        expect(AmbilHrefEkspor('csv', 'Ekspor')).toBe(
+            '/kelola/akuntansi/laporan/neraca/ekspor?dari=2026-09-01&sampai=2026-09-30&format=csv',
         );
     });
 
@@ -828,8 +828,8 @@ describe('F-13a laporan keuangan', () => {
         expect(screen.getByText('Kas & bank akhir periode')).toBeTruthy();
         expect(screen.getAllByText('Rp 4.865.500').length).toBeGreaterThan(0);
         expect(screen.getByText('Belum ada akun kas atau bank')).toBeTruthy();
-        expect(screen.getByRole('link', { name: 'Ekspor CSV' }).getAttribute('href')).toBe(
-            '/kelola/akuntansi/laporan/arus-kas/ekspor?dari=2026-09-01&sampai=2026-09-30',
+        expect(AmbilHrefEkspor('csv', 'Ekspor')).toBe(
+            '/kelola/akuntansi/laporan/arus-kas/ekspor?dari=2026-09-01&sampai=2026-09-30&format=csv',
         );
     });
 });

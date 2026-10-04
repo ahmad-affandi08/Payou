@@ -261,7 +261,7 @@ export default function HalamanLaporanApotek({
                         urutBawaan="-Tanggal"
                         cari="Cari nomor penjualan, nomor resep, atau dokter"
                         saring={saring}
-                        ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor CSV' }}
+                        ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true }}
                         kosong={{
                             ilustrasi: true,
                             judul: 'Belum ada penjualan obat keras, psikotropika, atau narkotika.',

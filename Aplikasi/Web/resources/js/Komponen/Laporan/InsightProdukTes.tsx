@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import HalamanLaporanPenjualan from '@/Halaman/Kelola/Laporan/Penjualan';
 import HalamanLaporanStok from '@/Halaman/Kelola/Laporan/Stok';
+import { AmbilHrefEkspor } from '@/Pengujian/InteraksiRadix';
 import { AturHalamanUji, RenderUji, tiruanRouter } from '@/Komponen/Katalog/TiruanInertia';
 import { PilihOpsi } from '@/Pengujian/InteraksiPilihan';
 import type { AngkaPenjualan, PropsLaporanPenjualan, PropsLaporanStok } from '@/Tipe/Laporan';
@@ -82,8 +83,8 @@ describe('X6 insight produk di laporan penjualan', () => {
         expect(screen.getByRole('table', { name: 'Analisis ABC produk' })).toBeTruthy();
         expect(screen.getAllByText('Kelas B').length).toBeGreaterThan(0);
         expect(screen.getAllByText('80,00%').length).toBeGreaterThan(0);
-        expect(screen.getByRole('link', { name: 'Ekspor CSV' }).getAttribute('href')).toBe(
-            '/kelola/laporan/penjualan/ekspor?dari=2026-10-01&sampai=2026-10-07&tab=abc',
+        expect(AmbilHrefEkspor('csv', 'Ekspor')).toBe(
+            '/kelola/laporan/penjualan/ekspor?dari=2026-10-01&sampai=2026-10-07&tab=abc&format=csv',
         );
     });
 
@@ -194,8 +195,8 @@ describe('X6 saran restock di laporan stok', () => {
         expect(screen.getByText(/28 hari terakhir/)).toBeTruthy();
         expect(screen.getByText(/dekat Ramadan & Lebaran \(10 /)).toBeTruthy();
         expect(screen.getAllByText('×1,50').length).toBeGreaterThan(0);
-        expect(screen.getByRole('link', { name: 'Ekspor CSV' }).getAttribute('href')).toBe(
-            '/kelola/laporan/stok/ekspor?tanggal=2026-10-07&hari=14&tab=restock',
+        expect(AmbilHrefEkspor('csv', 'Ekspor')).toBe(
+            '/kelola/laporan/stok/ekspor?tanggal=2026-10-07&hari=14&tab=restock&format=csv',
         );
 
         PilihOpsi(screen.getByRole('combobox', { name: /Stok cukup untuk/ }), '30');

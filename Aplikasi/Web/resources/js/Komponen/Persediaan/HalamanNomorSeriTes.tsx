@@ -2,6 +2,7 @@ import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import HalamanNomorSeri, { BuatQueryNomorSeri } from '@/Halaman/Kelola/Persediaan/NomorSeri';
+import { AmbilHrefEkspor } from '@/Pengujian/InteraksiRadix';
 import { AturHalamanUji, RenderUji, tiruanRouter } from '@/Komponen/Katalog/TiruanInertia';
 import type { PropsNomorSeri, UnitNomorSeri } from '@/Tipe/Persediaan';
 
@@ -118,9 +119,7 @@ describe('Kelola/Persediaan/NomorSeri (F-05h)', () => {
         expect(screen.getByRole('heading', { name: 'Hasil pencarian (120)' })).toBeTruthy();
         expect(screen.getByText(/Menampilkan 50 dari 120 nomor/)).toBeTruthy();
         expect(screen.getByText(/Terjual 7 \w+ 2026 \| INV\/SLB\/261007\/POS-001-0012/)).toBeTruthy();
-        expect(screen.getByRole('link', { name: /Ekspor CSV/ }).getAttribute('href')).toBe(
-            '/kelola/persediaan/kartu-stok/nomor-seri/ekspor?cari=3569380',
-        );
+        expect(AmbilHrefEkspor('csv', 'Ekspor')).toBe('/kelola/persediaan/kartu-stok/nomor-seri/ekspor?cari=3569380&format=csv');
     });
 
     it('detail unit terjual: produk, penjualan, pembeli, garansi, riwayat berurutan, tautan kartu stok', () => {
