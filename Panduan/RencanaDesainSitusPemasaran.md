@@ -1,6 +1,6 @@
 # Rencana Desain Ulang Situs Pemasaran `payou.id`
 
-Status: **draf, menunggu persetujuan pemilik produk**
+Status: **diterapkan** (D-25; disempurnakan D-39 v4.47 "bersih & meyakinkan" dengan tangkapan layar asli aplikasi)
 Cakupan: D-20, D-21 (situs pemasaran `payou.id`). Tidak menyentuh `dashboard.payou.id` maupun `consol.payou.id`.
 Referensi desain yang disepakati: **squareup.com**.
 

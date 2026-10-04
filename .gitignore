@@ -26,3 +26,7 @@ coverage/
 # D-36: penanda edisi terkunci hanya ditulis paket rilis PAYOU Mandiri, tidak pernah di repo.
 Aplikasi/Web/bootstrap/EdisiTerkunci.php
 Aplikasi/Web/bootstrap/TanggalRilis.php
+
+# Penghasil foto situs (AlatSitus): PNG sementara, hasil akhirnya WebP di Aplikasi/Web/public/situs/produk
+Aplikasi/Kasir/AlatSitus/Hasil/
+Aplikasi/Pemilik/AlatSitus/Hasil/

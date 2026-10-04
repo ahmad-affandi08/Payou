@@ -193,12 +193,12 @@
  * ============================================================================================ */
 @theme inline {
     @keyframes muncul-saat-gulir {
+        /* D-39: hanya geser, tanpa memudarkan. Versi lama mulai dari opacity 0, sehingga bagian yang belum
+         * masuk layar kosong di pratinjau tautan, tangkapan layar halaman penuh, dan peramban lambat. */
         from {
-            opacity: 0;
-            transform: translateY(16px);
+            transform: translateY(12px);
         }
         to {
-            opacity: 1;
             transform: translateY(0);
         }
     }

@@ -182,6 +182,10 @@ export default function TataLetakSitus({ judul, children, pratinjau = false }: P
     );
 }
 
+/**
+ * Kaki situs terang (D-39): sebelumnya biru merek penuh menempel di bawah blok CTA biru dan FAQ Navy, sehingga
+ * sepertiga bawah halaman menjadi tiga balok warna gelap. Kini netral; satu-satunya bidang warna di bawah adalah CTA.
+ */
 function KakiSitus({ situs }: { situs: DataSitus }) {
     const mediaSosial = Object.entries(situs.MediaSosial).filter(
         (e): e is [string, string] => typeof e[1] === 'string',
@@ -190,10 +194,10 @@ function KakiSitus({ situs }: { situs: DataSitus }) {
     const kontak = situs.Kontak;
 
     return (
-        <footer className="bg-brand-gelap text-brand-gelap-teks">
+        <footer className="border-t border-garis bg-latar text-teks-sekunder">
             <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
                 <div className="flex flex-col gap-4">
-                    <LogoMerek nama={situs.NamaSitus} varian="putih" className="h-12 self-start" />
+                    <LogoMerek nama={situs.NamaSitus} className="h-12 self-start" />
                     {situs.TeksKaki ? <p className="text-isi">{situs.TeksKaki}</p> : null}
                     <address className="flex flex-col gap-1 text-isi not-italic">
                         {kontak.TautanWhatsApp && kontak.WhatsApp ? (
@@ -201,18 +205,18 @@ function KakiSitus({ situs }: { situs: DataSitus }) {
                                 href={kontak.TautanWhatsApp}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="hover:text-permukaan"
+                                className="hover:text-brand"
                             >
                                 WhatsApp {kontak.WhatsApp}
                             </a>
                         ) : null}
                         {kontak.Email ? (
-                            <a href={`mailto:${kontak.Email}`} className="hover:text-permukaan">
+                            <a href={`mailto:${kontak.Email}`} className="hover:text-brand">
                                 {kontak.Email}
                             </a>
                         ) : null}
                         {kontak.Telepon ? (
-                            <a href={`tel:${kontak.Telepon.replace(/[^\d+]/g, '')}`} className="hover:text-permukaan">
+                            <a href={`tel:${kontak.Telepon.replace(/[^\d+]/g, '')}`} className="hover:text-brand">
                                 {kontak.Telepon}
                             </a>
                         ) : null}
@@ -222,11 +226,11 @@ function KakiSitus({ situs }: { situs: DataSitus }) {
                 </div>
                 {situs.MenuKaki.map((kolom) => (
                     <nav key={kolom.Judul} aria-label={kolom.Judul} className="flex flex-col gap-3">
-                        <h2 className="text-isi font-semibold text-permukaan">{kolom.Judul}</h2>
+                        <h2 className="text-isi font-semibold text-teks-utama">{kolom.Judul}</h2>
                         <ul className="flex flex-col gap-2">
                             {kolom.Tautan.map((t) => (
                                 <li key={`${t.Label}-${t.Tautan}`}>
-                                    <TautanSitus href={t.Tautan} className="text-isi hover:text-permukaan">
+                                    <TautanSitus href={t.Tautan} className="text-isi hover:text-brand">
                                         {t.Label}
                                     </TautanSitus>
                                 </li>
@@ -235,7 +239,7 @@ function KakiSitus({ situs }: { situs: DataSitus }) {
                     </nav>
                 ))}
             </div>
-            <div className="border-t border-brand-gelap-garis">
+            <div className="border-t border-garis">
                 <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 text-label sm:flex-row sm:items-center sm:justify-between">
                     <p>
                         © {situs.Tahun} {situs.NamaSitus}
@@ -243,7 +247,7 @@ function KakiSitus({ situs }: { situs: DataSitus }) {
                     </p>
                     <div className="flex flex-wrap gap-x-4 gap-y-2">
                         {AdaAnalitik(situs.Analitik) ? (
-                            <button type="button" onClick={BukaPengaturanCookie} className="hover:text-permukaan">
+                            <button type="button" onClick={BukaPengaturanCookie} className="hover:text-brand">
                                 Pengaturan cookie
                             </button>
                         ) : null}
@@ -253,7 +257,7 @@ function KakiSitus({ situs }: { situs: DataSitus }) {
                                 href={tautan}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="hover:text-permukaan"
+                                className="hover:text-brand"
                             >
                                 {LABEL_UNDUH[kunci] ?? kunci}
                             </a>
@@ -264,7 +268,7 @@ function KakiSitus({ situs }: { situs: DataSitus }) {
                                 href={tautan}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="hover:text-permukaan"
+                                className="hover:text-brand"
                             >
                                 {LABEL_MEDIA_SOSIAL[kunci] ?? kunci}
                             </a>

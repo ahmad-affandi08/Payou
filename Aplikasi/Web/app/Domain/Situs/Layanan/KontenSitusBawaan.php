@@ -8,6 +8,9 @@ namespace App\Domain\Situs\Layanan;
  * Isi awal situs pemasaran (D-21), dipakai sampai konsol menerbitkan halamannya sendiri dan sebagai draf awal saat
  * halaman dibuat di konsol. Teks menerangkan fitur yang benar-benar ada (tanpa testimoni atau angka karangan).
  *
+ * D-39 (bersih & meyakinkan): hero terang dengan tangkapan layar asli aplikasi (`Spesimen` Kasir/Pemilik) dan baris
+ * centang alasan untuk percaya; keunggulan memakai grid tiga kolom tanpa kartu yatim.
+ *
  * Gaya tulisan (D-25): judul menyebut hal yang bisa dibantah, bukan klaim kosong seperti "lengkap" atau "tanpa ribet".
  * Isi kartu adalah satu manfaat konkret, bukan daftar fitur berkoma. Susunan blok dibuat berganti bentuk
  * (`TataLetak` Grid/Daftar/Sorot, `GambarTeks`, `Latar` hero) supaya tidak ada dua grid sejenis berurutan.
@@ -35,13 +38,18 @@ final class KontenSitusBawaan
                 'Bagian' => [
                     [
                         'Jenis' => 'Hero',
-                        'Latar' => 'Navy',
-                        'Spesimen' => 'Struk',
+                        'Latar' => 'Terang',
+                        'Spesimen' => 'Kasir',
                         'Label' => 'Aplikasi kasir & pembukuan',
                         'Judul' => 'Kasir tetap mencatat walau internet mati',
                         'Subjudul' => "Penjualan, stok, pajak, dan pembukuan berjalan dari satu aplikasi.\nBegitu internet kembali, semuanya terkirim sendiri — tanpa Anda rekap ulang.",
                         'TombolUtama' => ['Label' => 'Coba gratis', 'Tautan' => '@daftar'],
                         'TombolKedua' => ['Label' => 'Lihat fitur', 'Tautan' => '/fitur'],
+                        'Poin' => [
+                            ['Teks' => 'Tetap jalan tanpa internet'],
+                            ['Teks' => 'Android, iPad & Windows'],
+                            ['Teks' => 'Printer Bluetooth, USB & Sunmi'],
+                        ],
                         'Catatan' => 'Gratis selamanya untuk usaha mikro. Tanpa kartu kredit.',
                     ],
                     [
@@ -80,6 +88,7 @@ final class KontenSitusBawaan
                             ['Teks' => 'Hak akses per peran; diskon besar minta PIN penyetuju'],
                         ],
                         'PosisiGambar' => 'Kanan',
+                        'Spesimen' => 'Pemilik',
                         'Tombol' => ['Label' => 'Lihat semua fitur', 'Tautan' => '/fitur'],
                     ],
                     [
@@ -110,6 +119,7 @@ final class KontenSitusBawaan
                     [
                         'Jenis' => 'Hero',
                         'Latar' => 'Terang',
+                        'Spesimen' => 'Kasir',
                         'Judul' => 'Mulai dari kasir, hidupkan sisanya saat perlu',
                         'Subjudul' => 'Semua fitur sudah ada di aplikasi yang sama. Anda menyalakannya ketika usaha memang sudah membutuhkannya, bukan sejak hari pertama.',
                         'TombolUtama' => ['Label' => 'Coba gratis', 'Tautan' => '@daftar'],
@@ -214,7 +224,8 @@ final class KontenSitusBawaan
                 'Bagian' => [
                     [
                         'Jenis' => 'Hero',
-                        'Latar' => 'Merek',
+                        'Latar' => 'Terang',
+                        'Spesimen' => 'Kasir',
                         'Label' => 'Kafe & Resto',
                         'Judul' => 'Dari meja ke dapur tanpa kertas tercecer',
                         'Subjudul' => 'Pelayan mencatat di HP, dapur langsung melihatnya, kasir menagih dengan PBJT dan biaya layanan yang sudah benar.',
@@ -246,6 +257,7 @@ final class KontenSitusBawaan
                     [
                         'Jenis' => 'Hero',
                         'Latar' => 'Terang',
+                        'Spesimen' => 'Struk',
                         'Label' => 'Toko & Retail',
                         'Judul' => 'Selisih stok berhenti jadi tebakan',
                         'Subjudul' => 'Pindai, jual, terima barang. Kartu stok menunjukkan setiap pergerakan beserta siapa yang mencatatnya.',
@@ -275,7 +287,8 @@ final class KontenSitusBawaan
                 'Bagian' => [
                     [
                         'Jenis' => 'Hero',
-                        'Latar' => 'Navy',
+                        'Latar' => 'Terang',
+                        'Spesimen' => 'Pemilik',
                         'Label' => 'Salon, Laundry & Jasa',
                         'Judul' => 'Komisi dan saldo pelanggan berhenti dihitung tangan',
                         'Subjudul' => 'Catat siapa yang melayani, terima deposit dan uang muka, lalu komisi serta rekap gaji tersusun sendiri.',

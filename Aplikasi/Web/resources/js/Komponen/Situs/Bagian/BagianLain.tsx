@@ -20,8 +20,8 @@ export function BagianGambarTeks({ bagian, latar, garisAtas }: PropsBagian<'Gamb
     const gambarKiri = bagian.PosisiGambar === 'Kiri';
     const gelap = CekGelap(latar);
     // Spesimen keluaran produk dipakai sebagai jangkar visual selama belum ada gambar (D-25).
-    const Spesimen = bagian.Gambar === null && bagian.Spesimen ? SPESIMEN[bagian.Spesimen] : null;
-    const adaVisual = bagian.Gambar !== null || Spesimen !== null;
+    const Spesimen = !bagian.Gambar && bagian.Spesimen ? SPESIMEN[bagian.Spesimen] : null;
+    const adaVisual = Boolean(bagian.Gambar) || Spesimen !== null;
 
     return (
         <WadahBagian latar={latar} garisAtas={garisAtas}>

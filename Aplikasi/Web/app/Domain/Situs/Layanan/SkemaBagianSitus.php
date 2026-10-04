@@ -66,8 +66,10 @@ final class SkemaBagianSitus
                 'TombolKedua' => ['Tombol'],
                 'Gambar' => ['Gambar'],
                 'Catatan' => ['Teks', 160],
+                // D-39: tiga alasan singkat untuk percaya, tampil sebagai baris centang di bawah tombol.
+                'Poin' => ['Daftar', 0, 4, ['Teks' => ['Teks', 60, true]]],
                 'Latar' => ['Pilihan', ['Terang', 'Merek', 'Navy']],
-                'Spesimen' => ['Pilihan', ['Struk', 'Jurnal']],
+                'Spesimen' => ['Pilihan', ['Kasir', 'Pemilik', 'Struk', 'Jurnal']],
             ],
             'Keunggulan' => $judulBagian + [
                 'TataLetak' => ['Pilihan', ['Grid', 'Daftar', 'Sorot']],
@@ -88,7 +90,7 @@ final class SkemaBagianSitus
                 'Poin' => ['Daftar', 0, 8, ['Teks' => ['Teks', 140, true]]],
                 'Gambar' => ['Gambar'],
                 'PosisiGambar' => ['Pilihan', ['Kanan', 'Kiri']],
-                'Spesimen' => ['Pilihan', ['Struk', 'Jurnal']],
+                'Spesimen' => ['Pilihan', ['Kasir', 'Pemilik', 'Struk', 'Jurnal']],
                 'Tombol' => ['Tombol'],
             ],
             'Statistik' => $judulBagian + [

@@ -11,23 +11,16 @@ const KOLOM = {
     '4': 'sm:grid-cols-2 lg:grid-cols-4',
 } as const;
 
-/** Judul item + ikon 20px monokrom sebaris. Ikon tidak lagi dibungkus kotak berwarna (D-25). */
+/**
+ * Judul item dengan ikon garis 24px berwarna merek di atasnya (D-39), tetap tanpa kotak ikon berwarna (D-25).
+ * Ikon raster lama yang kecil dan buram diganti ikon garis lucide yang tajam di layar retina.
+ */
 function JudulItem({ ikon, judul, gelap }: { ikon: string | null; judul: string; gelap: boolean }) {
     return (
-        <h3
-            className={cn(
-                'text-subjudul flex items-center gap-2 font-semibold',
-                gelap ? 'text-permukaan' : 'text-teks-utama',
-            )}
-        >
-            {ikon ? (
-                <IkonSitus
-                    nama={ikon}
-                    className={cn('size-5 shrink-0', gelap ? 'text-brand-gelap-teks' : 'text-teks-sekunder')}
-                />
-            ) : null}
-            <span>{judul}</span>
-        </h3>
+        <div className="flex flex-col gap-3">
+            {ikon ? <IkonSitus nama={ikon} className={cn('size-6', gelap ? 'text-aksen' : 'text-brand')} /> : null}
+            <h3 className={cn('text-subjudul font-semibold', gelap ? 'text-permukaan' : 'text-teks-utama')}>{judul}</h3>
+        </div>
     );
 }
 
@@ -75,46 +68,46 @@ export function BagianKeunggulan({ bagian, latar, garisAtas }: PropsKeunggulan) 
                     ))}
                 </ul>
             ) : tataLetak === 'Sorot' ? (
-                <ul className="grid gap-4 lg:grid-cols-2">
+                <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {bagian.Item.map((item, i) => (
                         <li
                             key={`${item.Judul}-${i}`}
                             className={cn(
                                 'flex flex-col gap-3',
                                 KelasKartu(latar),
-                                // Item pertama mengambil seluruh baris pertama dan judulnya naik satu tingkat.
-                                i === 0 && 'lg:col-span-2 lg:gap-4',
+                                // D-39: item pertama 2 kolom × 2 baris di grid tiga kolom, sehingga enam item pas
+                                // memenuhi 3×3 tanpa kartu yatim (versi lama: satu baris penuh + 5 kartu dua kolom).
+                                i === 0 && 'justify-between sm:col-span-2 lg:col-span-2 lg:row-span-2 lg:gap-8 lg:p-8',
                             )}
                         >
                             {i === 0 ? (
                                 <>
-                                    <h3
-                                        className={cn(
-                                            'text-judul flex items-center gap-2 font-bold',
-                                            gelap ? 'text-permukaan' : 'text-teks-utama',
-                                        )}
-                                    >
-                                        {item.Ikon ? (
-                                            <IkonSitus
-                                                nama={item.Ikon}
-                                                className={cn(
-                                                    'size-6 shrink-0',
-                                                    gelap ? 'text-brand-gelap-teks' : 'text-brand',
-                                                )}
-                                            />
-                                        ) : null}
-                                        <span>{item.Judul}</span>
-                                    </h3>
-                                    {item.Teks ? (
-                                        <p
+                                    {item.Ikon ? (
+                                        <IkonSitus
+                                            nama={item.Ikon}
+                                            className={cn('size-12', gelap ? 'text-aksen' : 'text-brand')}
+                                        />
+                                    ) : null}
+                                    <div className="flex flex-col gap-3">
+                                        <h3
                                             className={cn(
-                                                'text-subjudul max-w-3xl whitespace-pre-line',
-                                                gelap ? 'text-brand-gelap-teks' : 'text-teks-sekunder',
+                                                'text-judul font-bold',
+                                                gelap ? 'text-permukaan' : 'text-teks-utama',
                                             )}
                                         >
-                                            {item.Teks}
-                                        </p>
-                                    ) : null}
+                                            {item.Judul}
+                                        </h3>
+                                        {item.Teks ? (
+                                            <p
+                                                className={cn(
+                                                    'text-subjudul max-w-3xl whitespace-pre-line',
+                                                    gelap ? 'text-brand-gelap-teks' : 'text-teks-sekunder',
+                                                )}
+                                            >
+                                                {item.Teks}
+                                            </p>
+                                        ) : null}
+                                    </div>
                                 </>
                             ) : (
                                 <>

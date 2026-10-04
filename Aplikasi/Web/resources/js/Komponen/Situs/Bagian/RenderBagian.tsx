@@ -21,8 +21,11 @@ const LATAR_SENDIRI = new Set<BagianSitus['Jenis']>(['Hero', 'Statistik', 'Cta']
 /** Setelah sebanyak ini bagian terang berturut-turut, satu bagian dibuat gelap sebagai jeda baca. */
 const JEDA_GELAP_SETIAP = 4;
 
-/** Blok yang tidak pantas dibalik menjadi gelap (isi panjang atau berisi formulir/kartu putih). */
-const SELALU_TERANG = new Set<BagianSitus['Jenis']>(['Harga', 'TeksBebas', 'FormulirProspek', 'Video']);
+/**
+ * Blok yang tidak pantas dibalik menjadi gelap (isi panjang atau berisi formulir/kartu putih). D-39: FAQ ikut,
+ * karena hampir selalu tepat di atas CTA berlatar merek; FAQ Navy + CTA biru membuat dua balok gelap menempel.
+ */
+const SELALU_TERANG = new Set<BagianSitus['Jenis']>(['Harga', 'TeksBebas', 'FormulirProspek', 'Video', 'Faq']);
 
 export type IramaBagian = { latar: LatarBagian; garisAtas: boolean };
 

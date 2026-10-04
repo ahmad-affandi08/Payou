@@ -140,14 +140,7 @@ export default function BagianHarga({
                                 >
                                     {paket.HargaNegosiasi ? 'Hubungi kami' : (bagian.TeksTombol ?? 'Mulai sekarang')}
                                 </TombolSitus>
-                                <ul className="flex flex-col gap-2 border-t border-garis pt-4">
-                                    {[...paket.Batas, ...paket.Fitur].map((baris) => (
-                                        <li key={baris} className="flex gap-2 text-isi text-teks-utama">
-                                            <Check className="mt-0.5 size-4 shrink-0 text-sukses" aria-hidden />
-                                            <span>{baris}</span>
-                                        </li>
-                                    ))}
-                                </ul>
+                                <DaftarFiturPaket baris={[...paket.Batas, ...paket.Fitur]} />
                             </li>
                         );
                     })}
@@ -157,5 +150,50 @@ export default function BagianHarga({
                 <TeksKaya teks={bagian.CatatanKaki} className="text-label mt-8 max-w-3xl text-teks-sekunder" />
             ) : null}
         </WadahBagian>
+    );
+}
+
+/** Butir fitur yang langsung tampil per kartu; sisanya di balik "Lihat N fitur lainnya" (D-39). */
+const FITUR_TAMPIL = 8;
+
+function BarisFitur({ baris }: { baris: string }) {
+    return (
+        <li className="flex gap-2 text-isi text-teks-utama">
+            <Check className="mt-0.5 size-4 shrink-0 text-sukses" aria-hidden />
+            <span>{baris}</span>
+        </li>
+    );
+}
+
+/**
+ * Daftar batas & fitur paket. Paket besar punya 20+ butir, sehingga kartu Gratis di sebelahnya menyisakan ruang
+ * kosong setinggi layar. Delapan butir pertama tampil, sisanya dibuka dengan `<details>` (tetap ada di HTML untuk
+ * mesin pencari dan pembaca layar, tanpa JavaScript).
+ */
+function DaftarFiturPaket({ baris }: { baris: string[] }) {
+    const utama = baris.slice(0, FITUR_TAMPIL);
+    const sisa = baris.slice(FITUR_TAMPIL);
+
+    return (
+        <div className="flex flex-col gap-2 border-t border-garis pt-4">
+            <ul className="flex flex-col gap-2">
+                {utama.map((b) => (
+                    <BarisFitur key={b} baris={b} />
+                ))}
+            </ul>
+            {sisa.length > 0 ? (
+                <details className="group">
+                    <summary className="cursor-pointer list-none text-label font-semibold text-brand hover:underline">
+                        <span className="group-open:hidden">Lihat {sisa.length} fitur lainnya</span>
+                        <span className="hidden group-open:inline">Sembunyikan fitur lainnya</span>
+                    </summary>
+                    <ul className="mt-2 flex flex-col gap-2">
+                        {sisa.map((b) => (
+                            <BarisFitur key={b} baris={b} />
+                        ))}
+                    </ul>
+                </details>
+            ) : null}
+        </div>
     );
 }

@@ -1,14 +1,15 @@
 import { cn } from '@/Komponen/Ui/utils';
 
 /**
- * Spesimen keluaran PAYOU untuk situs pemasaran (D-25): struk dan jurnal yang benar-benar dihasilkan produk,
- * dipakai sebagai jangkar visual hero dan blok gambar-teks.
+ * Spesimen keluaran PAYOU untuk situs pemasaran (D-25, D-39): tangkapan layar asli aplikasi Kasir & Pemilik
+ * (berkas statis di `public/situs/produk`, jadi bisa dipakai isi bawaan), serta struk dan jurnal yang benar-benar
+ * dihasilkan produk. Dipakai sebagai visual hero dan blok gambar-teks bila konsol belum mengunggah gambar.
  *
- * Kenapa bukan ilustrasi dan bukan tangkapan layar:
+ * Kenapa bukan ilustrasi:
  * - §17.6.4 melarang ilustrasi dekoratif, dan ini bukan hiasan melainkan **contoh keluaran produk**;
- * - tangkapan layar tidak bisa dipakai di isi bawaan karena gambar situs tersimpan per pemasangan
- *   (`GambarSitus` dirujuk lewat Uuid), sedangkan `KontenSitusBawaan` adalah PHP statis;
- * - keduanya murni tipografi, jadi tetap terbaca tanpa gradien, bayangan, atau warna apa pun (§17.6.11).
+ * - gambar unggahan konsol tidak bisa dipakai isi bawaan (`GambarSitus` dirujuk lewat Uuid), maka tangkapan layar
+ *   aplikasi disimpan sebagai berkas statis dan dipilih lewat nama spesimen;
+ * - struk & jurnal murni tipografi; tangkapan layar dibingkai tepi gelap tanpa bayangan maupun gradien (§17.6.11).
  *
  * Angkanya contoh tetap (bukan klaim tentang usaha siapa pun) dan memakai font Mono + angka tabular seperti
  * struk sungguhan. Pembaca layar menerima satu kalimat lewat `role="img"`, bukan deretan angka.
@@ -124,6 +125,61 @@ export function SpesimenJurnal({ className }: PropsSpesimen) {
     );
 }
 
-export const SPESIMEN = { Struk: SpesimenStruk, Jurnal: SpesimenJurnal } as const;
+/** D-39: tangkapan layar asli aplikasi, dihasilkan `Aplikasi/{Kasir,Pemilik}/AlatSitus/FotoSitus_test.dart`. */
+const FOTO_KASIR = { src: '/situs/produk/kasir-jual.webp', lebar: 1280, tinggi: 800 } as const;
+const FOTO_PEMILIK = { src: '/situs/produk/pemilik-beranda.webp', lebar: 390, tinggi: 844 } as const;
+
+/** Bingkai HP: tepi gelap tipis membulat, tanpa bayangan dekoratif (§17.6.11). */
+function BingkaiHp({ className, prioritas = false }: PropsSpesimen & { prioritas?: boolean }) {
+    return (
+        <div className={cn('rounded-[1.75rem] border border-teks-utama bg-teks-utama p-1.5', className)}>
+            <img
+                src={FOTO_PEMILIK.src}
+                width={FOTO_PEMILIK.lebar}
+                height={FOTO_PEMILIK.tinggi}
+                loading={prioritas ? 'eager' : 'lazy'}
+                decoding="async"
+                alt="Aplikasi Pemilik PAYOU: omzet hari ini Rp 8.475.000, naik 14% dari kemarin, perlu tindakan stok susu hampir habis, dan omzet per outlet."
+                className="block h-auto w-full rounded-[1.375rem] bg-permukaan"
+            />
+        </div>
+    );
+}
+
+/**
+ * Layar Jual aplikasi Kasir di bingkai tablet, dengan aplikasi Pemilik di HP menumpuk di sudut kiri bawah: satu
+ * gambar yang langsung menjelaskan "kasir di toko, pemilik dari mana saja". Gambar asli, bukan mockup karangan.
+ */
+export function SpesimenKasir({ className }: PropsSpesimen) {
+    return (
+        <div className={cn('relative w-full max-w-2xl pb-10 pl-6 sm:pb-14 sm:pl-10', className)}>
+            <div className="rounded-[1.25rem] border border-teks-utama bg-teks-utama p-2 sm:p-2.5">
+                <img
+                    src={FOTO_KASIR.src}
+                    width={FOTO_KASIR.lebar}
+                    height={FOTO_KASIR.tinggi}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                    alt="Aplikasi Kasir PAYOU di tablet: katalog menu kafe, keranjang berisi Es Kopi Susu Aren, Croissant Cokelat, dan Matcha Latte, total Rp 95.700 dengan PBJT 10%."
+                    className="block h-auto w-full rounded-[0.75rem] bg-permukaan"
+                />
+            </div>
+            <BingkaiHp prioritas className="absolute bottom-0 left-0 w-[26%] min-w-24" />
+        </div>
+    );
+}
+
+/** Aplikasi Pemilik saja, untuk blok gambar-teks tentang memantau usaha dari HP. */
+export function SpesimenPemilik({ className }: PropsSpesimen) {
+    return <BingkaiHp className={cn('mx-auto w-full max-w-64', className)} />;
+}
+
+export const SPESIMEN = {
+    Kasir: SpesimenKasir,
+    Pemilik: SpesimenPemilik,
+    Struk: SpesimenStruk,
+    Jurnal: SpesimenJurnal,
+} as const;
 
 export type NamaSpesimen = keyof typeof SPESIMEN;
