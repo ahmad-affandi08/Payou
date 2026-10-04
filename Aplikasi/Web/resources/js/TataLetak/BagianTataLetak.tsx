@@ -261,13 +261,22 @@ type PropsMenuAkun = {
     gelap?: boolean;
     tenant?: TenantAktif | null;
     bolehKelolaLangganan?: boolean;
+    /** Konsol pengelola memakai `/keamanan`; back-office tenant `/kelola/keamanan`. */
+    tautanKeamanan?: string;
 };
 
 /**
  * Menu akun (DropdownMenu): profil usaha, kartu paket & langganan aktif (perpanjang, masa aktif,
  * ID tenant copy, notifikasi tagihan pending), Keamanan akun (D-27), lalu Keluar.
  */
-export function MenuAkun({ nama, email, gelap = false, tenant, bolehKelolaLangganan = true }: PropsMenuAkun) {
+export function MenuAkun({
+    nama,
+    email,
+    gelap = false,
+    tenant,
+    bolehKelolaLangganan = true,
+    tautanKeamanan = '/kelola/keamanan',
+}: PropsMenuAkun) {
     const [sudahSalin, AturSudahSalin] = useState(false);
 
     const SalinId = (teks: string, e: React.MouseEvent) => {
@@ -443,7 +452,7 @@ export function MenuAkun({ nama, email, gelap = false, tenant, bolehKelolaLangga
                     </DropdownMenuItem>
                 ) : null}
                 <DropdownMenuItem asChild className="text-label cursor-pointer">
-                    <Link href="/kelola/keamanan">
+                    <Link href={tautanKeamanan}>
                         <ShieldCheckIcon aria-hidden="true" />
                         Keamanan akun
                     </Link>

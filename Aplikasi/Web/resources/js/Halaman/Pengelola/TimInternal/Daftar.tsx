@@ -1,4 +1,4 @@
-import { useForm, usePage } from '@inertiajs/react';
+import { router, useForm, usePage } from '@inertiajs/react';
 import { useMemo, useState, type FormEvent } from 'react';
 
 import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
@@ -26,6 +26,7 @@ type Anggota = {
     WajibGantiKataSandi: boolean;
     TerakhirMasukPada: string | null;
     DinonaktifkanPada: string | null;
+    JumlahPerangkatTepercaya: number;
 };
 
 type Undangan = { Uuid: string; Email: string; KodePeran: string[]; BerlakuSampai: string };
@@ -77,6 +78,9 @@ function BuatKolom(namaPeran: Map<string, string>): KolomTabel<Anggota>[] {
                     {anggota.DuaFaktorAktif ? null : (
                         <LabelStatus jenis="peringatan" teks="Verifikasi dua langkah belum aktif" />
                     )}
+                    {anggota.JumlahPerangkatTepercaya > 0 ? (
+                        <LabelStatus jenis="netral" teks={`${anggota.JumlahPerangkatTepercaya} perangkat tepercaya`} />
+                    ) : null}
                     {anggota.Aktif ? null : (
                         <span className="block w-full text-keterangan text-teks-sekunder">
                             Dinonaktifkan {FormatTanggalWaktu(anggota.DinonaktifkanPada)}
@@ -171,6 +175,19 @@ export default function Daftar({ Anggota, Undangan, Peran }: PropsDaftar) {
                                       {bolehUbahPeran ? (
                                           <DropdownMenuItem onSelect={() => AturPilihan({ jenis: 'peran', anggota })}>
                                               Ubah peran
+                                          </DropdownMenuItem>
+                                      ) : null}
+                                      {bolehNonaktifkan && anggota.JumlahPerangkatTepercaya > 0 ? (
+                                          <DropdownMenuItem
+                                              onSelect={() =>
+                                                  router.post(
+                                                      `/tim-internal/${anggota.Uuid}/cabut-perangkat`,
+                                                      {},
+                                                      { preserveScroll: true },
+                                                  )
+                                              }
+                                          >
+                                              Cabut perangkat tepercaya
                                           </DropdownMenuItem>
                                       ) : null}
                                       {bolehUbahPeran && bolehNonaktifkan ? <DropdownMenuSeparator /> : null}

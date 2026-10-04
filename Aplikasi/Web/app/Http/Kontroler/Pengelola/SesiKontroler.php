@@ -6,6 +6,7 @@ namespace App\Http\Kontroler\Pengelola;
 
 use App\Domain\Pengelola\TimInternal\Aksi\CatatMasukPengelola;
 use App\Domain\Pengelola\TimInternal\Layanan\PencatatAuditPengelola;
+use App\Domain\Pengelola\TimInternal\Layanan\PenjagaPerangkatTepercaya;
 use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
 use App\Http\Kontroler\Kontroler;
 use App\Http\Perantara\Pengelola\SesiPengelola;
@@ -13,6 +14,7 @@ use App\Http\Permintaan\Pengelola\MasukPermintaan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -39,8 +41,12 @@ final class SesiKontroler extends Kontroler
         return Inertia::render('Pengelola/Masuk');
     }
 
-    public function Masuk(MasukPermintaan $permintaan, CatatMasukPengelola $catatMasuk): RedirectResponse
-    {
+    public function Masuk(
+        MasukPermintaan $permintaan,
+        CatatMasukPengelola $catatMasuk,
+        PenjagaPerangkatTepercaya $perangkatTepercaya,
+        PencatatAuditPengelola $audit,
+    ): RedirectResponse {
         $email = Str::lower(trim($permintaan->string('Email')->toString()));
         $kunciBatas = 'pengelola-masuk:'.$email.'|'.$permintaan->ip();
         $kunciIp = 'pengelola-masuk-ip:'.$permintaan->ip();
@@ -86,9 +92,39 @@ final class SesiKontroler extends Kontroler
 
         if ($pengguna instanceof PenggunaPengelola) {
             $catatMasuk->Jalankan($pengguna);
+            $this->PakaiPerangkatTepercaya($permintaan, $pengguna, $perangkatTepercaya, $audit);
         }
 
         return redirect()->intended(route('pengelola.beranda'));
+    }
+
+    /**
+     * D-42: browser yang sudah dipercaya akun ini melewati langkah kode 2FA. Cookie yang tidak berlaku lagi
+     * (dicabut, kedaluwarsa, milik akun lain) dihapus supaya tidak dicoba terus.
+     */
+    private function PakaiPerangkatTepercaya(
+        MasukPermintaan $permintaan,
+        PenggunaPengelola $pengguna,
+        PenjagaPerangkatTepercaya $perangkatTepercaya,
+        PencatatAuditPengelola $audit,
+    ): void {
+        $namaCookie = (string) config('pengelola.CookiePerangkatTepercaya');
+        $nilaiCookie = $permintaan->cookie($namaCookie);
+
+        if (! is_string($nilaiCookie) || ! $pengguna->CekDuaFaktorAktif()) {
+            return;
+        }
+
+        $perangkat = $perangkatTepercaya->Cocokkan($pengguna, $nilaiCookie, $permintaan->ip());
+
+        if ($perangkat === null) {
+            Cookie::queue(Cookie::forget($namaCookie));
+
+            return;
+        }
+
+        $permintaan->session()->put(SesiPengelola::DUA_FAKTOR_TERVERIFIKASI, true);
+        $audit->Catat('sesi.masuk-perangkat-tepercaya', $perangkat, nilaiBaru: ['Keterangan' => $perangkat->Keterangan], idPelaku: $pengguna->Id);
     }
 
     public function Keluar(Request $permintaan, PencatatAuditPengelola $audit): RedirectResponse

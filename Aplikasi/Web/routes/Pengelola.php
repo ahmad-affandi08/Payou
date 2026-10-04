@@ -15,6 +15,7 @@ use App\Http\Kontroler\Pengelola\Katalog\HargaPaketKontroler;
 use App\Http\Kontroler\Pengelola\Katalog\KuponKontroler;
 use App\Http\Kontroler\Pengelola\Katalog\PaketKontroler;
 use App\Http\Kontroler\Pengelola\KataSandiKontroler;
+use App\Http\Kontroler\Pengelola\KeamananKontroler;
 use App\Http\Kontroler\Pengelola\Konten\ArtikelSitusKontroler;
 use App\Http\Kontroler\Pengelola\Konten\DokumenLegalKontroler;
 use App\Http\Kontroler\Pengelola\Konten\ProspekSitusKontroler;
@@ -40,6 +41,7 @@ use App\Http\Kontroler\Pengelola\TimInternalKontroler;
 use App\Http\Kontroler\Pengelola\UndanganKontroler;
 use App\Http\Perantara\Pengelola\PastikanPenggunaPengelola;
 use App\Http\Perantara\Pengelola\WajibDuaFaktor;
+use App\Http\Perantara\Pengelola\WajibDuaFaktorBaru;
 use App\Http\Perantara\Pengelola\WajibGantiKataSandi;
 use App\Http\Perantara\Pengelola\WajibIzinPengelola;
 use Illuminate\Routing\Route as RouteLaravel;
@@ -87,21 +89,31 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
     Route::middleware(WajibDuaFaktor::class)->group(function () use ($izin): void {
         Route::get('/', [BerandaKontroler::class, 'Tampilkan'])->name('pengelola.beranda');
 
+        // D-42: konfirmasi kode 2FA sebelum aksi berbahaya, dan perangkat tepercaya milik sendiri.
+        Route::get('/dua-faktor/konfirmasi', [DuaFaktorKontroler::class, 'TampilkanKonfirmasi'])->name('pengelola.dua-faktor.konfirmasi');
+        Route::post('/dua-faktor/konfirmasi', [DuaFaktorKontroler::class, 'Konfirmasi'])->name('pengelola.dua-faktor.konfirmasi.kirim');
+        Route::get('/keamanan', [KeamananKontroler::class, 'Tampilkan'])->name('pengelola.keamanan');
+        Route::delete('/keamanan/perangkat/{perangkat}', [KeamananKontroler::class, 'CabutPerangkat'])->name('pengelola.keamanan.perangkat.cabut');
+        Route::post('/keamanan/perangkat/cabut-semua', [KeamananKontroler::class, 'CabutSemuaPerangkat'])->name('pengelola.keamanan.perangkat.cabut-semua');
+
         Route::get('/tim-internal', [TimInternalKontroler::class, 'Daftar'])
             ->middleware($izin(IzinPengelola::TimAnggotaLihat))
             ->name('pengelola.tim-internal.daftar');
         Route::post('/tim-internal', [TimInternalKontroler::class, 'Tambah'])
-            ->middleware($izin(IzinPengelola::TimAnggotaUndang))
+            ->middleware([$izin(IzinPengelola::TimAnggotaUndang), WajibDuaFaktorBaru::class])
             ->name('pengelola.tim-internal.tambah');
         Route::post('/tim-internal/undangan', [TimInternalKontroler::class, 'Undang'])
-            ->middleware($izin(IzinPengelola::TimAnggotaUndang))
+            ->middleware([$izin(IzinPengelola::TimAnggotaUndang), WajibDuaFaktorBaru::class])
             ->name('pengelola.tim-internal.undangan.buat');
         Route::put('/tim-internal/{penggunaPengelola}/peran', [TimInternalKontroler::class, 'TetapkanPeran'])
-            ->middleware($izin(IzinPengelola::TimPeranTetapkan))
+            ->middleware([$izin(IzinPengelola::TimPeranTetapkan), WajibDuaFaktorBaru::class])
             ->name('pengelola.tim-internal.peran.ubah');
         Route::post('/tim-internal/{penggunaPengelola}/nonaktifkan', [TimInternalKontroler::class, 'Nonaktifkan'])
-            ->middleware($izin(IzinPengelola::TimAnggotaNonaktifkan))
+            ->middleware([$izin(IzinPengelola::TimAnggotaNonaktifkan), WajibDuaFaktorBaru::class])
             ->name('pengelola.tim-internal.nonaktifkan');
+        Route::post('/tim-internal/{penggunaPengelola}/cabut-perangkat', [TimInternalKontroler::class, 'CabutPerangkat'])
+            ->middleware([$izin(IzinPengelola::TimAnggotaNonaktifkan), WajibDuaFaktorBaru::class])
+            ->name('pengelola.tim-internal.cabut-perangkat');
 
         Route::get('/log-audit', [LogAuditKontroler::class, 'Daftar'])
             ->middleware($izin(IzinPengelola::AuditLihat))
@@ -205,7 +217,7 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
         // P-05 Konfigurasi integrasi platform (BR-P05.2: hanya Teknis & Super Admin).
         Route::middleware($izin(IzinPengelola::IntegrasiLihat))->group(function () use ($izin): void {
             Route::get('/integrasi', [IntegrasiKontroler::class, 'Daftar'])->name('pengelola.integrasi.daftar');
-            Route::middleware($izin(IzinPengelola::IntegrasiKelola))->group(function (): void {
+            Route::middleware([$izin(IzinPengelola::IntegrasiKelola), WajibDuaFaktorBaru::class])->group(function (): void {
                 Route::post('/integrasi', [IntegrasiKontroler::class, 'Simpan'])->name('pengelola.integrasi.simpan');
                 Route::post('/integrasi/{konfigurasiIntegrasi}/uji', [IntegrasiKontroler::class, 'Uji'])->name('pengelola.integrasi.uji');
                 Route::post('/integrasi/{konfigurasiIntegrasi}/aktifkan', [IntegrasiKontroler::class, 'Aktifkan'])->name('pengelola.integrasi.aktifkan');
@@ -399,10 +411,10 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
                     ->name('pengelola.tenant.override.cabut');
             });
             Route::post('/tenant/{tenant}/tangguhkan', [TindakanTenantKontroler::class, 'Tangguhkan'])
-                ->middleware($izin(IzinPengelola::TenantTangguhkan))
+                ->middleware([$izin(IzinPengelola::TenantTangguhkan), WajibDuaFaktorBaru::class])
                 ->name('pengelola.tenant.tangguhkan');
             Route::post('/tenant/{tenant}/aktifkan', [TindakanTenantKontroler::class, 'Aktifkan'])
-                ->middleware($izin(IzinPengelola::TenantAktifkan))
+                ->middleware([$izin(IzinPengelola::TenantAktifkan), WajibDuaFaktorBaru::class])
                 ->name('pengelola.tenant.aktifkan');
             Route::put('/tenant/{tenant}/penanda', [TindakanTenantKontroler::class, 'UbahPenanda'])
                 ->middleware($izin(IzinPengelola::TenantPenandaUbah))

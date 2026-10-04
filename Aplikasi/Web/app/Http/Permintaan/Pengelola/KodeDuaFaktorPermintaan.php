@@ -15,6 +15,7 @@ final class KodeDuaFaktorPermintaan extends FormRequest
     {
         return [
             'Kode' => ['required', 'string', 'max:20'],
+            'PercayaiPerangkat' => ['sometimes', 'boolean'],
         ];
     }
 }

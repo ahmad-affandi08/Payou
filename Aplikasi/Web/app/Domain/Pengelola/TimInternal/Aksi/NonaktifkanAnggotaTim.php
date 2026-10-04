@@ -8,6 +8,7 @@ use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Pengelola\TimInternal\Enum\PeranPengelolaBawaan;
 use App\Domain\Pengelola\TimInternal\Kueri\SuperAdminAktif;
 use App\Domain\Pengelola\TimInternal\Layanan\PencatatAuditPengelola;
+use App\Domain\Pengelola\TimInternal\Layanan\PenjagaPerangkatTepercaya;
 use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
 use App\Domain\Pengelola\TimInternal\Model\UndanganPengelola;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,7 @@ final class NonaktifkanAnggotaTim
     public function __construct(
         private readonly SuperAdminAktif $superAdminAktif,
         private readonly PencatatAuditPengelola $audit,
+        private readonly PenjagaPerangkatTepercaya $perangkatTepercaya,
     ) {}
 
     public function Jalankan(PenggunaPengelola $pelaku, PenggunaPengelola $anggota, string $alasan): void
@@ -43,6 +45,8 @@ final class NonaktifkanAnggotaTim
             }
 
             $anggota->update(['Aktif' => false, 'DinonaktifkanPada' => now()]);
+            // D-42: perangkat tepercaya ikut dicabut agar akun yang diaktifkan lagi kelak wajib 2FA ulang.
+            $this->perangkatTepercaya->CabutSemua($anggota, 'Akun dinonaktifkan.', $pelaku->Id);
 
             // Undangan yang dikirim akun ini dan belum diterima ikut dicabut (P-01 langkah 6).
             $undanganDicabut = UndanganPengelola::query()

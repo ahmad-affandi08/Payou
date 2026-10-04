@@ -12,6 +12,7 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as KontrakDapatDiautentikasi;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 
@@ -69,10 +70,23 @@ final class PenggunaPengelola extends ModelDasar implements KontrakDapatDiautent
         return 'KataSandi';
     }
 
-    /** Tanpa fitur "ingat saya": sesi pengelola wajib berakhir setelah 30 menit tidak aktif (BR-P01.2). */
+    /**
+     * Tanpa fitur "ingat saya": sesi pengelola wajib berakhir setelah 30 menit tidak aktif (BR-P01.2). Yang diingat
+     * hanya perangkat tepercaya untuk langkah 2FA (D-42), bukan sesinya.
+     */
     public function getRememberTokenName(): string
     {
         return '';
+    }
+
+    /**
+     * Perangkat tepercaya yang melewati langkah 2FA saat login (D-42).
+     *
+     * @return HasMany<PerangkatTepercayaPengelola, $this>
+     */
+    public function PerangkatTepercaya(): HasMany
+    {
+        return $this->hasMany(PerangkatTepercayaPengelola::class, 'IdPenggunaPengelola', 'Id');
     }
 
     public function routeNotificationForMail(): string

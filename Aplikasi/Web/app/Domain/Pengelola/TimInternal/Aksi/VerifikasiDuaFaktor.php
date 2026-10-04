@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Verifikasi 2FA setiap kali masuk (BR-P01.2): kode TOTP 6 digit, atau kode pemulihan sekali pakai.
+ * Verifikasi 2FA saat masuk (BR-P01.2; dilewati di perangkat tepercaya, D-42) dan saat konfirmasi aksi berbahaya:
+ * kode TOTP 6 digit, atau kode pemulihan sekali pakai.
  */
 final class VerifikasiDuaFaktor
 {
@@ -21,14 +22,14 @@ final class VerifikasiDuaFaktor
         private readonly PencatatAuditPengelola $audit,
     ) {}
 
-    public function Jalankan(PenggunaPengelola $pengguna, string $kode): void
+    public function Jalankan(PenggunaPengelola $pengguna, string $kode, bool $konfirmasiAksi = false): void
     {
         if (! $pengguna->CekDuaFaktorAktif() || $pengguna->Rahasia2fa === null) {
             throw new PelanggaranAturanBisnis('DuaFaktorBelumAktif', 'Aktifkan verifikasi dua langkah terlebih dahulu.');
         }
 
         if ($this->duaFaktor->VerifikasiKode($pengguna->Rahasia2fa, $kode)) {
-            $this->audit->Catat('sesi.masuk', $pengguna, idPelaku: $pengguna->Id);
+            $this->audit->Catat($konfirmasiAksi ? 'sesi.dua-faktor.konfirmasi' : 'sesi.masuk', $pengguna, idPelaku: $pengguna->Id);
 
             return;
         }
@@ -37,9 +38,13 @@ final class VerifikasiDuaFaktor
         $sisa = $pengguna->KodePemulihan2fa ?? [];
 
         if (in_array($kodeNormal, $sisa, true)) {
-            DB::transaction(function () use ($pengguna, $sisa, $kodeNormal): void {
+            DB::transaction(function () use ($pengguna, $sisa, $kodeNormal, $konfirmasiAksi): void {
                 $pengguna->update(['KodePemulihan2fa' => array_values(array_diff($sisa, [$kodeNormal]))]);
-                $this->audit->Catat('sesi.masuk-kode-pemulihan', $pengguna, idPelaku: $pengguna->Id);
+                $this->audit->Catat(
+                    $konfirmasiAksi ? 'sesi.dua-faktor.konfirmasi-kode-pemulihan' : 'sesi.masuk-kode-pemulihan',
+                    $pengguna,
+                    idPelaku: $pengguna->Id,
+                );
             });
 
             return;

@@ -25,11 +25,25 @@ final class BantuanPengelola
     }
 
     /**
-     * Isi sesi setelah masuk dan lolos 2FA.
+     * Isi sesi setelah masuk dan baru saja memasukkan kode 2FA (aksi berbahaya tidak meminta konfirmasi, D-42).
      *
      * @return array<string, mixed>
      */
     public static function SesiTerverifikasi(): array
+    {
+        return [
+            SesiPengelola::DUA_FAKTOR_TERVERIFIKASI => true,
+            SesiPengelola::KODE_DUA_FAKTOR_PADA => now()->getTimestamp(),
+            SesiPengelola::TERAKHIR_AKTIF => now()->getTimestamp(),
+        ];
+    }
+
+    /**
+     * Isi sesi setelah masuk lewat perangkat tepercaya (D-42): 2FA terlewati, tetapi belum ada kode di sesi ini.
+     *
+     * @return array<string, mixed>
+     */
+    public static function SesiPerangkatTepercaya(): array
     {
         return [
             SesiPengelola::DUA_FAKTOR_TERVERIFIKASI => true,

@@ -212,7 +212,7 @@ export default function TataLetakPengelola({ judul, jejak = [], aksi, children }
                 <div className="sticky top-0 z-20">
                     <PenandaLingkungan lingkungan={props.Lingkungan} />
                     <KepalaTataLetak induk={namaPlatform} judul={judul} gelap lengket={false}>
-                        <MenuAkun nama={pengguna?.Nama} email={pengguna?.Email} gelap />
+                        <MenuAkun nama={pengguna?.Nama} email={pengguna?.Email} gelap tautanKeamanan="/keamanan" />
                     </KepalaTataLetak>
                 </div>
                 <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6">

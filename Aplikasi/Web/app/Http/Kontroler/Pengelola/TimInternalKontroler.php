@@ -8,6 +8,7 @@ use App\Domain\Pengelola\TimInternal\Aksi\NonaktifkanAnggotaTim;
 use App\Domain\Pengelola\TimInternal\Aksi\TambahAnggotaTim;
 use App\Domain\Pengelola\TimInternal\Aksi\TetapkanPeran;
 use App\Domain\Pengelola\TimInternal\Aksi\UndangAnggotaTim;
+use App\Domain\Pengelola\TimInternal\Layanan\PenjagaPerangkatTepercaya;
 use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
 use App\Domain\Pengelola\TimInternal\Model\PeranPengelola;
 use App\Domain\Pengelola\TimInternal\Model\UndanganPengelola;
@@ -31,6 +32,9 @@ final class TimInternalKontroler extends Kontroler
     {
         $anggota = PenggunaPengelola::query()
             ->with('Peran')
+            ->withCount(['PerangkatTepercaya as JumlahPerangkatTepercaya' => fn ($kueri) => $kueri
+                ->whereNull('DicabutPada')
+                ->where('BerlakuSampai', '>', now())])
             ->orderByDesc('Aktif')
             ->orderBy('Nama')
             ->get()
@@ -44,6 +48,7 @@ final class TimInternalKontroler extends Kontroler
                 'WajibGantiKataSandi' => $pengguna->WajibGantiKataSandi,
                 'TerakhirMasukPada' => $pengguna->TerakhirMasukPada?->toIso8601String(),
                 'DinonaktifkanPada' => $pengguna->DinonaktifkanPada?->toIso8601String(),
+                'JumlahPerangkatTepercaya' => (int) $pengguna->getAttribute('JumlahPerangkatTepercaya'),
             ]);
 
         $undangan = UndanganPengelola::query()
@@ -120,6 +125,16 @@ final class TimInternalKontroler extends Kontroler
         $nonaktifkan->Jalankan($this->Pelaku(), $penggunaPengelola, $permintaan->string('Alasan')->toString());
 
         return back()->with('Kilat', "{$penggunaPengelola->Nama} dinonaktifkan. Sesinya langsung terputus.");
+    }
+
+    /** D-42: Super Admin mencabut semua perangkat tepercaya anggota (laptop hilang, dicurigai), tanpa menonaktifkan. */
+    public function CabutPerangkat(PenggunaPengelola $penggunaPengelola, PenjagaPerangkatTepercaya $perangkatTepercaya): RedirectResponse
+    {
+        $jumlah = $perangkatTepercaya->CabutSemua($penggunaPengelola, 'Dicabut Super Admin dari Tim internal.', $this->Pelaku()->Id);
+
+        return back()->with('Kilat', $jumlah > 0
+            ? "{$jumlah} perangkat tepercaya {$penggunaPengelola->Nama} dicabut. Login berikutnya wajib kode 2FA."
+            : "{$penggunaPengelola->Nama} tidak punya perangkat tepercaya.");
     }
 
     private function Pelaku(): PenggunaPengelola

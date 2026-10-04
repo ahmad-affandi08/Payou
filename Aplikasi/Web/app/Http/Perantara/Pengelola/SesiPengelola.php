@@ -17,5 +17,11 @@ final class SesiPengelola
 
     public const KODE_PEMULIHAN_BARU = 'Pengelola.KodePemulihanBaru';
 
+    /** D-42: waktu (timestamp) kode 2FA terakhir benar-benar dimasukkan di sesi ini; login lewat perangkat tepercaya tidak mengisinya. */
+    public const KODE_DUA_FAKTOR_PADA = 'Pengelola.KodeDuaFaktorPada';
+
+    /** D-42: halaman yang dibuka lagi setelah konfirmasi 2FA untuk aksi berbahaya. */
+    public const KEMBALI_SETELAH_KONFIRMASI = 'Pengelola.KembaliSetelahKonfirmasi';
+
     public const GUARD = 'pengelola';
 }
