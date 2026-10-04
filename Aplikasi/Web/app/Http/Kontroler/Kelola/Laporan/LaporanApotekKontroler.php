@@ -98,7 +98,7 @@ final class LaporanApotekKontroler extends DasarKelolaKontroler
             "data-pendukung-sipnap-{$bulan->format('Y-m')}",
             $kolom,
             $isi,
-            [['Bulan', $bulan->copy()->locale('id')->translatedFormat('F Y')]],
+            [['Periode', $this->LabelPeriode($bulan, $bulan->endOfMonth())]],
         );
     }
 

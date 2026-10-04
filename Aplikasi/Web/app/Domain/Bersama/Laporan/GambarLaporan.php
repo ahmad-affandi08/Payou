@@ -36,7 +36,7 @@ final class GambarLaporan
             return null;
         }
 
-        $tinggi = min($tinggiTarget, $info[1]);
+        $tinggi = max(1, min($tinggiTarget, $info[1]));
         $lebar = max(1, intdiv($info[0] * $tinggi, $info[1]));
         $hasil = imagecreatetruecolor($lebar, $tinggi);
 
@@ -56,7 +56,11 @@ final class GambarLaporan
         return $png === '' ? null : ['Png' => $png, 'Lebar' => $lebar, 'Tinggi' => $tinggi];
     }
 
-    /** Logo PAYOU untuk kaki "Dibuat dengan PAYOU". */
+    /**
+     * Logo PAYOU untuk kaki "Dibuat dengan PAYOU".
+     *
+     * @return array{Png: string, Lebar: int, Tinggi: int}|null
+     */
     public static function LogoPayou(int $tinggiTarget): ?array
     {
         $path = resource_path('js/Aset/Merek/LogoHorizontal.webp');
