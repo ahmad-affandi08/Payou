@@ -9,6 +9,7 @@ use App\Domain\Kasir\Model\KategoriKas;
 use App\Domain\Organisasi\Kueri\JenisPesananOutlet;
 use App\Domain\Organisasi\Kueri\OutletPenjualan;
 use App\Domain\Organisasi\Kueri\ProfilPajakOutlet;
+use App\Domain\Organisasi\Kueri\SektorOutletTenant;
 use App\Domain\Organisasi\Kueri\StafPerangkat;
 use App\Domain\Organisasi\Kueri\TanggalBisnisOutlet;
 use App\Domain\Organisasi\Layanan\VerifierPinOffline;
@@ -66,6 +67,7 @@ final class DataAwalKasir
         private readonly JenisPesananOutlet $jenisPesanan,
         private readonly PengaturanBarcodeTimbanganTenant $barcodeTimbangan,
         private readonly FiturOutlet $fiturOutlet,
+        private readonly SektorOutletTenant $sektorOutlet,
     ) {}
 
     /**
@@ -132,6 +134,8 @@ final class DataAwalKasir
             'Laundry' => $this->AmbilLaundry($perangkat->IdTenant),
             // F-17: kasir hanya menampilkan menu Pesanan toko online bila outlet ini memang melayaninya.
             'TokoOnline' => ['Aktif' => $this->statusTokoOnline->CekAktif($outlet?->idOutlet)],
+            // D-48 (aditif): sektor outlet ini (template + jenis usaha tambahan); kasir menyaring fitur khusus sektor.
+            'KodeSektor' => $outlet === null ? [] : $this->sektorOutlet->AmbilKodeUntukOutlet($perangkat->IdTenant, $outlet->idOutlet),
             'ProfilPajak' => [
                 'Pkp' => $profil->pkp ?? false,
                 'PungutPbjt' => $profil->pungutPbjt ?? false,

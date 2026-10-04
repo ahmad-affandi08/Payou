@@ -603,4 +603,13 @@ void main() {
     ada = false;
     expect(await klien.AmbilLogoStruk(), isNull);
   });
+
+  test('D-48: KodeSektor dipetakan; server lama tanpa kunci → kosong (semua fitur sektor tampil)', () {
+    final data = DataAwal.DariJson({
+      ...DataAwalF06(),
+      'KodeSektor': ['RTL-GEN', 'SVC-WRK'],
+    });
+    expect(data.kodeSektor, ['RTL-GEN', 'SVC-WRK']);
+    expect(DataAwal.DariJson(DataAwalF06()).kodeSektor, isEmpty);
+  });
 }

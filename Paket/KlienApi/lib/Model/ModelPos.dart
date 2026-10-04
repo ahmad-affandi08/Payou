@@ -451,6 +451,7 @@ class DataAwal {
     this.deposit = const DepositPos(),
     this.laundry = const LaundryPos(),
     this.tokoOnlineAktif = false,
+    this.kodeSektor = const [],
   });
 
   static const String batasDiskonManualBawaan = '10';
@@ -530,6 +531,10 @@ class DataAwal {
   /// Server lama tanpa kunci `TokoOnline` = tidak aktif.
   final bool tokoOnlineAktif;
 
+  /// D-48: kode sektor outlet ini (template sektor + jenis usaha tambahan, misal `RTL-GEN`, `SVC-WRK`); kasir menyaring
+  /// fitur khusus sektor (Servis, Reservasi) darinya. Server lama / kosong = sektor belum diketahui, semua tampil.
+  final List<String> kodeSektor;
+
   static DataAwal DariJson(Map<String, Object?> json) {
     final pengaturan = _Peta(json['Pengaturan']);
     final pin = _Peta(json['PinOffline']);
@@ -567,6 +572,7 @@ class DataAwal {
       deposit: DepositPos.DariJson(json['Deposit']),
       laundry: LaundryPos.DariJson(json['Laundry']),
       tokoOnlineAktif: UraiJson.AmbilBenar(UraiJson.AmbilPeta(json['TokoOnline'])['Aktif']),
+      kodeSektor: UraiJson.AmbilDaftarTeks(json['KodeSektor']),
     );
   }
 }

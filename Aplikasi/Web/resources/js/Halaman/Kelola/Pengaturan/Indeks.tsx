@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
 import DialogNaikPaket from '@/Komponen/Langganan/DialogNaikPaket';
+import { CekSesuaiSektor } from '@/Pustaka/Sektor';
 import { CekButirSesuaiEdisi, SaringPengaturan, type ButirPengaturan } from '@/Pustaka/DaftarPengaturan';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 import type { PropsBersamaAplikasi } from '@/Tipe/Aplikasi';
@@ -23,7 +24,9 @@ export default function HalamanPengaturan() {
     const penawaran = kunciPenawaran === null ? undefined : terkunci[kunciPenawaran];
 
     const CekBoleh = (butir: ButirPengaturan) =>
-        CekButirSesuaiEdisi(butir, props.Edisi) && (butir.izin === null || PunyaIzinTenant(props.Akses, butir.izin));
+        CekButirSesuaiEdisi(butir, props.Edisi) &&
+        CekSesuaiSektor(butir, props.SektorOutlet ?? []) &&
+        (butir.izin === null || PunyaIzinTenant(props.Akses, butir.izin));
     const CekTerkunci = (butir: ButirPengaturan) => butir.fitur !== undefined && terkunci[butir.fitur] !== undefined;
 
     // Kotak cari: 25 butir di 8 grup terlalu banyak untuk dipindai mata. Penyaringannya di `SaringPengaturan`

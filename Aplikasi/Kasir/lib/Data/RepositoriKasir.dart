@@ -34,6 +34,9 @@ abstract final class KunciPengaturan {
   /// F-17: `1` bila toko online melayani outlet perangkat ini (menu Pesanan toko online di kasir).
   static const String tokoOnlineAktif = 'TokoOnlineAktif';
 
+  /// D-48: JSON larik kode sektor outlet (template + jenis usaha tambahan) untuk menyaring fitur khusus sektor.
+  static const String kodeSektor = 'KodeSektor';
+
   /// v3.51: jenis pesanan outlet (JSON larik nama kanal) & bawaannya.
   static const String jenisPesanan = 'JenisPesanan';
   static const String jenisPesananBawaan = 'JenisPesananBawaan';
@@ -259,6 +262,7 @@ class RepositoriKasir {
     await SimpanPengaturan(KunciPengaturan.deposit, jsonEncode(data.deposit.KeJson()));
     await SimpanPengaturan(KunciPengaturan.laundry, jsonEncode(data.laundry.KeJson()));
     await SimpanPengaturan(KunciPengaturan.tokoOnlineAktif, data.tokoOnlineAktif ? '1' : '0');
+    await SimpanPengaturan(KunciPengaturan.kodeSektor, jsonEncode(data.kodeSektor));
     final outlet = data.outlet;
     if (outlet != null) {
       await SimpanPengaturan(KunciPengaturan.uuidOutlet, outlet.uuid);

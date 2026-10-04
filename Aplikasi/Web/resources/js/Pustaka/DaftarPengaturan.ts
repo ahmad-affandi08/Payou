@@ -18,6 +18,8 @@ export type ButirPengaturan = {
     fitur?: string;
     /** D-35: butir yang rutenya hanya ada di satu edisi (misal integrasi server di edisi Lisensi). */
     edisi?: 'Saas' | 'Lisensi';
+    /** D-48: awalan kode sektor outlet yang memakai butir ini (mis. `FNB`); tanpa = semua sektor. */
+    sektor?: string[];
 };
 
 export type GrupPengaturan = { judul: string; butir: ButirPengaturan[] };
@@ -82,6 +84,7 @@ export const daftarPengaturan: GrupPengaturan[] = [
                 href: '/kelola/stasiun-dapur',
                 izin: IzinTenant.ProdukLihat,
                 fitur: 'pos.kds',
+                sektor: ['FNB'],
             },
             {
                 label: 'Impor produk',

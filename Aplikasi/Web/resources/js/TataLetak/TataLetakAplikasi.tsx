@@ -7,6 +7,7 @@ import IkonNavigasi, { type NamaIkonNavigasi } from '@/Komponen/Navigasi/IkonNav
 import Tombol from '@/Komponen/Formulir/Tombol';
 import DialogNaikPaket from '@/Komponen/Langganan/DialogNaikPaket';
 import { CekButirSesuaiEdisi, daftarPengaturan, type GrupPengaturan } from '@/Pustaka/DaftarPengaturan';
+import { CekSesuaiSektor } from '@/Pustaka/Sektor';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/Komponen/Ui/collapsible';
 import {
     Sidebar,
@@ -87,7 +88,13 @@ const menuProduk: ItemMenu[] = [
     { label: 'Produk', href: '/kelola/produk', izin: IzinTenant.ProdukLihat },
     { label: 'Kategori', href: '/kelola/kategori', izin: IzinTenant.ProdukLihat },
     // F-16d bagian 2: paket sesi (produk Jasa yang dijual sebagai N sesi).
-    { label: 'Paket sesi', href: '/kelola/paket-sesi', izin: IzinTenant.ProdukLihat, fitur: 'pelanggan.paket-sesi' },
+    {
+        label: 'Paket sesi',
+        href: '/kelola/paket-sesi',
+        izin: IzinTenant.ProdukLihat,
+        fitur: 'pelanggan.paket-sesi',
+        sektor: ['SVC'],
+    },
 ];
 
 // F-05a: grup menu "Persediaan" (DesainF05a E). D-27: stok awal, impornya, dan pengaturan persediaan pindah ke
@@ -112,7 +119,13 @@ const menuPersediaan: ItemMenu[] = [
     },
     { label: 'Penyesuaian stok', href: '/kelola/persediaan/penyesuaian', izin: IzinTenant.PersediaanLihat },
     // F-05e: order produksi (resep → bahan keluar, hasil masuk).
-    { label: 'Produksi', href: '/kelola/persediaan/produksi', izin: IzinTenant.PersediaanLihat, lanjutan: true },
+    {
+        label: 'Produksi',
+        href: '/kelola/persediaan/produksi',
+        izin: IzinTenant.PersediaanLihat,
+        sektor: ['FNB', 'RTL-BLD', 'WHS'],
+        lanjutan: true,
+    },
     // F-05f: bahan terbuang (waste) & food cost.
     {
         label: 'Bahan terbuang',
@@ -182,6 +195,7 @@ const menuPelanggan: ItemMenu[] = [
         href: '/kelola/pelanggan/saldo-sesi',
         izin: IzinTenant.PelangganLihat,
         fitur: 'pelanggan.paket-sesi',
+        sektor: ['SVC'],
     },
 ];
 
@@ -385,7 +399,7 @@ export const daftarMenu: (ItemMenu | GrupMenu)[] = [
         label: 'Grosir',
         href: '/kelola/grosir/pesanan',
         izin: IzinTenant.GrosirKelola,
-        sektor: ['WHS'],
+        sektor: ['WHS', 'RTL-BLD'],
         lanjutan: true,
         ikon: 'Pengiriman',
         labelSub: 'Menu grosir',
@@ -497,6 +511,7 @@ const halamanTurunan: (HalamanPencarian & { induk: string; izin?: KunciIzinTenan
         href: '/kelola/persediaan/kartu-stok/nomor-seri',
         grup: 'Persediaan',
         ikon: 'Gudang',
+        sektor: ['RTL-ELC', 'SVC-WRK', 'WHS'],
     },
     // Bengkel (§9.10): grup "Penjualan & kasir" sudah 7 sub-menu (D-27); perintah kerja & kendaraan dibuka dari tombol
     // di Daftar penjualan, detail pelanggan, Kotak Tindakan, dan Ctrl+K. Tetap disaring izin `bengkel.kelola`.
@@ -543,7 +558,10 @@ export function SusunPencarian(
     const pengaturan = daftarPengaturan.flatMap(({ judul, butir }): HalamanPencarian[] =>
         butir
             .filter(
-                (item) => CekButirSesuaiEdisi(item, edisi) && (item.izin === null || PunyaIzinTenant(akses, item.izin)),
+                (item) =>
+                    CekButirSesuaiEdisi(item, edisi) &&
+                    CekSesuaiSektor(item, sektorOutlet) &&
+                    (item.izin === null || PunyaIzinTenant(akses, item.izin)),
             )
             .map((item) => ({
                 label: item.label,
@@ -637,13 +655,7 @@ export function CekMenuAktif(href: string, url: string): boolean {
 
 type MenuTerlihat = { menu: ItemMenu; labelSub: string | null; sub: ItemMenu[] };
 
-/** Audit #33: menu bersektor tampil bila salah satu outlet memakai sektor berawalan itu; sektor kosong = semua tampil. */
-export function CekSesuaiSektor(menu: { sektor?: string[] | undefined }, sektorOutlet: string[]): boolean {
-    if (menu.sektor === undefined || sektorOutlet.length === 0) {
-        return true;
-    }
-    return menu.sektor.some((awalan) => sektorOutlet.some((kode) => kode === awalan || kode.startsWith(`${awalan}-`)));
-}
+export { CekSesuaiSektor };
 
 /**
  * Menu utama yang boleh dilihat pemegang akses ini beserta sub-menunya; grup tanpa sub-menu boleh disembunyikan.

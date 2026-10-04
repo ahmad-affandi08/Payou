@@ -8,6 +8,7 @@ import SaringLaporan from '@/Komponen/Laporan/SaringLaporan';
 import LabelStatus from '@/Komponen/Umpan/LabelStatus';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
 import { FormatRupiah } from '@/Pustaka/Format';
+import { PakaiSektor } from '@/Pustaka/Sektor';
 import { FormatTanggal, FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
 import { BuatQueryLaporan } from '@/Pustaka/Laporan';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
@@ -623,6 +624,9 @@ function IsiTab({
  * returnya. Ekspor CSV mengikuti saring.
  */
 export default function HalamanLaporanPenjualan(props: PropsLaporanPenjualan) {
+    // D-48: Menu engineering hanya bermakna untuk usaha makanan & minuman (atau bila tab itu sedang dibuka).
+    const tampilMenu = PakaiSektor(['FNB']) || props.Saring.Tab === 'menu';
+    const tabTerlihat = daftarTab.filter((tab) => tab.nilai !== 'menu' || tampilMenu);
     const { Saring, Total } = props;
     const query = {
         dari: Saring.Dari,
@@ -682,7 +686,7 @@ export default function HalamanLaporanPenjualan(props: PropsLaporanPenjualan) {
                     alamat={alamat}
                     query={query}
                     tabAktif={Saring.Tab}
-                    tab={daftarTab}
+                    tab={tabTerlihat}
                 />
                 <IsiTab
                     key={`${Saring.Tab}-${JSON.stringify(query)}`}

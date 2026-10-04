@@ -134,6 +134,7 @@ class KonteksPenjualan {
     this.deposit = const DepositPos(),
     this.laundry = const LaundryPos(),
     this.tokoOnlineAktif = false,
+    this.kodeSektor = const [],
     this.jenisPesanan = const [],
     this.barcodeTimbangan = const BarcodeTimbanganPos(),
     this.jenisPesananBawaan,
@@ -180,6 +181,18 @@ class KonteksPenjualan {
 
   /// F-17: toko online melayani outlet ini, jadi menu Pesanan toko online ditampilkan.
   final bool tokoOnlineAktif;
+
+  /// D-48: kode sektor outlet (template + jenis usaha tambahan). Kosong = belum diketahui, semua fitur sektor tampil.
+  final List<String> kodeSektor;
+
+  /// D-48: fitur khusus sektor tampil bila salah satu sektor outlet berawalan [awalan] (`SVC` mencakup `SVC-WRK`);
+  /// sektor outlet kosong (server lama / belum diterapkan) = tampil.
+  bool CekSesuaiSektor(List<String> awalan) {
+    if (kodeSektor.isEmpty) {
+      return true;
+    }
+    return awalan.any((a) => kodeSektor.any((kode) => kode == a || kode.startsWith('$a-')));
+  }
 
   /// v3.51: jenis pesanan yang dipilih kasir per transaksi (Makan di tempat/Bawa pulang/Antar), dari data awal outlet.
   /// Kosong = tanpa pilihan jenis pesanan (retail).
@@ -270,6 +283,7 @@ class KonteksPenjualan {
       deposit: await MuatDeposit(repositori),
       laundry: await MuatLaundry(repositori),
       tokoOnlineAktif: await repositori.AmbilPengaturan(KunciPengaturan.tokoOnlineAktif) == '1',
+      kodeSektor: await MuatKodeSektor(repositori),
       jenisPesanan: [
         for (final nama in (jsonDecode(
           await repositori.AmbilPengaturan(KunciPengaturan.jenisPesanan) ?? '[]',
@@ -285,6 +299,12 @@ class KonteksPenjualan {
   }
 
   static KanalPenjualan? AmbilKanal(String? nama) => KanalPenjualan.values.where((k) => k.name == nama).firstOrNull;
+
+  /// Kode sektor outlet tersimpan dari data awal (tidak ada = sektor belum diketahui).
+  static Future<List<String>> MuatKodeSektor(RepositoriKasir repositori) async {
+    final mentah = jsonDecode(await repositori.AmbilPengaturan(KunciPengaturan.kodeSektor) ?? '[]');
+    return mentah is List ? mentah.whereType<String>().toList() : const [];
+  }
 
   /// Pengaturan deposit tersimpan dari data awal (tidak ada = tidak berlaku).
   static Future<DepositPos> MuatDeposit(RepositoriKasir repositori) async {

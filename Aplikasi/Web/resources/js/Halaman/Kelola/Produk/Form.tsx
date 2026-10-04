@@ -26,6 +26,7 @@ import { Button } from '@/Komponen/Ui/button';
 import { Card } from '@/Komponen/Ui/card';
 import { Field, FieldLabel, FieldLegend, FieldSet } from '@/Komponen/Ui/field';
 import { Switch } from '@/Komponen/Ui/switch';
+import { PakaiSektor } from '@/Pustaka/Sektor';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 import {
     labelGolonganObat,
@@ -213,6 +214,11 @@ export default function HalamanFormProduk({
     const [tabAktif, AturTabAktif] = useState<KunciTab>('Umum');
     const [periksaHarga, AturPeriksaHarga] = useState(false);
     const aturan = Jenis.find((item) => item.Nilai === data.Jenis);
+    // D-48: bagian khusus sektor hanya tampil untuk sektornya (atau bila produk sudah memakainya), supaya toko
+    // kelontong tidak melihat isian apotek, reservasi, atau paket sesi.
+    const sektorApotek = PakaiSektor(['RTL-PHR']);
+    const sektorLayanan = PakaiSektor(['SVC']);
+    const sektorMakanan = PakaiSektor(['FNB']);
     const induk = data.Jenis === 'IndukVarian';
     const bisaDijual = aturan?.BisaDijual ?? false;
     const satuanDasar = Satuan.find((item) => item.Uuid === data.UuidSatuanDasar);
@@ -227,7 +233,7 @@ export default function HalamanFormProduk({
     );
     const sederhana = Mode === 'Buat' && modeFormulir === 'Sederhana' && !adaGalatLanjutan;
     const paketSesi = data.PaketSesi ?? null;
-    const bolehPaketSesi = Mode === 'Buat' && FiturPaketSesi && data.Jenis === 'Jasa';
+    const bolehPaketSesi = Mode === 'Buat' && FiturPaketSesi && data.Jenis === 'Jasa' && sektorLayanan;
     const stokAwal = data.StokAwal ?? null;
     const bolehStokAwal =
         Mode === 'Buat' &&
@@ -396,7 +402,7 @@ export default function HalamanFormProduk({
 
     // F-07 mode service: durasi layanan jasa untuk slot reservasi.
     const bagianDurasi =
-        data.Jenis === 'Jasa' ? (
+        data.Jenis === 'Jasa' && (sektorLayanan || Boolean(data.DurasiMenit)) ? (
             <BidangTeks
                 label="Durasi layanan (menit, opsional)"
                 nilai={data.DurasiMenit ? String(data.DurasiMenit) : ''}
@@ -430,7 +436,7 @@ export default function HalamanFormProduk({
     // Batch dipilih, atau bila produk sudah bergolongan (supaya galat "wajib Batch" tetap terlihat).
     const golonganObat = data.GolonganObat ?? null;
     const bagianObat =
-        aturan?.BolehPelacakan && (data.Pelacakan === 'Batch' || golonganObat !== null) ? (
+        aturan?.BolehPelacakan && (golonganObat !== null || (sektorApotek && data.Pelacakan === 'Batch')) ? (
             <div className="flex flex-col gap-3 rounded-kontrol border border-garis p-3 sm:col-span-2">
                 <BidangPilihan
                     label="Golongan obat (apotek)"
@@ -563,7 +569,9 @@ export default function HalamanFormProduk({
         ) : null;
 
     const pilihanJenisSederhana = Jenis.filter(
-        (item) => jenisSederhana[item.Nilai] !== undefined || item.Nilai === data.Jenis,
+        (item) =>
+            (jenisSederhana[item.Nilai] !== undefined && (item.Nilai !== 'Resep' || sektorMakanan)) ||
+            item.Nilai === data.Jenis,
     ).map((item) => ({
         Nilai: item.Nilai,
         Label: item.Label,

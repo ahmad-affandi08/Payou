@@ -310,6 +310,9 @@ class _RuangKerjaState extends ConsumerState<RuangKerja> {
     _panelShift = panel;
   });
 
+  /// D-48: fitur khusus sektor tampil bila sektor outlet berawalan [awalan] (atau sektor belum diketahui).
+  bool _SektorCocok(List<String> awalan) => ref.watch(penyediaKonteksPenjualan).value?.CekSesuaiSektor(awalan) ?? true;
+
   void _BukaPanelPenjualan(_PanelPenjualan panel) => setState(() {
     _TutupSemuaPanel();
     _panelPenjualan = panel;
@@ -372,8 +375,13 @@ class _RuangKerjaState extends ConsumerState<RuangKerja> {
       saatPesananOnline: ref.watch(penyediaKonteksPenjualan).value?.tokoOnlineAktif == true
           ? () => _BukaPanelPenjualan(const _PanelPenjualan(pesananOnline: true))
           : null,
-      saatReservasi: () => _BukaPanelPenjualan(const _PanelPenjualan(reservasi: true)),
-      saatServis: () => _BukaPanelPenjualan(const _PanelPenjualan(servis: true)),
+      // D-48: reservasi hanya untuk usaha jasa (SVC), servis hanya untuk bengkel (SVC-WRK).
+      saatReservasi: _SektorCocok(const ['SVC'])
+          ? () => _BukaPanelPenjualan(const _PanelPenjualan(reservasi: true))
+          : null,
+      saatServis: _SektorCocok(const ['SVC-WRK'])
+          ? () => _BukaPanelPenjualan(const _PanelPenjualan(servis: true))
+          : null,
       saatCucian: ref.watch(penyediaKonteksPenjualan).value?.laundry.aktif == true
           ? () => _BukaPanelPenjualan(const _PanelPenjualan(cucian: true))
           : null,
