@@ -78,6 +78,7 @@ Route::middleware([SiapkanAuditTenant::class, $izin(IzinTenant::KaryawanLihat)])
         // v3.35: slip gaji per karyawan (cetak/PDF), `?karyawan=` untuk satu orang.
         Route::get('/gaji/{rekap}/slip', [RekapGajiKontroler::class, 'Slip'])->where('rekap', $ulid)->name('kelola.karyawan.gaji.slip');
         Route::put('/gaji/{rekap}/baris/{karyawan}', [RekapGajiKontroler::class, 'UbahBaris'])->where(['rekap' => $ulid, 'karyawan' => $ulid])->name('kelola.karyawan.gaji.baris');
+        Route::post('/gaji/{rekap}/tambahan-massal', [RekapGajiKontroler::class, 'TambahanMassal'])->where('rekap', $ulid)->name('kelola.karyawan.gaji.tambahan-massal');
         Route::post('/gaji/{rekap}/bayar', [RekapGajiKontroler::class, 'Bayar'])->where('rekap', $ulid)->name('kelola.karyawan.gaji.bayar');
         Route::put('/target', [TargetPenjualanKontroler::class, 'Simpan'])->name('kelola.karyawan.target.simpan');
         Route::delete('/target/{target}', [TargetPenjualanKontroler::class, 'Hapus'])->where('target', $ulid)->name('kelola.karyawan.target.hapus');

@@ -1,11 +1,12 @@
 import { Link, router, useForm } from '@inertiajs/react';
 import { useState, type FormEvent } from 'react';
 
+import AksiMassalGaji from '@/Komponen/Karyawan/AksiMassalGaji';
 import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
 import BidangUang from '@/Komponen/Formulir/BidangUang';
 import Tombol from '@/Komponen/Formulir/Tombol';
-import TabelData from '@/Komponen/TabelData/TabelData';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { KolomTabel } from '@/Komponen/TabelData/Tipe';
 import PemilihTanggal from '@/Komponen/Tanggal/PemilihTanggal';
 import DialogFormulir from '@/Komponen/Tindakan/DialogFormulir';
@@ -234,6 +235,13 @@ export default function HalamanDetailRekapGaji({ Rekap, Baris, OpsiAkunKasBank, 
                 ambilIdBaris={(b) => b.UuidKaryawan}
                 labelBaris={(b) => `gaji ${b.Nama}`}
                 cari="Cari nama karyawan"
+                {...(draf
+                    ? {
+                          aksiMassal: (konteks: KonteksAksiMassal<BarisGajiKaryawan>) => (
+                              <AksiMassalGaji konteks={konteks} alamat={alamat} />
+                          ),
+                      }
+                    : {})}
                 aksiBaris={(b: BarisGajiKaryawan) => (
                     <>
                         {draf ? (

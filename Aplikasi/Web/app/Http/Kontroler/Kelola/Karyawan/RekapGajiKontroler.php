@@ -87,6 +87,27 @@ final class RekapGajiKontroler extends DasarKelolaKontroler
         return to_route('kelola.karyawan.gaji.detail', ['rekap' => $model->Uuid])->with('Kilat', 'Baris gaji diperbarui.');
     }
 
+    /** Aksi massal draf rekap: tambahan (bonus/THR) yang sama untuk karyawan terpilih. */
+    public function TambahanMassal(string $rekap, Request $permintaan, KelolaRekapGaji $kelola): RedirectResponse
+    {
+        $data = $permintaan->validate([
+            'Tambahan' => ['required', 'string', 'regex:/^\d{1,16}(\.\d{1,2})?$/'],
+            'Catatan' => ['nullable', 'string', 'max:255'],
+            'Uuid' => ['required', 'array', 'min:1', 'max:'.KelolaRekapGaji::MAKS_TAMBAHAN_MASSAL],
+            'Uuid.*' => ['required', 'ulid'],
+        ], [
+            'Tambahan.*' => 'Isi tambahan dalam rupiah, misal 150000.',
+            'Catatan.*' => 'Catatan paling panjang 255 karakter.',
+        ], ['Uuid' => 'karyawan terpilih']);
+        $model = RekapGaji::query()->where('Uuid', $rekap)->firstOrFail();
+        $catatan = is_string($data['Catatan'] ?? null) && trim($data['Catatan']) !== '' ? trim($data['Catatan']) : null;
+        /** @var list<string> $uuid */
+        $uuid = array_values($data['Uuid']);
+        $jumlah = $kelola->TambahanMassal($model, $uuid, Uang::Dari($data['Tambahan']), $catatan);
+
+        return back()->with('Kilat', "Tambahan ditambahkan ke {$jumlah} karyawan.");
+    }
+
     public function Bayar(string $rekap, Request $permintaan, KelolaRekapGaji $kelola): RedirectResponse
     {
         $data = $permintaan->validate([

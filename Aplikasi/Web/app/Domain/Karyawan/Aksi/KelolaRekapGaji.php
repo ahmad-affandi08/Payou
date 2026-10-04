@@ -180,6 +180,61 @@ final class KelolaRekapGaji
         });
     }
 
+    public const MAKS_TAMBAHAN_MASSAL = 500;
+
+    /**
+     * Aksi massal draf rekap (audit kemudahan pakai): menambah `Tambahan` (bonus, THR, tunjangan) pada karyawan
+     * terpilih dengan jumlah yang sama. Tiap baris lewat [UbahBaris] sehingga validasi (gaji bersih tidak minus) dan
+     * audit per baris sama. Semua atau tidak sama sekali: satu karyawan gagal membatalkan seluruhnya. Catatan, bila
+     * diisi, menggantikan catatan baris.
+     *
+     * @param  list<string>  $uuidKaryawan
+     * @return int jumlah baris yang diubah
+     *
+     * @throws PelanggaranAturanBisnis PilihanKosong, TerlaluBanyak, JumlahTidakValid, BarisTidakDikenal, GajiBersihMinus, RekapSudahDibayar
+     */
+    public function TambahanMassal(RekapGaji $rekap, array $uuidKaryawan, Uang $tambahan, ?string $catatan): int
+    {
+        $uuidKaryawan = array_values(array_unique($uuidKaryawan));
+
+        if ($uuidKaryawan === []) {
+            throw new PelanggaranAturanBisnis('PilihanKosong', 'Pilih minimal satu karyawan.', 'Uuid');
+        }
+
+        if (count($uuidKaryawan) > self::MAKS_TAMBAHAN_MASSAL) {
+            throw new PelanggaranAturanBisnis('TerlaluBanyak', 'Maksimal '.self::MAKS_TAMBAHAN_MASSAL.' karyawan sekali proses.', 'Uuid');
+        }
+
+        if ($tambahan->BernilaiNegatif() || $tambahan->BernilaiNol()) {
+            throw new PelanggaranAturanBisnis('JumlahTidakValid', 'Isi tambahan lebih dari 0.', 'Tambahan');
+        }
+
+        return DB::transaction(function () use ($rekap, $uuidKaryawan, $tambahan, $catatan): int {
+            $rekap = $this->KunciDraf($rekap);
+            $idKaryawan = Karyawan::query()->whereIn('Uuid', $uuidKaryawan)->pluck('Id', 'Uuid');
+            $baris = RekapGajiBaris::query()->where('IdRekapGaji', $rekap->Id)->whereIn('IdKaryawan', $idKaryawan->values())->get()->keyBy('IdKaryawan');
+
+            foreach ($uuidKaryawan as $uuid) {
+                $b = $baris->get($idKaryawan->get($uuid));
+
+                if ($b === null) {
+                    throw new PelanggaranAturanBisnis('BarisTidakDikenal', 'Sebagian karyawan tidak ada di rekap gaji. Muat ulang halaman.', 'Uuid');
+                }
+
+                $this->UbahBaris(
+                    $rekap,
+                    $uuid,
+                    Uang::Dari($b->Tambahan)->Tambah($tambahan),
+                    Uang::Dari($b->PotonganKasbon),
+                    Uang::Dari($b->PotonganLain),
+                    $catatan ?? $b->Catatan,
+                );
+            }
+
+            return count($uuidKaryawan);
+        });
+    }
+
     public function Hapus(RekapGaji $rekap): void
     {
         DB::transaction(function () use ($rekap): void {

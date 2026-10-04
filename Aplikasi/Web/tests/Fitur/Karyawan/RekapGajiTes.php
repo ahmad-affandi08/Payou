@@ -178,3 +178,43 @@ describe('F-18 bagian 3 rekap gaji', function (): void {
             ->and(LogAudit::query()->where('Peristiwa', 'rekap-gaji.hapus')->count())->toBe(1);
     });
 });
+
+describe('F-18 rekap gaji aksi massal', function (): void {
+    it('tambahan massal (THR/bonus): semua karyawan terpilih bertambah, audit per baris, semua-atau-tidak, ditolak setelah dibayar', function (): void {
+        $k = BantuanPenjualan::Siapkan($this, 'Salon Cantik THR');
+        $maya = Karyawan::query()->create(['Nama' => 'Maya Senior', 'GajiPokok' => '3000000', 'IdOutlet' => $k['Outlet']->Id]);
+        $dewi = Karyawan::query()->create(['Nama' => 'Dewi Junior', 'GajiPokok' => '1000000', 'IdOutlet' => $k['Outlet']->Id]);
+        $luar = Karyawan::query()->create(['Nama' => 'Baru Masuk Setelah Rekap', 'GajiPokok' => '2000000', 'IdOutlet' => $k['Outlet']->Id]);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        $kas = Akun::query()->where('KasBank', true)->orderBy('Kode')->firstOrFail();
+        $beban = Akun::query()->where('Kode', '6-1000')->firstOrFail();
+
+        BantuanPersediaan::MasukSebagai($this, $k['Tenant']->Id, PeranTenantBawaan::Pemilik);
+        // Karyawan ketiga dibuat setelah draf sehingga tidak ada di rekap.
+        Karyawan::query()->whereKey($luar->Id)->update(['Status' => StatusKaryawan::Nonaktif]);
+        $this->post('/kelola/karyawan/gaji', ['Periode' => '2026-10'])->assertRedirect();
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        $rekap = RekapGaji::query()->sole();
+        $alamat = "/kelola/karyawan/gaji/{$rekap->Uuid}/tambahan-massal";
+
+        $this->post($alamat, ['Tambahan' => '250000', 'Catatan' => 'THR 2026', 'Uuid' => [$maya->Uuid, $dewi->Uuid]])
+            ->assertSessionHasNoErrors()->assertSessionHas('Kilat', 'Tambahan ditambahkan ke 2 karyawan.');
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        $baris = RekapGajiBaris::query()->get()->keyBy('IdKaryawan');
+        expect($baris[$maya->Id]->Tambahan)->toBe('250000.00')->and($baris[$maya->Id]->Bersih)->toBe('3250000.00')
+            ->and($baris[$dewi->Id]->Tambahan)->toBe('250000.00')->and($baris[$dewi->Id]->Catatan)->toBe('THR 2026')
+            ->and(LogAudit::query()->where('Peristiwa', 'rekap-gaji.ubah')->count())->toBe(2);
+
+        // Diulang menambah lagi (akumulatif); jumlah 0, minus, dan karyawan di luar rekap menolak semuanya.
+        $this->post($alamat, ['Tambahan' => '50000', 'Uuid' => [$maya->Uuid]])->assertSessionHasNoErrors();
+        $this->post($alamat, ['Tambahan' => '0', 'Uuid' => [$maya->Uuid]])->assertSessionHasErrors('Tambahan');
+        $this->post($alamat, ['Tambahan' => '-5', 'Uuid' => [$maya->Uuid]])->assertSessionHasErrors('Tambahan');
+        $this->post($alamat, ['Tambahan' => '10000', 'Uuid' => [$maya->Uuid, $luar->Uuid]])->assertSessionHasErrors('Uuid');
+        $this->post($alamat, ['Tambahan' => '10000', 'Uuid' => []])->assertSessionHasErrors('Uuid');
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        expect(RekapGajiBaris::query()->where('IdKaryawan', $maya->Id)->sole()->Tambahan)->toBe('300000.00');
+
+        $this->post("/kelola/karyawan/gaji/{$rekap->Uuid}/bayar", ['Tanggal' => '2026-10-20', 'AkunKasBank' => $kas->Uuid, 'AkunBeban' => $beban->Uuid])->assertRedirect();
+        $this->post($alamat, ['Tambahan' => '10000', 'Uuid' => [$maya->Uuid]])->assertSessionHasErrors('Umum');
+    });
+});
