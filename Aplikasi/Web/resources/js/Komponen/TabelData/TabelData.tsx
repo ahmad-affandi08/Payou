@@ -69,7 +69,7 @@ export type PropsTabelData<T> = {
     /** Nama baris untuk tombol menu aksi yang dibacakan, mis. "Aksi Minuman" (bawaan "Aksi baris"). */
     labelBaris?: (baris: T) => string;
     aksiMassal?: (konteks: KonteksAksiMassal<T>) => ReactNode;
-    ekspor?: { alamat: string; label?: string; laporan?: boolean };
+    ekspor?: { alamat: string; label?: string; query?: string; laporan?: boolean };
     /** `ilustrasi` (D-18): ilustrasi subjek untuk daftar utama yang belum berisi data. */
     kosong: { judul: string; aksi?: ReactNode; ilustrasi?: boolean };
     aksiAlat?: ReactNode;
@@ -327,8 +327,8 @@ export default function TabelData<T>(props: PropsTabelData<T>) {
         SaatData?.(data);
     }, [data, SaatData]);
 
-    const kolom = useMemo<ColumnDef<T, never>[]>(() => {
-        const hasil: ColumnDef<T, never>[] = [];
+    const kolom = useMemo<ColumnDef<T, any>[]>(() => {
+        const hasil: ColumnDef<T, any>[] = [];
 
         if (adaAksiMassal) {
             hasil.push({
@@ -539,7 +539,7 @@ export default function TabelData<T>(props: PropsTabelData<T>) {
                           query: TulisKeadaanKeUrl(
                               keadaan,
                               keadaanTabel.urutBawaan,
-                              server ? window.location.search : '',
+                              props.ekspor.query ?? (server ? window.location.search : ''),
                           ),
                       },
                   }

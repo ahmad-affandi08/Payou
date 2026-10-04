@@ -1,7 +1,7 @@
 import TabelData from '@/Komponen/TabelData/TabelData';
 import type { HasilTabel, KolomTabel } from '@/Komponen/TabelData/Tipe';
 import { KolomAngkaPenjualan, KolomBilangan, KolomQty, KolomUang } from '@/Komponen/Laporan/KolomLaporan';
-import NavigasiTab, { TautanEkspor } from '@/Komponen/Laporan/NavigasiTab';
+import NavigasiTab from '@/Komponen/Laporan/NavigasiTab';
 import PetaPanasJam from '@/Komponen/Laporan/PetaPanasJam';
 import PilihanInsightWhatsapp from '@/Komponen/Laporan/PilihanInsightWhatsapp';
 import SaringLaporan from '@/Komponen/Laporan/SaringLaporan';
@@ -9,6 +9,7 @@ import LabelStatus from '@/Komponen/Umpan/LabelStatus';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
 import { FormatRupiah } from '@/Pustaka/Format';
 import { FormatTanggal, FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
+import { BuatQueryLaporan } from '@/Pustaka/Laporan';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 import type {
     BarisAbcLaporan,
@@ -367,7 +368,15 @@ const kolomMenu: KolomTabel<BarisMenuLaporan>[] = [
 
 const kosong = { judul: 'Belum ada penjualan pada periode dan saring ini.' };
 
-function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenjualan['Isi'] }) {
+function IsiTab({
+    tab,
+    isi,
+    queryEkspor,
+}: {
+    tab: TabLaporanPenjualan;
+    isi: PropsLaporanPenjualan['Isi'];
+    queryEkspor: string;
+}) {
     switch (tab) {
         case 'detail':
             return (
@@ -407,6 +416,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                     ambilIdBaris={(b) => b.Kunci}
                     urutBawaan="-Bersih"
                     cari="Cari kategori"
+                    ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                     kosong={kosong}
                 />
             );
@@ -432,6 +442,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                         ambilIdBaris={(b) => String(b.Jam)}
                         urutBawaan="Jam"
                         cari={false}
+                        ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                         kosong={kosong}
                     />
                 </div>
@@ -447,6 +458,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                     ambilIdBaris={(b) => b.Kunci}
                     urutBawaan="-Bersih"
                     cari="Cari nama kasir"
+                    ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                     kosong={kosong}
                 />
             );
@@ -460,6 +472,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                     ambilIdBaris={(b) => b.Kunci}
                     urutBawaan="-Bersih"
                     cari={false}
+                    ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                     kosong={kosong}
                 />
             );
@@ -473,6 +486,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                     ambilIdBaris={(b) => b.Kunci}
                     urutBawaan="-Bersih"
                     cari="Cari metode bayar"
+                    ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                     kosong={kosong}
                 />
             );
@@ -486,6 +500,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                     ambilIdBaris={(b) => b.Kunci}
                     urutBawaan="-TotalDiskon"
                     cari="Cari nama kasir"
+                    ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                     kosong={{
                         ilustrasi: true,
                         judul: 'Belum ada penjualan berdiskon pada periode dan saring ini.',
@@ -508,6 +523,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                         ambilIdBaris={(b) => b.Kunci}
                         urutBawaan="-Skor"
                         cari="Cari nama kasir"
+                        ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                         kosong={{
                             ilustrasi: true,
                             judul: 'Belum ada transaksi kasir pada periode dan saring ini.',
@@ -544,6 +560,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                         sumber={{ mode: 'lokal', data: abc.Baris }}
                         ambilIdBaris={(b) => String(b.IdProduk)}
                         cari="Cari nama produk"
+                        ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                         kosong={{ ilustrasi: true, judul: 'Belum ada penjualan bersih pada periode dan saring ini.' }}
                     />
                 </div>
@@ -577,6 +594,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                         sumber={{ mode: 'lokal', data: menu.Baris }}
                         ambilIdBaris={(b) => String(b.IdProduk)}
                         cari="Cari nama produk"
+                        ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                         kosong={{ ilustrasi: true, judul: 'Belum ada penjualan bersih pada periode dan saring ini.' }}
                     />
                 </div>
@@ -592,6 +610,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                     ambilIdBaris={(b) => b.Tanggal}
                     urutBawaan="Tanggal"
                     cari={false}
+                    ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true, query: queryEkspor }}
                     kosong={kosong}
                 />
             );
@@ -658,19 +677,19 @@ export default function HalamanLaporanPenjualan(props: PropsLaporanPenjualan) {
             </dl>
 
             <div className="flex flex-col gap-3">
-                <div className="flex flex-wrap items-end justify-between gap-2">
-                    <NavigasiTab
-                        label="Jenis laporan penjualan"
-                        alamat={alamat}
-                        query={query}
-                        tabAktif={Saring.Tab}
-                        tab={daftarTab}
-                    />
-                    {Saring.Tab !== 'produk' && Saring.Tab !== 'detail' ? (
-                        <TautanEkspor alamat={`${alamat}/ekspor`} query={{ ...query, tab: Saring.Tab }} />
-                    ) : null}
-                </div>
-                <IsiTab key={`${Saring.Tab}-${JSON.stringify(query)}`} tab={Saring.Tab} isi={props.Isi} />
+                <NavigasiTab
+                    label="Jenis laporan penjualan"
+                    alamat={alamat}
+                    query={query}
+                    tabAktif={Saring.Tab}
+                    tab={daftarTab}
+                />
+                <IsiTab
+                    key={`${Saring.Tab}-${JSON.stringify(query)}`}
+                    tab={Saring.Tab}
+                    isi={props.Isi}
+                    queryEkspor={BuatQueryLaporan({ ...query, tab: Saring.Tab })}
+                />
             </div>
             {props.InsightWhatsapp ? <PilihanInsightWhatsapp insight={props.InsightWhatsapp} /> : null}
         </TataLetakAplikasi>
