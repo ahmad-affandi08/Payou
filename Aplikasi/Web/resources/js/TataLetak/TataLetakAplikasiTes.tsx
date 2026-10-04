@@ -473,7 +473,14 @@ describe('TataLetakAplikasi: menu berbasis izin & banner langganan (F-00, §19.1
                     'kanal.self-order': {
                         Nama: 'Self-order QR',
                         Paket: null,
-                        Addon: { Kode: 'SELF_ORDER', Nama: 'Self-order QR', HargaBulanan: '49000.00' },
+                        Addon: {
+                            Kode: 'SELF_ORDER',
+                            Nama: 'Self-order QR',
+                            HargaBulanan: '49000.00',
+                            BisaDibeli: false,
+                            AlasanTidakBisa: 'Perpanjangan paket Anda belum dibayar.',
+                            HargaProrata: null,
+                        },
                     },
                 },
             },

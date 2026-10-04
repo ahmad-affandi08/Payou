@@ -19,6 +19,8 @@ const tagihan: TagihanLangganan = {
     Siklus: 'Bulanan',
     JumlahBulan: 1,
     Subtotal: '200000.00',
+    SubtotalPaket: '200000.00',
+    RincianAddon: [],
     KodeKupon: null,
     Diskon: '0.00',
     TarifPpn: '12.000000',

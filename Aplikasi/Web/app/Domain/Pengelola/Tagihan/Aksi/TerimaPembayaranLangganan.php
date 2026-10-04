@@ -10,6 +10,7 @@ use App\Domain\Pengelola\Tagihan\Kueri\DaftarTagihanPlatform;
 use App\Domain\Pengelola\Tagihan\Surel\PembayaranLanggananDiterima;
 use App\Domain\Pengelola\TimInternal\Layanan\PencatatAuditPengelola;
 use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
+use App\Domain\Tenant\Enum\JenisTagihanLangganan;
 use App\Domain\Tenant\Enum\StatusPembayaranLangganan;
 use App\Domain\Tenant\Enum\StatusTagihanLangganan;
 use App\Domain\Tenant\Layanan\PelunasTagihanLangganan;
@@ -94,6 +95,7 @@ final class TerimaPembayaranLangganan
         $sebelumnya = DaftarTagihanPlatform::KueriTagihan()
             ->where('IdTenant', $tagihan->IdTenant)
             ->where('Status', StatusTagihanLangganan::Lunas->value)
+            ->where('Jenis', '!=', JenisTagihanLangganan::Addon->value)
             ->where('Id', '!=', $tagihan->Id)
             ->orderByDesc('DibayarPada')
             ->orderByDesc('Id')
@@ -115,7 +117,7 @@ final class TerimaPembayaranLangganan
                 nama: $pembayaran->NamaPemberitahuan ?? 'Pemilik usaha',
                 nomorTagihan: $tagihan->Nomor,
                 total: $tagihan->AmbilTotal()->FormatRupiah(),
-                namaPaket: $tagihan->Paket->Nama,
+                namaPaket: $tagihan->AmbilNamaLayanan(),
                 periodeSelesai: $tagihan->PeriodeSelesai?->copy()->setTimezone('Asia/Jakarta')->translatedFormat('j F Y') ?? '—',
             ));
         } catch (Throwable $galat) {

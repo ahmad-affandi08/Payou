@@ -9,6 +9,7 @@ use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Integrasi\Whatsapp\PembuatPengirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
 use App\Domain\Organisasi\Kueri\PemilikTenant;
+use App\Domain\Tenant\Enum\JenisTagihanLangganan;
 use App\Domain\Tenant\Enum\StatusLangganan;
 use App\Domain\Tenant\Enum\StatusTagihanLangganan;
 use App\Domain\Tenant\Enum\TahapPengingatTagihan;
@@ -64,6 +65,8 @@ final class KirimPengingatTagihanLangganan
                 $tagihanTerbuka = TagihanLangganan::query()
                     ->with('Paket')
                     ->whereIn('Status', StatusTagihanLangganan::NilaiTerbuka())
+                    // D-49: tagihan add-on berumur pendek dan dibatalkan otomatis bila tidak dibayar; tanpa pengingat.
+                    ->where('Jenis', '!=', JenisTagihanLangganan::Addon->value)
                     ->orderBy('Id')
                     ->get();
 

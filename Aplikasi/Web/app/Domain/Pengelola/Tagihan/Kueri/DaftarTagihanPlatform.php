@@ -85,7 +85,7 @@ final class DaftarTagihanPlatform
         $status = $permintaan->AmbilDaftar('Status', array_map(fn (StatusTagihanLangganan $s): string => $s->value, StatusTagihanLangganan::cases()));
         $tanggal = $permintaan->AmbilRentangTanggal('TerbitPada');
         $kueri = self::KueriTagihan()
-            ->with('Paket')
+            ->with(['Paket', 'RincianAddon'])
             ->when($status !== [], fn ($kueri) => $kueri->whereIn('Status', $status))
             ->when($tanggal['Dari'] !== null, fn ($kueri) => $kueri->where('TerbitPada', '>=', $tanggal['Dari'].' 00:00:00'))
             ->when($tanggal['Sampai'] !== null, fn ($kueri) => $kueri->where('TerbitPada', '<=', $tanggal['Sampai'].' 23:59:59'))
@@ -107,7 +107,7 @@ final class DaftarTagihanPlatform
 
     public function CariTagihan(string $uuid): ?TagihanLangganan
     {
-        return self::KueriTagihan()->with('Paket')->where('Uuid', $uuid)->first();
+        return self::KueriTagihan()->with(['Paket', 'RincianAddon'])->where('Uuid', $uuid)->first();
     }
 
     public function CariPembayaran(string $uuid): ?PembayaranLangganan

@@ -6,6 +6,7 @@ namespace App\Domain\Pengelola\Tagihan\Aksi;
 
 use App\Domain\Pengelola\Tagihan\Kueri\DaftarTagihanPlatform;
 use App\Domain\Pengelola\TimInternal\Layanan\PencatatAuditPengelola;
+use App\Domain\Tenant\Enum\JenisTagihanLangganan;
 use App\Domain\Tenant\Enum\StatusLangganan;
 use App\Domain\Tenant\Enum\StatusPembayaranLangganan;
 use App\Domain\Tenant\Enum\StatusTagihanLangganan;
@@ -35,6 +36,8 @@ final class ProsesTunggakanLangganan
     public function Jalankan(): array
     {
         $sekarang = CarbonImmutable::now();
+        // D-49: tagihan add-on yang lewat jatuh tempo tanpa dibayar dibatalkan (tidak menghalangi tagihan paket).
+        $this->BatalkanTagihanAddonKedaluwarsa($sekarang);
 
         return [
             'TagihanJatuhTempo' => $this->TandaiTagihanJatuhTempo($sekarang),
@@ -45,6 +48,45 @@ final class ProsesTunggakanLangganan
                 $sekarang->subDays((int) config('tagihan.HariMasaTenggang')),
             ),
         ];
+    }
+
+    private function BatalkanTagihanAddonKedaluwarsa(CarbonImmutable $sekarang): void
+    {
+        $daftarId = DaftarTagihanPlatform::KueriTagihan()
+            ->where('Jenis', JenisTagihanLangganan::Addon->value)
+            ->whereIn('Status', StatusTagihanLangganan::NilaiTerbuka())
+            ->where('JatuhTempoPada', '<=', $sekarang)
+            ->orderBy('Id')
+            ->pluck('Id');
+
+        foreach ($daftarId as $id) {
+            DB::transaction(function () use ($id, $sekarang): void {
+                $tagihan = DaftarTagihanPlatform::KueriTagihan()->whereKey($id)->lockForUpdate()->first();
+
+                if ($tagihan === null || ! $tagihan->Status->CekTerbuka() || $tagihan->JatuhTempoPada->greaterThan($sekarang)) {
+                    return;
+                }
+
+                $menunggu = DaftarTagihanPlatform::KueriPembayaran()
+                    ->where('IdTagihanLangganan', $tagihan->Id)
+                    ->where('Status', StatusPembayaranLangganan::Menunggu->value)
+                    ->exists();
+
+                if ($menunggu) {
+                    return;
+                }
+
+                $lama = $tagihan->Status;
+                $tagihan->update(['Status' => StatusTagihanLangganan::Dibatalkan, 'DibatalkanPada' => $sekarang, 'AlasanBatal' => 'Kedaluwarsa: tagihan add-on tidak dibayar sampai jatuh tempo.']);
+                $this->audit->Catat(
+                    'tagihan.addon-kedaluwarsa',
+                    $tagihan,
+                    nilaiLama: ['Status' => $lama->value],
+                    nilaiBaru: ['Status' => StatusTagihanLangganan::Dibatalkan->value, 'Nomor' => $tagihan->Nomor],
+                    idTenant: $tagihan->IdTenant,
+                );
+            });
+        }
     }
 
     private function TandaiTagihanJatuhTempo(CarbonImmutable $sekarang): int

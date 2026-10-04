@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Pengelola\Tagihan\Kueri;
 
 use App\Domain\Bersama\Nilai\Uang;
+use App\Domain\Tenant\Enum\JenisTagihanLangganan;
 use App\Domain\Tenant\Enum\StatusTagihanLangganan;
 use App\Domain\Tenant\Model\Paket;
 use App\Domain\Tenant\Model\TagihanLangganan;
@@ -57,20 +58,21 @@ final class LaporanLanggananPlatform
             ->where('Status', StatusTagihanLangganan::Lunas->value)
             ->whereNotNull('PeriodeMulai')
             ->whereNotNull('PeriodeSelesai')
-            ->get(['Id', 'IdTenant', 'IdPaket', 'JumlahBulan', 'Subtotal', 'Diskon', 'PeriodeMulai', 'PeriodeSelesai', 'DibayarPada'])
+            ->get(['Id', 'IdTenant', 'IdPaket', 'Jenis', 'JumlahBulan', 'Subtotal', 'Diskon', 'PeriodeMulai', 'PeriodeSelesai', 'DibayarPada'])
             ->all());
 
-        $mrrAkhir = $this->HitungMrrPerTenant($lunas, $akhir);
-        $mrrAwal = $this->HitungMrrPerTenant($lunas, $awal);
+        // D-49: MRR/ARR/churn dihitung dari tagihan paket; tagihan add-on hanya masuk ke pendapatan (grup "Add-on").
+        $lunasPaket = array_values(array_filter($lunas, fn (TagihanLangganan $t): bool => $t->Jenis !== JenisTagihanLangganan::Addon));
+        $mrrAkhir = $this->HitungMrrPerTenant($lunasPaket, $akhir);
+        $mrrAwal = $this->HitungMrrPerTenant($lunasPaket, $awal);
 
         return [
             'Ringkasan' => $this->SusunRingkasan($mrrAkhir, $akhir),
             'Churn' => $this->SusunChurn($mrrAwal, $mrrAkhir),
             'MrrPerPaket' => $this->SusunMrrPerPaket($mrrAkhir, $paket->all()),
-            'PendapatanPerPaket' => $this->SusunPendapatan($lunas, $awal, $sampai->endOfDay(), fn (TagihanLangganan $t): array => [
-                (string) $t->IdPaket,
-                $paket->get($t->IdPaket)->Nama ?? '—',
-            ]),
+            'PendapatanPerPaket' => $this->SusunPendapatan($lunas, $awal, $sampai->endOfDay(), fn (TagihanLangganan $t): array => $t->Jenis === JenisTagihanLangganan::Addon
+                ? ['addon', 'Add-on']
+                : [(string) $t->IdPaket, $paket->get($t->IdPaket)->Nama ?? '—']),
             'PendapatanPerSektor' => $this->SusunPendapatan($lunas, $awal, $sampai->endOfDay(), function (TagihanLangganan $t) use ($tenant): array {
                 $sektor = $tenant->get($t->IdTenant)->Pengaturan['Sektor'][0] ?? null;
 

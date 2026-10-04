@@ -10,6 +10,7 @@ use App\Domain\Bersama\Nilai\Uang;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Integrasi\Billing\NotifikasiBilling;
 use App\Domain\Integrasi\GerbangPembayaran\StatusPembayaranGerbang;
+use App\Domain\Tenant\Enum\JenisTagihanLangganan;
 use App\Domain\Tenant\Enum\MetodePembayaranLangganan;
 use App\Domain\Tenant\Enum\StatusPembayaranLangganan;
 use App\Domain\Tenant\Enum\StatusTagihanLangganan;
@@ -151,6 +152,7 @@ final class TerimaNotifikasiBillingLangganan
     {
         $sebelumnya = TagihanLangganan::query()
             ->where('Status', StatusTagihanLangganan::Lunas->value)
+            ->where('Jenis', '!=', JenisTagihanLangganan::Addon->value)
             ->where('Id', '!=', $tagihan->Id)
             ->orderByDesc('DibayarPada')
             ->orderByDesc('Id')
@@ -173,7 +175,7 @@ final class TerimaNotifikasiBillingLangganan
             $pembayaran->EmailPemberitahuan,
             $pembayaran->NamaPemberitahuan ?? 'Pemilik usaha',
             $tagihan->AmbilTotal()->FormatRupiah(),
-            $tagihan->Paket->Nama,
+            $tagihan->AmbilNamaLayanan(),
             $tagihan->PeriodeSelesai?->copy()->setTimezone('Asia/Jakarta')->translatedFormat('j F Y') ?? '—',
         );
     }

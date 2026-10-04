@@ -22,6 +22,7 @@ use App\Domain\Tenant\Kueri\SumberFiturTenant;
 use App\Domain\Tenant\Layanan\EvaluatorFitur;
 use App\Domain\Tenant\Model\AtribusiMitra;
 use App\Domain\Tenant\Model\DokumenLegal;
+use App\Domain\Tenant\Model\LanggananAddon;
 use App\Domain\Tenant\Model\Mitra;
 use App\Domain\Tenant\Model\OverrideTenant;
 use App\Domain\Tenant\Model\PersetujuanDokumenLegal;
@@ -90,6 +91,15 @@ final class TampilanTenant
                 'TemplateSektor' => array_values(array_unique(array_filter(array_column($organisasi['Outlet'], 'TemplateSektor')))),
             ],
             'Langganan' => $this->PetakanLangganan($tenant),
+            // D-49: add-on yang dimiliki tenant (aktif atau baru berakhir), untuk dukungan & penagihan.
+            'Addon' => array_values(LanggananAddon::query()->with('Addon')->where('IdTenant', $tenant->Id)->orderByDesc('SelesaiPada')->get()->map(fn (LanggananAddon $milik): array => [
+                'Kode' => $milik->Addon->Kode,
+                'Nama' => $milik->Addon->Nama,
+                'Jumlah' => $milik->Jumlah,
+                'SelesaiPada' => $milik->SelesaiPada->toIso8601String(),
+                'Aktif' => $milik->CekAktifPada(now()),
+                'Berhenti' => $milik->BerhentiPada !== null,
+            ])->all()),
             // P-12: mitra perujuk tenant ini (BR-P12.2: paling banyak satu), null bila mendaftar langsung.
             'MitraPerujuk' => self::AmbilMitraPerujuk($tenant->Id),
             'Pemakaian' => [

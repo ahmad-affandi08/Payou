@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Tenant\Kueri;
 
+use App\Domain\Bersama\Nilai\Uang;
 use App\Domain\Bersama\Tenant\KonteksTenant;
+use App\Domain\Tenant\Enum\JenisTagihanLangganan;
 use App\Domain\Tenant\Enum\StatusLangganan;
 use App\Domain\Tenant\Enum\StatusPaket;
 use App\Domain\Tenant\Enum\StatusTagihanLangganan;
@@ -12,6 +14,7 @@ use App\Domain\Tenant\Model\Langganan;
 use App\Domain\Tenant\Model\Paket;
 use App\Domain\Tenant\Model\PembayaranLangganan;
 use App\Domain\Tenant\Model\TagihanLangganan;
+use App\Domain\Tenant\Model\TagihanLanggananAddon;
 use Carbon\CarbonImmutable;
 
 /**
@@ -103,6 +106,7 @@ final class TagihanLanggananTenant
     {
         $terakhir = TagihanLangganan::query()
             ->where('Status', StatusTagihanLangganan::Lunas->value)
+            ->where('Jenis', '!=', JenisTagihanLangganan::Addon->value)
             ->orderByDesc('DibayarPada')
             ->orderByDesc('Id')
             ->first();
@@ -118,7 +122,7 @@ final class TagihanLanggananTenant
     public function DaftarTagihan(): array
     {
         return array_values(TagihanLangganan::query()
-            ->with('Paket')
+            ->with(['Paket', 'RincianAddon'])
             ->orderByDesc('TerbitPada')
             ->orderByDesc('Id')
             ->limit(50)
@@ -129,7 +133,7 @@ final class TagihanLanggananTenant
 
     public function CariTagihan(string $uuid): ?TagihanLangganan
     {
-        return TagihanLangganan::query()->with(['Paket', 'Pembayaran'])->where('Uuid', $uuid)->first();
+        return TagihanLangganan::query()->with(['Paket', 'Pembayaran', 'RincianAddon'])->where('Uuid', $uuid)->first();
     }
 
     public function CariPembayaran(string $uuid): ?PembayaranLangganan
@@ -142,7 +146,27 @@ final class TagihanLanggananTenant
      */
     public static function PetakanTagihan(TagihanLangganan $tagihan): array
     {
+        // D-49: rincian add-on (prorata pada tagihan Addon, per add-on pada Perpanjangan). Subtotal paket = Subtotal − Σ add-on.
+        $rincian = $tagihan->relationLoaded('RincianAddon') ? $tagihan->RincianAddon : $tagihan->RincianAddon()->get();
+        $subtotalPaket = Uang::Dari($tagihan->Subtotal);
+
+        foreach ($rincian as $baris) {
+            $subtotalPaket = $subtotalPaket->Kurangi(Uang::Dari($baris->Subtotal));
+        }
+
         return [
+            'RincianAddon' => array_values($rincian->map(fn (TagihanLanggananAddon $baris): array => [
+                'KodeAddon' => $baris->KodeAddon,
+                'NamaAddon' => $baris->NamaAddon,
+                'Jumlah' => $baris->Jumlah,
+                'HargaBulanan' => $baris->HargaBulanan,
+                'JumlahBulan' => $baris->JumlahBulan,
+                'Prorata' => $baris->Prorata,
+                'HariDitagih' => $baris->HariDitagih,
+                'HariPeriode' => $baris->HariPeriode,
+                'Subtotal' => $baris->Subtotal,
+            ])->all()),
+            'SubtotalPaket' => $subtotalPaket->KeString(),
             'Uuid' => $tagihan->Uuid,
             'Nomor' => $tagihan->Nomor,
             'Jenis' => $tagihan->Jenis->value,

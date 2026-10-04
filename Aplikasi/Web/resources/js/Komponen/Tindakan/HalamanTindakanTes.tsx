@@ -350,6 +350,7 @@ function BuatTenant(): Tampilan360 {
             PerpanjanganTrial: 0,
             SisaPerpanjanganTrial: 2,
         },
+        Addon: [],
         Pemakaian: [{ Label: 'Outlet', Pakai: 4, Batas: 3 }],
         Organisasi: { Outlet: [], JumlahGudang: 0, JumlahMerek: 1 },
         Anggota: [],

@@ -23,12 +23,13 @@ final class PenawaranFiturTenant
         private readonly SumberFiturTenant $sumber,
         private readonly EvaluatorFitur $evaluator,
         private readonly HargaPaketBerlaku $harga,
+        private readonly AddonLanggananTenant $addonTenant,
     ) {}
 
     /**
      * @return array{
      *     NamaPaket: string|null,
-     *     Terkunci: array<string, array{Nama: string, Paket: array{Kode: string, Nama: string, HargaBulanan: string|null}|null, Addon: array{Kode: string, Nama: string, HargaBulanan: string}|null}>
+     *     Terkunci: array<string, array{Nama: string, Paket: array{Kode: string, Nama: string, HargaBulanan: string|null}|null, Addon: array{Kode: string, Nama: string, HargaBulanan: string, BisaDibeli: bool, AlasanTidakBisa: string|null, HargaProrata: string|null}|null}>
      * }
      */
     public function Ambil(int $idTenant): array
@@ -37,6 +38,8 @@ final class PenawaranFiturTenant
         $terkunci = [];
         $paket = null;
         $addon = null;
+        $addonTenant = $this->addonTenant->Ambil($idTenant);
+        $prorata = array_column($addonTenant['Tersedia'], 'HargaProrata', 'Kode');
 
         foreach (Fitur::query()->orderBy('Kunci')->get(['Kunci', 'Nama']) as $fitur) {
             if ($this->evaluator->CekFiturAktif($sumber, $fitur->Kunci)) {
@@ -55,7 +58,15 @@ final class PenawaranFiturTenant
                     'Nama' => $calon->Nama,
                     'HargaBulanan' => $calon->HargaNegosiasi ? null : $this->harga->Cari($calon->Id, CarbonImmutable::now())?->HargaBulanan,
                 ],
-                'Addon' => $tambahan === null ? null : ['Kode' => $tambahan->Kode, 'Nama' => $tambahan->Nama, 'HargaBulanan' => (string) $tambahan->HargaBulanan],
+                'Addon' => $tambahan === null ? null : [
+                    'Kode' => $tambahan->Kode,
+                    'Nama' => $tambahan->Nama,
+                    'HargaBulanan' => (string) $tambahan->HargaBulanan,
+                    // D-49: add-on bisa dibeli mandiri bila langganan berbayar aktif; selain itu alasan ditampilkan.
+                    'BisaDibeli' => $addonTenant['Alasan'] === null,
+                    'AlasanTidakBisa' => $addonTenant['Alasan'],
+                    'HargaProrata' => $prorata[$tambahan->Kode] ?? null,
+                ],
             ];
         }
 

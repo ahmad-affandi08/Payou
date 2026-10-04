@@ -46,6 +46,8 @@ final class BuatTagihanLangganan
                 throw new PelanggaranAturanBisnis('BR-P07.4', 'Usaha ini sedang ditangguhkan oleh tim kami. Hubungi tim kami lewat menu Bantuan.');
             }
 
+            // D-49: tagihan add-on yang belum dibayar tidak boleh menghalangi tagihan paket.
+            $this->penerbit->BatalkanTagihanAddonTerbuka($idTenant, 'Dibatalkan otomatis karena tagihan paket dibuat.');
             $terbuka = TagihanLangganan::query()->whereIn('Status', StatusTagihanLangganan::NilaiTerbuka())->first();
 
             if ($terbuka !== null) {

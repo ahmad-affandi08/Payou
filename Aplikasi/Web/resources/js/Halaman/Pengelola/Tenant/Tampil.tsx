@@ -316,6 +316,17 @@ export default function Tampil({ Tenant, Pilihan, Aturan }: PropsTampil) {
                                         `${FormatTanggalWaktu(Langganan.PeriodeMulai)} – ${FormatTanggalWaktu(Langganan.PeriodeSelesai)}`,
                                     ],
                                     ['Siklus tagihan', Langganan.SiklusTagihan],
+                                    [
+                                        'Add-on',
+                                        Tenant.Addon.length === 0
+                                            ? 'Tidak ada'
+                                            : Tenant.Addon.map(
+                                                  (a) =>
+                                                      `${a.Nama}${a.Jumlah > 1 ? ` × ${a.Jumlah}` : ''} (${
+                                                          a.Aktif ? (a.Berhenti ? 'berhenti' : 'aktif') : 'berakhir'
+                                                      } ${FormatTanggalWaktu(a.SelesaiPada)})`,
+                                              ).join('; '),
+                                    ],
                                     ...(Langganan.StatusSebelumDitangguhkan
                                         ? ([['Status sebelum ditangguhkan', Langganan.StatusSebelumDitangguhkan]] as [
                                               string,

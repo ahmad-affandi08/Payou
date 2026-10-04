@@ -4,6 +4,7 @@ import { useId, type FormEvent } from 'react';
 import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
 import Tombol from '@/Komponen/Formulir/Tombol';
+import BagianAddon, { type DataAddonLangganan } from '@/Komponen/Langganan/BagianAddon';
 import TabelData from '@/Komponen/TabelData/TabelData';
 import type { KolomTabel } from '@/Komponen/TabelData/Tipe';
 import { Card } from '@/Komponen/Ui/card';
@@ -41,6 +42,7 @@ type PilihanPaket = {
 
 type PropsLangganan = {
     Langganan: RingkasanLangganan | null;
+    Addon: DataAddonLangganan;
     PilihanPaket: PilihanPaket[];
     Tagihan: TagihanLangganan[];
     HariMasaTenggang: number;
@@ -56,7 +58,13 @@ const jenisStatusLangganan = {
 } as const;
 
 /** Langganan & tagihan tenant (P-08/F-19 Fase 0): pilih paket, buat tagihan, bayar lewat transfer manual. */
-export default function HalamanLangganan({ Langganan, PilihanPaket, Tagihan, HariMasaTenggang }: PropsLangganan) {
+export default function HalamanLangganan({
+    Langganan,
+    Addon,
+    PilihanPaket,
+    Tagihan,
+    HariMasaTenggang,
+}: PropsLangganan) {
     const tagihanTerbuka = Tagihan.find((tagihan) => tagihan.Status === 'Terbit' || tagihan.Status === 'JatuhTempo');
 
     return (
@@ -87,6 +95,7 @@ export default function HalamanLangganan({ Langganan, PilihanPaket, Tagihan, Har
             ) : Langganan !== null && Langganan.Status !== 'Berhenti' ? (
                 <FormPilihPaket pilihan={PilihanPaket} langganan={Langganan} />
             ) : null}
+            <BagianAddon addon={Addon} />
             <RiwayatTagihan tagihan={Tagihan} />
         </TataLetakAplikasi>
     );

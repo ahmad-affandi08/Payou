@@ -59,6 +59,7 @@ use LogicException;
  * @property Carbon|null $DibuatPada
  * @property-read Paket $Paket
  * @property-read Collection<int, PembayaranLangganan> $Pembayaran
+ * @property-read Collection<int, TagihanLanggananAddon> $RincianAddon
  */
 final class TagihanLangganan extends ModelDasar
 {
@@ -130,6 +131,29 @@ final class TagihanLangganan extends ModelDasar
     public function Pembayaran(): HasMany
     {
         return $this->hasMany(PembayaranLangganan::class, 'IdTagihanLangganan', 'Id');
+    }
+
+    /**
+     * Rincian add-on (D-49): satu baris prorata pada tagihan `Addon`, satu baris per add-on yang diperpanjang pada
+     * tagihan `Perpanjangan`.
+     *
+     * @return HasMany<TagihanLanggananAddon, $this>
+     */
+    public function RincianAddon(): HasMany
+    {
+        return $this->hasMany(TagihanLanggananAddon::class, 'IdTagihanLangganan', 'Id');
+    }
+
+    /** Nama layanan yang ditagih untuk pesan ke pemilik: nama paket, atau nama add-on pada tagihan `Addon`. */
+    public function AmbilNamaLayanan(): string
+    {
+        if ($this->Jenis !== JenisTagihanLangganan::Addon) {
+            return $this->Paket->Nama;
+        }
+
+        $nama = $this->RincianAddon->pluck('NamaAddon')->all();
+
+        return $nama === [] ? 'Add-on' : 'Add-on '.implode(', ', $nama);
     }
 
     public function AmbilTotal(): Uang

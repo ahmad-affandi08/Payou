@@ -24,6 +24,7 @@ final class HasilPelunasanLangganan
         public readonly array $langgananLama,
         public readonly string $statusTagihanLama,
         public readonly bool $lanjutan,
+        public readonly bool $langgananTidakBerubah = false,
     ) {}
 
     /**
@@ -33,6 +34,11 @@ final class HasilPelunasanLangganan
      */
     public function LanggananBaru(int $idPaket, SiklusTagihan $siklus): array
     {
+        // D-49: pelunasan tagihan add-on tidak mengubah paket, siklus, atau periode langganan.
+        if ($this->langgananTidakBerubah) {
+            return $this->langgananLama;
+        }
+
         return [
             'Status' => StatusLangganan::Aktif->value,
             'IdPaket' => $idPaket,

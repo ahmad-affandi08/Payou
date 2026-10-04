@@ -23,6 +23,9 @@ use InvalidArgumentException;
  * 3. DPP = (Subtotal − Diskon) × PengaliDpp (pecahan, misal 11/12), dibulatkan ke bawah ke rupiah penuh.
  * 4. PPN = DPP × Tarif%, dibulatkan ke bawah ke rupiah penuh (kebiasaan faktur pajak).
  * 5. Total = Subtotal − Diskon + PPN.
+ *
+ * D-49: `tambahan` = jumlah add-on pada tagihan perpanjangan. Kupon hanya mengurangi harga paket (diskon dihitung dari
+ * `subtotal` paket), sedangkan add-on masuk ke Subtotal tagihan, DPP, dan PPN: Total = (paket + add-on) − Diskon + PPN.
  */
 final class KalkulatorTagihanLangganan
 {
@@ -40,6 +43,7 @@ final class KalkulatorTagihanLangganan
         ?string $tarifPersen = null,
         int $pengaliDppPembilang = 1,
         int $pengaliDppPenyebut = 1,
+        ?Uang $tambahan = null,
     ): RincianTagihanLangganan {
         if ($jumlahBulan < 1 || $subtotal->BernilaiNegatif()) {
             throw new InvalidArgumentException('Subtotal tidak boleh negatif dan jumlah bulan minimal 1.');
@@ -51,7 +55,14 @@ final class KalkulatorTagihanLangganan
 
         $bulanDiskon = $jenisKupon === null || $nilaiKupon === null ? 0 : max(0, min($bulanDiskon, $jumlahBulan));
         $diskon = $bulanDiskon === 0 ? Uang::Nol() : $this->HitungDiskon($subtotal, $jumlahBulan, $jenisKupon, (string) $nilaiKupon, $bulanDiskon);
-        $setelahDiskon = $subtotal->Kurangi($diskon);
+        $tambahan ??= Uang::Nol();
+
+        if ($tambahan->BernilaiNegatif()) {
+            throw new InvalidArgumentException('Jumlah add-on tidak boleh negatif.');
+        }
+
+        $setelahDiskon = $subtotal->Kurangi($diskon)->Tambah($tambahan);
+        $subtotal = $subtotal->Tambah($tambahan);
 
         if ($tarifPersen === null) {
             return new RincianTagihanLangganan($subtotal, $diskon, Uang::Nol(), Uang::Nol(), $setelahDiskon, $bulanDiskon);

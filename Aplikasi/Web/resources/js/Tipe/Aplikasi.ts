@@ -70,7 +70,15 @@ export type PropsBersamaAplikasi = {
 export type PenawaranFitur = {
     Nama: string;
     Paket: { Kode: string; Nama: string; HargaBulanan: string | null } | null;
-    Addon: { Kode: string; Nama: string; HargaBulanan: string } | null;
+    Addon: {
+        Kode: string;
+        Nama: string;
+        HargaBulanan: string;
+        /** D-49: bisa dibeli mandiri (langganan berbayar aktif); selain itu `AlasanTidakBisa` menjelaskan. */
+        BisaDibeli: boolean;
+        AlasanTidakBisa: string | null;
+        HargaProrata: string | null;
+    } | null;
 };
 
 export type FiturPaket = { NamaPaket: string | null; Terkunci: Record<string, PenawaranFitur> };

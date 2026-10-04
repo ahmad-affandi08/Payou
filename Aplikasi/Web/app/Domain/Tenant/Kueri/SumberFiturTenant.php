@@ -10,6 +10,7 @@ use App\Domain\Tenant\Data\SumberFitur;
 use App\Domain\Tenant\Enum\JenisOverride;
 use App\Domain\Tenant\Model\Fitur;
 use App\Domain\Tenant\Model\Langganan;
+use App\Domain\Tenant\Model\LanggananAddon;
 use App\Domain\Tenant\Model\OverrideTenant;
 use App\Domain\Tenant\Model\Paket;
 use Illuminate\Support\Carbon;
@@ -20,8 +21,8 @@ use Illuminate\Support\Carbon;
  * Bila ada lebih dari satu override aktif untuk kunci yang sama, baris terbaru yang menang.
  *
  * Modul outlet (F-01, BR-01.3) diisi bila outlet disebut: kunci `OutletFitur` aktif outlet itu, atau null (tanpa
- * batasan) bila outlet belum punya baris sama sekali. Flag fitur (P-10) dari `FlagFiturTenant`; add-on (F-19) belum
- * tersedia.
+ * batasan) bila outlet belum punya baris sama sekali. Flag fitur (P-10) dari `FlagFiturTenant`; add-on (D-49) dari
+ * `LanggananAddon` yang sedang berlaku (fitur dan tambahan batasnya).
  *
  * D-35 edisi Lisensi: semua fitur di katalog aktif (termasuk fitur yang ditambahkan rilis berikutnya) dan batas
  * outlet/perangkat/pengguna diambil dari berkas lisensi yang berlaku; batas lain tak terbatas. Override pengelola
@@ -69,11 +70,29 @@ final class SumberFiturTenant
         return new SumberFitur(
             fiturPaket: $fiturPaket,
             batasPaket: $batasPaket,
+            addon: EdisiAplikasi::CekLisensi() ? [] : $this->AmbilAddonAktif($idTenant, $pada),
             overrideFitur: array_values(array_unique($overrideFitur)),
             overrideBatas: $overrideBatas,
             modulOutletAktif: $idOutlet === null ? null : $this->fiturOutlet->AmbilKunciAktifAtauNull($idTenant, $idOutlet),
             flagFitur: $this->flagFitur->Ambil($idTenant, $paket?->Id),
         );
+    }
+
+    /**
+     * Add-on yang sedang berlaku (D-49): `MulaiPada ≤ sekarang < SelesaiPada`. Edisi Lisensi tidak memakai add-on.
+     *
+     * @return list<array{KunciFitur: string|null, TambahanBatas: array<string, int>|null, Jumlah: int}>
+     */
+    private function AmbilAddonAktif(int $idTenant, ?Carbon $pada): array
+    {
+        $sekarang = $pada ?? Carbon::now();
+        $hasil = [];
+
+        foreach (LanggananAddon::query()->with('Addon')->where('IdTenant', $idTenant)->aktifPada($sekarang)->get() as $milik) {
+            $hasil[] = ['KunciFitur' => $milik->Addon->KunciFitur, 'TambahanBatas' => $milik->Addon->TambahanBatas, 'Jumlah' => $milik->Jumlah];
+        }
+
+        return $hasil;
     }
 
     /**

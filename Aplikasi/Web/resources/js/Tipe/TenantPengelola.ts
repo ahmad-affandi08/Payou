@@ -67,6 +67,8 @@ export type Tampilan360 = {
     };
     Langganan: LanggananTenant | null;
     Pemakaian: { Label: string; Pakai: number; Batas: number | null }[];
+    /** D-49: add-on yang dimiliki tenant. */
+    Addon: { Kode: string; Nama: string; Jumlah: number; SelesaiPada: string; Aktif: boolean; Berhenti: boolean }[];
     Organisasi: {
         Outlet: { Kode: string; Nama: string; TemplateSektor: string | null; KodeKota: string | null }[];
         JumlahGudang: number;

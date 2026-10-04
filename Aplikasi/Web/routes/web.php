@@ -185,7 +185,11 @@ Route::middleware([TolakDomainPengelola::class, ArahkanDomainAplikasi::class, Ba
                     Route::middleware($izin(IzinTenant::LanggananKelola))->group(function (): void {
                         Route::get('/langganan', [LanggananKontroler::class, 'Tampilkan'])->name('kelola.langganan.tampil');
                         Route::post('/langganan/tagihan', [LanggananKontroler::class, 'BuatTagihan'])->name('kelola.langganan.tagihan.buat');
-                        // D-23: minta add-on dari dialog fitur terkunci (menjadi tiket dukungan).
+                        // D-49: beli add-on mandiri (tagihan prorata), berhenti, dan lanjutkan.
+                        Route::post('/langganan/addon/beli', [LanggananKontroler::class, 'BeliAddon'])->middleware('throttle:10,1')->name('kelola.langganan.addon.beli');
+                        Route::post('/langganan/addon/{addon}/berhenti', [LanggananKontroler::class, 'HentikanAddon'])->middleware('throttle:10,1')->name('kelola.langganan.addon.berhenti');
+                        Route::post('/langganan/addon/{addon}/lanjut', [LanggananKontroler::class, 'LanjutkanAddon'])->middleware('throttle:10,1')->name('kelola.langganan.addon.lanjut');
+                        // D-23: minta add-on lewat tiket dukungan (jalur cadangan).
                         Route::post('/langganan/addon', [LanggananKontroler::class, 'MintaAddon'])->middleware('throttle:10,1')->name('kelola.langganan.addon.minta');
                         Route::get('/langganan/tagihan/{tagihan}', [LanggananKontroler::class, 'TampilkanTagihan'])->name('kelola.langganan.tagihan.tampil');
                         // BR-P08.11: buat transaksi Snap di gerbang billing platform. Dibatasi laju karena setiap klik

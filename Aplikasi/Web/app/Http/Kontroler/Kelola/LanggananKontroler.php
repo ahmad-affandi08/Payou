@@ -13,9 +13,12 @@ use App\Domain\Dukungan\Enum\PrioritasTiketDukungan;
 use App\Domain\Integrasi\Billing\GerbangBillingPlatform;
 use App\Domain\Organisasi\Model\Pengguna;
 use App\Domain\Tenant\Aksi\BatalkanTagihanLangganan;
+use App\Domain\Tenant\Aksi\BeliAddonLangganan;
 use App\Domain\Tenant\Aksi\BuatTagihanLangganan;
 use App\Domain\Tenant\Aksi\MulaiPembayaranGerbangLangganan;
+use App\Domain\Tenant\Aksi\UbahPerpanjanganAddonLangganan;
 use App\Domain\Tenant\Enum\StatusPembayaranLangganan;
+use App\Domain\Tenant\Kueri\AddonLanggananTenant;
 use App\Domain\Tenant\Kueri\PenawaranFiturTenant;
 use App\Domain\Tenant\Kueri\TagihanLanggananTenant;
 use App\Domain\Tenant\Model\PembayaranLangganan;
@@ -37,11 +40,11 @@ final class LanggananKontroler extends Kontroler
 {
     public function __construct(private readonly TagihanLanggananTenant $kueri) {}
 
-    public function Tampilkan(): Response
+    public function Tampilkan(AddonLanggananTenant $addon): Response
     {
-
         return Inertia::render('Kelola/Langganan/Indeks', [
             'Langganan' => $this->kueri->AmbilLangganan(),
+            'Addon' => $addon->Ambil(app(KonteksTenant::class)->Wajib()),
             'PilihanPaket' => $this->kueri->AmbilPilihanPaket(),
             'Tagihan' => $this->kueri->DaftarTagihan(),
             'HariMasaTenggang' => (int) config('tagihan.HariMasaTenggang'),
@@ -102,8 +105,39 @@ final class LanggananKontroler extends Kontroler
     }
 
     /**
-     * D-23: minta add-on untuk fitur terkunci dari dialog menu. Pembelian add-on mandiri belum tersedia (F-19), jadi
-     * permintaan menjadi tiket dukungan kategori Akun & langganan; tim platform mengaktifkannya lalu menagih.
+     * D-49: beli add-on mandiri. Menerbitkan tagihan prorata sampai akhir periode; add-on aktif setelah tagihan lunas.
+     */
+    public function BeliAddon(Request $permintaan, BeliAddonLangganan $beli): RedirectResponse
+    {
+        $valid = $permintaan->validate(
+            ['KodeAddon' => ['required', 'string', 'max:30'], 'Jumlah' => ['nullable', 'integer', 'min:1', 'max:'.BeliAddonLangganan::JUMLAH_MAKS]],
+            attributes: ['KodeAddon' => 'add-on', 'Jumlah' => 'jumlah'],
+        );
+        $tagihan = $beli->Jalankan($this->PenggunaMasuk()->Id, (string) $valid['KodeAddon'], (int) ($valid['Jumlah'] ?? 1));
+
+        return redirect()->route('kelola.langganan.tagihan.tampil', ['tagihan' => $tagihan->Uuid])
+            ->with('Kilat', "Tagihan {$tagihan->Nomor} dibuat. Add-on aktif begitu pembayaran selesai.");
+    }
+
+    /** D-49: berhenti berlangganan add-on (aktif sampai akhir periode, tidak ditagih lagi). */
+    public function HentikanAddon(string $addon, UbahPerpanjanganAddonLangganan $ubah): RedirectResponse
+    {
+        $milik = $ubah->Jalankan($addon, false);
+
+        return back()->with('Kilat', "Add-on {$milik->Addon->Nama} tidak akan diperpanjang. Tetap aktif sampai ".$milik->SelesaiPada->copy()->setTimezone('Asia/Jakarta')->translatedFormat('j F Y').'.');
+    }
+
+    /** D-49: melanjutkan add-on yang tadinya dihentikan, selama masih aktif. */
+    public function LanjutkanAddon(string $addon, UbahPerpanjanganAddonLangganan $ubah): RedirectResponse
+    {
+        $milik = $ubah->Jalankan($addon, true);
+
+        return back()->with('Kilat', "Add-on {$milik->Addon->Nama} akan diperpanjang otomatis bersama paket Anda.");
+    }
+
+    /**
+     * D-23: minta add-on lewat tiket dukungan. Sejak D-49 add-on dibeli mandiri; tiket tetap menjadi jalur cadangan untuk
+     * kasus yang tidak bisa dibeli mandiri (paket berharga khusus, langganan belum aktif). Tim platform mengaktifkannya.
      */
     public function MintaAddon(Request $permintaan, PenawaranFiturTenant $penawaran, BuatTiketDukungan $buatTiket): RedirectResponse
     {

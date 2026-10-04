@@ -2,10 +2,23 @@
 export type StatusTagihanLangganan =
     'Draf' | 'Terbit' | 'JatuhTempo' | 'Lunas' | 'Dibatalkan' | 'Dihapuskan' | 'Dikembalikan';
 
+/** D-49: rincian add-on pada tagihan (satu baris prorata pada tagihan Addon, per add-on pada Perpanjangan). */
+export type RincianAddonTagihan = {
+    KodeAddon: string;
+    NamaAddon: string;
+    Jumlah: number;
+    HargaBulanan: string;
+    JumlahBulan: number;
+    Prorata: boolean;
+    HariDitagih: number | null;
+    HariPeriode: number | null;
+    Subtotal: string;
+};
+
 export type TagihanLangganan = {
     Uuid: string;
     Nomor: string;
-    Jenis: 'Aktivasi' | 'Perpanjangan';
+    Jenis: 'Aktivasi' | 'Perpanjangan' | 'Addon';
     LabelJenis: string;
     Status: StatusTagihanLangganan;
     LabelStatus: string;
@@ -14,6 +27,9 @@ export type TagihanLangganan = {
     Siklus: 'Bulanan' | 'Tahunan';
     JumlahBulan: number;
     Subtotal: string;
+    /** Subtotal paket saja (Subtotal − add-on), dihitung server. */
+    SubtotalPaket: string;
+    RincianAddon: RincianAddonTagihan[];
     KodeKupon: string | null;
     Diskon: string;
     TarifPpn: string;

@@ -56,14 +56,42 @@ export default function RincianTagihan({ tagihan, namaTenant }: PropsRincianTagi
             <Table className="border-t border-garis text-left text-isi">
                 <TableCaption className="sr-only">Rincian biaya tagihan {tagihan.Nomor}</TableCaption>
                 <TableBody>
-                    <TableRow className="border-garis hover:bg-transparent">
-                        <TableHead scope="row" className="h-auto px-4 py-2 font-normal whitespace-normal text-inherit">
-                            Paket {tagihan.NamaPaket} | {tagihan.Siklus === 'Tahunan' ? '12 bulan' : '1 bulan'}
-                        </TableHead>
-                        <TableCell className="px-4 py-2 text-right tabular-nums">
-                            {FormatRupiah(tagihan.Subtotal)}
-                        </TableCell>
-                    </TableRow>
+                    {tagihan.Jenis === 'Addon' ? null : (
+                        <TableRow className="border-garis hover:bg-transparent">
+                            <TableHead
+                                scope="row"
+                                className="h-auto px-4 py-2 font-normal whitespace-normal text-inherit"
+                            >
+                                Paket {tagihan.NamaPaket} | {tagihan.Siklus === 'Tahunan' ? '12 bulan' : '1 bulan'}
+                            </TableHead>
+                            <TableCell className="px-4 py-2 text-right tabular-nums">
+                                {FormatRupiah(tagihan.SubtotalPaket)}
+                            </TableCell>
+                        </TableRow>
+                    )}
+                    {tagihan.RincianAddon.map((baris) => (
+                        <TableRow key={baris.KodeAddon} className="border-garis hover:bg-transparent">
+                            <TableHead
+                                scope="row"
+                                className="h-auto px-4 py-2 font-normal whitespace-normal text-inherit"
+                            >
+                                Add-on {baris.NamaAddon}
+                                {baris.Jumlah > 1 ? ` × ${baris.Jumlah}` : ''}
+                                {baris.Prorata && baris.HariDitagih !== null && baris.HariPeriode !== null ? (
+                                    <span className="block text-keterangan text-teks-sekunder">
+                                        Prorata {baris.HariDitagih} dari {baris.HariPeriode} hari periode berjalan
+                                    </span>
+                                ) : (
+                                    <span className="block text-keterangan text-teks-sekunder">
+                                        {baris.JumlahBulan === 12 ? '12 bulan' : '1 bulan'}
+                                    </span>
+                                )}
+                            </TableHead>
+                            <TableCell className="px-4 py-2 text-right tabular-nums">
+                                {FormatRupiah(baris.Subtotal)}
+                            </TableCell>
+                        </TableRow>
+                    ))}
                     {tagihan.Diskon !== '0.00' ? (
                         <TableRow className="border-garis hover:bg-transparent">
                             <TableHead

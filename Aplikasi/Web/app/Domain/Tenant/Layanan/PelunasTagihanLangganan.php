@@ -12,9 +12,12 @@ use App\Domain\Tenant\Enum\StatusLangganan;
 use App\Domain\Tenant\Enum\StatusPembayaranLangganan;
 use App\Domain\Tenant\Enum\StatusTagihanLangganan;
 use App\Domain\Tenant\Model\Langganan;
+use App\Domain\Tenant\Model\LanggananAddon;
 use App\Domain\Tenant\Model\PembayaranLangganan;
 use App\Domain\Tenant\Model\TagihanLangganan;
+use App\Domain\Tenant\Model\TagihanLanggananAddon;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Carbon;
 
 /**
  * Inti pelunasan tagihan langganan (BR-P08.9): pembayaran Diterima → tagihan Lunas → langganan Aktif dengan paket,
@@ -75,6 +78,10 @@ final class PelunasTagihanLangganan
             );
         }
 
+        if ($tagihan->Jenis === JenisTagihanLangganan::Addon) {
+            return $this->LunasiAddon($langganan, $tagihan, $pembayaran, $diterima, $sekarang, $idVerifikatorPengelola);
+        }
+
         if ($langganan->Status !== StatusLangganan::Aktif && ! $langganan->Status->BisaBerubahKe(StatusLangganan::Aktif)) {
             throw new PelanggaranAturanBisnis('LanggananTidakBisaAktif', "Langganan berstatus {$langganan->Status->AmbilLabel()} tidak bisa diaktifkan dari tagihan.");
         }
@@ -124,9 +131,129 @@ final class PelunasTagihanLangganan
             'PeriodeSelesai' => $periode['Selesai'],
         ]);
 
+        // D-49: add-on yang ikut ditagih di perpanjangan diperpanjang sampai akhir periode baru.
+        $this->PerpanjangAddonTagihan($tagihan, $periode['Mulai'], $periode['Selesai']);
+
         // P-12 (BR-P12.1): komisi mitra perujuk lahir dari tagihan lunas, di transaksi pelunasan yang sama.
         $this->komisiMitra->CatatDariTagihan($tagihan);
 
         return new HasilPelunasanLangganan($periode, $langgananLama, $statusTagihanLama, $lanjutan);
+    }
+
+    /**
+     * D-49: tagihan add-on lunas → add-on aktif sampai akhir periode langganan berjalan. Paket, siklus, dan periode
+     * langganan tidak berubah. Pembayaran yang baru masuk setelah periode berganti memakai akhir periode terbaru.
+     */
+    private function LunasiAddon(
+        Langganan $langganan,
+        TagihanLangganan $tagihan,
+        PembayaranLangganan $pembayaran,
+        Uang $diterima,
+        CarbonImmutable $sekarang,
+        ?int $idVerifikatorPengelola,
+    ): HasilPelunasanLangganan {
+        if (! in_array($langganan->Status, [StatusLangganan::Aktif, StatusLangganan::Tertunggak], true)) {
+            throw new PelanggaranAturanBisnis('LanggananTidakAktif', "Langganan berstatus {$langganan->Status->AmbilLabel()} tidak bisa menerima pembayaran add-on. Hubungi tim kami.");
+        }
+
+        $rincian = TagihanLanggananAddon::query()->where('IdTagihanLangganan', $tagihan->Id)->get();
+        $akhirPeriode = $langganan->PeriodeSelesai !== null && $langganan->PeriodeSelesai->greaterThan($sekarang)
+            ? CarbonImmutable::instance($langganan->PeriodeSelesai)
+            : null;
+        $statusTagihanLama = $tagihan->Status->value;
+        $langgananLama = [
+            'Status' => $langganan->Status->value,
+            'IdPaket' => $langganan->IdPaket,
+            'SiklusTagihan' => $langganan->SiklusTagihan->value,
+            'PeriodeMulai' => $langganan->PeriodeMulai?->toIso8601ZuluString(),
+            'PeriodeSelesai' => $langganan->PeriodeSelesai?->toIso8601ZuluString(),
+        ];
+        $selesaiTagihan = $sekarang;
+
+        $pembayaran->update([
+            'Status' => StatusPembayaranLangganan::Diterima,
+            'IdPenggunaPengelolaVerifikator' => $idVerifikatorPengelola,
+            'DiverifikasiPada' => $sekarang,
+            'JumlahDiterima' => $diterima->KeString(),
+        ]);
+
+        foreach ($rincian as $baris) {
+            $selesai = $akhirPeriode ?? CarbonImmutable::instance($baris->SelesaiPada);
+            $selesaiTagihan = $selesai;
+            $milik = LanggananAddon::query()->where('IdTenant', $tagihan->IdTenant)->where('IdAddon', $baris->IdAddon)->lockForUpdate()->first();
+
+            if ($milik === null) {
+                LanggananAddon::query()->create([
+                    'IdTenant' => $tagihan->IdTenant,
+                    'IdAddon' => $baris->IdAddon,
+                    'Jumlah' => $baris->Jumlah,
+                    'MulaiPada' => $sekarang,
+                    'SelesaiPada' => $selesai,
+                    'PerpanjangOtomatis' => true,
+                    'IdTagihanLanggananAsal' => $tagihan->Id,
+                ]);
+
+                continue;
+            }
+
+            $masihAktif = $milik->CekAktifPada(Carbon::instance($sekarang));
+            $milik->update([
+                'Jumlah' => $baris->Jumlah,
+                'MulaiPada' => $masihAktif ? $milik->MulaiPada : $sekarang,
+                'SelesaiPada' => $selesai->greaterThan($milik->SelesaiPada) ? $selesai : $milik->SelesaiPada,
+                'PerpanjangOtomatis' => true,
+                'BerhentiPada' => null,
+                'IdTagihanLanggananAsal' => $tagihan->Id,
+            ]);
+        }
+
+        $tagihan->update([
+            'Status' => StatusTagihanLangganan::Lunas,
+            'DibayarPada' => $sekarang,
+            'PeriodeMulai' => $sekarang,
+            'PeriodeSelesai' => $selesaiTagihan,
+        ]);
+
+        $this->komisiMitra->CatatDariTagihan($tagihan);
+
+        return new HasilPelunasanLangganan(
+            ['Mulai' => $sekarang, 'Selesai' => $selesaiTagihan],
+            $langgananLama,
+            $statusTagihanLama,
+            false,
+            langgananTidakBerubah: true,
+        );
+    }
+
+    /** Memperpanjang add-on yang ditagih pada tagihan perpanjangan sampai akhir periode baru (D-49). */
+    private function PerpanjangAddonTagihan(TagihanLangganan $tagihan, CarbonImmutable $mulai, CarbonImmutable $selesai): void
+    {
+        if ($tagihan->Jenis !== JenisTagihanLangganan::Perpanjangan) {
+            return;
+        }
+
+        foreach (TagihanLanggananAddon::query()->where('IdTagihanLangganan', $tagihan->Id)->get() as $baris) {
+            $milik = LanggananAddon::query()->where('IdTenant', $tagihan->IdTenant)->where('IdAddon', $baris->IdAddon)->lockForUpdate()->first();
+
+            if ($milik === null) {
+                LanggananAddon::query()->create([
+                    'IdTenant' => $tagihan->IdTenant,
+                    'IdAddon' => $baris->IdAddon,
+                    'Jumlah' => $baris->Jumlah,
+                    'MulaiPada' => $mulai,
+                    'SelesaiPada' => $selesai,
+                    'PerpanjangOtomatis' => true,
+                    'IdTagihanLanggananAsal' => $tagihan->Id,
+                ]);
+
+                continue;
+            }
+
+            $milik->update([
+                'MulaiPada' => $milik->SelesaiPada->lessThan($mulai) ? $mulai : $milik->MulaiPada,
+                'SelesaiPada' => $selesai->greaterThan($milik->SelesaiPada) ? $selesai : $milik->SelesaiPada,
+                'IdTagihanLanggananAsal' => $tagihan->Id,
+            ]);
+        }
     }
 }
