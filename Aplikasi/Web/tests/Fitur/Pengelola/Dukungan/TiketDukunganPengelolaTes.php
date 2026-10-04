@@ -250,3 +250,35 @@ describe('Menangani tiket', function (): void {
             ->and($tiket->BatasSlaPada->toIso8601String())->toBe($tiket->DibuatPada->copy()->addHours(4)->toIso8601String());
     });
 });
+
+describe('Aksi massal tiket', function (): void {
+    it('tandai selesai dan tutup banyak tiket; tutup wajib alasan; yang final dilewati dengan alasan; peran tanpa izin ditolak', function (): void {
+        $petugas = BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::Dukungan);
+        ['Tenant' => $tenant, 'Pengguna' => $pengguna] = BantuanDukungan::BuatTenant();
+        $a = BantuanDukungan::BuatTiket($tenant, $pengguna, 'Tiket A');
+        $b = BantuanDukungan::BuatTiket($tenant, $pengguna, 'Tiket B');
+        $c = BantuanDukungan::BuatTiket($tenant, $pengguna, 'Tiket C');
+        $alamat = BantuanPengelola::Url('/dukungan/tiket/status-massal');
+        $masuk = fn () => MasukSebagaiPetugas($this, $petugas);
+
+        $masuk()->put($alamat, ['Status' => 'Baru', 'Uuid' => [$a->Uuid]])->assertSessionHasErrors('Status');
+        $masuk()->put($alamat, ['Status' => 'Ditutup', 'Uuid' => [$a->Uuid, $b->Uuid]])->assertSessionHasErrors('Alasan');
+        expect(BantuanDukungan::MuatUlang($a)->Status)->toBe(StatusTiketDukungan::Baru);
+
+        $masuk()->put($alamat, ['Status' => 'Selesai', 'Uuid' => [$a->Uuid, $b->Uuid]])
+            ->assertSessionHasNoErrors()->assertSessionHas('Kilat', fn (string $pesan): bool => str_starts_with($pesan, '2 tiket ditandai selesai.'));
+        expect(BantuanDukungan::MuatUlang($a)->Status)->toBe(StatusTiketDukungan::Selesai);
+
+        // Tutup A, B (Selesai → Ditutup) dan C (Baru → Ditutup); C boleh ditutup juga bila state machine mengizinkan.
+        $masuk()->put($alamat, ['Status' => 'Ditutup', 'Alasan' => 'Sudah dikonfirmasi pelapor', 'Uuid' => [$a->Uuid, $b->Uuid, $c->Uuid]])->assertSessionHasNoErrors();
+        $ditutup = collect([$a, $b, $c])->filter(fn (TiketDukungan $t): bool => BantuanDukungan::MuatUlang($t)->Status === StatusTiketDukungan::Ditutup)->count();
+        expect($ditutup)->toBeGreaterThanOrEqual(2)
+            ->and(LogAuditPengelola::query()->where('Aksi', 'dukungan.tiket.ubah-status')->count())->toBeGreaterThanOrEqual(4);
+
+        // Semua sudah final: tidak ada yang berubah → galat umum berisi alasan.
+        $masuk()->put($alamat, ['Status' => 'Ditutup', 'Alasan' => 'Ulang', 'Uuid' => [$a->Uuid, $b->Uuid]])->assertSessionHasErrors('Umum');
+
+        MasukSebagaiPetugas($this, BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::Keuangan))
+            ->put($alamat, ['Status' => 'Selesai', 'Uuid' => [$c->Uuid]])->assertForbidden();
+    });
+});

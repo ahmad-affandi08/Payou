@@ -1,7 +1,8 @@
 import { Link } from '@inertiajs/react';
 
 import { jenisLabelStatusTiket, type StatusTiket } from '@/Komponen/Dukungan/StatusTiket';
-import TabelData from '@/Komponen/TabelData/TabelData';
+import AksiMassalTiket from '@/Komponen/Pengelola/AksiMassalTiket';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { HasilTabel, KolomTabel } from '@/Komponen/TabelData/Tipe';
 import LabelStatus from '@/Komponen/Umpan/LabelStatus';
 import { FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
@@ -29,6 +30,7 @@ type PropsAntrean = {
     Tiket: HasilTabel<BarisAntrean>;
     PilihanStatus: Pilihan[];
     PilihanPrioritas: Pilihan[];
+    BolehTangani?: boolean;
 };
 
 const jenisLabelPrioritas = { Mendesak: 'bahaya', Tinggi: 'peringatan', Normal: 'netral', Rendah: 'netral' } as const;
@@ -110,7 +112,7 @@ const kolom: KolomTabel<BarisAntrean>[] = [
 ];
 
 /** Antrean tiket dukungan semua tenant (P-09, TabelData D-16). Tiket terbuka diurutkan dari batas SLA terdekat. */
-export default function AntreanTiket({ Tiket, PilihanStatus, PilihanPrioritas }: PropsAntrean) {
+export default function AntreanTiket({ Tiket, PilihanStatus, PilihanPrioritas, BolehTangani = false }: PropsAntrean) {
     return (
         <TataLetakPengelola judul="Tiket dukungan">
             <TabelData
@@ -119,6 +121,13 @@ export default function AntreanTiket({ Tiket, PilihanStatus, PilihanPrioritas }:
                 kolom={kolom}
                 sumber={{ mode: 'server', alamat: '/dukungan/tiket', awal: Tiket }}
                 ambilIdBaris={(tiket) => tiket.Uuid}
+                {...(BolehTangani
+                    ? {
+                          aksiMassal: (konteks: KonteksAksiMassal<BarisAntrean>) => (
+                              <AksiMassalTiket konteks={konteks} />
+                          ),
+                      }
+                    : {})}
                 cari="Cari nomor atau judul tiket"
                 saring={[
                     {

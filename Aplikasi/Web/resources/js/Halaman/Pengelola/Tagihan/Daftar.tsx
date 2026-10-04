@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 
-import TabelData from '@/Komponen/TabelData/TabelData';
+import AksiMassalVerifikasi from '@/Komponen/Pengelola/AksiMassalVerifikasi';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { HasilTabel, KolomTabel } from '@/Komponen/TabelData/Tipe';
 import { Card } from '@/Komponen/Ui/card';
 import LabelStatus from '@/Komponen/Umpan/LabelStatus';
@@ -25,6 +26,7 @@ type PropsDaftarTagihan = {
     Tagihan: HasilTabel<BarisTagihan>;
     Ringkasan: { MenungguVerifikasi: number; BelumDibayar: number };
     OpsiStatus: Pilihan[];
+    BolehVerifikasi?: boolean;
 };
 
 const kolomAntrean: KolomTabel<BarisAntrean>[] = [
@@ -151,7 +153,13 @@ function KartuRingkasan({ nilai, label }: { nilai: number; label: string }) {
 }
 
 /** Tagihan langganan & antrean "Menunggu Verifikasi" transfer manual (P-08 langkah 3), TabelData D-16. */
-export default function HalamanDaftarTagihan({ Antrean, Tagihan, Ringkasan, OpsiStatus }: PropsDaftarTagihan) {
+export default function HalamanDaftarTagihan({
+    Antrean,
+    Tagihan,
+    Ringkasan,
+    OpsiStatus,
+    BolehVerifikasi = false,
+}: PropsDaftarTagihan) {
     return (
         <TataLetakPengelola judul="Tagihan langganan">
             <p className="text-label">
@@ -177,6 +185,13 @@ export default function HalamanDaftarTagihan({ Antrean, Tagihan, Ringkasan, Opsi
                     kolom={kolomAntrean}
                     sumber={{ mode: 'lokal', data: Antrean }}
                     ambilIdBaris={(baris) => baris.Uuid}
+                    {...(BolehVerifikasi
+                        ? {
+                              aksiMassal: (konteks: KonteksAksiMassal<BarisAntrean>) => (
+                                  <AksiMassalVerifikasi konteks={konteks} />
+                              ),
+                          }
+                        : {})}
                     alamatDetail={(baris) => (baris.UuidTagihan ? `/tagihan/${baris.UuidTagihan}` : '')}
                     kosong={{
                         ilustrasi: true,

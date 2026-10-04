@@ -331,3 +331,32 @@ describe('Penangguhan manual tidak dicabut lewat tagihan (BR-P07.4 × BR-P08.9)'
         expect(LanggananTagihanUji($this->tenant)->Status)->toBe(StatusLangganan::Aktif);
     });
 });
+
+describe('Terima massal antrean verifikasi', function (): void {
+    it('menerima pembayaran terpilih setelah dicentang sudah dicocokkan; yang sudah tidak menunggu dilewati dengan alasan; Dukungan ditolak', function (): void {
+        $pembayaran = BayarTagihanUji($this, $this->pemilik, $this->tenant);
+        $alamat = BantuanPengelola::Url('/tagihan/pembayaran/terima-massal');
+        $masuk = fn () => MasukTagihanPengelola($this, $this->keuangan);
+
+        // Tanpa centang konfirmasi, atau tanpa pilihan: ditolak dan tidak ada yang berubah.
+        $masuk()->post($alamat, ['Uuid' => [$pembayaran->Uuid]])->assertSessionHasErrors('SudahDicocokkan');
+        $masuk()->post($alamat, ['Uuid' => [], 'SudahDicocokkan' => true])->assertSessionHasErrors('Uuid');
+        expect($pembayaran->refresh()->Status)->toBe(StatusPembayaranLangganan::Menunggu);
+
+        $masuk()->post($alamat, ['Uuid' => [$pembayaran->Uuid, '01J9ZZZZZZZZZZZZZZZZZZZZZZ'], 'SudahDicocokkan' => true, 'Catatan' => 'Mutasi BCA 23/09'])
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('Kilat', fn (string $pesan): bool => str_starts_with($pesan, '1 pembayaran diterima, tagihan lunas dan langganan aktif.') && str_contains($pesan, '1 dilewati: Pembayaran tidak lagi menunggu verifikasi.'));
+        $pembayaran->refresh();
+        expect($pembayaran->Status)->toBe(StatusPembayaranLangganan::Diterima)
+            ->and($pembayaran->JumlahDiterima)->toBe($pembayaran->Jumlah)
+            ->and($pembayaran->IdPenggunaPengelolaVerifikator)->toBe($this->keuangan->Id)
+            ->and(LanggananTagihanUji($this->tenant)->Status)->toBe(StatusLangganan::Aktif)
+            ->and(LogAuditPengelola::query()->where('Aksi', 'tagihan.pembayaran.terima')->count())->toBe(1);
+
+        // Diulang: tidak ada yang diterima, jadi galat umum (bukan pesan berhasil).
+        $masuk()->post($alamat, ['Uuid' => [$pembayaran->Uuid], 'SudahDicocokkan' => true])->assertSessionHasErrors('Umum');
+
+        MasukTagihanPengelola($this, BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::Dukungan))
+            ->post($alamat, ['Uuid' => [$pembayaran->Uuid], 'SudahDicocokkan' => true])->assertForbidden();
+    });
+});

@@ -12,8 +12,10 @@ use App\Domain\Pengelola\Dukungan\Aksi\BalasTiketDukunganPengelola;
 use App\Domain\Pengelola\Dukungan\Aksi\TugaskanTiketDukungan;
 use App\Domain\Pengelola\Dukungan\Aksi\UbahPrioritasTiketDukungan;
 use App\Domain\Pengelola\Dukungan\Aksi\UbahStatusTiketDukungan;
+use App\Domain\Pengelola\Dukungan\Aksi\UbahStatusTiketDukunganMassal;
 use App\Domain\Pengelola\Dukungan\Kueri\AntreanTiketDukungan;
 use App\Domain\Pengelola\Dukungan\Kueri\DetailTiketDukungan;
+use App\Domain\Pengelola\TimInternal\Enum\IzinPengelola;
 use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
 use App\Http\Kontroler\Kelola\BantuanKontroler;
 use App\Http\Kontroler\Kontroler;
@@ -44,6 +46,7 @@ final class TiketDukunganKontroler extends Kontroler
         return ResponsTabel::Kirim($permintaan, 'Pengelola/Dukungan/Antrean', 'Tiket', fn (): array => $antrean->AmbilTabel($this->AmbilPelaku(), $tabel), fn (): array => [
             'PilihanStatus' => self::AmbilPilihanStatus(),
             'PilihanPrioritas' => self::AmbilPilihanPrioritas(),
+            'BolehTangani' => $this->AmbilPelaku()->PunyaIzin(IzinPengelola::DukunganTiketTangani),
         ]);
     }
 
@@ -96,6 +99,31 @@ final class TiketDukunganKontroler extends Kontroler
         $tiket = $ubah->Jalankan($this->AmbilPelaku(), $tiketDukungan, $permintaan->AmbilStatus(), $permintaan->AmbilAlasan());
 
         return back()->with('Kilat', "Status tiket {$tiket->Nomor} menjadi {$tiket->Status->AmbilLabel()}.");
+    }
+
+    /** Aksi massal tiket terpilih: tandai selesai atau tutup (alasan wajib untuk menutup). */
+    public function UbahStatusMassal(Request $permintaan, UbahStatusTiketDukunganMassal $ubah): RedirectResponse
+    {
+        $valid = $permintaan->validate([
+            'Status' => ['required', 'string', Rule::in(UbahStatusTiketDukunganMassal::TUJUAN)],
+            'Alasan' => ['nullable', 'string', 'max:500'],
+            'Uuid' => ['required', 'array', 'min:1', 'max:'.UbahStatusTiketDukunganMassal::MAKS],
+            'Uuid.*' => ['required', 'string', 'size:26'],
+        ], attributes: ['Uuid' => 'tiket terpilih']);
+        /** @var list<string> $uuid */
+        $uuid = array_values($valid['Uuid']);
+        $alasan = is_string($valid['Alasan'] ?? null) ? trim($valid['Alasan']) : null;
+        $hasil = $ubah->Jalankan($this->AmbilPelaku(), $uuid, $valid['Status'], $alasan);
+        $kata = $valid['Status'] === 'Ditutup' ? 'ditutup' : 'ditandai selesai';
+        $rincian = [];
+
+        foreach ($hasil['Dilewati'] as $sebab => $jumlah) {
+            $rincian[] = "{$jumlah} dilewati: {$sebab}";
+        }
+
+        $pesan = trim("{$hasil['Diubah']} tiket {$kata}. ".implode(' ', $rincian));
+
+        return $hasil['Diubah'] === 0 ? back()->withErrors(['Umum' => "Tidak ada tiket yang berubah. {$pesan}"]) : back()->with('Kilat', $pesan);
     }
 
     public function UbahPrioritas(string $tiketDukungan, Request $permintaan, UbahPrioritasTiketDukungan $ubah): RedirectResponse

@@ -7,9 +7,11 @@ namespace App\Http\Kontroler\Pengelola\Tagihan;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Pengelola\Tagihan\Aksi\BukaBuktiPembayaran;
 use App\Domain\Pengelola\Tagihan\Aksi\TerimaPembayaranLangganan;
+use App\Domain\Pengelola\Tagihan\Aksi\TerimaPembayaranLanggananMassal;
 use App\Domain\Pengelola\Tagihan\Aksi\TolakPembayaranLangganan;
 use App\Domain\Pengelola\Tagihan\Kueri\DaftarTagihanPlatform;
 use App\Domain\Pengelola\Tagihan\Kueri\LaporanLanggananPlatform;
+use App\Domain\Pengelola\TimInternal\Enum\IzinPengelola;
 use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
 use App\Domain\Tenant\Enum\StatusTagihanLangganan;
 use App\Domain\Tenant\Kueri\TagihanLanggananTenant;
@@ -44,6 +46,7 @@ final class TagihanKontroler extends Kontroler
         return ResponsTabel::Kirim($permintaan, 'Pengelola/Tagihan/Daftar', 'Tagihan', fn (): array => $this->kueri->AmbilTabel($tabel), fn (): array => [
             'Antrean' => $this->kueri->AmbilAntrean(),
             'Ringkasan' => $this->kueri->HitungRingkasan(),
+            'BolehVerifikasi' => $this->AmbilPelaku()->PunyaIzin(IzinPengelola::TagihanVerifikasi),
             'OpsiStatus' => array_map(fn (StatusTagihanLangganan $pilihan): array => ['Nilai' => $pilihan->value, 'Label' => $pilihan->AmbilLabel()], StatusTagihanLangganan::cases()),
         ]);
     }
@@ -120,6 +123,32 @@ final class TagihanKontroler extends Kontroler
         $terima->Jalankan($this->AmbilPelaku(), $pembayaran, $permintaan->AmbilJumlah(), $permintaan->AmbilCatatan());
 
         return back()->with('Kilat', 'Pembayaran diterima. Tagihan lunas dan langganan tenant aktif.');
+    }
+
+    /** Aksi massal antrean verifikasi: terima banyak bukti transfer yang sudah dicocokkan dengan mutasi rekening. */
+    public function TerimaMassal(Request $permintaan, TerimaPembayaranLanggananMassal $terima): RedirectResponse
+    {
+        $valid = $permintaan->validate([
+            'Uuid' => ['required', 'array', 'min:1', 'max:'.TerimaPembayaranLanggananMassal::MAKS],
+            'Uuid.*' => ['required', 'string', 'size:26'],
+            'SudahDicocokkan' => ['required', 'accepted'],
+            'Catatan' => ['nullable', 'string', 'max:500'],
+        ], [
+            'SudahDicocokkan.*' => 'Centang bahwa setiap bukti sudah dicocokkan dengan mutasi rekening.',
+        ], ['Uuid' => 'pembayaran terpilih']);
+        /** @var list<string> $uuid */
+        $uuid = array_values($valid['Uuid']);
+        $catatan = is_string($valid['Catatan'] ?? null) && trim($valid['Catatan']) !== '' ? trim($valid['Catatan']) : null;
+        $hasil = $terima->Jalankan($this->AmbilPelaku(), $uuid, true, $catatan);
+        $rincian = [];
+
+        foreach ($hasil['Dilewati'] as $sebab => $jumlah) {
+            $rincian[] = "{$jumlah} dilewati: {$sebab}";
+        }
+
+        $pesan = trim("{$hasil['Diterima']} pembayaran diterima, tagihan lunas dan langganan aktif. ".implode(' ', $rincian));
+
+        return $hasil['Diterima'] === 0 ? back()->withErrors(['Umum' => "Tidak ada pembayaran yang diterima. {$pesan}"]) : back()->with('Kilat', $pesan);
     }
 
     public function Tolak(string $pembayaran, TolakPembayaranPermintaan $permintaan, TolakPembayaranLangganan $tolak): RedirectResponse
