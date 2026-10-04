@@ -310,6 +310,12 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
             Route::put("{$versi}/akun", [TemplateSektorKontroler::class, 'SimpanAkun'])
                 ->middleware($izin(IzinPengelola::TemplateAkunUbah))
                 ->name('pengelola.template-sektor.versi.akun.ubah');
+            Route::post('/template-sektor/{templateSektor}/nonaktifkan', [TemplateSektorKontroler::class, 'Nonaktifkan'])
+                ->middleware($izin(IzinPengelola::TemplateTerbitkan))
+                ->name('pengelola.template-sektor.nonaktifkan');
+            Route::post('/template-sektor/{templateSektor}/aktifkan', [TemplateSektorKontroler::class, 'Aktifkan'])
+                ->middleware($izin(IzinPengelola::TemplateTerbitkan))
+                ->name('pengelola.template-sektor.aktifkan');
             Route::post("{$versi}/terbitkan", [TemplateSektorKontroler::class, 'Terbitkan'])
                 ->middleware($izin(IzinPengelola::TemplateTerbitkan))
                 ->name('pengelola.template-sektor.versi.terbitkan');

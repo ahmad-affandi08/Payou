@@ -6,6 +6,7 @@ use App\Domain\Bersama\Status\StatusDataMaster;
 use App\Domain\Pajak\Model\JenisPajak;
 use App\Domain\Pajak\Model\TarifPajak;
 use App\Domain\PanduanAwal\Enum\StatusTemplateSektor;
+use App\Domain\PanduanAwal\Kueri\TemplateTerbit;
 use App\Domain\PanduanAwal\Model\TemplateSektor;
 use App\Domain\PanduanAwal\Model\TemplateSektorVersi;
 use App\Domain\Pengelola\Katalog\Aksi\SiapkanKatalogBawaan;
@@ -355,5 +356,55 @@ describe('Buat template baru (P-03 langkah 1)', function (): void {
 
         MasukSebagaiTemplate($this, BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::Keuangan));
         $this->post(BantuanPengelola::Url('/template-sektor'), ['Kode' => 'FNB-KTR', 'Nama' => 'Katering'])->assertForbidden();
+    });
+});
+
+describe('Nonaktifkan sektor (D-47, BR-P03.2)', function (): void {
+    it('sektor terbit bisa dinonaktifkan lalu diaktifkan lagi; hilang dari pilihan tenant baru, audit tercatat', function (): void {
+        MasukSebagaiTemplate($this, BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::SuperAdmin));
+        $this->post(UrlVersi('FNB-CAF', 1, '/terbitkan'))->assertSessionHasNoErrors();
+        $tenant = app(TemplateTerbit::class);
+        expect($tenant->AmbilKode())->toContain('FNB-CAF');
+
+        $this->post(BantuanPengelola::Url('/template-sektor/FNB-CAF/nonaktifkan'))->assertSessionHasNoErrors();
+        expect(TemplateSektor::query()->where('Kode', 'FNB-CAF')->value('DinonaktifkanPada'))->not->toBeNull()
+            ->and($tenant->AmbilKode())->not->toContain('FNB-CAF')
+            ->and($tenant->Cari('FNB-CAF'))->toBeNull()
+            // Versi tetap tersimpan dan terbaca untuk outlet yang sudah memakainya (BR-P03.1).
+            ->and($tenant->CariVersi(AmbilVersiUji('FNB-CAF', 1)->Id))->not->toBeNull();
+
+        $this->get(BantuanPengelola::Url('/template-sektor'))->assertInertia(fn (AssertableInertia $halaman) => $halaman
+            ->where('Template', fn ($daftar) => collect($daftar)->firstWhere('Kode', 'FNB-CAF')['DinonaktifkanPada'] !== null));
+
+        $this->post(BantuanPengelola::Url('/template-sektor/FNB-CAF/aktifkan'))->assertSessionHasNoErrors();
+        expect($tenant->AmbilKode())->toContain('FNB-CAF')
+            ->and(LogAuditPengelola::query()->where('Aksi', 'template.nonaktifkan')->count())->toBe(1)
+            ->and(LogAuditPengelola::query()->where('Aksi', 'template.aktifkan')->count())->toBe(1);
+
+        // Idempoten: mengaktifkan yang sudah aktif tidak menambah audit.
+        $this->post(BantuanPengelola::Url('/template-sektor/FNB-CAF/aktifkan'))->assertSessionHasNoErrors();
+        expect(LogAuditPengelola::query()->where('Aksi', 'template.aktifkan')->count())->toBe(1);
+    });
+
+    it('template yang belum pernah terbit tidak bisa dinonaktifkan', function (): void {
+        MasukSebagaiTemplate($this, BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::SuperAdmin));
+
+        $this->post(BantuanPengelola::Url('/template-sektor/FNB-QSR/nonaktifkan'))->assertSessionHasErrors('Umum');
+        expect(TemplateSektor::query()->where('Kode', 'FNB-QSR')->value('DinonaktifkanPada'))->toBeNull();
+    });
+
+    it('hanya peran penerbit yang boleh; peran lain 403', function (): void {
+        MasukSebagaiTemplate($this, BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::Teknis));
+        $this->post(UrlVersi('FNB-CAF', 1, '/terbitkan'))->assertSessionHasNoErrors();
+
+        foreach ([PeranPengelolaBawaan::KontenLegal, PeranPengelolaBawaan::Analis] as $peran) {
+            MasukSebagaiTemplate($this, BantuanPengelola::BuatAnggota($peran));
+            $this->post(BantuanPengelola::Url('/template-sektor/FNB-CAF/nonaktifkan'))->assertForbidden();
+            $this->post(BantuanPengelola::Url('/template-sektor/FNB-CAF/aktifkan'))->assertForbidden();
+        }
+
+        MasukSebagaiTemplate($this, BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::Teknis));
+        $this->post(BantuanPengelola::Url('/template-sektor/FNB-CAF/nonaktifkan'))->assertSessionHasNoErrors();
+        expect(TemplateSektor::query()->where('Kode', 'FNB-CAF')->value('DinonaktifkanPada'))->not->toBeNull();
     });
 });

@@ -7428,7 +7428,7 @@
     ]
   },
   "resources/js/Halaman/Pengelola/TemplateSektor/Daftar.tsx": {
-    "file": "assets/Daftar-BrTxTeDZ.js",
+    "file": "assets/Daftar-C6O73evw.js",
     "name": "Daftar",
     "src": "resources/js/Halaman/Pengelola/TemplateSektor/Daftar.tsx",
     "isDynamicEntry": true,
@@ -7443,6 +7443,7 @@
       "_BidangPilihan-Et2WGLvQ.js",
       "_DialogFormulir-DM-cbtMM.js",
       "_AksiHalaman-DJ29lISb.js",
+      "_DialogKonfirmasi-C_JOsK9l.js",
       "_LabelStatus-CwqbPB22.js",
       "_TataLetakPengelola-bwY2ED04.js"
     ]
@@ -7893,7 +7894,7 @@
     ]
   },
   "resources/js/Pengelola.tsx": {
-    "file": "assets/Pengelola-oxW2TtKW.js",
+    "file": "assets/Pengelola-qi0oIgpV.js",
     "name": "Pengelola",
     "src": "resources/js/Pengelola.tsx",
     "isEntry": true,

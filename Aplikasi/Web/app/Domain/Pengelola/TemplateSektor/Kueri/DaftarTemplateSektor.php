@@ -42,6 +42,7 @@ final class DaftarTemplateSektor
                     'Kode' => $template->Kode,
                     'Nama' => $template->Nama,
                     'Keterangan' => $template->Keterangan,
+                    'DinonaktifkanPada' => $template->DinonaktifkanPada?->toIso8601String(),
                     'VersiTerbit' => $terbit === null ? null : ['Versi' => $terbit->Versi, 'DiterbitkanPada' => $terbit->DiterbitkanPada?->toIso8601String()],
                     'VersiDraf' => $draf === null ? null : ['Versi' => $draf->Versi, 'Lolos' => $draf->CekLolosValidasi(), 'SudahDivalidasi' => $draf->HasilValidasi !== null],
                     'VersiTerbaru' => $template->Versi->first()?->Versi,
@@ -56,7 +57,7 @@ final class DaftarTemplateSektor
     public function AmbilVersi(TemplateSektor $template, TemplateSektorVersi $versi): array
     {
         return [
-            'Template' => ['Kode' => $template->Kode, 'Nama' => $template->Nama, 'Keterangan' => $template->Keterangan],
+            'Template' => ['Kode' => $template->Kode, 'Nama' => $template->Nama, 'Keterangan' => $template->Keterangan, 'DinonaktifkanPada' => $template->DinonaktifkanPada?->toIso8601String()],
             'Versi' => [
                 'Versi' => $versi->Versi,
                 'Status' => $versi->Status->value,

@@ -11,6 +11,7 @@ use App\Domain\Pengelola\TemplateSektor\Aksi\DuplikasiVersiTemplate;
 use App\Domain\Pengelola\TemplateSektor\Aksi\HapusDrafTemplate;
 use App\Domain\Pengelola\TemplateSektor\Aksi\SimpanIsiTemplate;
 use App\Domain\Pengelola\TemplateSektor\Aksi\TerbitkanTemplate;
+use App\Domain\Pengelola\TemplateSektor\Aksi\UbahKeaktifanTemplate;
 use App\Domain\Pengelola\TemplateSektor\Aksi\ValidasiVersiTemplate;
 use App\Domain\Pengelola\TemplateSektor\Enum\BagianTemplate;
 use App\Domain\Pengelola\TemplateSektor\Kueri\DaftarTemplateSektor;
@@ -103,6 +104,21 @@ final class TemplateSektorKontroler extends Kontroler
         $pesan = $templateIkutTerhapus ? "Template {$templateSektor->Kode} dihapus." : "Draf versi {$templateSektorVersi->Versi} dihapus.";
 
         return redirect()->route('pengelola.template-sektor.daftar')->with('Kilat', $pesan);
+    }
+
+    public function Nonaktifkan(TemplateSektor $templateSektor, UbahKeaktifanTemplate $ubah): RedirectResponse
+    {
+        $ubah->Jalankan($this->AmbilPelaku(), $templateSektor, false);
+
+        return redirect()->route('pengelola.template-sektor.daftar')
+            ->with('Kilat', "Template {$templateSektor->Kode} dinonaktifkan. Tidak ditawarkan ke tenant baru; tenant lama tidak berubah.");
+    }
+
+    public function Aktifkan(TemplateSektor $templateSektor, UbahKeaktifanTemplate $ubah): RedirectResponse
+    {
+        $ubah->Jalankan($this->AmbilPelaku(), $templateSektor, true);
+
+        return redirect()->route('pengelola.template-sektor.daftar')->with('Kilat', "Template {$templateSektor->Kode} diaktifkan kembali.");
     }
 
     private static function AmbilPesanSimpan(TemplateSektorVersi $versi): string

@@ -108,7 +108,7 @@ enum IzinPengelola: string
             self::TemplateDrafKelola => 'Membuat draf versi baru, memvalidasi, dan menghapus draf template',
             self::TemplateIsiUbah => 'Membuat template & mengubah isi bisnis template',
             self::TemplateAkunUbah => 'Mengubah COA, pemetaan akun, dan kelompok pajak template',
-            self::TemplateTerbitkan => 'Menerbitkan template sektor',
+            self::TemplateTerbitkan => 'Menerbitkan, menonaktifkan, dan mengaktifkan kembali template sektor',
             self::IntegrasiLihat => 'Melihat status integrasi platform',
             self::IntegrasiKelola => 'Mengubah kredensial, menguji, dan mengaktifkan integrasi platform',
             self::LegalLihat => 'Melihat dokumen legal',

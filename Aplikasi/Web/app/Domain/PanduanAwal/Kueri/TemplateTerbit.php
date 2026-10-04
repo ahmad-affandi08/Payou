@@ -9,8 +9,9 @@ use App\Domain\PanduanAwal\Model\TemplateSektor;
 use App\Domain\PanduanAwal\Model\TemplateSektorVersi;
 
 /**
- * Template sektor yang bisa dipilih tenant (F-01 langkah 2): hanya versi Terbit (BR-P03.1). Versi yang sudah
- * diterapkan tetap bisa dibaca meski kemudian Usang (dipakai produk contoh & flow lain).
+ * Template sektor yang bisa dipilih tenant (F-01 langkah 2): hanya versi Terbit dari template yang tidak dinonaktifkan
+ * (BR-P03.1, D-47). Versi yang sudah diterapkan tetap bisa dibaca meski template kemudian dinonaktifkan atau versinya
+ * Usang (dipakai produk contoh & flow lain).
  */
 final class TemplateTerbit
 {
@@ -21,7 +22,7 @@ final class TemplateTerbit
     {
         $hasil = [];
 
-        foreach (TemplateSektor::query()->with('VersiTerbit')->orderBy('Nama')->get() as $template) {
+        foreach (TemplateSektor::query()->whereNull('DinonaktifkanPada')->with('VersiTerbit')->orderBy('Nama')->get() as $template) {
             $versi = $template->VersiTerbit;
 
             if ($versi === null) {
@@ -54,7 +55,7 @@ final class TemplateTerbit
         return TemplateSektorVersi::query()
             ->with('TemplateSektor')
             ->where('Status', StatusTemplateSektor::Terbit->value)
-            ->whereHas('TemplateSektor', fn ($kueri) => $kueri->where('Kode', $kode))
+            ->whereHas('TemplateSektor', fn ($kueri) => $kueri->where('Kode', $kode)->whereNull('DinonaktifkanPada'))
             ->first();
     }
 

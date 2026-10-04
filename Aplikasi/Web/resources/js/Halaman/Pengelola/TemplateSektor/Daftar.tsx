@@ -1,4 +1,4 @@
-import { Link, useForm, usePage } from '@inertiajs/react';
+import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { useState, type FormEvent } from 'react';
 
 import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
@@ -8,6 +8,7 @@ import Tombol from '@/Komponen/Formulir/Tombol';
 import TabelData from '@/Komponen/TabelData/TabelData';
 import type { KolomTabel } from '@/Komponen/TabelData/Tipe';
 import DialogFormulir from '@/Komponen/Tindakan/DialogFormulir';
+import DialogKonfirmasi from '@/Komponen/Tindakan/DialogKonfirmasi';
 import { DialogFooter } from '@/Komponen/Ui/dialog';
 import { DropdownMenuItem } from '@/Komponen/Ui/dropdown-menu';
 import LabelStatus from '@/Komponen/Umpan/LabelStatus';
@@ -19,6 +20,7 @@ type RingkasanTemplate = {
     Kode: string;
     Nama: string;
     Keterangan: string | null;
+    DinonaktifkanPada: string | null;
     VersiTerbit: { Versi: number; DiterbitkanPada: string | null } | null;
     VersiDraf: { Versi: number; Lolos: boolean; SudahDivalidasi: boolean } | null;
     VersiTerbaru: number | null;
@@ -66,6 +68,28 @@ const kolom: KolomTabel<RingkasanTemplate>[] = [
             ),
     },
     {
+        id: 'Status',
+        accessorFn: (template) => (template.DinonaktifkanPada === null ? 'Aktif' : 'Dinonaktifkan'),
+        header: 'Di pilihan tenant',
+        enableSorting: false,
+        meta: { label: 'Di pilihan tenant', prioritas: 'penting' },
+        cell: ({ row: { original: template } }) =>
+            template.DinonaktifkanPada === null ? (
+                template.VersiTerbit ? (
+                    <LabelStatus jenis="sukses" teks="Ditawarkan" />
+                ) : (
+                    <span className="text-teks-sekunder">Belum terbit</span>
+                )
+            ) : (
+                <div className="flex flex-col items-start gap-1">
+                    <LabelStatus jenis="peringatan" teks="Dinonaktifkan" />
+                    <span className="text-keterangan text-teks-sekunder">
+                        Sejak {FormatTanggal(template.DinonaktifkanPada)}
+                    </span>
+                </div>
+            ),
+    },
+    {
         id: 'Draf',
         header: 'Draf',
         enableSorting: false,
@@ -95,7 +119,23 @@ const kolom: KolomTabel<RingkasanTemplate>[] = [
 export default function HalamanDaftarTemplateSektor({ Template }: { Template: RingkasanTemplate[] }) {
     const { props } = usePage<PropsBersamaPengelola>();
     const bolehBuat = PunyaIzin(props.Pengguna, IzinPengelola.TemplateIsiUbah);
+    const bolehTerbitkan = PunyaIzin(props.Pengguna, IzinPengelola.TemplateTerbitkan);
     const [buatBaru, AturBuatBaru] = useState(false);
+    const [nonaktifkan, AturNonaktifkan] = useState<RingkasanTemplate | null>(null);
+    const [memproses, AturMemproses] = useState(false);
+
+    const KirimKeaktifan = (template: RingkasanTemplate, tindakan: 'nonaktifkan' | 'aktifkan') => {
+        router.post(
+            `/template-sektor/${encodeURIComponent(template.Kode)}/${tindakan}`,
+            {},
+            {
+                preserveScroll: true,
+                onStart: () => AturMemproses(true),
+                onFinish: () => AturMemproses(false),
+                onSuccess: () => AturNonaktifkan(null),
+            },
+        );
+    };
 
     return (
         <TataLetakPengelola judul="Template sektor">
@@ -103,6 +143,20 @@ export default function HalamanDaftarTemplateSektor({ Template }: { Template: Ri
                 Paket konfigurasi yang diterapkan saat tenant onboarding. Versi terbit tidak diubah; perbaikan dibuat
                 sebagai draf versi baru. Tenant lama tidak berubah tanpa persetujuannya.
             </p>
+            {nonaktifkan ? (
+                <DialogKonfirmasi
+                    judul={`Nonaktifkan ${nonaktifkan.Nama}?`}
+                    labelAksi="Nonaktifkan"
+                    memproses={memproses}
+                    saatKonfirmasi={() => KirimKeaktifan(nonaktifkan, 'nonaktifkan')}
+                    saatBatal={() => AturNonaktifkan(null)}
+                >
+                    <p>
+                        Sektor ini tidak lagi muncul di pilihan tenant baru. Tenant yang sudah memakainya tidak
+                        berubah, dan datanya tetap tersimpan. Anda bisa mengaktifkannya kembali kapan saja.
+                    </p>
+                </DialogKonfirmasi>
+            ) : null}
             {buatBaru ? <FormBuatTemplate template={Template} saatSelesai={() => AturBuatBaru(false)} /> : null}
             <AksiHalaman>
                 {bolehBuat && !buatBaru ? <Tombol onClick={() => AturBuatBaru(true)}>Buat template</Tombol> : null}
@@ -117,15 +171,27 @@ export default function HalamanDaftarTemplateSektor({ Template }: { Template: Ri
                 cari="Cari nama atau kode template"
                 saring={[{ id: 'VersiTerbit', label: 'Versi terbit', jenis: 'ya', labelAktif: 'Sudah terbit' }]}
                 alamatDetail={AlamatVersiBuka}
-                aksiBaris={(template) =>
-                    AlamatVersiBuka(template) ? (
-                        <DropdownMenuItem asChild>
-                            <Link href={AlamatVersiBuka(template)}>Buka template</Link>
-                        </DropdownMenuItem>
-                    ) : (
-                        <DropdownMenuItem disabled>Belum ada versi</DropdownMenuItem>
-                    )
-                }
+                aksiBaris={(template) => (
+                    <>
+                        {AlamatVersiBuka(template) ? (
+                            <DropdownMenuItem asChild>
+                                <Link href={AlamatVersiBuka(template)}>Buka template</Link>
+                            </DropdownMenuItem>
+                        ) : (
+                            <DropdownMenuItem disabled>Belum ada versi</DropdownMenuItem>
+                        )}
+                        {bolehTerbitkan && template.DinonaktifkanPada === null && template.VersiTerbit ? (
+                            <DropdownMenuItem onSelect={() => AturNonaktifkan(template)}>
+                                Nonaktifkan sektor
+                            </DropdownMenuItem>
+                        ) : null}
+                        {bolehTerbitkan && template.DinonaktifkanPada !== null ? (
+                            <DropdownMenuItem onSelect={() => KirimKeaktifan(template, 'aktifkan')}>
+                                Aktifkan kembali
+                            </DropdownMenuItem>
+                        ) : null}
+                    </>
+                )}
                 kosong={{
                     ilustrasi: true,
                     judul: 'Belum ada template sektor. Buat template pertama, misal Retail umum (RTL-GEN).',
