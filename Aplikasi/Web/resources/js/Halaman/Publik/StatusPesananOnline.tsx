@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { CheckIcon, ReceiptTextIcon, XCircleIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import Tombol from '@/Komponen/Formulir/Tombol';
@@ -44,6 +45,16 @@ type Props = {
             PerkiraanTibaPada: string | null;
         } | null;
     };
+};
+
+const LANGKAH_PESANAN = ['Dipesan', 'Dikonfirmasi', 'Diproses', 'Siap', 'Selesai'] as const;
+const INDEKS_LANGKAH: Record<string, number> = {
+    MenungguPembayaran: 0,
+    MenungguKonfirmasi: 0,
+    Dikonfirmasi: 1,
+    Diproses: 2,
+    Siap: 3,
+    Selesai: 4,
 };
 
 export default function StatusPesananOnline({ Ditemukan, Slug, KodeAkses, Toko, Pesanan: p }: Props) {
@@ -95,117 +106,168 @@ export default function StatusPesananOnline({ Ditemukan, Slug, KodeAkses, Toko, 
     }, [perluBayar, tagihan, Slug, KodeAkses]);
 
     return (
-        <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col gap-5 bg-latar px-4 py-6 text-teks-utama">
-            <Head title="Status pesanan" />
-            {!Ditemukan || !p ? (
-                <>
-                    <JudulHalaman>Pesanan tidak ditemukan</JudulHalaman>
-                    <p className="text-teks-sekunder">Periksa kembali tautan status dari toko.</p>
-                </>
-            ) : (
-                <>
-                    <header className="border-b border-garis pb-4">
-                        <p className="text-label text-teks-sekunder">{Toko?.Nama}</p>
-                        <JudulHalaman>Pesanan {p.Nomor}</JudulHalaman>
-                    </header>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <LabelStatus
-                            jenis={gagal ? 'bahaya' : p.Status === 'Selesai' ? 'sukses' : 'peringatan'}
-                            teks={p.LabelStatus}
-                        />
-                        {p.Pengiriman ? (
-                            <LabelStatus
-                                jenis={p.Pengiriman.Status === 'Diterima' ? 'sukses' : 'netral'}
-                                teks={p.Pengiriman.LabelStatus}
-                            />
-                        ) : null}
-                    </div>
-                    <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-isi">
-                        <dt className="text-teks-sekunder">Atas nama</dt>
-                        <dd>{p.NamaPelanggan}</dd>
-                        <dt className="text-teks-sekunder">Pemenuhan</dt>
-                        <dd>{p.JenisPemenuhan}</dd>
-                        <dt className="text-teks-sekunder">Pembayaran</dt>
-                        <dd>{p.MetodePembayaran}</dd>
-                        <dt className="text-teks-sekunder">Dipesan</dt>
-                        <dd>{p.DibuatPada ? FormatTanggalWaktu(p.DibuatPada) : '-'}</dd>
-                        {p.Pengiriman?.NomorResi ? (
-                            <>
-                                <dt className="text-teks-sekunder">Nomor resi</dt>
-                                <dd className="font-mono">{p.Pengiriman.NomorResi}</dd>
-                            </>
-                        ) : null}
-                        {p.Pengiriman?.Kurir ? (
-                            <>
-                                <dt className="text-teks-sekunder">Kurir</dt>
-                                <dd>{p.Pengiriman.Kurir}</dd>
-                            </>
-                        ) : null}
-                        {p.Pengiriman?.PerkiraanTibaPada ? (
-                            <>
-                                <dt className="text-teks-sekunder">Perkiraan tiba</dt>
-                                <dd>{FormatTanggalWaktu(p.Pengiriman.PerkiraanTibaPada)}</dd>
-                            </>
-                        ) : null}
-                    </dl>
-                    {perluBayar ? (
-                        <section className="flex flex-col items-center gap-3 rounded-lg border border-garis bg-permukaan p-4 text-center">
-                            <h2 className="text-subjudul font-semibold">Bayar pesanan ini</h2>
-                            <p className="text-keterangan text-teks-sekunder">
-                                Pesanan diproses toko setelah pembayaran masuk. Kalau QRIS lewat waktu, buat QRIS baru
-                                di halaman ini.
+        <div className="min-h-dvh bg-latar text-teks-utama">
+            <main className="mx-auto flex w-full max-w-xl flex-col gap-5 px-4 py-6 tepi-bawah-aman">
+                <Head title="Status pesanan" />
+                {!Ditemukan || !p ? (
+                    <>
+                        <JudulHalaman>Pesanan tidak ditemukan</JudulHalaman>
+                        <p className="text-teks-sekunder">Periksa kembali tautan status dari toko.</p>
+                    </>
+                ) : (
+                    <>
+                        <header className="-mx-4 -mt-6 flex flex-col gap-2 bg-brand-gelap px-4 pt-6 pb-8 text-permukaan">
+                            <p className="inline-flex items-center gap-1.5 text-label font-semibold text-brand-gelap-teks">
+                                <ReceiptTextIcon aria-hidden="true" className="size-4" />
+                                {Toko?.Nama}
                             </p>
-                            {galat ? <Pemberitahuan jenis="bahaya">{galat}</Pemberitahuan> : null}
-                            {tagihan?.Qr ? (
-                                <>
-                                    <img
-                                        src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(tagihan.Qr)}`}
-                                        alt={`QRIS pembayaran pesanan ${p.Nomor}`}
-                                        className="h-64 w-64 rounded-md bg-permukaan p-3"
-                                    />
-                                    <p className="text-subjudul font-semibold">{FormatRupiah(tagihan.Jumlah)}</p>
-                                    <p className="text-keterangan text-teks-sekunder">
-                                        Berlaku sampai {FormatTanggalWaktu(tagihan.KedaluwarsaPada)}. Halaman ini
-                                        memperbarui sendiri setelah pembayaran masuk.
-                                    </p>
-                                </>
-                            ) : (
-                                <Tombol type="button" memproses={memproses} onClick={() => void Bayar()}>
-                                    Tampilkan QRIS
-                                </Tombol>
-                            )}
-                        </section>
-                    ) : null}
-                    {p.SudahDibayar && p.JumlahDibayar ? (
-                        <Pemberitahuan jenis="sukses">
-                            Pembayaran {FormatRupiah(p.JumlahDibayar)} sudah kami terima.
-                        </Pemberitahuan>
-                    ) : null}
-                    <section className="rounded-lg border border-garis bg-permukaan p-4">
-                        <h2 className="mb-3 text-subjudul font-semibold">Rincian</h2>
-                        <ul className="divide-y divide-garis">
-                            {p.Baris.map((b, i) => (
-                                <li key={`${b.Nama}-${String(i)}`} className="flex justify-between gap-3 py-2">
-                                    <span>
-                                        {b.Jumlah} × {b.Nama}
-                                    </span>
-                                    <span className="tabular-nums">{FormatRupiah(b.Total)}</span>
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="mt-3 flex justify-between border-t border-garis pt-3 text-subjudul font-semibold">
-                            <span>Total</span>
-                            <span>{FormatRupiah(p.Total)}</span>
+                            <JudulHalaman className="text-permukaan">Pesanan {p.Nomor}</JudulHalaman>
+                        </header>
+                        {gagal ? (
+                            <div className="flex items-center gap-3 rounded-panel border border-bahaya bg-bahaya-lembut p-4 text-bahaya">
+                                <XCircleIcon aria-hidden="true" className="size-6 shrink-0" />
+                                <p className="text-isi font-semibold">{p.LabelStatus}</p>
+                            </div>
+                        ) : (
+                            <ol
+                                aria-label="Perkembangan pesanan"
+                                className="grid grid-cols-5 gap-1 rounded-panel border border-garis bg-permukaan p-3"
+                            >
+                                {LANGKAH_PESANAN.map((nama, indeks) => {
+                                    const sekarang = INDEKS_LANGKAH[p.Status] ?? 0;
+                                    const lewat = indeks < sekarang || p.Status === 'Selesai';
+                                    const aktif = indeks === sekarang && p.Status !== 'Selesai';
+
+                                    return (
+                                        <li
+                                            key={nama}
+                                            aria-current={aktif ? 'step' : undefined}
+                                            className="flex flex-col items-center gap-1.5 text-center"
+                                        >
+                                            <span
+                                                className={`grid size-8 place-items-center rounded-full text-keterangan font-semibold ${
+                                                    lewat
+                                                        ? 'bg-sukses text-permukaan'
+                                                        : aktif
+                                                          ? 'bg-brand text-brand-teks ring-4 ring-brand-lembut'
+                                                          : 'bg-permukaan-sorot text-teks-sekunder'
+                                                }`}
+                                            >
+                                                {lewat ? (
+                                                    <CheckIcon aria-hidden="true" className="size-4" />
+                                                ) : (
+                                                    indeks + 1
+                                                )}
+                                            </span>
+                                            <span
+                                                className={`text-keterangan ${aktif ? 'font-semibold text-teks-utama' : 'text-teks-sekunder'}`}
+                                            >
+                                                {nama}
+                                            </span>
+                                        </li>
+                                    );
+                                })}
+                            </ol>
+                        )}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <LabelStatus
+                                jenis={gagal ? 'bahaya' : p.Status === 'Selesai' ? 'sukses' : 'peringatan'}
+                                teks={p.LabelStatus}
+                            />
+                            {p.Pengiriman ? (
+                                <LabelStatus
+                                    jenis={p.Pengiriman.Status === 'Diterima' ? 'sukses' : 'netral'}
+                                    teks={p.Pengiriman.LabelStatus}
+                                />
+                            ) : null}
                         </div>
-                    </section>
-                    <p className="text-keterangan text-teks-sekunder">
-                        Simpan tautan ini. Kode akses: <span className="font-mono">{KodeAkses}</span>
-                    </p>
-                    <Link href={`/${Slug}`} className="text-label font-semibold text-brand hover:underline">
-                        Kembali ke toko
-                    </Link>
-                </>
-            )}
-        </main>
+                        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-isi">
+                            <dt className="text-teks-sekunder">Atas nama</dt>
+                            <dd>{p.NamaPelanggan}</dd>
+                            <dt className="text-teks-sekunder">Pemenuhan</dt>
+                            <dd>{p.JenisPemenuhan}</dd>
+                            <dt className="text-teks-sekunder">Pembayaran</dt>
+                            <dd>{p.MetodePembayaran}</dd>
+                            <dt className="text-teks-sekunder">Dipesan</dt>
+                            <dd>{p.DibuatPada ? FormatTanggalWaktu(p.DibuatPada) : '-'}</dd>
+                            {p.Pengiriman?.NomorResi ? (
+                                <>
+                                    <dt className="text-teks-sekunder">Nomor resi</dt>
+                                    <dd className="font-mono">{p.Pengiriman.NomorResi}</dd>
+                                </>
+                            ) : null}
+                            {p.Pengiriman?.Kurir ? (
+                                <>
+                                    <dt className="text-teks-sekunder">Kurir</dt>
+                                    <dd>{p.Pengiriman.Kurir}</dd>
+                                </>
+                            ) : null}
+                            {p.Pengiriman?.PerkiraanTibaPada ? (
+                                <>
+                                    <dt className="text-teks-sekunder">Perkiraan tiba</dt>
+                                    <dd>{FormatTanggalWaktu(p.Pengiriman.PerkiraanTibaPada)}</dd>
+                                </>
+                            ) : null}
+                        </dl>
+                        {perluBayar ? (
+                            <section className="flex flex-col items-center gap-3 rounded-panel border border-garis bg-permukaan p-4 text-center">
+                                <h2 className="text-subjudul font-semibold">Bayar pesanan ini</h2>
+                                <p className="text-keterangan text-teks-sekunder">
+                                    Pesanan diproses toko setelah pembayaran masuk. Kalau QRIS lewat waktu, buat QRIS
+                                    baru di halaman ini.
+                                </p>
+                                {galat ? <Pemberitahuan jenis="bahaya">{galat}</Pemberitahuan> : null}
+                                {tagihan?.Qr ? (
+                                    <>
+                                        <img
+                                            src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(tagihan.Qr)}`}
+                                            alt={`QRIS pembayaran pesanan ${p.Nomor}`}
+                                            className="size-64 max-w-full rounded-panel border border-garis bg-permukaan p-3"
+                                        />
+                                        <p className="text-subjudul font-semibold">{FormatRupiah(tagihan.Jumlah)}</p>
+                                        <p className="text-keterangan text-teks-sekunder">
+                                            Berlaku sampai {FormatTanggalWaktu(tagihan.KedaluwarsaPada)}. Halaman ini
+                                            memperbarui sendiri setelah pembayaran masuk.
+                                        </p>
+                                    </>
+                                ) : (
+                                    <Tombol type="button" memproses={memproses} onClick={() => void Bayar()}>
+                                        Tampilkan QRIS
+                                    </Tombol>
+                                )}
+                            </section>
+                        ) : null}
+                        {p.SudahDibayar && p.JumlahDibayar ? (
+                            <Pemberitahuan jenis="sukses">
+                                Pembayaran {FormatRupiah(p.JumlahDibayar)} sudah kami terima.
+                            </Pemberitahuan>
+                        ) : null}
+                        <section className="rounded-panel border border-garis bg-permukaan p-4">
+                            <h2 className="mb-3 text-subjudul font-semibold">Rincian</h2>
+                            <ul className="divide-y divide-garis">
+                                {p.Baris.map((b, i) => (
+                                    <li key={`${b.Nama}-${String(i)}`} className="flex justify-between gap-3 py-2">
+                                        <span>
+                                            {b.Jumlah} × {b.Nama}
+                                        </span>
+                                        <span className="tabular-nums">{FormatRupiah(b.Total)}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="mt-3 flex justify-between border-t border-garis pt-3 text-subjudul font-semibold">
+                                <span>Total</span>
+                                <span>{FormatRupiah(p.Total)}</span>
+                            </div>
+                        </section>
+                        <p className="text-keterangan text-teks-sekunder">
+                            Simpan tautan ini. Kode akses: <span className="font-mono">{KodeAkses}</span>
+                        </p>
+                        <Link href={`/${Slug}`} className="text-label font-semibold text-brand hover:underline">
+                            Kembali ke toko
+                        </Link>
+                    </>
+                )}
+            </main>
+        </div>
     );
 }

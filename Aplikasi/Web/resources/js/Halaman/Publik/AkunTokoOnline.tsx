@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { ArrowLeftIcon } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
@@ -101,14 +102,18 @@ export default function AkunTokoOnline({ Slug, Toko, AkunAktif, Pelanggan, Riway
     }
 
     return (
-        <main className="min-h-screen bg-latar text-teks-utama">
+        <main className="min-h-dvh bg-latar text-teks-utama">
             <Head title={Toko ? `Akun saya | ${Toko.Nama}` : 'Akun saya'} />
-            <header className="border-b border-garis bg-permukaan">
-                <div className="mx-auto flex max-w-3xl flex-col gap-2 px-4 py-5">
-                    <a href={`/${Slug}`} className="text-label text-brand underline">
+            <header className="bg-brand-gelap text-permukaan">
+                <div className="mx-auto flex max-w-3xl flex-col gap-3 px-4 pt-5 pb-7">
+                    <a
+                        href={`/${Slug}`}
+                        className="inline-flex min-h-10 items-center gap-1.5 text-label font-semibold text-brand-gelap-teks underline"
+                    >
+                        <ArrowLeftIcon aria-hidden="true" className="size-4" />
                         Kembali belanja di {Toko?.Nama ?? 'toko'}
                     </a>
-                    <JudulHalaman>Akun saya</JudulHalaman>
+                    <JudulHalaman className="text-permukaan">Akun saya</JudulHalaman>
                 </div>
             </header>
             <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-6">

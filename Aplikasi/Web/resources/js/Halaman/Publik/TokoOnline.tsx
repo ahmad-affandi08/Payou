@@ -1,5 +1,21 @@
 import { Head } from '@inertiajs/react';
-import { MinusIcon, PlusIcon, ShoppingBagIcon, Trash2Icon, UserRoundIcon } from 'lucide-react';
+import {
+    CheckIcon,
+    ClockIcon,
+    MapPinIcon,
+    MinusIcon,
+    PlusIcon,
+    QrCodeIcon,
+    ReceiptTextIcon,
+    SearchIcon,
+    ShoppingBagIcon,
+    StoreIcon,
+    TicketPercentIcon,
+    Trash2Icon,
+    TruckIcon,
+    UserRoundIcon,
+    UtensilsCrossedIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
@@ -240,84 +256,227 @@ export default function TokoOnline({
         }
     }
 
+    const [kategoriAktif, AturKategoriAktif] = useState('');
+    const [cari, AturCari] = useState('');
+    const jumlahItem = baris.reduce((n, b) => n + b.Jumlah, 0);
+    const jumlahPerProduk = useMemo(() => {
+        const peta = new Map<string, number>();
+        for (const b of baris) {
+            peta.set(b.UuidProduk, (peta.get(b.UuidProduk) ?? 0) + b.Jumlah);
+        }
+        return peta;
+    }, [baris]);
+    const produkTampil = useMemo(() => {
+        const kata = cari.trim().toLowerCase();
+
+        return Menu.Produk.filter(
+            (p) =>
+                (kategoriAktif === '' || p.UuidKategori === kategoriAktif) &&
+                (kata === '' || p.Nama.toLowerCase().includes(kata)),
+        );
+    }, [Menu.Produk, kategoriAktif, cari]);
+    const opsiPemenuhan = [
+        { nilai: 'AmbilSendiri' as const, label: 'Ambil sendiri', ikon: StoreIcon, ada: Pemenuhan.AmbilSendiri },
+        { nilai: 'Kirim' as const, label: 'Dikirim', ikon: TruckIcon, ada: Pemenuhan.Kirim },
+    ].filter((o) => o.ada);
+
     return (
-        <main className="min-h-screen bg-latar text-teks-utama">
+        <div className="min-h-dvh bg-latar text-teks-utama">
             <Head title={Toko?.Nama ?? 'Toko online'} />
-            <header className="border-b border-garis bg-permukaan">
-                <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-5">
-                    <div className="flex min-w-0 flex-col gap-2">
-                        <p className="text-label text-brand">Toko online</p>
-                        <JudulHalaman>{Toko?.Nama ?? 'Toko tidak ditemukan'}</JudulHalaman>
+
+            <header className="bg-brand-gelap text-permukaan">
+                <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 pt-5 pb-7">
+                    <div className="flex items-center justify-between gap-3">
+                        <span className="inline-flex items-center gap-1.5 text-label font-semibold text-brand-gelap-teks">
+                            <ShoppingBagIcon aria-hidden="true" className="size-4" />
+                            Toko online
+                        </span>
+                        <div className="flex items-center gap-2">
+                            {pembeli ? (
+                                <a
+                                    href={`/${Slug}/akun`}
+                                    className="flex min-h-10 items-center gap-2 rounded-full bg-brand-gelap-sorot px-3 text-label font-semibold text-permukaan"
+                                >
+                                    <UserRoundIcon aria-hidden="true" className="size-4" />
+                                    <span className="max-w-32 truncate">{pembeli.Nama}</span>
+                                </a>
+                            ) : Akun.Aktif ? (
+                                <button
+                                    type="button"
+                                    onClick={() => AturDialogMasuk(true)}
+                                    className="flex min-h-10 items-center gap-2 rounded-full bg-brand-gelap-sorot px-3 text-label font-semibold text-permukaan"
+                                >
+                                    <UserRoundIcon aria-hidden="true" className="size-4" />
+                                    Masuk
+                                </button>
+                            ) : null}
+                            <a
+                                href="#keranjang"
+                                aria-label={`Keranjang, ${String(jumlahItem)} item`}
+                                className="relative flex size-10 items-center justify-center rounded-full bg-permukaan text-brand-gelap"
+                            >
+                                <ShoppingBagIcon aria-hidden="true" className="size-5" />
+                                {jumlahItem > 0 ? (
+                                    <span className="absolute -top-1 -right-1 grid min-w-5 place-items-center rounded-full bg-aksen px-1 text-keterangan font-semibold text-teks-utama tabular-nums">
+                                        {jumlahItem}
+                                    </span>
+                                ) : null}
+                            </a>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <JudulHalaman className="text-permukaan">{Toko?.Nama ?? 'Toko tidak ditemukan'}</JudulHalaman>
                         {Toko ? (
-                            <p className="text-keterangan text-teks-sekunder">
-                                {Toko.NamaOutlet}
-                                {Toko.Alamat ? ` | ${Toko.Alamat}` : ''}
+                            <p className="inline-flex items-start gap-1.5 text-isi text-brand-gelap-teks">
+                                <MapPinIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+                                <span>
+                                    {Toko.NamaOutlet}
+                                    {Toko.Alamat ? ` | ${Toko.Alamat}` : ''}
+                                </span>
                             </p>
                         ) : null}
-                        {Outlet.length > 1 ? (
-                            <div className="max-w-xs">
-                                <BidangPilihan
-                                    label="Belanja dari outlet"
-                                    nilai={OutletDipilih}
-                                    opsi={Outlet.map((o) => ({ Nilai: o.Uuid, Label: o.Nama }))}
-                                    saatBerubah={(nilai) =>
-                                        window.location.assign(`/${Slug}?outlet=${encodeURIComponent(nilai)}`)
-                                    }
-                                />
+                    </div>
+                    {Toko ? (
+                        <ul className="flex flex-wrap gap-2 text-keterangan font-semibold">
+                            <li
+                                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 ${Aktif ? 'bg-sukses text-permukaan' : 'bg-peringatan text-permukaan'}`}
+                            >
+                                <ClockIcon aria-hidden="true" className="size-3.5" />
+                                {Aktif ? 'Terima pesanan' : 'Sedang tutup'}
+                            </li>
+                            {Pemenuhan.AmbilSendiri ? (
+                                <li className="inline-flex items-center gap-1.5 rounded-full bg-brand-gelap-sorot px-2.5 py-1">
+                                    <StoreIcon aria-hidden="true" className="size-3.5" />
+                                    Ambil sendiri
+                                </li>
+                            ) : null}
+                            {Pemenuhan.Kirim ? (
+                                <li className="inline-flex items-center gap-1.5 rounded-full bg-brand-gelap-sorot px-2.5 py-1">
+                                    <TruckIcon aria-hidden="true" className="size-3.5" />
+                                    Dikirim
+                                </li>
+                            ) : null}
+                            {Pembayaran.QrisOnline ? (
+                                <li className="inline-flex items-center gap-1.5 rounded-full bg-brand-gelap-sorot px-2.5 py-1">
+                                    <QrCodeIcon aria-hidden="true" className="size-3.5" />
+                                    Bayar QRIS
+                                </li>
+                            ) : null}
+                            {Number(MinimalPesanan) > 0 ? (
+                                <li className="inline-flex items-center gap-1.5 rounded-full bg-brand-gelap-sorot px-2.5 py-1">
+                                    <ReceiptTextIcon aria-hidden="true" className="size-3.5" />
+                                    Min. {FormatRupiah(MinimalPesanan)}
+                                </li>
+                            ) : null}
+                        </ul>
+                    ) : null}
+                    {Outlet.length > 1 ? (
+                        <div className="max-w-xs rounded-panel bg-permukaan p-2 text-teks-utama">
+                            <BidangPilihan
+                                label="Belanja dari outlet"
+                                nilai={OutletDipilih}
+                                opsi={Outlet.map((o) => ({ Nilai: o.Uuid, Label: o.Nama }))}
+                                saatBerubah={(nilai) =>
+                                    window.location.assign(`/${Slug}?outlet=${encodeURIComponent(nilai)}`)
+                                }
+                            />
+                        </div>
+                    ) : null}
+                </div>
+            </header>
+
+            {Aktif && Menu.Produk.length > 0 ? (
+                <nav aria-label="Kategori menu" className="sticky top-0 z-10 border-b border-garis bg-latar">
+                    <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3">
+                        <label className="relative block">
+                            <span className="sr-only">Cari menu</span>
+                            <SearchIcon
+                                aria-hidden="true"
+                                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-teks-sekunder"
+                            />
+                            <input
+                                type="search"
+                                value={cari}
+                                onChange={(e) => AturCari(e.target.value)}
+                                placeholder="Cari menu"
+                                className="h-11 w-full rounded-full border border-garis-input bg-permukaan pr-4 pl-10 text-isi text-teks-utama placeholder:text-teks-sekunder focus-visible:ring-2 focus-visible:ring-brand focus-visible:outline-none"
+                            />
+                        </label>
+                        {Menu.Kategori.length > 0 ? (
+                            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+                                {[{ Uuid: '', Nama: 'Semua' }, ...Menu.Kategori].map((k) => (
+                                    <button
+                                        key={k.Uuid || 'semua'}
+                                        type="button"
+                                        aria-pressed={kategoriAktif === k.Uuid}
+                                        onClick={() => AturKategoriAktif(k.Uuid)}
+                                        className={`min-h-10 shrink-0 rounded-full border px-4 text-label font-semibold whitespace-nowrap ${
+                                            kategoriAktif === k.Uuid
+                                                ? 'border-brand bg-brand text-brand-teks'
+                                                : 'border-garis bg-permukaan text-teks-utama'
+                                        }`}
+                                    >
+                                        {k.Nama}
+                                    </button>
+                                ))}
                             </div>
                         ) : null}
                     </div>
-                    <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
-                        {pembeli ? (
-                            <a
-                                href={`/${Slug}/akun`}
-                                className="flex min-h-10 items-center gap-2 rounded-full border border-garis px-3 text-label font-medium"
-                            >
-                                <UserRoundIcon className="size-4" />
-                                <span className="max-w-32 truncate">{pembeli.Nama}</span>
-                            </a>
-                        ) : Akun.Aktif ? (
-                            <button
-                                type="button"
-                                onClick={() => AturDialogMasuk(true)}
-                                className="flex min-h-10 items-center gap-2 rounded-full border border-garis px-3 text-label font-medium"
-                            >
-                                <UserRoundIcon className="size-4" />
-                                Masuk
-                            </button>
-                        ) : null}
-                        <div className="flex items-center gap-2 rounded-full bg-brand/10 px-3 py-2 text-label font-semibold text-brand">
-                            <ShoppingBagIcon className="size-4" />
-                            {baris.reduce((n, b) => n + b.Jumlah, 0)}
-                        </div>
-                    </div>
-                </div>
-            </header>
-            <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_380px]">
-                <section className="flex flex-col gap-4">
+                </nav>
+            ) : null}
+
+            <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 pb-28 lg:grid-cols-[1fr_400px] lg:pb-8">
+                <section className="flex min-w-0 flex-col gap-4" aria-label="Daftar menu">
                     {!Aktif ? (
                         <Pemberitahuan jenis="peringatan">{PesanTutup ?? 'Toko online sedang tutup.'}</Pemberitahuan>
                     ) : Menu.Produk.length === 0 ? (
                         <Pemberitahuan jenis="info">Belum ada produk yang ditampilkan online.</Pemberitahuan>
+                    ) : produkTampil.length === 0 ? (
+                        <div className="flex flex-col items-center gap-2 rounded-panel border border-garis bg-permukaan p-8 text-center">
+                            <SearchIcon aria-hidden="true" className="size-8 text-teks-sekunder" />
+                            <p className="text-isi text-teks-sekunder">
+                                Tidak ada menu yang cocok. Coba kata lain atau pilih kategori Semua.
+                            </p>
+                        </div>
                     ) : (
-                        <div className="grid gap-4 sm:grid-cols-2">
-                            {Menu.Produk.map((p) => {
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-2">
+                            {produkTampil.map((p) => {
                                 const dipilih = pilihanProduk[p.Uuid] ?? { varian: '', pilihan: [] };
+                                const diKeranjang = jumlahPerProduk.get(p.Uuid) ?? 0;
+                                const perluPilih = (p.Varian?.length ?? 0) > 0 || p.KelompokPilihan.length > 0;
+
                                 return (
                                     <article
                                         key={p.Uuid}
-                                        className="overflow-hidden rounded-xl border border-garis bg-permukaan shadow-sm"
+                                        className="flex flex-col overflow-hidden rounded-panel border border-garis bg-permukaan"
                                     >
-                                        {p.UrlGambar ? (
-                                            <img src={p.UrlGambar} alt="" className="h-40 w-full object-cover" />
-                                        ) : (
-                                            <div className="h-24 bg-latar" />
-                                        )}
-                                        <div className="flex flex-col gap-3 p-4">
-                                            <div>
-                                                <h2 className="text-subjudul font-semibold">{p.Nama}</h2>
-                                                <p className="font-semibold text-brand">
-                                                    Mulai {FormatRupiah(p.Harga)}
+                                        <div className="relative aspect-[4/3] w-full bg-brand-lembut">
+                                            {p.UrlGambar ? (
+                                                <img
+                                                    src={p.UrlGambar}
+                                                    alt=""
+                                                    loading="lazy"
+                                                    className="size-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="grid size-full place-items-center text-brand">
+                                                    <UtensilsCrossedIcon aria-hidden="true" className="size-10" />
+                                                </div>
+                                            )}
+                                            {diKeranjang > 0 ? (
+                                                <span className="absolute top-2 right-2 rounded-full bg-brand px-2.5 py-1 text-keterangan font-semibold text-brand-teks tabular-nums">
+                                                    {diKeranjang} di keranjang
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                        <div className="flex flex-1 flex-col gap-3 p-4">
+                                            <div className="flex flex-col gap-1">
+                                                <h2 className="text-subjudul font-semibold text-teks-utama">
+                                                    {p.Nama}
+                                                </h2>
+                                                <p className="text-subjudul font-semibold text-brand tabular-nums">
+                                                    {(p.Varian?.length ?? 0) > 0 ? 'Mulai ' : ''}
+                                                    {FormatRupiah(p.Harga)}
                                                 </p>
                                             </div>
                                             {(p.Varian?.length ?? 0) > 0 ? (
@@ -340,39 +499,70 @@ export default function TokoOnline({
                                                 />
                                             ) : null}
                                             {p.KelompokPilihan.map((k) => (
-                                                <fieldset key={k.Uuid} className="flex flex-col gap-1">
-                                                    <legend className="text-label font-medium">
-                                                        {k.Nama} ({k.MinimalPilih}–{k.MaksimalPilih})
+                                                <fieldset key={k.Uuid} className="flex flex-col gap-2">
+                                                    <legend className="text-label font-semibold text-teks-utama">
+                                                        {k.Nama}
+                                                        <span className="font-normal text-teks-sekunder">
+                                                            {' '}
+                                                            (pilih {k.MinimalPilih}–{k.MaksimalPilih})
+                                                        </span>
                                                     </legend>
-                                                    {k.Pilihan.map((x) => (
-                                                        <label
-                                                            key={x.Uuid}
-                                                            className="flex min-h-9 items-center gap-2 text-isi"
-                                                        >
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={dipilih.pilihan.includes(x.Uuid)}
-                                                                onChange={(e) =>
-                                                                    AturPilihanProduk((lama) => ({
-                                                                        ...lama,
-                                                                        [p.Uuid]: {
-                                                                            ...dipilih,
-                                                                            pilihan: e.target.checked
-                                                                                ? [...dipilih.pilihan, x.Uuid]
-                                                                                : dipilih.pilihan.filter(
-                                                                                      (u) => u !== x.Uuid,
-                                                                                  ),
-                                                                        },
-                                                                    }))
-                                                                }
-                                                            />
-                                                            {x.Nama}
-                                                            {Number(x.Harga) > 0 ? ` (+${FormatRupiah(x.Harga)})` : ''}
-                                                        </label>
-                                                    ))}
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {k.Pilihan.map((x) => {
+                                                            const aktif = dipilih.pilihan.includes(x.Uuid);
+
+                                                            return (
+                                                                <label
+                                                                    key={x.Uuid}
+                                                                    className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-full border px-3 text-label has-focus-visible:ring-2 has-focus-visible:ring-brand ${
+                                                                        aktif
+                                                                            ? 'border-brand bg-brand-lembut font-semibold text-teks-utama'
+                                                                            : 'border-garis text-teks-utama'
+                                                                    }`}
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        className="sr-only"
+                                                                        checked={aktif}
+                                                                        onChange={(e) =>
+                                                                            AturPilihanProduk((lama) => ({
+                                                                                ...lama,
+                                                                                [p.Uuid]: {
+                                                                                    ...dipilih,
+                                                                                    pilihan: e.target.checked
+                                                                                        ? [...dipilih.pilihan, x.Uuid]
+                                                                                        : dipilih.pilihan.filter(
+                                                                                              (u) => u !== x.Uuid,
+                                                                                          ),
+                                                                                },
+                                                                            }))
+                                                                        }
+                                                                    />
+                                                                    {aktif ? (
+                                                                        <CheckIcon
+                                                                            aria-hidden="true"
+                                                                            className="size-4 text-brand"
+                                                                        />
+                                                                    ) : null}
+                                                                    {x.Nama}
+                                                                    {Number(x.Harga) > 0
+                                                                        ? ` (+${FormatRupiah(x.Harga)})`
+                                                                        : ''}
+                                                                </label>
+                                                            );
+                                                        })}
+                                                    </div>
                                                 </fieldset>
                                             ))}
-                                            <Tombol onClick={() => Tambah(p)}>Tambah</Tombol>
+                                            <div className="mt-auto">
+                                                <Tombol
+                                                    varian={perluPilih ? 'utama' : 'sekunder'}
+                                                    onClick={() => Tambah(p)}
+                                                >
+                                                    <PlusIcon aria-hidden="true" className="size-4" />
+                                                    Tambah
+                                                </Tombol>
+                                            </div>
                                         </div>
                                     </article>
                                 );
@@ -380,73 +570,120 @@ export default function TokoOnline({
                         </div>
                     )}
                 </section>
-                <aside className="h-fit rounded-xl border border-garis bg-permukaan p-4 lg:sticky lg:top-4">
-                    <h2 className="mb-3 text-subjudul font-semibold">Keranjang</h2>
+
+                <aside
+                    id="keranjang"
+                    aria-label="Keranjang"
+                    className="h-fit scroll-mt-4 rounded-panel border border-garis bg-permukaan p-4 lg:sticky lg:top-24"
+                >
+                    <div className="mb-4 flex items-center justify-between gap-2">
+                        <h2 className="text-judul font-semibold text-teks-utama">Keranjang</h2>
+                        {jumlahItem > 0 ? (
+                            <span className="rounded-full bg-brand-lembut px-2.5 py-1 text-keterangan font-semibold text-brand tabular-nums">
+                                {jumlahItem} item
+                            </span>
+                        ) : null}
+                    </div>
                     {baris.length === 0 ? (
-                        <p className="text-teks-sekunder">Keranjang masih kosong.</p>
+                        <div className="flex flex-col items-center gap-2 py-6 text-center">
+                            <span className="grid size-14 place-items-center rounded-full bg-brand-lembut text-brand">
+                                <ShoppingBagIcon aria-hidden="true" className="size-7" />
+                            </span>
+                            <p className="text-isi font-semibold text-teks-utama">Keranjang masih kosong</p>
+                            <p className="text-keterangan text-teks-sekunder">
+                                Pilih menu di sebelah kiri, lalu tekan Tambah.
+                            </p>
+                        </div>
                     ) : (
-                        <form onSubmit={Pesan} className="flex flex-col gap-4">
-                            <ul className="divide-y divide-garis">
-                                {baris.map((b) => (
-                                    <li key={b.Uuid} className="flex items-center justify-between gap-2 py-3">
-                                        <span className="min-w-0 flex-1 truncate">
-                                            {produk.get(b.UuidProduk)?.Nama}
-                                        </span>
-                                        <div className="flex items-center gap-1">
-                                            <button
-                                                type="button"
-                                                aria-label="Kurangi"
-                                                className="p-2"
-                                                onClick={() => UbahJumlah(b.Uuid, -1)}
-                                            >
-                                                <MinusIcon className="size-4" />
-                                            </button>
-                                            <span className="w-6 text-center tabular-nums">{b.Jumlah}</span>
-                                            <button
-                                                type="button"
-                                                aria-label="Tambah"
-                                                className="p-2"
-                                                onClick={() => UbahJumlah(b.Uuid, 1)}
-                                            >
-                                                <PlusIcon className="size-4" />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                aria-label="Hapus"
-                                                className="p-2 text-bahaya"
-                                                onClick={() => AturBaris((x) => x.filter((z) => z.Uuid !== b.Uuid))}
-                                            >
-                                                <Trash2Icon className="size-4" />
-                                            </button>
-                                        </div>
-                                    </li>
-                                ))}
+                        <form onSubmit={Pesan} className="flex flex-col gap-5">
+                            <ul className="divide-y divide-garis rounded-panel border border-garis">
+                                {baris.map((b) => {
+                                    const barisProduk = produk.get(b.UuidProduk);
+                                    const rincian = [
+                                        barisProduk?.Varian?.find((v) => v.Uuid === b.UuidVarian)?.Nama,
+                                        ...(barisProduk?.KelompokPilihan.flatMap((k) =>
+                                            k.Pilihan.filter((x) => b.Pilihan.includes(x.Uuid)).map((x) => x.Nama),
+                                        ) ?? []),
+                                    ].filter((x): x is string => Boolean(x));
+
+                                    return (
+                                        <li key={b.Uuid} className="flex items-center gap-3 p-3">
+                                            <span className="flex min-w-0 flex-1 flex-col">
+                                                <span className="truncate text-isi font-semibold text-teks-utama">
+                                                    {barisProduk?.Nama}
+                                                </span>
+                                                {rincian.length > 0 ? (
+                                                    <span className="truncate text-keterangan text-teks-sekunder">
+                                                        {rincian.join(', ')}
+                                                    </span>
+                                                ) : null}
+                                            </span>
+                                            <div className="flex shrink-0 items-center gap-1">
+                                                <div className="flex items-center rounded-full border border-garis">
+                                                    <button
+                                                        type="button"
+                                                        aria-label="Kurangi jumlah"
+                                                        className="grid size-10 place-items-center rounded-full"
+                                                        onClick={() => UbahJumlah(b.Uuid, -1)}
+                                                    >
+                                                        <MinusIcon aria-hidden="true" className="size-4" />
+                                                    </button>
+                                                    <span className="w-6 text-center text-isi font-semibold tabular-nums">
+                                                        {b.Jumlah}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        aria-label="Tambah jumlah"
+                                                        className="grid size-10 place-items-center rounded-full"
+                                                        onClick={() => UbahJumlah(b.Uuid, 1)}
+                                                    >
+                                                        <PlusIcon aria-hidden="true" className="size-4" />
+                                                    </button>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    aria-label="Hapus"
+                                                    className="grid size-10 place-items-center rounded-full text-bahaya"
+                                                    onClick={() => AturBaris((x) => x.filter((z) => z.Uuid !== b.Uuid))}
+                                                >
+                                                    <Trash2Icon aria-hidden="true" className="size-4" />
+                                                </button>
+                                            </div>
+                                        </li>
+                                    );
+                                })}
                             </ul>
-                            <fieldset className="flex flex-wrap gap-3">
-                                <legend className="mb-1 text-label font-medium">Cara menerima</legend>
-                                {Pemenuhan.AmbilSendiri ? (
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            checked={jenis === 'AmbilSendiri'}
-                                            onChange={() => AturJenis('AmbilSendiri')}
-                                        />{' '}
-                                        Ambil sendiri
-                                    </label>
-                                ) : null}
-                                {Pemenuhan.Kirim ? (
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            checked={jenis === 'Kirim'}
-                                            onChange={() => AturJenis('Kirim')}
-                                        />{' '}
-                                        Dikirim
-                                    </label>
-                                ) : null}
+
+                            <fieldset className="flex flex-col gap-2">
+                                <legend className="mb-1 text-label font-semibold text-teks-utama">Cara menerima</legend>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {opsiPemenuhan.map((o) => (
+                                        <label
+                                            key={o.nilai}
+                                            className={`flex min-h-14 cursor-pointer items-center gap-2 rounded-panel border p-3 text-isi font-semibold has-focus-visible:ring-2 has-focus-visible:ring-brand ${
+                                                jenis === o.nilai
+                                                    ? 'border-brand bg-brand-lembut text-teks-utama'
+                                                    : 'border-garis text-teks-utama'
+                                            }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="cara-menerima"
+                                                className="sr-only"
+                                                checked={jenis === o.nilai}
+                                                onChange={() => AturJenis(o.nilai)}
+                                            />
+                                            <o.ikon
+                                                aria-hidden="true"
+                                                className={`size-5 shrink-0 ${jenis === o.nilai ? 'text-brand' : 'text-teks-sekunder'}`}
+                                            />
+                                            {o.label}
+                                        </label>
+                                    ))}
+                                </div>
                             </fieldset>
                             {jenis === 'Kirim' ? (
-                                <>
+                                <div className="flex flex-col gap-3">
                                     <BidangTeks
                                         label="Kode pos"
                                         nilai={kodePos}
@@ -487,139 +724,156 @@ export default function TokoOnline({
                                             required
                                         />
                                     </div>
-                                </>
+                                </div>
                             ) : null}
-                            {pembeli ? (
-                                <Pemberitahuan jenis="info">
-                                    Pesanan tercatat di akun {pembeli.Nama} ({pembeli.NoHp})
-                                    {pembeli.Tier ? ` | harga member ${pembeli.Tier} sudah dihitung` : ''}.
-                                </Pemberitahuan>
-                            ) : Akun.Aktif ? (
-                                <p className="text-keterangan text-teks-sekunder">
-                                    Sudah pernah belanja di sini?{' '}
-                                    <button type="button" className="underline" onClick={() => AturDialogMasuk(true)}>
-                                        Masuk dengan WhatsApp
-                                    </button>{' '}
-                                    untuk mengisi data otomatis dan mengumpulkan poin. Tanpa masuk juga bisa.
-                                </p>
-                            ) : null}
-                            <BidangTeks
-                                label={pembeli ? 'Nama penerima' : 'Nama'}
-                                nilai={pelanggan.NamaPelanggan}
-                                saatBerubah={(v) => AturPelanggan((x) => ({ ...x, NamaPelanggan: v }))}
-                                required
-                            />
-                            {pembeli ? null : (
+
+                            <div className="flex flex-col gap-3">
+                                <h3 className="text-label font-semibold text-teks-utama">Data penerima</h3>
+                                {pembeli ? (
+                                    <Pemberitahuan jenis="info">
+                                        Pesanan tercatat di akun {pembeli.Nama} ({pembeli.NoHp})
+                                        {pembeli.Tier ? ` | harga member ${pembeli.Tier} sudah dihitung` : ''}.
+                                    </Pemberitahuan>
+                                ) : Akun.Aktif ? (
+                                    <p className="rounded-panel bg-brand-lembut p-3 text-keterangan text-teks-sekunder">
+                                        Sudah pernah belanja di sini?{' '}
+                                        <button
+                                            type="button"
+                                            className="font-semibold text-brand underline"
+                                            onClick={() => AturDialogMasuk(true)}
+                                        >
+                                            Masuk dengan WhatsApp
+                                        </button>{' '}
+                                        untuk mengisi data otomatis dan mengumpulkan poin. Tanpa masuk juga bisa.
+                                    </p>
+                                ) : null}
                                 <BidangTeks
-                                    label="Nomor WhatsApp"
-                                    nilai={pelanggan.NoHp}
-                                    saatBerubah={(v) => AturPelanggan((x) => ({ ...x, NoHp: v }))}
-                                    inputMode="tel"
+                                    label={pembeli ? 'Nama penerima' : 'Nama'}
+                                    nilai={pelanggan.NamaPelanggan}
+                                    saatBerubah={(v) => AturPelanggan((x) => ({ ...x, NamaPelanggan: v }))}
                                     required
                                 />
-                            )}
-                            <BidangTeks
-                                label="Email (opsional)"
-                                nilai={pelanggan.Email}
-                                saatBerubah={(v) => AturPelanggan((x) => ({ ...x, Email: v }))}
-                                jenis="email"
-                            />
-                            <BidangTeksPanjang
-                                label="Catatan (opsional)"
-                                nilai={pelanggan.Catatan}
-                                saatBerubah={(v) => AturPelanggan((x) => ({ ...x, Catatan: v }))}
-                                baris={3}
-                                maksimal={500}
-                            />
-                            {opsiBayar.length > 1 ? (
-                                <BidangPilihan
-                                    label="Cara bayar"
-                                    nilai={bayarBerlaku}
-                                    opsi={opsiBayar}
-                                    saatBerubah={(v) => AturBayar(v as typeof bayar)}
+                                {pembeli ? null : (
+                                    <BidangTeks
+                                        label="Nomor WhatsApp"
+                                        nilai={pelanggan.NoHp}
+                                        saatBerubah={(v) => AturPelanggan((x) => ({ ...x, NoHp: v }))}
+                                        inputMode="tel"
+                                        required
+                                    />
+                                )}
+                                <BidangTeks
+                                    label="Email (opsional)"
+                                    nilai={pelanggan.Email}
+                                    saatBerubah={(v) => AturPelanggan((x) => ({ ...x, Email: v }))}
+                                    jenis="email"
                                 />
-                            ) : null}
-                            <p className="text-keterangan text-teks-sekunder">
-                                {bayarBerlaku === 'QrisOnline'
-                                    ? 'Setelah pesanan dikirim, Anda akan mendapat QRIS untuk dibayar sekarang. Pesanan diproses toko setelah pembayaran masuk.'
-                                    : bayarBerlaku === 'Cod'
-                                      ? 'Bayar tunai ke kurir saat barang tiba.'
-                                      : 'Bayar di kasir saat mengambil pesanan.'}
-                            </p>
+                                <BidangTeksPanjang
+                                    label="Catatan (opsional)"
+                                    nilai={pelanggan.Catatan}
+                                    saatBerubah={(v) => AturPelanggan((x) => ({ ...x, Catatan: v }))}
+                                    baris={3}
+                                    maksimal={500}
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-3">
+                                <h3 className="text-label font-semibold text-teks-utama">Pembayaran</h3>
+                                {opsiBayar.length > 1 ? (
+                                    <BidangPilihan
+                                        label="Cara bayar"
+                                        nilai={bayarBerlaku}
+                                        opsi={opsiBayar}
+                                        saatBerubah={(v) => AturBayar(v as typeof bayar)}
+                                    />
+                                ) : null}
+                                <p className="flex items-start gap-2 rounded-panel bg-permukaan-redup p-3 text-keterangan text-teks-sekunder">
+                                    <QrCodeIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-brand" />
+                                    {bayarBerlaku === 'QrisOnline'
+                                        ? 'Setelah pesanan dikirim, Anda akan mendapat QRIS untuk dibayar sekarang. Pesanan diproses toko setelah pembayaran masuk.'
+                                        : bayarBerlaku === 'Cod'
+                                          ? 'Bayar tunai ke kurir saat barang tiba.'
+                                          : 'Bayar di kasir saat mengambil pesanan.'}
+                                </p>
+                                <div className="flex flex-col gap-1">
+                                    <div className="flex items-end gap-2">
+                                        <div className="min-w-0 flex-1">
+                                            <BidangTeks
+                                                label="Kode voucher (opsional)"
+                                                nilai={isianVoucher}
+                                                saatBerubah={AturIsianVoucher}
+                                                galat={galatVoucher ?? undefined}
+                                                kode
+                                            />
+                                        </div>
+                                        {hasilBerlaku?.Voucher ? (
+                                            <Tombol
+                                                varian="sekunder"
+                                                onClick={() => {
+                                                    AturVoucher('');
+                                                    AturIsianVoucher('');
+                                                }}
+                                            >
+                                                Lepas
+                                            </Tombol>
+                                        ) : (
+                                            <Tombol
+                                                varian="sekunder"
+                                                disabled={isianVoucher.trim() === '' || baris.length === 0}
+                                                onClick={PakaiVoucher}
+                                            >
+                                                Pakai
+                                            </Tombol>
+                                        )}
+                                    </div>
+                                    {hasilBerlaku?.Voucher ? (
+                                        <p className="inline-flex items-center gap-1.5 text-keterangan text-sukses">
+                                            <TicketPercentIcon aria-hidden="true" className="size-4" />
+                                            Voucher {hasilBerlaku.Voucher.Kode} dipakai:{' '}
+                                            {hasilBerlaku.Voucher.NamaPromo}
+                                        </p>
+                                    ) : null}
+                                </div>
+                            </div>
+
                             <KotakCentang
                                 label="Saya setuju data ini dipakai untuk memproses pesanan dan pengiriman."
                                 nilai={setuju}
                                 saatBerubah={AturSetuju}
                             />
                             {galat ? <Pemberitahuan jenis="bahaya">{galat}</Pemberitahuan> : null}
-                            <div className="flex flex-col gap-1">
-                                <div className="flex items-end gap-2">
-                                    <div className="min-w-0 flex-1">
-                                        <BidangTeks
-                                            label="Kode voucher (opsional)"
-                                            nilai={isianVoucher}
-                                            saatBerubah={AturIsianVoucher}
-                                            galat={galatVoucher ?? undefined}
-                                            kode
-                                        />
-                                    </div>
-                                    {hasilBerlaku?.Voucher ? (
-                                        <Tombol
-                                            varian="sekunder"
-                                            onClick={() => {
-                                                AturVoucher('');
-                                                AturIsianVoucher('');
-                                            }}
-                                        >
-                                            Lepas
-                                        </Tombol>
-                                    ) : (
-                                        <Tombol
-                                            varian="sekunder"
-                                            disabled={isianVoucher.trim() === '' || baris.length === 0}
-                                            onClick={PakaiVoucher}
-                                        >
-                                            Pakai
-                                        </Tombol>
-                                    )}
-                                </div>
-                                {hasilBerlaku?.Voucher ? (
-                                    <p className="text-keterangan text-sukses">
-                                        Voucher {hasilBerlaku.Voucher.Kode} dipakai: {hasilBerlaku.Voucher.NamaPromo}
-                                    </p>
-                                ) : null}
-                            </div>
+
                             {hasilBerlaku ? (
-                                <dl className="flex flex-col gap-1 border-t border-garis pt-3 text-isi">
-                                    <div className="flex justify-between">
-                                        <dt>Subtotal</dt>
-                                        <dd>{FormatRupiah(hasilBerlaku.Subtotal)}</dd>
+                                <dl className="flex flex-col gap-1.5 rounded-panel bg-permukaan-redup p-3 text-isi">
+                                    <div className="flex justify-between gap-3">
+                                        <dt className="text-teks-sekunder">Subtotal</dt>
+                                        <dd className="tabular-nums">{FormatRupiah(hasilBerlaku.Subtotal)}</dd>
                                     </div>
                                     {Number(hasilBerlaku.Diskon) > 0 ? (
-                                        <div className="flex justify-between text-sukses">
+                                        <div className="flex justify-between gap-3 text-sukses">
                                             <dt>Diskon promo</dt>
-                                            <dd>−{FormatRupiah(hasilBerlaku.Diskon)}</dd>
+                                            <dd className="tabular-nums">−{FormatRupiah(hasilBerlaku.Diskon)}</dd>
                                         </div>
                                     ) : null}
                                     {Number(hasilBerlaku.Ongkir) > 0 ? (
-                                        <div className="flex justify-between">
-                                            <dt>Ongkir</dt>
-                                            <dd>{FormatRupiah(hasilBerlaku.Ongkir)}</dd>
+                                        <div className="flex justify-between gap-3">
+                                            <dt className="text-teks-sekunder">Ongkir</dt>
+                                            <dd className="tabular-nums">{FormatRupiah(hasilBerlaku.Ongkir)}</dd>
                                         </div>
                                     ) : null}
                                     {Number(hasilBerlaku.DiskonOngkir) > 0 ? (
-                                        <div className="flex justify-between text-sukses">
+                                        <div className="flex justify-between gap-3 text-sukses">
                                             <dt>
                                                 {Number(hasilBerlaku.DiskonOngkir) === Number(hasilBerlaku.Ongkir)
                                                     ? 'Gratis ongkir'
                                                     : 'Diskon ongkir'}
                                             </dt>
-                                            <dd>−{FormatRupiah(hasilBerlaku.DiskonOngkir)}</dd>
+                                            <dd className="tabular-nums">−{FormatRupiah(hasilBerlaku.DiskonOngkir)}</dd>
                                         </div>
                                     ) : null}
-                                    <div className="flex justify-between text-subjudul font-semibold">
+                                    <div className="flex justify-between gap-3 border-t border-garis pt-2 text-subjudul font-semibold">
                                         <dt>Total</dt>
-                                        <dd>{FormatRupiah(hasilBerlaku.Total)}</dd>
+                                        <dd className="tabular-nums">{FormatRupiah(hasilBerlaku.Total)}</dd>
                                     </div>
                                     {hasilBerlaku.Zona ? (
                                         <p className="text-keterangan text-teks-sekunder">
@@ -634,13 +888,36 @@ export default function TokoOnline({
                                     pesanan dikirim.
                                 </p>
                             )}
-                            <Tombol type="submit" memproses={memproses} disabled={!hasilBerlaku || !setuju}>
+                            <Tombol
+                                type="submit"
+                                ukuran="besar"
+                                memproses={memproses}
+                                disabled={!hasilBerlaku || !setuju}
+                            >
                                 Kirim pesanan
                             </Tombol>
                         </form>
                     )}
                 </aside>
             </div>
+
+            {Aktif && jumlahItem > 0 ? (
+                <a
+                    href="#keranjang"
+                    className="tepi-bawah-aman fixed inset-x-0 bottom-0 z-20 border-t border-garis bg-permukaan px-4 py-3 lg:hidden"
+                >
+                    <span className="mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-full bg-brand px-5 py-3 text-brand-teks">
+                        <span className="inline-flex items-center gap-2 text-isi font-semibold">
+                            <ShoppingBagIcon aria-hidden="true" className="size-5" />
+                            Lihat keranjang | {jumlahItem} item
+                        </span>
+                        <span className="text-isi font-semibold tabular-nums">
+                            {hasilBerlaku ? FormatRupiah(hasilBerlaku.Total) : ''}
+                        </span>
+                    </span>
+                </a>
+            ) : null}
+
             {dialogMasuk && Toko ? (
                 <DialogMasukPembeli
                     slug={Slug}
@@ -649,7 +926,7 @@ export default function TokoOnline({
                     saatTutup={() => AturDialogMasuk(false)}
                 />
             ) : null}
-        </main>
+        </div>
     );
 }
 
