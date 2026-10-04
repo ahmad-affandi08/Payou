@@ -25,6 +25,15 @@ class MetodeLaporanShift {
   bool get tunai => jenis == LayananTutupShift.jenisTunai;
 }
 
+/// D-40: satu produk terlaris shift (jumlah terjual & total baris, tanpa penjualan yang di-void).
+class ProdukLaporanShift {
+  const ProdukLaporanShift({required this.nama, required this.jumlah, required this.total});
+
+  final String nama;
+  final Kuantitas jumlah;
+  final Uang total;
+}
+
 /// Laporan shift X (berjalan) / Z (setelah tutup) dari data di perangkat (Rincian F-11). Angka penjualan tanpa
 /// penjualan yang di-void; void & retur dilaporkan terpisah (F-09 fase 1): void = penjualan shift ini berstatus `Void`,
 /// retur = dokumen retur yang refund-nya keluar dari laci shift ini (sama dengan server `RingkasanPenjualanShift`).
@@ -52,7 +61,18 @@ class LaporanShift {
     this.nominalUangMuka,
     this.jumlahIsiDeposit = 0,
     this.nominalIsiDeposit,
+    this.terlaris = const [],
+    this.perJam = const {},
   });
+
+  /// Jumlah produk terlaris yang dimuat [terlaris].
+  static const int batasTerlaris = 5;
+
+  /// D-40: produk terlaris shift ini, urut jumlah terjual (maks. [batasTerlaris]).
+  final List<ProdukLaporanShift> terlaris;
+
+  /// D-40: total dibayar pelanggan per jam lokal (0–23) dari penjualan yang dihitung; jam tanpa penjualan tidak ada.
+  final Map<int, Uang> perJam;
 
   final BarisShift shift;
 
@@ -84,6 +104,19 @@ class LaporanShift {
   Uang get kasAwal => Uang.Dari(shift.KasAwal);
 
   Uang get penjualanBersih => penjualanKotor.Kurangi(totalDiskon);
+
+  /// D-40: rata-rata dibayar per transaksi (dibulatkan ke rupiah); nol bila belum ada transaksi.
+  Uang get rataRataTransaksi => jumlahTransaksi == 0
+      ? Uang.Nol()
+      : Uang.DariDesimal(
+          Decimal.fromBigInt(
+            BagiBulat(
+              totalAkhir.KeDesimal().shift(Uang.skala).toBigInt(),
+              BigInt.from(jumlahTransaksi * 100),
+              ModePembulatan.SetengahMenjauhiNol,
+            ),
+          ),
+        );
 
   bool get tertutup => shift.Status == StatusShiftLokal.tertutup;
 
@@ -241,8 +274,31 @@ class LayananTutupShift {
     final metodeUrut = perMetode.values.toList()
       ..sort((a, b) => a.tunai == b.tunai ? a.nama.compareTo(b.nama) : (a.tunai ? -1 : 1));
 
+    // D-40: produk terlaris & penjualan per jam, dari penjualan yang dihitung saja (void tidak ikut).
+    final perProduk = <String, ProdukLaporanShift>{};
+    for (final d in dokumen.detail.where((d) => uuidDihitung.contains(d.UuidPenjualan))) {
+      final lama = perProduk[d.UuidProduk];
+      perProduk[d.UuidProduk] = ProdukLaporanShift(
+        nama: lama?.nama ?? d.NamaProduk,
+        jumlah: (lama?.jumlah ?? Kuantitas.Nol()).Tambah(Kuantitas.Dari(d.Jumlah)),
+        total: (lama?.total ?? Uang.Nol()).Tambah(Uang.Dari(d.TotalBaris)),
+      );
+    }
+    final terlaris = perProduk.values.toList()
+      ..sort((a, b) {
+        final banding = b.jumlah.compareTo(a.jumlah);
+        return banding != 0 ? banding : b.total.Bandingkan(a.total);
+      });
+    final perJam = <int, Uang>{};
+    for (final p in dihitung) {
+      final jam = p.DibuatPada.toLocal().hour;
+      perJam[jam] = (perJam[jam] ?? Uang.Nol()).Tambah(Uang.Dari(p.TotalAkhir));
+    }
+
     return LaporanShift(
       shift: shift,
+      terlaris: terlaris.take(LaporanShift.batasTerlaris).toList(),
+      perJam: perJam,
       jumlahTransaksi: dihitung.length,
       penjualanKotor: Jumlahkan(
         dokumen.detail.where((d) => uuidDihitung.contains(d.UuidPenjualan)).map((d) => d.Bruto),

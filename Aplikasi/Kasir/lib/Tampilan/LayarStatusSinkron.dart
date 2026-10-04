@@ -6,12 +6,14 @@ import '../Aplikasi/Penyedia.dart';
 import '../Data/RepositoriKasir.dart';
 import '../Domain/Sinkron/LayananSinkron.dart';
 import 'Komponen/FormatWaktu.dart';
+import 'RuangKerja/BagianKerja.dart';
 import 'RuangKerja/IsiAreaKerja.dart';
 
 /// Status sinkron (PRD §18): jumlah data belum terkirim dan daftar "Perlu Tindakan" (ditolak server) beserta
 /// alasannya. K-17 (§18.3 butir 7 & 10): waktu sinkron terakhir, peringatan data tertunda > 2 jam, peringatan jam
 /// perangkat berbeda > 10 menit dari server, dan penjualan yang diterima dengan tanda tinjauan back-office. Item bisa dikirim ulang setelah penyebabnya diperbaiki di back-office. Tampil di area ruang kerja
-/// (dibuka dari rel navigasi atau dengan mengetuk bilah status).
+/// (dibuka dari rel navigasi atau dengan mengetuk bilah status). D-40: angka utama data belum terkirim, antrean kirim
+/// per jenis, dan panel konteks berisi transaksi yang diperiksa back-office serta cara kerja sinkron.
 class LayarStatusSinkron extends ConsumerStatefulWidget {
   const LayarStatusSinkron({super.key});
 
@@ -92,6 +94,7 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
     final tertua = ref.watch(penyediaOutboxTertua).value;
     final sekarang = ref.watch(penyediaJam)();
     final ditinjau = ref.watch(penyediaPenjualanDitinjau).value ?? const <String>[];
+    final antrean = ref.watch(penyediaRingkasanTertunda).value ?? const <({String jenis, int jumlah})>[];
     final peringatan = <String>[
       if (tertua != null && sekarang.difference(tertua) > LayarStatusSinkron.batasTertunda)
         'Ada data belum terkirim sejak ${FormatWaktu.FormatTanggalJam(tertua)} (lebih dari 2 jam). Pastikan perangkat '
@@ -101,56 +104,22 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
             'server. Perbaiki tanggal, jam, dan zona waktu perangkat agar waktu transaksi benar.',
     ];
 
+    final teksKoneksi = switch (koneksi) {
+      StatusKoneksi.Online => 'Online · tersambung ke server',
+      StatusKoneksi.Offline => 'Offline · data aman di perangkat dan dikirim otomatis saat online',
+      StatusKoneksi.BelumDiketahui => 'Koneksi belum diperiksa',
+    };
+
     return IsiAreaKerja(
       judul: 'Status sinkron',
       aksi: [FilledButton(onPressed: _sibuk ? null : _Kirim, child: Text(_sibuk ? 'Mengirim…' : 'Kirim sekarang'))],
       anak: [
-        DeretKartuAngka(
-          kartu: [
-            KartuAngka(
-              label: 'Belum terkirim ke server',
-              ikon: Icons.cloud_upload_outlined,
-              nada: tertunda == 0 ? NadaStatus.Sukses : NadaStatus.Peringatan,
-              nilai: Text(tertunda == 0 ? 'Semua data sudah terkirim.' : '$tertunda data belum terkirim.'),
-            ),
-            KartuAngka(
-              label: 'Koneksi',
-              ikon: koneksi == StatusKoneksi.Online ? Icons.wifi : Icons.wifi_off,
-              nada: koneksi == StatusKoneksi.Offline ? NadaStatus.Peringatan : NadaStatus.Netral,
-              nilai: Text(switch (koneksi) {
-                StatusKoneksi.Online => 'Online',
-                StatusKoneksi.Offline => 'Offline',
-                StatusKoneksi.BelumDiketahui => 'Belum diperiksa',
-              }),
-              keterangan: switch (koneksi) {
-                StatusKoneksi.Online => 'Tersambung ke server',
-                StatusKoneksi.Offline => 'Dikirim otomatis saat online',
-                StatusKoneksi.BelumDiketahui => null,
-              },
-            ),
-            KartuAngka(
-              label: 'Sinkron terakhir',
-              ikon: Icons.history,
-              nilai: Text(
-                terakhir == null ? 'Belum pernah' : FormatWaktu.FormatTanggalJam(terakhir),
-                key: const ValueKey('SinkronTerakhir'),
-              ),
-            ),
-            KartuAngka(
-              label: 'Perlu tindakan',
-              ikon: Icons.error_outline,
-              nada: perlu.isEmpty ? NadaStatus.Netral : NadaStatus.Bahaya,
-              nilai: Text('${perlu.length}'),
-              keterangan: 'Ditolak server',
-            ),
-            KartuAngka(
-              label: 'Diperiksa back-office',
-              ikon: Icons.flag_outlined,
-              nada: ditinjau.isEmpty ? NadaStatus.Netral : NadaStatus.Peringatan,
-              nilai: Text('${ditinjau.length}'),
-              keterangan: 'Sudah diterima server',
-            ),
-          ],
+        SorotanAngka(
+          label: 'Belum terkirim ke server',
+          ikon: tertunda == 0 ? Icons.cloud_done_outlined : Icons.cloud_upload_outlined,
+          nada: tertunda == 0 ? NadaStatus.Sukses : NadaStatus.Peringatan,
+          nilai: Text(tertunda == 0 ? 'Semua data sudah terkirim.' : '$tertunda data belum terkirim.'),
+          keterangan: teksKoneksi,
         ),
         for (final p in peringatan)
           Padding(
@@ -171,58 +140,126 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
             padding: const EdgeInsets.only(top: TokenJarak.jarak8),
             child: Text(_pesan!),
           ),
-        const SizedBox(height: TokenJarak.jarak16),
-        Text('Perlu tindakan', style: teks.titleSmall),
-        const SizedBox(height: TokenJarak.jarak4),
-        if (perlu.isEmpty)
-          Text('Tidak ada data yang ditolak server.', style: teks.bodyMedium?.copyWith(color: warna.teksSekunder))
-        else
-          for (final b in perlu)
-            Padding(
-              padding: const EdgeInsets.only(bottom: TokenJarak.jarak8),
-              child: KotakPanel(
-                anak: Row(
-                  children: [
-                    Icon(Icons.error_outline, size: TokenJarak.ikonSedang, color: warna.bahaya),
-                    const SizedBox(width: TokenJarak.jarak12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(LayarStatusSinkron.AmbilLabelJenis(b.Jenis)),
-                          Text(b.PesanGalat ?? 'Ditolak server.', style: TextStyle(color: warna.bahaya)),
-                        ],
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        await ref.read(penyediaRepositori).CobaLagi(b.Uuid, ref.read(penyediaJam)());
-                        await _Kirim();
-                      },
-                      child: const Text('Kirim ulang'),
-                    ),
-                  ],
-                ),
+        const SizedBox(height: TokenJarak.jarak12),
+        DeretKartuAngka(
+          lebarMinimum: 140,
+          kartu: [
+            KartuAngka(
+              label: 'Koneksi',
+              ikon: koneksi == StatusKoneksi.Online ? Icons.wifi : Icons.wifi_off,
+              nada: koneksi == StatusKoneksi.Offline ? NadaStatus.Peringatan : NadaStatus.Netral,
+              nilai: Text(switch (koneksi) {
+                StatusKoneksi.Online => 'Online',
+                StatusKoneksi.Offline => 'Offline',
+                StatusKoneksi.BelumDiketahui => 'Belum diperiksa',
+              }),
+            ),
+            KartuAngka(
+              label: 'Sinkron terakhir',
+              ikon: Icons.history,
+              nilai: Text(
+                terakhir == null ? 'Belum pernah' : FormatWaktu.FormatTanggalJam(terakhir),
+                key: const ValueKey('SinkronTerakhir'),
               ),
             ),
-        const SizedBox(height: TokenJarak.jarak16),
-        Text('Diperiksa back-office', style: teks.titleSmall),
-        const SizedBox(height: TokenJarak.jarak4),
+            KartuAngka(
+              label: 'Menunggu sejak',
+              ikon: Icons.schedule,
+              nilai: Text(tertua == null ? '—' : FormatWaktu.FormatTanggalJam(tertua)),
+            ),
+            KartuAngka(
+              label: 'Perlu tindakan',
+              ikon: Icons.error_outline,
+              nada: perlu.isEmpty ? NadaStatus.Netral : NadaStatus.Bahaya,
+              nilai: Text('${perlu.length}'),
+              keterangan: 'Ditolak server',
+            ),
+          ],
+        ),
+        const SizedBox(height: TokenJarak.jarak12),
+        BagianKerja(
+          judul: 'Antrean kirim',
+          ikon: Icons.outbox_outlined,
+          anak: antrean.isEmpty
+              ? const KeadaanKosong(
+                  ringkas: true,
+                  ikon: Icons.cloud_done_outlined,
+                  judul: 'Antrean kosong',
+                  keterangan: 'Semua penjualan, kas, dan shift dari perangkat ini sudah sampai di server.',
+                )
+              : Column(
+                  children: [
+                    for (final a in antrean)
+                      BatangProporsi(
+                        label: LayarStatusSinkron.AmbilLabelJenis(a.jenis),
+                        nilai: Text('${a.jumlah}'),
+                        rasio: a.jumlah / antrean.first.jumlah,
+                      ),
+                  ],
+                ),
+        ),
+        const SizedBox(height: TokenJarak.jarak12),
+        BagianKerja(
+          judul: 'Perlu tindakan',
+          ikon: Icons.error_outline,
+          anak: perlu.isEmpty
+              ? const KeadaanKosong(
+                  ringkas: true,
+                  ikon: Icons.verified_outlined,
+                  judul: 'Tidak ada data yang ditolak server.',
+                  keterangan: 'Bila server menolak data (misal produk sudah dihapus), alasannya muncul di sini.',
+                )
+              : Column(
+                  children: [
+                    for (final b in perlu)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: TokenJarak.jarak4),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, size: TokenJarak.ikonSedang, color: warna.bahaya),
+                            const SizedBox(width: TokenJarak.jarak12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(LayarStatusSinkron.AmbilLabelJenis(b.Jenis)),
+                                  Text(b.PesanGalat ?? 'Ditolak server.', style: TextStyle(color: warna.bahaya)),
+                                ],
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                await ref.read(penyediaRepositori).CobaLagi(b.Uuid, ref.read(penyediaJam)());
+                                await _Kirim();
+                              },
+                              child: const Text('Kirim ulang'),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+        ),
+      ],
+      panelSamping: [
+        JudulPanelSamping('Diperiksa back-office${ditinjau.isEmpty ? '' : ' (${ditinjau.length})'}'),
         if (ditinjau.isEmpty)
-          Text(
-            'Tidak ada transaksi yang ditandai untuk diperiksa.',
-            style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
+          const KeadaanKosong(
+            ringkas: true,
+            ikon: Icons.flag_outlined,
+            judul: 'Tidak ada transaksi yang ditandai untuk diperiksa.',
+            keterangan: 'Transaksi yang diterima server tetapi perlu dicek pemilik (misal stok kurang) tampil di sini.',
           )
         else ...[
           Text(
             'Transaksi ini sudah diterima server, tetapi ditandai untuk diperiksa back-office (misal stok kurang atau '
             'pesanan sudah dibayar di perangkat lain). Tidak perlu diulang di kasir.',
-            style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
+            style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
           ),
           const SizedBox(height: TokenJarak.jarak8),
           for (final nomor in ditinjau)
             Padding(
-              padding: const EdgeInsets.only(bottom: TokenJarak.jarak4),
+              padding: const EdgeInsets.symmetric(vertical: TokenJarak.jarak4),
               child: Row(
                 children: [
                   Icon(Icons.flag_outlined, size: TokenJarak.ikonKecil, color: warna.peringatan),
@@ -232,6 +269,24 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
               ),
             ),
         ],
+        const SizedBox(height: TokenJarak.jarak8),
+        Divider(color: warna.garis, height: TokenJarak.jarak16),
+        const JudulPanelSamping('Cara kerja sinkron'),
+        const ButirPeriksa(
+          nada: NadaStatus.Sukses,
+          judul: 'Tersimpan di perangkat dulu',
+          keterangan: 'Setiap transaksi langsung aman di kasir ini, ada internet atau tidak.',
+        ),
+        const ButirPeriksa(
+          nada: NadaStatus.Sukses,
+          judul: 'Dikirim otomatis',
+          keterangan: 'Begitu online, data dikirim berurutan tanpa perlu ditekan.',
+        ),
+        const ButirPeriksa(
+          nada: NadaStatus.Sukses,
+          judul: 'Tidak terkirim dua kali',
+          keterangan: 'Mengirim ulang data yang sama tidak membuat transaksi ganda.',
+        ),
       ],
     );
   }

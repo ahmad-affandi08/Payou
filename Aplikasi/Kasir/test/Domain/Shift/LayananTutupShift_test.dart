@@ -136,6 +136,19 @@ void main() {
     expect(laporan.tertutup, isFalse);
   });
 
+  test('D-40 layar Shift: produk terlaris urut jumlah, penjualan per jam, rata-rata per transaksi', () async {
+    await Siapkan();
+    final laporan = await u.tutupShift.SusunLaporan(shift.Uuid);
+
+    expect(laporan.terlaris.map((p) => (p.nama, p.jumlah)), [
+      ('Es Kopi Susu Aren', Kuantitas.DariBulat(4)),
+      ('Croissant Mentega Prancis Isi Cokelat Lumer Ukuran Jumbo', Kuantitas.DariBulat(2)),
+    ]);
+    expect(laporan.terlaris.first.total.Bandingkan(laporan.terlaris.last.total), 1);
+    expect(laporan.perJam.values.fold(Uang.Nol(), (t, n) => t.Tambah(n)), laporan.totalAkhir);
+    expect(laporan.rataRataTransaksi, Uang.DariBulat(67100));
+  });
+
   test(
     'tutup pas: shift Tertutup + outbox Shift.Tutup sesuai kontrak dalam satu transaksi; laporan Z tertunda',
     () async {

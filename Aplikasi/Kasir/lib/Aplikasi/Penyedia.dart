@@ -949,6 +949,11 @@ final penyediaMutasiShift = StreamProvider.family<List<BarisMutasiKas>, String>(
 
 final penyediaJumlahTertunda = StreamProvider<int>((ref) => ref.watch(penyediaRepositori).PantauJumlahTertunda());
 
+/// D-40: antrean kirim per jenis (layar Status sinkron).
+final penyediaRingkasanTertunda = StreamProvider<List<({String jenis, int jumlah})>>(
+  (ref) => ref.watch(penyediaRepositori).PantauRingkasanTertunda(),
+);
+
 /// K-17: waktu item tertunda tertua (null = tidak ada).
 final penyediaOutboxTertua = StreamProvider<DateTime?>((ref) => ref.watch(penyediaRepositori).PantauOutboxTertua());
 

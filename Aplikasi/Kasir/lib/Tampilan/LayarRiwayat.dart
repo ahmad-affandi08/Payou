@@ -11,6 +11,7 @@ import '../Domain/GalatKasir.dart';
 import '../Domain/Penjualan/LayananVoidPenjualan.dart';
 import 'Komponen/FormatAngka.dart';
 import 'Komponen/FormatWaktu.dart';
+import 'RuangKerja/BagianKerja.dart';
 import 'RuangKerja/IsiAreaKerja.dart';
 import 'Struk/TombolKirimStruk.dart';
 
@@ -121,6 +122,9 @@ class LayarRiwayat extends ConsumerStatefulWidget {
 class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
   final _cari = TextEditingController();
 
+  /// D-40: transaksi yang rinciannya tampil di panel kanan (layar lebar). Null = transaksi teratas.
+  String? _uuidTerpilih;
+
   @override
   void dispose() {
     _cari.dispose();
@@ -130,15 +134,7 @@ class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
   @override
   Widget build(BuildContext context) {
     final saatVoid = widget.saatVoid;
-    final saatRetur = widget.saatRetur;
     final saatReturStruk = widget.saatReturStruk;
-    final saatAmbilPreOrder = widget.saatAmbilPreOrder;
-    final saatPesananOnline = widget.saatPesananOnline;
-    final saatReservasi = widget.saatReservasi;
-    final saatServis = widget.saatServis;
-    final saatCucian = widget.saatCucian;
-    final teks = Theme.of(context).textTheme;
-    final warna = TokenWarna.AmbilDari(context);
     final riwayat = ref.watch(penyediaRiwayatHariIni);
     final semua = riwayat.value ?? const <RiwayatPenjualan>[];
     final daftar = semua.where((r) => LayarRiwayat.CekCocokCari(r.penjualan, _cari.text)).toList();
@@ -153,6 +149,67 @@ class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
     final tanggal = dipilih ?? hariIni;
     final lampau = dipilih != null && dipilih != hariIni;
 
+    VoidCallback? AmbilSaatVoid(RiwayatPenjualan r) =>
+        saatVoid != null && LayananVoidPenjualan.CekBisaDivoid(r.penjualan, shiftAktif)
+        ? () => saatVoid(r.penjualan.Uuid)
+        : null;
+    VoidCallback? AmbilSaatRetur(RiwayatPenjualan r) =>
+        saatReturStruk != null && LayarRiwayat.CekBisaDiretur(r.penjualan)
+        ? () => saatReturStruk(r.penjualan.Nomor)
+        : null;
+
+    return LayoutBuilder(
+      builder: (context, batas) {
+        // D-40: di area kerja lebar, daftar di kiri dan rincian transaksi terpilih di panel kanan (master-detail);
+        // di layar sempit baris tetap dibuka-tutup di tempat.
+        final berdampingan = batas.maxWidth >= IsiAreaKerja.lebarMinimumPanelSamping;
+        final terpilih = daftar.where((r) => r.penjualan.Uuid == _uuidTerpilih).firstOrNull ?? daftar.firstOrNull;
+        return _SusunHalaman(
+          context,
+          berdampingan: berdampingan,
+          terpilih: terpilih,
+          semua: semua,
+          daftar: daftar,
+          dihitung: dihitung,
+          total: total,
+          jumlahVoid: jumlahVoid,
+          retur: retur,
+          riwayat: riwayat,
+          tanggal: tanggal,
+          hariIni: hariIni,
+          lampau: lampau,
+          AmbilSaatVoid: AmbilSaatVoid,
+          AmbilSaatRetur: AmbilSaatRetur,
+        );
+      },
+    );
+  }
+
+  Widget _SusunHalaman(
+    BuildContext context, {
+    required bool berdampingan,
+    required RiwayatPenjualan? terpilih,
+    required List<RiwayatPenjualan> semua,
+    required List<RiwayatPenjualan> daftar,
+    required List<RiwayatPenjualan> dihitung,
+    required Uang total,
+    required int jumlahVoid,
+    required List<RiwayatRetur> retur,
+    required AsyncValue<List<RiwayatPenjualan>> riwayat,
+    required String? tanggal,
+    required String? hariIni,
+    required bool lampau,
+    required VoidCallback? Function(RiwayatPenjualan) AmbilSaatVoid,
+    required VoidCallback? Function(RiwayatPenjualan) AmbilSaatRetur,
+  }) {
+    final saatRetur = widget.saatRetur;
+    final saatAmbilPreOrder = widget.saatAmbilPreOrder;
+    final saatPesananOnline = widget.saatPesananOnline;
+    final saatReservasi = widget.saatReservasi;
+    final saatServis = widget.saatServis;
+    final saatCucian = widget.saatCucian;
+    final teks = Theme.of(context).textTheme;
+    final warna = TokenWarna.AmbilDari(context);
     return IsiAreaKerja(
       judul: lampau ? 'Riwayat transaksi' : 'Riwayat transaksi hari ini',
       aksi: [
@@ -245,6 +302,16 @@ class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
           ],
         ],
         const SizedBox(height: TokenJarak.jarak8),
+        if (semua.isEmpty && riwayat.hasValue)
+          KotakPanel(
+            anak: KeadaanKosong(
+              ikon: Icons.receipt_long_outlined,
+              judul: lampau ? 'Tidak ada struk di tanggal ini' : 'Struk pertama hari ini akan muncul di sini',
+              keterangan:
+                  'Setiap transaksi yang selesai di kasir ini tampil lengkap dengan isi, cara bayar, dan status '
+                  'kirimnya. Dari sini Anda bisa cetak ulang, kirim struk, retur, atau membatalkan transaksi.',
+            ),
+          ),
         if (daftar.isNotEmpty)
           Material(
             color: warna.permukaan,
@@ -259,12 +326,11 @@ class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
                   if (i > 0) Divider(height: TokenJarak.tebalGaris, color: warna.garis),
                   _BarisRiwayat(
                     riwayat: daftar[i],
-                    saatVoid: saatVoid != null && LayananVoidPenjualan.CekBisaDivoid(daftar[i].penjualan, shiftAktif)
-                        ? () => saatVoid(daftar[i].penjualan.Uuid)
-                        : null,
-                    saatRetur: saatReturStruk != null && LayarRiwayat.CekBisaDiretur(daftar[i].penjualan)
-                        ? () => saatReturStruk(daftar[i].penjualan.Nomor)
-                        : null,
+                    saatVoid: AmbilSaatVoid(daftar[i]),
+                    saatRetur: AmbilSaatRetur(daftar[i]),
+                    berdampingan: berdampingan,
+                    terpilih: berdampingan && daftar[i].penjualan.Uuid == terpilih?.penjualan.Uuid,
+                    saatPilih: () => setState(() => _uuidTerpilih = daftar[i].penjualan.Uuid),
                   ),
                 ],
               ],
@@ -292,6 +358,26 @@ class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
           ),
         ],
       ],
+      panelSamping: !berdampingan
+          ? const []
+          : [
+              const JudulPanelSamping('Rincian transaksi'),
+              if (terpilih == null)
+                const KeadaanKosong(
+                  ringkas: true,
+                  ikon: Icons.receipt_long_outlined,
+                  judul: 'Belum ada transaksi dipilih',
+                  keterangan:
+                      'Ketuk transaksi di daftar untuk melihat isi struk, cetak ulang, kirim, retur, atau batal.',
+                )
+              else
+                _PanelRincian(
+                  key: ValueKey(terpilih.penjualan.Uuid),
+                  riwayat: terpilih,
+                  saatVoid: AmbilSaatVoid(terpilih),
+                  saatRetur: AmbilSaatRetur(terpilih),
+                ),
+            ],
     );
   }
 }
@@ -341,8 +427,15 @@ class _BarisRetur extends StatelessWidget {
   }
 }
 
-class _BarisRiwayat extends ConsumerWidget {
-  const _BarisRiwayat({required this.riwayat, this.saatVoid, this.saatRetur});
+class _BarisRiwayat extends StatelessWidget {
+  const _BarisRiwayat({
+    required this.riwayat,
+    this.saatVoid,
+    this.saatRetur,
+    this.berdampingan = false,
+    this.terpilih = false,
+    this.saatPilih,
+  });
 
   final RiwayatPenjualan riwayat;
 
@@ -352,14 +445,78 @@ class _BarisRiwayat extends ConsumerWidget {
   /// Null = transaksi ini tidak bisa di-void di perangkat ini sekarang.
   final VoidCallback? saatVoid;
 
+  /// D-40: rincian tampil di panel kanan; baris hanya dipilih (tidak dibuka-tutup di tempat).
+  final bool berdampingan;
+  final bool terpilih;
+  final VoidCallback? saatPilih;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final teks = Theme.of(context).textTheme;
     final warna = TokenWarna.AmbilDari(context);
     final p = riwayat.penjualan;
     final status = LayarRiwayat.AmbilStatus(riwayat.status);
     final labelDokumen = LayarRiwayat.AmbilLabelStatusDokumen(p.Status);
     final divoid = p.Status == StatusPenjualanLokal.divoid;
+    final judul = Row(
+      children: [
+        Expanded(child: TeksKode(p.Nomor, gaya: teks.labelLarge)),
+        if (labelDokumen != null) ...[
+          Icon(
+            divoid ? Icons.block : Icons.assignment_return_outlined,
+            size: TokenJarak.ikonKecil,
+            color: divoid ? warna.bahaya : warna.teksSekunder,
+          ),
+          const SizedBox(width: TokenJarak.jarak4),
+          Text(labelDokumen, style: teks.labelMedium?.copyWith(color: divoid ? warna.bahaya : warna.teksUtama)),
+          const SizedBox(width: TokenJarak.jarak8),
+        ],
+        TeksUang(
+          Uang.Dari(p.TotalAkhir),
+          gaya: teks.labelLarge?.copyWith(decoration: divoid ? TextDecoration.lineThrough : null),
+        ),
+      ],
+    );
+    final subjudul = Row(
+      children: [
+        Expanded(
+          child: Text(
+            '${FormatWaktu.FormatJam(p.DibuatPada)} · ${p.NamaKasir}'
+            '${riwayat.metode.isEmpty ? '' : ' · ${riwayat.metode.join(' + ')}'}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: teks.bodySmall,
+          ),
+        ),
+        Icon(status.ikon, size: TokenJarak.ikonKecil, color: BilahStatus.AmbilWarnaNada(warna, status.nada)),
+        const SizedBox(width: TokenJarak.jarak4),
+        Text(status.teks, style: teks.bodySmall?.copyWith(color: warna.teksUtama)),
+      ],
+    );
+
+    if (berdampingan) {
+      return Semantics(
+        selected: terpilih,
+        button: true,
+        child: InkWell(
+          onTap: saatPilih,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: TokenJarak.targetSentuh + TokenJarak.jarak16),
+            padding: const EdgeInsets.symmetric(horizontal: TokenJarak.jarak12, vertical: TokenJarak.jarak8),
+            decoration: BoxDecoration(
+              color: terpilih ? warna.brand.withValues(alpha: 0.06) : null,
+              border: Border(left: BorderSide(color: terpilih ? warna.brand : Colors.transparent, width: 3)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [judul, const SizedBox(height: 2), subjudul],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
@@ -367,60 +524,75 @@ class _BarisRiwayat extends ConsumerWidget {
         dense: true,
         tilePadding: const EdgeInsets.symmetric(horizontal: TokenJarak.jarak12),
         childrenPadding: const EdgeInsets.fromLTRB(TokenJarak.jarak12, 0, TokenJarak.jarak12, TokenJarak.jarak12),
-        title: Row(
-          children: [
-            Expanded(child: TeksKode(p.Nomor, gaya: teks.labelLarge)),
-            if (labelDokumen != null) ...[
-              Icon(
-                divoid ? Icons.block : Icons.assignment_return_outlined,
-                size: TokenJarak.ikonKecil,
-                color: divoid ? warna.bahaya : warna.teksSekunder,
-              ),
-              const SizedBox(width: TokenJarak.jarak4),
-              Text(labelDokumen, style: teks.labelMedium?.copyWith(color: divoid ? warna.bahaya : warna.teksUtama)),
-              const SizedBox(width: TokenJarak.jarak8),
-            ],
-            TeksUang(
-              Uang.Dari(p.TotalAkhir),
-              gaya: teks.labelLarge?.copyWith(decoration: divoid ? TextDecoration.lineThrough : null),
-            ),
-          ],
+        title: judul,
+        subtitle: subjudul,
+        children: [_IsiRincian(riwayat: riwayat, saatVoid: saatVoid, saatRetur: saatRetur)],
+      ),
+    );
+  }
+}
+
+/// Isi rincian satu penjualan: baris barang, pembayaran, kembalian, dan tombol cetak ulang/kirim/retur/batal. Dipakai
+/// di baris yang dibuka (layar sempit) dan di panel kanan (layar lebar, [panel] = tombol bertumpuk selebar panel).
+class _IsiRincian extends ConsumerWidget {
+  const _IsiRincian({required this.riwayat, this.saatVoid, this.saatRetur, this.panel = false});
+
+  final RiwayatPenjualan riwayat;
+  final VoidCallback? saatVoid;
+  final VoidCallback? saatRetur;
+  final bool panel;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final teks = Theme.of(context).textTheme;
+    final warna = TokenWarna.AmbilDari(context);
+    final p = riwayat.penjualan;
+    final tombol = <Widget>[
+      _TombolCetakUlang(uuidPenjualan: p.Uuid),
+      TombolKirimStruk(uuidPenjualan: p.Uuid),
+      if (saatRetur != null)
+        SizedBox(
+          height: TokenJarak.targetSentuh,
+          child: OutlinedButton.icon(
+            onPressed: saatRetur,
+            icon: const Icon(Icons.assignment_return_outlined),
+            label: const Text('Retur / tukar'),
+          ),
         ),
-        subtitle: Row(
-          children: [
-            Expanded(
-              child: Text(
-                '${FormatWaktu.FormatJam(p.DibuatPada)} · ${p.NamaKasir}'
-                '${riwayat.metode.isEmpty ? '' : ' · ${riwayat.metode.join(' + ')}'}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: teks.bodySmall,
-              ),
-            ),
-            Icon(status.ikon, size: TokenJarak.ikonKecil, color: BilahStatus.AmbilWarnaNada(warna, status.nada)),
-            const SizedBox(width: TokenJarak.jarak4),
-            Text(status.teks, style: teks.bodySmall?.copyWith(color: warna.teksUtama)),
-          ],
+      if (saatVoid != null)
+        SizedBox(
+          height: TokenJarak.targetSentuh,
+          child: OutlinedButton.icon(
+            onPressed: saatVoid,
+            icon: const Icon(Icons.block),
+            label: const Text('Batalkan transaksi'),
+          ),
         ),
-        children: [
-          if (riwayat.status == StatusSinkronPenjualan.PerluTindakan && riwayat.pesanGalat != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: TokenJarak.jarak8),
-              child: Text(riwayat.pesanGalat!, style: TextStyle(color: warna.bahaya)),
-            ),
-          ref
-              .watch(penyediaDetailPenjualan(p.Uuid))
-              .when(
-                loading: () => const LinearProgressIndicator(),
-                error: (galat, jejak) {
-                  CatatGalat('detail penjualan ${p.Uuid}', galat, jejak);
-                  return Text(pesanGagalMuat, style: TextStyle(color: warna.bahaya));
-                },
-                data: (isi) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final d in isi.detail)
-                      Row(
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (riwayat.status == StatusSinkronPenjualan.PerluTindakan && riwayat.pesanGalat != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: TokenJarak.jarak8),
+            child: Text(riwayat.pesanGalat!, style: TextStyle(color: warna.bahaya)),
+          ),
+        ref
+            .watch(penyediaDetailPenjualan(p.Uuid))
+            .when(
+              loading: () => const LinearProgressIndicator(),
+              error: (galat, jejak) {
+                CatatGalat('detail penjualan ${p.Uuid}', galat, jejak);
+                return Text(pesanGagalMuat, style: TextStyle(color: warna.bahaya));
+              },
+              data: (isi) => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final d in isi.detail)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: panel ? 3 : 0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Text(
@@ -428,61 +600,121 @@ class _BarisRiwayat extends ConsumerWidget {
                               style: teks.bodyMedium,
                             ),
                           ),
+                          const SizedBox(width: TokenJarak.jarak8),
                           TeksUang(Uang.Dari(d.TotalBaris)),
                         ],
                       ),
-                    const SizedBox(height: TokenJarak.jarak8),
-                    for (final b in isi.pembayaran)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '${b.NamaMetode}${b.Referensi == null ? '' : ' · ${b.Referensi}'}',
-                              style: teks.bodySmall,
-                            ),
-                          ),
-                          TeksUang(Uang.Dari(b.Jumlah), gaya: teks.bodySmall),
-                        ],
-                      ),
-                    if (!Uang.Dari(p.Kembalian).BernilaiNol())
-                      Row(
-                        children: [
-                          Expanded(child: Text('Kembalian', style: teks.bodySmall)),
-                          TeksUang(Uang.Dari(p.Kembalian), gaya: teks.bodySmall),
-                        ],
-                      ),
-                    const SizedBox(height: TokenJarak.jarak12),
-                    Wrap(
-                      spacing: TokenJarak.jarak8,
-                      runSpacing: TokenJarak.jarak8,
+                    ),
+                  if (panel) ...[
+                    Divider(color: warna.garis, height: TokenJarak.jarak24),
+                    Row(
                       children: [
-                        _TombolCetakUlang(uuidPenjualan: p.Uuid),
-                        TombolKirimStruk(uuidPenjualan: p.Uuid),
-                        if (saatRetur != null)
-                          SizedBox(
-                            height: TokenJarak.targetSentuh,
-                            child: OutlinedButton.icon(
-                              onPressed: saatRetur,
-                              icon: const Icon(Icons.assignment_return_outlined),
-                              label: const Text('Retur / tukar'),
-                            ),
-                          ),
-                        if (saatVoid != null)
-                          SizedBox(
-                            height: TokenJarak.targetSentuh,
-                            child: OutlinedButton.icon(
-                              onPressed: saatVoid,
-                              icon: const Icon(Icons.block),
-                              label: const Text('Batalkan transaksi'),
-                            ),
-                          ),
+                        Expanded(child: Text('Total dibayar', style: teks.titleSmall)),
+                        TeksUang(Uang.Dari(p.TotalAkhir), gaya: teks.titleMedium),
                       ],
                     ),
-                  ],
-                ),
+                    const SizedBox(height: TokenJarak.jarak4),
+                  ] else
+                    const SizedBox(height: TokenJarak.jarak8),
+                  for (final b in isi.pembayaran)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '${b.NamaMetode}${b.Referensi == null ? '' : ' · ${b.Referensi}'}',
+                            style: teks.bodySmall,
+                          ),
+                        ),
+                        TeksUang(Uang.Dari(b.Jumlah), gaya: teks.bodySmall),
+                      ],
+                    ),
+                  if (!Uang.Dari(p.Kembalian).BernilaiNol())
+                    Row(
+                      children: [
+                        Expanded(child: Text('Kembalian', style: teks.bodySmall)),
+                        TeksUang(Uang.Dari(p.Kembalian), gaya: teks.bodySmall),
+                      ],
+                    ),
+                  SizedBox(height: panel ? TokenJarak.jarak16 : TokenJarak.jarak12),
+                  if (panel)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final (i, t) in tombol.indexed) ...[
+                          if (i > 0) const SizedBox(height: TokenJarak.jarak8),
+                          t,
+                        ],
+                      ],
+                    )
+                  else
+                    Wrap(spacing: TokenJarak.jarak8, runSpacing: TokenJarak.jarak8, children: tombol),
+                ],
               ),
-        ],
-      ),
+            ),
+      ],
+    );
+  }
+}
+
+/// D-40: rincian transaksi terpilih di panel kanan. Teks nomor & status sengaja berbeda bentuk dengan baris daftar
+/// ("No. …", "Belum sampai di server") supaya satu informasi tidak tampil dua kali dengan kata yang sama.
+class _PanelRincian extends StatelessWidget {
+  const _PanelRincian({super.key, required this.riwayat, this.saatVoid, this.saatRetur});
+
+  final RiwayatPenjualan riwayat;
+  final VoidCallback? saatVoid;
+  final VoidCallback? saatRetur;
+
+  @override
+  Widget build(BuildContext context) {
+    final teks = Theme.of(context).textTheme;
+    final warna = TokenWarna.AmbilDari(context);
+    final p = riwayat.penjualan;
+    final status = LayarRiwayat.AmbilStatus(riwayat.status);
+    final teksKirim = switch (riwayat.status) {
+      StatusSinkronPenjualan.Terkirim => 'Sudah di server',
+      StatusSinkronPenjualan.BelumTerkirim => 'Menunggu dikirim',
+      StatusSinkronPenjualan.PerluTindakan => 'Ditolak server',
+    };
+    final teksDokumen = switch (p.Status) {
+      StatusPenjualanLokal.divoid => 'Dibatalkan (void)',
+      StatusPenjualanLokal.direturSebagian => 'Sebagian barang diretur',
+      StatusPenjualanLokal.diretur => 'Seluruh barang diretur',
+      _ => 'Lunas',
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text.rich(
+          TextSpan(
+            children: [
+              const TextSpan(text: 'No. '),
+              TextSpan(
+                text: p.Nomor,
+                style: const TextStyle(fontFamily: fontMono, package: paketFont),
+              ),
+            ],
+          ),
+          style: teks.titleSmall,
+        ),
+        const SizedBox(height: TokenJarak.jarak4),
+        BarisInfo(label: 'Waktu', nilai: Text(FormatWaktu.FormatTanggalJam(p.DibuatPada))),
+        BarisInfo(label: 'Dilayani', nilai: Text(p.NamaKasir)),
+        BarisInfo(label: 'Dokumen', nilai: Text(teksDokumen)),
+        BarisInfo(
+          label: 'Pengiriman data',
+          nilai: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(status.ikon, size: TokenJarak.ikonKecil, color: BilahStatus.AmbilWarnaNada(warna, status.nada)),
+              const SizedBox(width: TokenJarak.jarak4),
+              Flexible(child: Text(teksKirim)),
+            ],
+          ),
+        ),
+        Divider(color: warna.garis, height: TokenJarak.jarak24),
+        _IsiRincian(riwayat: riwayat, saatVoid: saatVoid, saatRetur: saatRetur, panel: true),
+      ],
     );
   }
 }

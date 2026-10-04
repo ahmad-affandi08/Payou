@@ -11,6 +11,10 @@ import 'package:sistem_desain/SistemDesain.dart';
 ///
 /// [kolomGanda] untuk layar yang isinya banyak bagian berdiri sendiri (mis. Pengaturan): di layar lebar bagian-bagian
 /// itu dibagi dua kolom supaya tidak jadi gulungan panjang di sebelah ruang kosong.
+///
+/// D-40 "dua kolom kerja": [panelSamping] adalah panel konteks di kanan (seperti panel keranjang di layar Jual):
+/// permukaan putih setinggi area kerja selebar [lebarPanelSamping], bisa digulir sendiri. Di area kerja yang lebih
+/// sempit dari [lebarMinimumPanelSamping] isinya turun ke bawah isi utama.
 class IsiAreaKerja extends StatelessWidget {
   const IsiAreaKerja({
     super.key,
@@ -19,7 +23,14 @@ class IsiAreaKerja extends StatelessWidget {
     this.aksi = const [],
     this.lebarMaksimum = 1200,
     this.kolomGanda = false,
+    this.panelSamping = const [],
   });
+
+  /// D-40: lebar panel konteks kanan.
+  static const double lebarPanelSamping = 380;
+
+  /// D-40: lebar area kerja minimum agar panel konteks tampil di samping (bukan di bawah) isi utama.
+  static const double lebarMinimumPanelSamping = 960;
 
   /// Batas lebar isi saat [kolomGanda] aktif dan layarnya memang cukup lebar.
   static const double lebarKolomGanda = 1200;
@@ -35,6 +46,9 @@ class IsiAreaKerja extends StatelessWidget {
   final double lebarMaksimum;
   final bool kolomGanda;
 
+  /// D-40: isi panel konteks kanan; kosong = layar satu kolom seperti sebelumnya.
+  final List<Widget> panelSamping;
+
   @override
   Widget build(BuildContext context) {
     final lebarLayar = MediaQuery.sizeOf(context).width;
@@ -49,10 +63,71 @@ class IsiAreaKerja extends StatelessWidget {
         final tombol = Wrap(
           spacing: TokenJarak.jarak8,
           runSpacing: TokenJarak.jarak8,
-          alignment: WrapAlignment.end,
+          // Rata kiri: bila tombol turun ke baris berikutnya, tombol yang terbungkus tidak menggantung di kanan.
+          alignment: WrapAlignment.start,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: aksi,
         );
+
+        final kepala = aksi.isEmpty
+            ? judulTeks
+            // Judul kiri, tombol kanan selama muat sebaris; bila tidak muat (HP, judul panjang, banyak tombol)
+            // tombol turun ke baris berikutnya alih-alih meluap.
+            : Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: TokenJarak.jarak16,
+                runSpacing: TokenJarak.jarak8,
+                children: [judulTeks, tombol],
+              );
+
+        if (panelSamping.isNotEmpty) {
+          final berdampingan = batas.maxWidth >= lebarMinimumPanelSamping;
+          // Isi halaman berpanel pendek: dibangun utuh (bukan lazy) supaya bagian di bawah lipatan tetap ada untuk
+          // pembaca layar & pencarian, dan gulir kedua kolom saling lepas.
+          final utama = SingleChildScrollView(
+            padding: EdgeInsets.all(tepi),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                kepala,
+                const SizedBox(height: TokenJarak.jarak16),
+                ...anak,
+                if (!berdampingan) ...[
+                  const SizedBox(height: TokenJarak.jarak16),
+                  KotakPanel(
+                    anak: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: panelSamping),
+                  ),
+                ],
+              ],
+            ),
+          );
+          if (!berdampingan) {
+            return utama;
+          }
+          final warna = TokenWarna.AmbilDari(context);
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: utama),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: warna.permukaan,
+                  border: Border(
+                    left: BorderSide(color: warna.garis, width: TokenJarak.tebalGaris),
+                  ),
+                ),
+                child: SizedBox(
+                  width: lebarPanelSamping,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(TokenJarak.jarak16),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: panelSamping),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
 
         return Align(
           alignment: Alignment.topLeft,
@@ -61,18 +136,7 @@ class IsiAreaKerja extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.all(tepi),
               children: [
-                if (aksi.isEmpty)
-                  judulTeks
-                else
-                  // Judul kiri, tombol kanan selama muat sebaris; bila tidak muat (HP, judul panjang, banyak tombol)
-                  // tombol turun ke baris berikutnya alih-alih meluap.
-                  Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: TokenJarak.jarak16,
-                    runSpacing: TokenJarak.jarak8,
-                    children: [judulTeks, tombol],
-                  ),
+                kepala,
                 const SizedBox(height: TokenJarak.jarak12),
                 if (duaKolom) _DuaKolom(anak: anak) else ...anak,
               ],

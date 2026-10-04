@@ -563,6 +563,18 @@ class RepositoriKasir {
         .watchSingle();
   }
 
+  /// D-40: jumlah item tertunda per jenis outbox, terbanyak dulu (antrean kirim di layar Status sinkron).
+  Stream<List<({String jenis, int jumlah})>> PantauRingkasanTertunda() {
+    final jumlah = db.outbox.Id.count();
+    return (db.selectOnly(db.outbox)
+          ..addColumns([db.outbox.Jenis, jumlah])
+          ..where(db.outbox.Status.equals(StatusOutbox.tertunda))
+          ..groupBy([db.outbox.Jenis]))
+        .map((r) => (jenis: r.read(db.outbox.Jenis)!, jumlah: r.read(jumlah) ?? 0))
+        .watch()
+        .map((daftar) => daftar..sort((a, b) => b.jumlah.compareTo(a.jumlah)));
+  }
+
   /// K-17: waktu dibuat item tertunda tertua (null = outbox kosong).
   Stream<DateTime?> PantauOutboxTertua() {
     final tertua = db.outbox.DibuatPada.min();
