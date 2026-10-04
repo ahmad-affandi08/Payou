@@ -108,6 +108,18 @@ describe('Pencarian cepat di kepala halaman', () => {
         // Tidak ada alamat kembar walau halaman Pengaturan juga ada di menu samping.
         expect(alamat.filter((href, i) => alamat.indexOf(href) !== i)).toEqual([]);
     });
+    it('perintah kerja bengkel hanya ikut Ctrl+K untuk usaha bengkel (SVC-WRK), bukan toko kelontong', () => {
+        const akses = { Pemilik: true, Izin: [] };
+        const Alamat = (sektor: string[]) =>
+            SusunPencarian(SaringMenuTerlihat(akses, { sektorOutlet: sektor }), akses, undefined, sektor).halaman.map(
+                (h) => h.href,
+            );
+
+        expect(Alamat(['RTL-GEN'])).not.toContain('/kelola/bengkel/perintah-kerja');
+        expect(Alamat(['RTL-GEN'])).not.toContain('/kelola/bengkel/kendaraan');
+        expect(Alamat(['SVC-WRK'])).toContain('/kelola/bengkel/perintah-kerja');
+        expect(Alamat(['RTL-GEN', 'SVC-WRK'])).toContain('/kelola/bengkel/kendaraan');
+    });
     it('riwayat nomor seri (tab Kartu stok) ikut Ctrl+K selama Kartu stok terlihat, lengkap dengan sumber data nomor', () => {
         const aksesStok = { Pemilik: false, Izin: ['persediaan.lihat'] };
         const { halaman, sumber } = SusunPencarian(SaringMenuTerlihat(aksesStok), aksesStok);

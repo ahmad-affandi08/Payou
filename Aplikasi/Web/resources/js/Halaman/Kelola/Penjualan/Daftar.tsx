@@ -5,7 +5,7 @@ import { kolomPenjualan } from '@/Komponen/Penjualan/KolomPenjualan';
 import TabelData from '@/Komponen/TabelData/TabelData';
 import type { DefinisiSaring } from '@/Komponen/TabelData/Tipe';
 import { Button } from '@/Komponen/Ui/button';
-import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
+import TataLetakAplikasi, { CekSesuaiSektor } from '@/TataLetak/TataLetakAplikasi';
 import type { PropsBersamaAplikasi } from '@/Tipe/Aplikasi';
 import { IzinTenant, PunyaIzinTenant } from '@/Tipe/Organisasi';
 import type { PropsDaftarPenjualan } from '@/Tipe/Penjualan';
@@ -16,7 +16,10 @@ const alamat = '/kelola/penjualan';
 export default function HalamanDaftarPenjualan({ Penjualan, OpsiOutlet, OpsiStatus, OpsiKanal }: PropsDaftarPenjualan) {
     const { props } = usePage<PropsBersamaAplikasi>();
     // Bengkel (§9.10): grup menu ini sudah di batas 7 sub-menu (D-27), jadi perintah kerja dibuka dari sini & Ctrl+K.
-    const bengkel = PunyaIzinTenant(props.Akses, IzinTenant.BengkelKelola);
+    // Hanya untuk usaha bengkel (SVC-WRK): toko kelontong, kafe, dsb. tidak perlu melihatnya.
+    const bengkel =
+        PunyaIzinTenant(props.Akses, IzinTenant.BengkelKelola) &&
+        CekSesuaiSektor({ sektor: ['SVC-WRK'] }, props.SektorOutlet ?? []);
     const saring: DefinisiSaring[] = [
         ...(OpsiOutlet.length > 1
             ? [

@@ -490,7 +490,7 @@ const sumberPencarian: SumberPencarian[] = [
  * Halaman yang berumah sebagai tab di halaman lain (D-27: satu rumah menu, grup sudah di batas sub-menu). Ia tidak
  * punya entri menu, tetapi Ctrl+K harus tetap menemukannya; hanya muncul bila halaman induknya terlihat (izin sama).
  */
-const halamanTurunan: (HalamanPencarian & { induk: string; izin?: KunciIzinTenant })[] = [
+const halamanTurunan: (HalamanPencarian & { induk: string; izin?: KunciIzinTenant; sektor?: string[] })[] = [
     {
         induk: '/kelola/persediaan/kartu-stok',
         label: 'Riwayat nomor seri / IMEI',
@@ -507,6 +507,7 @@ const halamanTurunan: (HalamanPencarian & { induk: string; izin?: KunciIzinTenan
         grup: 'Penjualan & kasir',
         ikon: 'Struk',
         izin: IzinTenant.BengkelKelola,
+        sektor: ['SVC-WRK'],
     },
     {
         induk: '/kelola/penjualan',
@@ -515,6 +516,7 @@ const halamanTurunan: (HalamanPencarian & { induk: string; izin?: KunciIzinTenan
         grup: 'Penjualan & kasir',
         ikon: 'Struk',
         izin: IzinTenant.BengkelKelola,
+        sektor: ['SVC-WRK'],
     },
 ];
 
@@ -528,6 +530,7 @@ export function SusunPencarian(
     menuTerlihat: MenuTerlihat[],
     akses: PropsBersamaAplikasi['Akses'],
     edisi?: PropsBersamaAplikasi['Edisi'],
+    sektorOutlet: string[] = [],
 ): {
     halaman: HalamanPencarian[];
     sumber: SumberPencarian[];
@@ -550,8 +553,10 @@ export function SusunPencarian(
             })),
     );
     // Halaman yang rumahnya tab di halaman lain (bukan entri menu sendiri) ikut Ctrl+K selama induknya terlihat.
-    const turunan = halamanTurunan.flatMap(({ induk, izin, ...halamanTurunanItem }): HalamanPencarian[] =>
-        menu.some((ada) => ada.href === induk) && (izin === undefined || PunyaIzinTenant(akses, izin))
+    const turunan = halamanTurunan.flatMap(({ induk, izin, sektor, ...halamanTurunanItem }): HalamanPencarian[] =>
+        menu.some((ada) => ada.href === induk) &&
+        (izin === undefined || PunyaIzinTenant(akses, izin)) &&
+        CekSesuaiSektor({ sektor }, sektorOutlet)
             ? [halamanTurunanItem]
             : [],
     );
@@ -633,7 +638,7 @@ export function CekMenuAktif(href: string, url: string): boolean {
 type MenuTerlihat = { menu: ItemMenu; labelSub: string | null; sub: ItemMenu[] };
 
 /** Audit #33: menu bersektor tampil bila salah satu outlet memakai sektor berawalan itu; sektor kosong = semua tampil. */
-export function CekSesuaiSektor(menu: { sektor?: string[] }, sektorOutlet: string[]): boolean {
+export function CekSesuaiSektor(menu: { sektor?: string[] | undefined }, sektorOutlet: string[]): boolean {
     if (menu.sektor === undefined || sektorOutlet.length === 0) {
         return true;
     }
@@ -829,7 +834,12 @@ export default function TataLetakAplikasi({ judul, jejak = [], children }: Props
     const [sederhana, AturSederhana] = useState(BacaModeSederhana);
     const menuTerlihat = SaringMenuTerlihat(props.Akses, { sektorOutlet, sederhana });
     // Ctrl+K tetap menemukan menu lanjutan walau mode sederhana aktif.
-    const pencarian = SusunPencarian(SaringMenuTerlihat(props.Akses, { sektorOutlet }), props.Akses, props.Edisi);
+    const pencarian = SusunPencarian(
+        SaringMenuTerlihat(props.Akses, { sektorOutlet }),
+        props.Akses,
+        props.Edisi,
+        sektorOutlet,
+    );
     const UbahSederhana = (aktif: boolean) => {
         AturSederhana(aktif);
         try {
