@@ -72,6 +72,7 @@ export default function HalamanLaporanKomisi({ Komisi, OpsiOutlet }: PropsLapora
                 sumber={{ mode: 'server', alamat, awal: Komisi }}
                 ambilIdBaris={(k) => k.Uuid}
                 urutBawaan="-Bersih"
+                ekspor={{ alamat: `${alamat}/ekspor`, label: 'Ekspor', laporan: true }}
                 cari="Cari nama karyawan"
                 saring={saring}
                 ringkasan={(hasil) => (

@@ -128,3 +128,31 @@ describe('Kop laporan seragam (D-43): laporan penjualan', function (): void {
         }
     });
 });
+
+describe('Kop laporan seragam (D-43): umur piutang, umur hutang, komisi', function (): void {
+    it('tiga laporan bisa diunduh sebagai Excel & CSV berkop usaha, tanpa data pun tetap berheader', function (): void {
+        $d = BantuanLaporan::SiapkanDataPenjualan($this);
+        BantuanPersediaan::MasukSebagai($this, $d['Tenant']->Id);
+
+        $daftar = [
+            '/kelola/piutang/ekspor' => ['Laporan Umur Piutang', 'Nomor penjualan'],
+            '/kelola/pembelian/hutang/ekspor' => ['Laporan Umur Hutang', 'Nomor faktur pemasok'],
+            '/kelola/karyawan/komisi/laporan/ekspor' => ['Laporan Komisi', 'Komisi bersih'],
+        ];
+
+        foreach ($daftar as $alamat => [$judul, $kolom]) {
+            $xlsx = BacaUnduhanXlsx($this->get("{$alamat}?format=xlsx")->assertOk()->streamedContent());
+            expect($xlsx['xl/worksheets/sheet1.xml'])->toContain($judul)->toContain($kolom)->toContain('Dibuat dengan PAYOU');
+            expect($this->get("{$alamat}?format=csv")->assertOk()->streamedContent())->toContain($kolom);
+        }
+    });
+
+    it('Kasir tidak boleh mengunduh umur piutang, umur hutang, maupun komisi', function (): void {
+        $d = BantuanLaporan::SiapkanDataPenjualan($this);
+        BantuanPersediaan::MasukSebagai($this, $d['Tenant']->Id, PeranTenantBawaan::Kasir);
+
+        foreach (['/kelola/piutang/ekspor', '/kelola/pembelian/hutang/ekspor', '/kelola/karyawan/komisi/laporan/ekspor'] as $alamat) {
+            $this->get($alamat)->assertForbidden();
+        }
+    });
+});

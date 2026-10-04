@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Kontroler\Kelola\Piutang;
 
 use App\Domain\Akuntansi\Kueri\DaftarAkunPilihan;
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Organisasi\Enum\IzinTenant;
 use App\Domain\Organisasi\Kueri\AksesPengguna;
@@ -33,6 +35,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Piutang pelanggan (F-12): daftar piutang terbuka dengan umur 0–30/31–60/61–90/>90 hari (`/kelola/piutang`),
@@ -53,6 +56,27 @@ final class PiutangKontroler extends DasarKelolaKontroler
             'Izin' => $this->AmbilIzin(),
             'Pengingat' => app(PengaturanPengingatPiutangTenant::class)->Ambil(),
         ]);
+    }
+
+    /** Ekspor umur piutang sesuai saringan & cari yang aktif di tabel (maks. 5.000 baris). */
+    public function EksporPiutang(Request $permintaan, DaftarPiutang $daftar): SymfonyResponse
+    {
+        $tabel = DataPermintaanTabel::Dari($permintaan->query(), DaftarPiutang::KOLOM_URUT, DaftarPiutang::URUT_BAWAAN, DaftarPiutang::KOLOM_SARING);
+        $hariIni = app(TanggalBisnisOutlet::class)->Hitung(null);
+        $idOutlet = $this->IdOutletBoleh();
+        $baris = $this->AmbilSemuaBarisTabel($tabel, fn (DataPermintaanTabel $t): array => $daftar->Terbuka($t, $hariIni, $idOutlet));
+        $kolom = [
+            new KolomLaporan('Nomor penjualan', JenisKolom::Teks, 24), new KolomLaporan('Pelanggan', JenisKolom::Teks, 28),
+            new KolomLaporan('Tanggal', JenisKolom::Tanggal), new KolomLaporan('Jatuh tempo', JenisKolom::Tanggal),
+            new KolomLaporan('Hari lewat', JenisKolom::Bilangan), new KolomLaporan('Umur', JenisKolom::Teks, 18),
+            new KolomLaporan('Status', JenisKolom::Teks, 16), new KolomLaporan('Jumlah', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Sisa', JenisKolom::Uang, jumlahkan: true),
+        ];
+        $isi = array_map(fn (array $b): array => [
+            $b['Nomor'], $b['NamaPelanggan'] ?? '', $b['Tanggal'], $b['JatuhTempo'], $b['HariLewat'], $b['LabelUmur'], $b['LabelStatus'], $b['Jumlah'], $b['Sisa'],
+        ], $baris);
+
+        return $this->SajikanLaporan($permintaan, 'Laporan Umur Piutang', 'umur-piutang', $kolom, $isi, [['Per tanggal', $hariIni->format('d/m/Y')]]);
     }
 
     /**

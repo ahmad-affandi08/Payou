@@ -8,6 +8,7 @@ use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Bersama\Laporan\ItemRingkasan;
 use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Bersama\Laporan\PembuatDefinisiLaporan;
+use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Organisasi\Kueri\AksesPengguna;
 use App\Domain\Organisasi\Model\Outlet;
@@ -119,6 +120,28 @@ abstract class DasarKelolaKontroler extends Kontroler
         );
 
         return PenyajiLaporan::Sajikan($permintaan, $definisi);
+    }
+
+    /**
+     * Semua baris tabel server sesuai saringan & cari yang sedang aktif, dibaca halaman demi halaman lewat kueri daftar
+     * yang sama dengan layar (angka ekspor = angka di layar). Dibatasi `$maks` baris supaya ekspor tetap wajar.
+     *
+     * @param  Closure(DataPermintaanTabel): array{Data: list<array<string, mixed>>, Meta: array{JumlahHalaman: int}}  $ambil
+     * @return list<array<string, mixed>>
+     */
+    protected function AmbilSemuaBarisTabel(DataPermintaanTabel $tabel, Closure $ambil, int $maks = 5000): array
+    {
+        $hasil = [];
+        $ukuran = max(DataPermintaanTabel::UKURAN_HALAMAN);
+
+        for ($halaman = 1; ; $halaman++) {
+            $isi = $ambil(new DataPermintaanTabel($tabel->cari, $tabel->urut, $halaman, $ukuran, $tabel->saring));
+            array_push($hasil, ...$isi['Data']);
+
+            if ($halaman >= $isi['Meta']['JumlahHalaman'] || count($hasil) >= $maks) {
+                return array_slice($hasil, 0, $maks);
+            }
+        }
     }
 
     /** "01 Oktober 2026 - 04 Oktober 2026" untuk blok saringan kop laporan. */

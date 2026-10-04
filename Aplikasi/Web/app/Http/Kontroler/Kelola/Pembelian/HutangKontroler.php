@@ -6,6 +6,8 @@ namespace App\Http\Kontroler\Kelola\Pembelian;
 
 use App\Domain\Akuntansi\Kueri\DaftarAkunPilihan;
 use App\Domain\Bersama\Dokumen\Enum\StatusDokumenTerposting;
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Organisasi\Kueri\TanggalBisnisOutlet;
 use App\Domain\Pembelian\Aksi\BatalkanPembayaranHutang;
@@ -25,6 +27,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -44,6 +47,27 @@ final class HutangKontroler extends DasarPembelianKontroler
             'HariIni' => $hariIni->format('Y-m-d'),
             'Izin' => $this->AmbilIzinPembelian(),
         ]);
+    }
+
+    /** Ekspor umur hutang sesuai saringan & cari yang aktif di tabel (maks. 5.000 baris). */
+    public function EksporHutang(Request $permintaan, DaftarDokumenPembelian $daftar): SymfonyResponse
+    {
+        $tabel = DataPermintaanTabel::Dari($permintaan->query(), DaftarDokumenPembelian::KOLOM_URUT, DaftarDokumenPembelian::URUT_BAWAAN_HUTANG, DaftarDokumenPembelian::KOLOM_SARING);
+        $hariIni = app(TanggalBisnisOutlet::class)->Hitung(null);
+        $idOutlet = $this->IdOutletBoleh();
+        $baris = $this->AmbilSemuaBarisTabel($tabel, fn (DataPermintaanTabel $t): array => $daftar->Hutang($t, $idOutlet, $hariIni));
+        $kolom = [
+            new KolomLaporan('Nomor faktur', JenisKolom::Teks, 24), new KolomLaporan('Nomor faktur pemasok', JenisKolom::Teks, 24),
+            new KolomLaporan('Pemasok', JenisKolom::Teks, 28), new KolomLaporan('Tanggal', JenisKolom::Tanggal),
+            new KolomLaporan('Jatuh tempo', JenisKolom::Tanggal), new KolomLaporan('Hari lewat', JenisKolom::Bilangan),
+            new KolomLaporan('Umur', JenisKolom::Teks, 18), new KolomLaporan('Status', JenisKolom::Teks, 16),
+            new KolomLaporan('Total', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Sisa', JenisKolom::Uang, jumlahkan: true),
+        ];
+        $isi = array_map(fn (array $b): array => [
+            $b['Nomor'], $b['NomorFakturPemasok'] ?? '', $b['NamaPemasok'] ?? '', $b['Tanggal'], $b['JatuhTempo'], $b['HariLewat'], $b['LabelUmur'] ?? '', $b['LabelStatus'], $b['Total'], $b['Sisa'],
+        ], $baris);
+
+        return $this->SajikanLaporan($permintaan, 'Laporan Umur Hutang', 'umur-hutang', $kolom, $isi, [['Per tanggal', $hariIni->format('d/m/Y')]]);
     }
 
     public function Daftar(Request $permintaan, DaftarDokumenPembelian $daftar, DaftarPemasok $pemasok): Response|JsonResponse

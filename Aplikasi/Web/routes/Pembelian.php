@@ -68,6 +68,7 @@ Route::middleware([SiapkanAuditTenant::class, $izin(IzinTenant::PembelianKelola)
     Route::get('/faktur/{faktur}/lampiran', [FakturPembelianKontroler::class, 'Lampiran'])->where('faktur', $ulid)->name('kelola.pembelian.faktur.lampiran');
 
     Route::get('/hutang', [HutangKontroler::class, 'Hutang'])->name('kelola.pembelian.hutang.daftar');
+    Route::get('/hutang/ekspor', [HutangKontroler::class, 'EksporHutang'])->name('kelola.pembelian.hutang.ekspor');
     Route::get('/pembayaran', [HutangKontroler::class, 'Daftar'])->name('kelola.pembelian.pembayaran.daftar');
     Route::get('/pembayaran/buat', [HutangKontroler::class, 'Buat'])->name('kelola.pembelian.pembayaran.buat');
     Route::post('/pembayaran', [HutangKontroler::class, 'Simpan'])->name('kelola.pembelian.pembayaran.simpan');

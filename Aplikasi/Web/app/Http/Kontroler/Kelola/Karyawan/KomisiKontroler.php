@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Kontroler\Kelola\Karyawan;
 
+use App\Domain\Bersama\Laporan\JenisKolom;
+use App\Domain\Bersama\Laporan\KolomLaporan;
 use App\Domain\Bersama\Nilai\Uang;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
 use App\Domain\Karyawan\Aksi\SimpanAturanKomisi;
@@ -27,6 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Komisi (F-18, EMP-04): aturan komisi (`/kelola/karyawan/komisi`, tambah di halaman penuh `/buat`, ubah/arsip) dan laporan komisi per karyawan
@@ -86,6 +89,23 @@ final class KomisiKontroler extends DasarKelolaKontroler
         return ResponsTabel::Kirim($permintaan, 'Kelola/Karyawan/LaporanKomisi', 'Komisi', fn (): array => $laporan->Ambil($tabel, $this->IdOutletBoleh()), fn (): array => [
             'OpsiOutlet' => array_map(fn (array $o): array => ['Uuid' => $o['Uuid'], 'Nama' => $o['Nama']], $outlet->AmbilRingkas($this->IdOutletBoleh())),
         ]);
+    }
+
+    /** Ekspor laporan komisi per karyawan sesuai saringan & cari yang aktif di tabel. */
+    public function EksporLaporan(Request $permintaan, LaporanKomisi $laporan): SymfonyResponse
+    {
+        $tabel = DataPermintaanTabel::Dari($permintaan->query(), LaporanKomisi::KOLOM_URUT, LaporanKomisi::URUT_BAWAAN, LaporanKomisi::KOLOM_SARING);
+        $idOutlet = $this->IdOutletBoleh();
+        $baris = $this->AmbilSemuaBarisTabel($tabel, fn (DataPermintaanTabel $t): array => $laporan->Ambil($t, $idOutlet));
+        $kolom = [
+            new KolomLaporan('Karyawan', JenisKolom::Teks, 28), new KolomLaporan('Jabatan', JenisKolom::Teks, 20),
+            new KolomLaporan('Baris dilayani', JenisKolom::Bilangan, jumlahkan: true), new KolomLaporan('Dasar komisi', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Komisi kotor', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Dibatalkan', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Komisi bersih', JenisKolom::Uang, jumlahkan: true),
+        ];
+        $isi = array_map(fn (array $b): array => [$b['Nama'], $b['Jabatan'] ?? '', $b['JumlahBaris'], $b['TotalDasar'], $b['Kotor'], $b['Dibatalkan'], $b['Bersih']], $baris);
+
+        return $this->SajikanLaporan($permintaan, 'Laporan Komisi', 'laporan-komisi', $kolom, $isi);
     }
 
     private function AmbilData(Request $permintaan): DataAturanKomisi

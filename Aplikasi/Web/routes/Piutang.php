@@ -18,6 +18,7 @@ $ulid = '[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}';
 
 Route::middleware([SiapkanAuditTenant::class, $izin(IzinTenant::PelangganLihat)])->prefix('piutang')->group(function () use ($izin, $ulid): void {
     Route::get('/', [PiutangKontroler::class, 'Piutang'])->name('kelola.piutang.daftar');
+    Route::get('/ekspor', [PiutangKontroler::class, 'EksporPiutang'])->name('kelola.piutang.ekspor');
     Route::get('/pelunasan', [PiutangKontroler::class, 'Daftar'])->name('kelola.piutang.pelunasan.daftar');
     // v3.37: nota tagihan pelanggan (cetak/PDF semua piutang terbuka satu pelanggan).
     Route::get('/tagihan/{pelanggan}', [PiutangKontroler::class, 'NotaTagihan'])->where('pelanggan', $ulid)->name('kelola.piutang.tagihan');
