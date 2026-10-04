@@ -33,6 +33,9 @@ Route::middleware([SiapkanAuditTenant::class, $izin(IzinTenant::PelangganLihat)]
         Route::get('/buat', [PromoKontroler::class, 'Buat'])->name('kelola.promo.buat');
         Route::post('/', [PromoKontroler::class, 'Simpan'])->name('kelola.promo.simpan');
         Route::put('/pengaturan', [PromoKontroler::class, 'SimpanPengaturan'])->name('kelola.promo.pengaturan');
+        Route::post('/massal', [PromoKontroler::class, 'Massal'])->name('kelola.promo.massal');
+        Route::post('/{promo}/voucher/massal', [VoucherKontroler::class, 'Massal'])->where('promo', $ulid)->name('kelola.promo.voucher.massal');
+        Route::post('/{promo}/voucher/nonaktifkan-kedaluwarsa', [VoucherKontroler::class, 'NonaktifkanKedaluwarsa'])->where('promo', $ulid)->name('kelola.promo.voucher.nonaktifkan-kedaluwarsa');
         Route::get('/{promo}/ubah', [PromoKontroler::class, 'Ubah'])->where('promo', $ulid)->name('kelola.promo.ubah');
         Route::put('/{promo}', [PromoKontroler::class, 'Perbarui'])->where('promo', $ulid)->name('kelola.promo.perbarui');
         Route::post('/{promo}/arsipkan', [PromoKontroler::class, 'Arsipkan'])->where('promo', $ulid)->name('kelola.promo.arsipkan');

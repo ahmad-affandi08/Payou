@@ -261,3 +261,54 @@ describe('F-16c bagian 2 back-office voucher', function (): void {
         $this->get("/kelola/promo/{$k['Promo']->Uuid}/voucher/ekspor")->assertForbidden();
     });
 });
+
+describe('F-16c aksi massal promo & voucher', function (): void {
+    it('promo massal: arsipkan lalu aktifkan kembali, yang sudah berstatus itu dilewati; Uuid asing menolak semuanya', function (): void {
+        $k = SiapkanVoucher($this);
+        $lain = Promo::query()->create(['Kode' => 'PRM-2', 'Nama' => 'Promo kedua', 'Definisi' => ['Aksi' => ['Jenis' => 'DiskonTetapPesanan', 'Jumlah' => '5000']]]);
+        $lain->forceFill(['Status' => StatusPromo::Diarsipkan])->save();
+        BantuanOrganisasi::Masuk($this, $k['Pemilik'], $k['Tenant']->Id);
+        $uuid = [$k['Promo']->Uuid, $lain->Uuid];
+
+        $this->post('/kelola/promo/massal', ['Aksi' => 'Arsipkan', 'Uuid' => $uuid])
+            ->assertSessionHasNoErrors()->assertSessionHas('Kilat', '1 promo diarsipkan. 1 dilewati karena sudah berstatus itu.');
+        $this->post('/kelola/promo/massal', ['Aksi' => 'Pulihkan', 'Uuid' => $uuid])
+            ->assertSessionHas('Kilat', '2 promo diaktifkan kembali.');
+        expect($k['Promo']->refresh()->Status)->toBe(StatusPromo::Aktif)->and($lain->refresh()->Status)->toBe(StatusPromo::Aktif)
+            ->and(LogAudit::query()->where('Peristiwa', 'promo.arsipkan')->count())->toBe(1)
+            ->and(LogAudit::query()->where('Peristiwa', 'promo.pulihkan')->count())->toBe(2);
+
+        $this->post('/kelola/promo/massal', ['Aksi' => 'Arsipkan', 'Uuid' => [$k['Promo']->Uuid, '01J9ZZZZZZZZZZZZZZZZZZZZZZ']])->assertSessionHasErrors('Uuid');
+        $this->post('/kelola/promo/massal', ['Aksi' => 'Hapus', 'Uuid' => $uuid])->assertSessionHasErrors('Aksi');
+        expect($k['Promo']->refresh()->Status)->toBe(StatusPromo::Aktif);
+    });
+
+    it('voucher massal: nonaktifkan/aktifkan terpilih, nonaktifkan yang kedaluwarsa, voucher promo lain ditolak, kasir ditolak', function (): void {
+        $k = SiapkanVoucher($this, null);
+        $lamaKedaluwarsa = Voucher::query()->create(['IdPromo' => $k['Promo']->Id, 'Kode' => 'LAMA01', 'KedaluwarsaPada' => now()->subDay()]);
+        $masihBerlaku = Voucher::query()->create(['IdPromo' => $k['Promo']->Id, 'Kode' => 'BARU01', 'KedaluwarsaPada' => now()->addDays(10)]);
+        $promoLain = Promo::query()->create(['Kode' => 'PRM-3', 'Nama' => 'Promo ketiga', 'Definisi' => ['WajibVoucher' => true, 'Aksi' => ['Jenis' => 'DiskonTetapPesanan', 'Jumlah' => '5000']]]);
+        $asing = Voucher::query()->create(['IdPromo' => $promoLain->Id, 'Kode' => 'LAIN01']);
+        BantuanOrganisasi::Masuk($this, $k['Pemilik'], $k['Tenant']->Id);
+        $alamat = "/kelola/promo/{$k['Promo']->Uuid}/voucher";
+
+        $this->post("{$alamat}/massal", ['Aksi' => 'Nonaktifkan', 'Uuid' => [$k['Voucher']->Uuid, $masihBerlaku->Uuid]])
+            ->assertSessionHasNoErrors()->assertSessionHas('Kilat', '2 voucher dinonaktifkan.');
+        $this->post("{$alamat}/massal", ['Aksi' => 'Aktifkan', 'Uuid' => [$k['Voucher']->Uuid, $lamaKedaluwarsa->Uuid]])
+            ->assertSessionHas('Kilat', '1 voucher diaktifkan. 1 dilewati karena sudah berstatus itu.');
+        expect($k['Voucher']->refresh()->Status)->toBe(StatusVoucher::Aktif)->and($masihBerlaku->refresh()->Status)->toBe(StatusVoucher::Nonaktif);
+
+        // Hanya voucher aktif yang lewat tanggalnya sendiri; yang tanpa tanggal atau masih berlaku tidak disentuh.
+        $this->post("{$alamat}/nonaktifkan-kedaluwarsa")->assertSessionHas('Kilat', '1 voucher kedaluwarsa dinonaktifkan.');
+        expect($lamaKedaluwarsa->refresh()->Status)->toBe(StatusVoucher::Nonaktif)->and($k['Voucher']->refresh()->Status)->toBe(StatusVoucher::Aktif);
+        $this->post("{$alamat}/nonaktifkan-kedaluwarsa")->assertSessionHas('Kilat', 'Tidak ada voucher aktif yang sudah kedaluwarsa.');
+
+        // Voucher milik promo lain tidak bisa diubah lewat promo ini.
+        $this->post("{$alamat}/massal", ['Aksi' => 'Nonaktifkan', 'Uuid' => [$k['Voucher']->Uuid, $asing->Uuid]])->assertSessionHasErrors('Uuid');
+        expect($asing->refresh()->Status)->toBe(StatusVoucher::Aktif)->and($k['Voucher']->refresh()->Status)->toBe(StatusVoucher::Aktif);
+
+        BantuanOrganisasi::Masuk($this, $k['Kasir'], $k['Tenant']->Id);
+        $this->post("{$alamat}/massal", ['Aksi' => 'Nonaktifkan', 'Uuid' => [$k['Voucher']->Uuid]])->assertForbidden();
+        $this->post('/kelola/promo/massal', ['Aksi' => 'Arsipkan', 'Uuid' => [$k['Promo']->Uuid]])->assertForbidden();
+    });
+});

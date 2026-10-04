@@ -10,6 +10,7 @@ use App\Domain\Organisasi\Enum\IzinTenant;
 use App\Domain\Organisasi\Kueri\AksesPengguna;
 use App\Domain\Promo\Aksi\BuatVoucher;
 use App\Domain\Promo\Aksi\UbahStatusVoucher;
+use App\Domain\Promo\Aksi\UbahVoucherMassal;
 use App\Domain\Promo\Enum\StatusVoucher;
 use App\Domain\Promo\Kueri\DaftarPromo;
 use App\Domain\Promo\Kueri\DaftarVoucher;
@@ -22,6 +23,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -82,6 +84,31 @@ final class VoucherKontroler extends DasarKelolaKontroler
         $hasil = $ubah->Jalankan($this->CariVoucher($voucher), StatusVoucher::Nonaktif, $this->Pelaku()->Id);
 
         return back()->with('Kilat', "Voucher {$hasil->Kode} dinonaktifkan.");
+    }
+
+    /** Aksi massal voucher terpilih satu promo: nonaktifkan atau aktifkan. */
+    public function Massal(Request $permintaan, string $promo, UbahVoucherMassal $ubah): RedirectResponse
+    {
+        $valid = $permintaan->validate([
+            'Aksi' => ['required', 'string', Rule::in(UbahVoucherMassal::AKSI)],
+            'Uuid' => ['required', 'array', 'min:1', 'max:'.UbahVoucherMassal::MAKS],
+            'Uuid.*' => ['required', 'ulid'],
+        ], attributes: ['Uuid' => 'voucher terpilih']);
+        /** @var list<string> $uuid */
+        $uuid = array_values($valid['Uuid']);
+        $hasil = $ubah->Jalankan($this->CariPromo($promo), $valid['Aksi'], $uuid, $this->Pelaku()->Id);
+        $kata = $valid['Aksi'] === 'Nonaktifkan' ? 'dinonaktifkan' : 'diaktifkan';
+        $lewat = $hasil['Dilewati'] > 0 ? " {$hasil['Dilewati']} dilewati karena sudah berstatus itu." : '';
+
+        return back()->with('Kilat', "{$hasil['Diubah']} voucher {$kata}.{$lewat}");
+    }
+
+    /** Nonaktifkan semua voucher aktif promo ini yang sudah lewat tanggal kedaluwarsanya. */
+    public function NonaktifkanKedaluwarsa(string $promo, UbahVoucherMassal $ubah): RedirectResponse
+    {
+        $hasil = $ubah->NonaktifkanKedaluwarsa($this->CariPromo($promo), $this->Pelaku()->Id);
+
+        return back()->with('Kilat', $hasil['Diubah'] === 0 ? 'Tidak ada voucher aktif yang sudah kedaluwarsa.' : "{$hasil['Diubah']} voucher kedaluwarsa dinonaktifkan.");
     }
 
     public function Aktifkan(string $voucher, UbahStatusVoucher $ubah): RedirectResponse

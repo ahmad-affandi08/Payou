@@ -22,6 +22,7 @@ use App\Domain\Penjualan\Enum\PeriodeBatasPelangganPromo;
 use App\Domain\Penjualan\Kueri\DaftarMetodePembayaran;
 use App\Domain\Promo\Aksi\SimpanPengaturanPromo;
 use App\Domain\Promo\Aksi\SimpanPromo;
+use App\Domain\Promo\Aksi\UbahPromoMassal;
 use App\Domain\Promo\Aksi\UbahStatusPromo;
 use App\Domain\Promo\Data\DataPromo;
 use App\Domain\Promo\Enum\StatusPromo;
@@ -107,6 +108,23 @@ final class PromoKontroler extends DasarKelolaKontroler
         $hasil = $simpan->Jalankan($this->AmbilData($permintaan, false), $this->CariPromo($promo));
 
         return to_route('kelola.promo.daftar')->with('Kilat', "Promo {$hasil->Nama} disimpan.");
+    }
+
+    /** Aksi massal promo terpilih: arsipkan atau aktifkan kembali. */
+    public function Massal(Request $permintaan, UbahPromoMassal $ubah): RedirectResponse
+    {
+        $valid = $permintaan->validate([
+            'Aksi' => ['required', 'string', Rule::in(UbahPromoMassal::AKSI)],
+            'Uuid' => ['required', 'array', 'min:1', 'max:'.UbahPromoMassal::MAKS],
+            'Uuid.*' => ['required', 'ulid'],
+        ], attributes: ['Uuid' => 'promo terpilih']);
+        /** @var list<string> $uuid */
+        $uuid = array_values($valid['Uuid']);
+        $hasil = $ubah->Jalankan($valid['Aksi'], $uuid, $this->Pelaku()->Id);
+        $kata = $valid['Aksi'] === 'Arsipkan' ? 'diarsipkan' : 'diaktifkan kembali';
+        $lewat = $hasil['Dilewati'] > 0 ? " {$hasil['Dilewati']} dilewati karena sudah berstatus itu." : '';
+
+        return back()->with('Kilat', "{$hasil['Diubah']} promo {$kata}.{$lewat}");
     }
 
     public function Arsipkan(string $promo, UbahStatusPromo $ubah): RedirectResponse

@@ -6,7 +6,8 @@ import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
 import BidangJumlah from '@/Komponen/Katalog/BidangJumlah';
 import PesanHanyaLihat from '@/Komponen/Katalog/PesanHanyaLihat';
-import TabelData from '@/Komponen/TabelData/TabelData';
+import AksiMassalSederhana from '@/Komponen/TabelData/AksiMassalSederhana';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { DefinisiSaring, KolomTabel } from '@/Komponen/TabelData/Tipe';
 import PemilihTanggal from '@/Komponen/Tanggal/PemilihTanggal';
 import DialogFormulir from '@/Komponen/Tindakan/DialogFormulir';
@@ -177,6 +178,12 @@ export default function HalamanVoucherPromo({ Promo, Voucher, Ringkasan, JumlahM
 
             {bisaTambah ? (
                 <AksiHalaman>
+                    <Button
+                        variant="outline"
+                        onClick={() => router.post(`${alamat}/nonaktifkan-kedaluwarsa`, {}, { preserveScroll: true })}
+                    >
+                        Nonaktifkan yang kedaluwarsa
+                    </Button>
                     <Button onClick={() => AturIsian(isianAwal)}>Tambah voucher</Button>
                 </AksiHalaman>
             ) : null}
@@ -194,6 +201,19 @@ export default function HalamanVoucherPromo({ Promo, Voucher, Ringkasan, JumlahM
                 {...(Izin.Kelola
                     ? {
                           ekspor: { alamat: `${alamat}/ekspor`, label: 'Ekspor CSV' },
+                          aksiMassal: (konteks: KonteksAksiMassal<BarisVoucher>) => (
+                              <AksiMassalSederhana
+                                  konteks={konteks}
+                                  alamat={`${alamat}/massal`}
+                                  ambilUuid={(v) => v.Uuid}
+                                  tombol={[
+                                      { aksi: 'Aktifkan', label: 'Aktifkan' },
+                                      { aksi: 'Nonaktifkan', label: 'Nonaktifkan', varian: 'bahaya' },
+                                  ]}
+                                  maksimal={1000}
+                                  objek="voucher"
+                              />
+                          ),
                           aksiBaris: (v: BarisVoucher) => (
                               <ItemAksiBaris
                                   aksi={[

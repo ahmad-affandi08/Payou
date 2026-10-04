@@ -4,7 +4,8 @@ import { useState } from 'react';
 import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
 import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
 import PesanHanyaLihat from '@/Komponen/Katalog/PesanHanyaLihat';
-import TabelData from '@/Komponen/TabelData/TabelData';
+import AksiMassalSederhana from '@/Komponen/TabelData/AksiMassalSederhana';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { KolomTabel } from '@/Komponen/TabelData/Tipe';
 import { ItemAksiBaris } from '@/Komponen/Tindakan/MenuAksiBaris';
 import { Button } from '@/Komponen/Ui/button';
@@ -161,6 +162,19 @@ export default function HalamanDaftarPromo({ Promo, ModeResolusi, FiturAktif, Iz
                 alamatDetail={(p) => `${alamat}/${p.Uuid}/efektivitas`}
                 {...(Izin.Kelola
                     ? {
+                          aksiMassal: (konteks: KonteksAksiMassal<BarisPromo>) => (
+                              <AksiMassalSederhana
+                                  konteks={konteks}
+                                  alamat={`${alamat}/massal`}
+                                  ambilUuid={(p) => p.Uuid}
+                                  tombol={[
+                                      { aksi: 'Pulihkan', label: 'Aktifkan' },
+                                      { aksi: 'Arsipkan', label: 'Arsipkan', varian: 'bahaya' },
+                                  ]}
+                                  maksimal={200}
+                                  objek="promo"
+                              />
+                          ),
                           aksiBaris: (p: BarisPromo) => (
                               <ItemAksiBaris
                                   aksi={[
