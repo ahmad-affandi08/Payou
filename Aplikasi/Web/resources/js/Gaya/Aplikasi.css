@@ -265,6 +265,17 @@
     }
 
     /*
+     * Kisi (`grid`) tanpa `grid-cols-*` bawaannya satu kolom `auto`, dan kolom `auto` melebar sampai selebar isi
+     * terpanjang anaknya (min-content): satu pilihan berteks panjang atau satu bidang berlebar tetap cukup untuk
+     * membuat seluruh kisi, lalu halaman, keluar dari layar di HP (kasus nyata: form Stok awal, 360px). Dengan
+     * `minmax(0, 1fr)` kolom tunggal itu selalu paling lebar sama dengan induknya dan isinya memotong/membungkus.
+     * Di layer base, jadi `grid-cols-*` (juga yang berawalan `sm:`/`lg:`) tetap menang. Dijaga `KisiTanpaLuapanTes`.
+     */
+    .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    /*
      * Semua yang bisa diklik memakai kursor tangan (Tailwind 4 menghapus bawaan cursor: pointer pada <button>).
      * Di layer base, jadi utilitas (cursor-text, cursor-col-resize, disabled:cursor-not-allowed) tetap menang.
      * Kontrol nonaktif tidak ikut: mereka memakai kursor bawaan/not-allowed.

@@ -72,7 +72,7 @@ export default function Cetak(props: PropsCetak) {
                 </dl>
             </section>
 
-            <p className="text-right text-[0.75rem] text-teks-sekunder italic">
+            <p className="text-right text-keterangan text-teks-sekunder italic">
                 Dibuat {props.DibuatPada}
                 {props.DataTerakhir ? ` | Data terakhir diperbarui ${props.DataTerakhir}` : ''}
             </p>
@@ -85,7 +85,7 @@ export default function Cetak(props: PropsCetak) {
             ) : null}
 
             <div className="overflow-x-auto print:overflow-visible">
-                <table className="w-full border-collapse text-[0.75rem]">
+                <table className="w-full border-collapse text-keterangan">
                     <thead className="table-header-group">
                         <tr className="bg-brand-gelap text-permukaan">
                             {props.Kolom.map((k) => (
@@ -134,7 +134,7 @@ export default function Cetak(props: PropsCetak) {
                 </table>
             </div>
 
-            <footer className="mt-2 text-right text-[0.75rem] text-teks-sekunder">
+            <footer className="mt-2 text-right text-keterangan text-teks-sekunder">
                 Dibuat dengan <span className="font-bold text-brand-gelap">PAYOU</span> | payou.id
             </footer>
         </main>
