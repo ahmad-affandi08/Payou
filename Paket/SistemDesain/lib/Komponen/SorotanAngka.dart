@@ -26,7 +26,7 @@ class SorotanAngka extends StatelessWidget {
   final Widget nilai;
   final IconData? ikon;
 
-  /// Satu atau dua baris kecil di bawah angka (misal "87 transaksi · rata-rata Rp 48.700").
+  /// Satu atau dua baris kecil di bawah angka (misal "87 transaksi | rata-rata Rp 48.700").
   final String? keterangan;
   final NadaStatus nada;
 

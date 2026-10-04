@@ -74,8 +74,8 @@ const kolom: KolomTabel<Perangkat>[] = [
                 <span className="text-teks-utama">{baris.Nama}</span>
                 <span className="block text-keterangan text-teks-sekunder">
                     {baris.LabelJenis}
-                    {baris.Platform ? ` · ${baris.Platform}` : ''}
-                    {baris.VersiAplikasi ? ` · versi ${baris.VersiAplikasi}` : ''}
+                    {baris.Platform ? ` | ${baris.Platform}` : ''}
+                    {baris.VersiAplikasi ? ` | versi ${baris.VersiAplikasi}` : ''}
                 </span>
                 {baris.PerangkatKeras ? (
                     <span className="block text-keterangan text-teks-sekunder">{baris.PerangkatKeras}</span>

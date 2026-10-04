@@ -29,7 +29,7 @@ export default function HalamanQrMeja({ Outlet, NamaUsaha, PesanSendiriAktif, Me
                     >
                         Kembali ke outlet {Outlet.Nama}
                     </Link>
-                    <JudulHalaman>QR pesan sendiri · {Outlet.Nama}</JudulHalaman>
+                    <JudulHalaman>QR pesan sendiri | {Outlet.Nama}</JudulHalaman>
                 </div>
                 <Button onClick={() => window.print()} disabled={Meja.length === 0}>
                     Cetak atau simpan PDF

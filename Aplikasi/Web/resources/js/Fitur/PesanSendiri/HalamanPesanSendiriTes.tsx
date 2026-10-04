@@ -174,7 +174,7 @@ describe('Halaman publik pesan sendiri QR meja (F-17)', () => {
 
         fireEvent.click(screen.getByLabelText('Sedikit gula'));
         fireEvent.click(screen.getByRole('button', { name: 'Tambah ke keranjang' }));
-        expect(screen.getByRole('button', { name: /Lihat keranjang · 1 item/ })).toBeTruthy();
+        expect(screen.getByRole('button', { name: /Lihat keranjang \| 1 item/ })).toBeTruthy();
     });
 
     it('keranjang: subtotal dari server, kirim pesanan dengan Uuid ULID, lalu status menunggu konfirmasi', async () => {
@@ -194,7 +194,7 @@ describe('Halaman publik pesan sendiri QR meja (F-17)', () => {
             1,
         );
 
-        fireEvent.click(screen.getByRole('button', { name: /Lihat keranjang · 2 item/ }));
+        fireEvent.click(screen.getByRole('button', { name: /Lihat keranjang \| 2 item/ }));
         fireEvent.change(screen.getByLabelText('Nama pemesan (opsional)'), { target: { value: 'Bu Ratna' } });
         await act(async () => {
             fireEvent.click(screen.getByRole('button', { name: 'Kirim pesanan' }));
@@ -258,7 +258,7 @@ describe('Halaman publik pesan sendiri QR meja (F-17)', () => {
         );
         await waitFor(() => expect(screen.getByText('Rp 80.850')).toBeTruthy());
 
-        fireEvent.click(screen.getByRole('button', { name: /Lihat keranjang · 1 item/ }));
+        fireEvent.click(screen.getByRole('button', { name: /Lihat keranjang \| 1 item/ }));
         expect(screen.getByText('Es Teh Manis Melati — Jumbo')).toBeTruthy();
         expect(screen.getByText('Biaya layanan')).toBeTruthy();
         expect(screen.getByText('PBJT Makanan & Minuman 10%')).toBeTruthy();

@@ -55,7 +55,7 @@ export function FormatWaktuReservasi(mulai: string, selesai: string): string {
     });
     const FormatJam = (d: Date) => d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-    return `${tanggal} · ${FormatJam(m)}–${FormatJam(s)}`;
+    return `${tanggal} | ${FormatJam(m)}–${FormatJam(s)}`;
 }
 
 const kolom: KolomTabel<BarisReservasi>[] = [
@@ -129,7 +129,7 @@ function OpsiLayanan(layanan: LayananReservasi[]) {
     return layanan.map((l) => ({
         Nilai: l.Uuid,
         Label: l.Nama,
-        Keterangan: `${String(l.DurasiMenit)} menit${l.Harga ? ` · ${FormatRupiah(l.Harga)}` : ''}`,
+        Keterangan: `${String(l.DurasiMenit)} menit${l.Harga ? ` | ${FormatRupiah(l.Harga)}` : ''}`,
     }));
 }
 
@@ -264,7 +264,7 @@ function DialogJadwalUlang({
     return (
         <DialogFormulir
             judul={`Pindah jadwal ${reservasi.Nomor}`}
-            keterangan={`${reservasi.NamaPelanggan} · ${reservasi.Layanan}`}
+            keterangan={`${reservasi.NamaPelanggan} | ${reservasi.Layanan}`}
             saatTutup={saatTutup}
             galatUmum={(formulir.errors as Record<string, string | undefined>).Umum}
         >
@@ -329,7 +329,7 @@ function DialogBatal({ reservasi, saatTutup }: { reservasi: BarisReservasi; saat
     return (
         <DialogFormulir
             judul={`Batalkan ${reservasi.Nomor}?`}
-            keterangan={`${reservasi.NamaPelanggan} · ${reservasi.Layanan}. Jam ini kembali tersedia untuk pelanggan lain.`}
+            keterangan={`${reservasi.NamaPelanggan} | ${reservasi.Layanan}. Jam ini kembali tersedia untuk pelanggan lain.`}
             jenis="konfirmasi"
             saatTutup={saatTutup}
             galatUmum={(formulir.errors as Record<string, string | undefined>).Umum}

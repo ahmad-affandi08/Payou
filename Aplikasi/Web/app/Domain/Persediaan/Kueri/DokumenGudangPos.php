@@ -178,6 +178,6 @@ final class DokumenGudangPos
             return '';
         }
 
-        return $gudang->namaOutlet === null || $gudang->namaOutlet === '' ? $gudang->nama : "{$gudang->namaOutlet} · {$gudang->nama}";
+        return $gudang->namaOutlet === null || $gudang->namaOutlet === '' ? $gudang->nama : "{$gudang->namaOutlet} | {$gudang->nama}";
     }
 }

@@ -242,7 +242,7 @@ class _LembarPesananSalesmanState extends ConsumerState<LembarPesananSalesman> {
               if (pelanggan.namaTier != null) 'Tier ${pelanggan.namaTier}',
               if (berjalan?.UuidPelanggan == pelanggan.uuid) 'Bagian dari kunjungan yang sedang berjalan',
               'Pesanan masuk sebagai draf dan dikonfirmasi kantor',
-            ].join(' · '),
+            ].join(' | '),
             style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
           ),
           const SizedBox(height: TokenJarak.jarak16),
@@ -279,7 +279,7 @@ class _LembarPesananSalesmanState extends ConsumerState<LembarPesananSalesman> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(p.nama, maxLines: 2, overflow: TextOverflow.ellipsis),
                 subtitle: Text(
-                  [if (p.sku != null) p.sku!, _TeksStok(stok, p) ?? 'Stok kantor belum diketahui'].join(' · '),
+                  [if (p.sku != null) p.sku!, _TeksStok(stok, p) ?? 'Stok kantor belum diketahui'].join(' | '),
                   style: teks.bodySmall,
                 ),
                 trailing: const Icon(Icons.add),
@@ -462,7 +462,7 @@ class _BarisPesanan extends StatelessWidget {
             [
               harga == null ? 'Harga belum ada di perangkat' : '≈ ${harga!.FormatRupiah()} / ${b.satuan.nama}',
               teksStok ?? 'Stok kantor belum diketahui',
-            ].join(' · '),
+            ].join(' | '),
             style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
           ),
         ],

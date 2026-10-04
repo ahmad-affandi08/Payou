@@ -58,7 +58,7 @@ final class DaftarKelompokPilihan
     }
 
     /**
-     * Ringkasan singkat kelompok, misal "Wajib pilih 1 · 3 pilihan" atau "Opsional, maks. 2 · 4 pilihan".
+     * Ringkasan singkat kelompok, misal "Wajib pilih 1 | 3 pilihan" atau "Opsional, maks. 2 | 4 pilihan".
      */
     public static function BuatRingkasan(KelompokPilihan $kelompok, int $jumlahPilihan): string
     {
@@ -68,6 +68,6 @@ final class DaftarKelompokPilihan
             default => "Opsional, maks. {$kelompok->MaksimalPilih}",
         };
 
-        return "{$batas} · {$jumlahPilihan} pilihan";
+        return "{$batas} | {$jumlahPilihan} pilihan";
     }
 }

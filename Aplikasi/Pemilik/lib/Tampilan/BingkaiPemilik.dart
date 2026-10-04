@@ -13,8 +13,8 @@ import 'LayarPerangkat.dart';
 import 'LayarPersetujuan.dart';
 import 'LayarShift.dart';
 
-/// Bingkai Aplikasi Owner: bilah atas (nama usaha, ganti usaha, keluar) dan navigasi bawah Beranda · Laporan ·
-/// Persetujuan (lencana jumlah menunggu) · Shift · Perangkat (mode kepadatan Nyaman, §17.6), dengan pusat
+/// Bingkai Aplikasi Owner: bilah atas (nama usaha, ganti usaha, keluar) dan navigasi bawah Beranda | Laporan |
+/// Persetujuan (lencana jumlah menunggu) | Shift | Perangkat (mode kepadatan Nyaman, §17.6), dengan pusat
 /// notifikasi dari ikon lonceng di bilah atas.
 class BingkaiPemilik extends ConsumerStatefulWidget {
   const BingkaiPemilik({super.key});

@@ -223,7 +223,7 @@ class _LembarPerintahKerjaState extends ConsumerState<LembarPerintahKerja> {
                       '${FormatAngka.FormatJumlah(jumlah)} × ${harga.FormatRupiah()}',
                       if (!diskon.BernilaiNol()) 'diskon ${diskon.FormatRupiah()}',
                       if (b.CekJasa) b.namaKaryawan == null ? 'tanpa mekanik' : 'Mekanik: ${b.namaKaryawan}',
-                    ].join(' · '),
+                    ].join(' | '),
                     style: teks.bodySmall,
                   ),
                 ],
@@ -275,7 +275,7 @@ class _LembarPerintahKerjaState extends ConsumerState<LembarPerintahKerja> {
             ?pk.labelKendaraan,
             pk.namaPelanggan ?? 'Pelanggan umum',
             if (pk.kmMasuk != null) 'KM ${pk.kmMasuk}',
-          ].join(' · '),
+          ].join(' | '),
           style: teks.bodyMedium,
         ),
         if (pk.keluhan case final String keluhan when keluhan.isNotEmpty)
@@ -357,7 +357,7 @@ class _BarisPerintahKerja extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    [?pk.namaPelanggan, pk.labelStatus, '${pk.baris.length} baris'].join(' · '),
+                    [?pk.namaPelanggan, pk.labelStatus, '${pk.baris.length} baris'].join(' | '),
                     style: teks.bodySmall,
                   ),
                 ],

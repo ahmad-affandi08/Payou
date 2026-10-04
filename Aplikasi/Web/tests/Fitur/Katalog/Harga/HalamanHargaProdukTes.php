@@ -43,7 +43,7 @@ describe('F-03 halaman harga produk (E.6)', function (): void {
                 ->where('Satuan.0.HargaDasar', [['JumlahMinimum' => '1.0000', 'Harga' => '5000.00']])
                 ->where('Satuan.1.HargaDasar', [])
                 ->where('DaftarHarga.0.Uuid', $this->daftar->Uuid)
-                ->where('DaftarHarga.0.Ringkasan', 'Semua outlet · Semua kanal · Prioritas 10')
+                ->where('DaftarHarga.0.Ringkasan', 'Semua outlet | Semua kanal | Prioritas 10')
                 ->where('DaftarHarga.0.Harga', [['JumlahMinimum' => '12.0000', 'Harga' => '4000.00', 'UuidProdukSatuan' => $this->pcs->Uuid]])
                 ->has('Riwayat.Data', 0)
                 ->where('LabelHargaTermasukPajak', 'Ikut outlet: harga belum termasuk pajak')

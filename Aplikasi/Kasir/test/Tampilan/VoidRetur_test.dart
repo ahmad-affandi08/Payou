@@ -131,7 +131,7 @@ void main() {
       await tester.ensureVisible(find.text('Void', skipOffstage: false));
       await Tunggu(tester);
       expect(find.text('Void'), findsOneWidget, reason: 'Status dokumen berteks di riwayat.');
-      expect(find.textContaining('0 transaksi · Rp 0 · 1 void'), findsOneWidget);
+      expect(find.textContaining('0 transaksi | Rp 0 | 1 void'), findsOneWidget);
       await Ketuk(tester, find.text(nomor));
       expect(find.widgetWithText(OutlinedButton, 'Batalkan transaksi'), findsNothing, reason: 'Sudah di-void.');
 
@@ -161,7 +161,7 @@ void main() {
       await tester.testTextInput.receiveAction(TextInputAction.search);
       await Tunggu(tester);
       expect(find.text('Kopi Susu Literan 1 L'), findsOneWidget);
-      expect(find.text('Terjual 2,5 kg · bisa diretur 2,5 kg'), findsOneWidget);
+      expect(find.text('Terjual 2,5 kg | bisa diretur 2,5 kg'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
       await tester.ensureVisible(find.byKey(const ValueKey('JumlahRetur-${UuidStruk.kopiLiter}')));

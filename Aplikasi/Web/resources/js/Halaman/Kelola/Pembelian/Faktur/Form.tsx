@@ -230,7 +230,7 @@ export default function HalamanFormFaktur({
                             {Penerimaan.map((p) => (
                                 <li key={p.Uuid} className="flex flex-col gap-3 rounded-panel border border-garis p-3">
                                     <KotakCentang
-                                        label={`${p.Nomor} · ${FormatTanggal(p.Tanggal)}${p.NamaOutlet ? ` · ${p.NamaOutlet}` : ''}`}
+                                        label={`${p.Nomor} | ${FormatTanggal(p.Tanggal)}${p.NamaOutlet ? ` | ${p.NamaOutlet}` : ''}`}
                                         nilai={terpilih.includes(p.Uuid)}
                                         saatBerubah={(ya) =>
                                             AturTerpilih((lama) =>

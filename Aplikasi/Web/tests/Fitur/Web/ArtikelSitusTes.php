@@ -161,7 +161,7 @@ describe('blog publik', function (): void {
         $html = $respons->getContent();
         expect($html)->toContain('<meta property="og:type" content="article">')
             ->toContain('"@type":"BlogPosting"')
-            ->toContain('<title inertia>Tips kasir kafe · PAYOU</title>');
+            ->toContain('<title inertia>Tips kasir kafe | PAYOU</title>');
     });
 
     it('peta situs memuat /blog dan artikel terbit saja', function (): void {

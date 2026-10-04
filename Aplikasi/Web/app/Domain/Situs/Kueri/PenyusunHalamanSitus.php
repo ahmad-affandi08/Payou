@@ -139,7 +139,7 @@ final class PenyusunHalamanSitus
             'Judul' => $judul,
             'Bagian' => $hasil,
             'Seo' => [
-                'Judul' => $judulSeo !== null && $judulSeo !== '' ? $judulSeo : ($slug === HalamanSitus::SLUG_BERANDA ? $p['JudulSeo'] : $judul.' · '.$p['NamaSitus']),
+                'Judul' => $judulSeo !== null && $judulSeo !== '' ? $judulSeo : ($slug === HalamanSitus::SLUG_BERANDA ? $p['JudulSeo'] : $judul.' | '.$p['NamaSitus']),
                 'Deskripsi' => $deskripsiSeo !== null && $deskripsiSeo !== '' ? $deskripsiSeo : $p['DeskripsiSeo'],
                 'KataKunci' => $p['KataKunci'],
                 'Gambar' => $og !== null ? ($gambar[$og]['UrlAbsolut'] ?? null) : null,

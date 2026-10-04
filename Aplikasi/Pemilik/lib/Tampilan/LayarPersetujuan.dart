@@ -143,7 +143,7 @@ class _KartuPersetujuanState extends ConsumerState<_KartuPersetujuan> {
                 p.namaPerangkat,
                 p.namaPemohon,
                 if (p.dibuatPada != null) FormatTampilan.TanggalJam(p.dibuatPada!.toLocal()),
-              ].where((t) => t.isNotEmpty).join(' · '),
+              ].where((t) => t.isNotEmpty).join(' | '),
               style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
             ),
             if (p.kedaluwarsaPada != null)

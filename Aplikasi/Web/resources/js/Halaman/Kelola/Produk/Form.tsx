@@ -532,7 +532,7 @@ export default function HalamanFormProduk({
                                 kosong="Pilih lokasi stok"
                                 opsi={lokasiStok.map((l) => ({
                                     Nilai: l.Uuid,
-                                    Label: l.NamaOutlet ? `${l.NamaOutlet} · ${l.Nama}` : l.Nama,
+                                    Label: l.NamaOutlet ? `${l.NamaOutlet} | ${l.Nama}` : l.Nama,
                                 }))}
                                 saatBerubah={(nilai) => AturStokAwal({ UuidGudang: nilai })}
                                 galat={galat['StokAwal.UuidGudang']}
@@ -851,7 +851,7 @@ export default function HalamanFormProduk({
                     kosong="Pilih kelompok pajak"
                     opsi={KelompokPajak.map((item) => ({
                         Nilai: item.Uuid,
-                        Label: `${item.Nama} · ${item.LabelKategori}`,
+                        Label: `${item.Nama} | ${item.LabelKategori}`,
                     }))}
                     saatBerubah={(nilai) => Atur('UuidKelompokPajak', nilai === '' ? null : nilai)}
                     galat={galat.UuidKelompokPajak}

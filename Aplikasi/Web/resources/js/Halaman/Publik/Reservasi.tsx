@@ -86,7 +86,7 @@ export default function HalamanReservasiPublik(props: PropsReservasiPublik) {
                         opsi={layanan.map((l) => ({
                             Nilai: l.Uuid,
                             Label: l.Nama,
-                            Keterangan: `${String(l.DurasiMenit)} menit${l.Harga ? ` · ${FormatRupiah(l.Harga)}` : ''}`,
+                            Keterangan: `${String(l.DurasiMenit)} menit${l.Harga ? ` | ${FormatRupiah(l.Harga)}` : ''}`,
                         }))}
                         saatBerubah={(nilai) => formulir.setData({ ...d, UuidLayanan: nilai, Jam: '' })}
                         galat={galat.UuidLayanan}

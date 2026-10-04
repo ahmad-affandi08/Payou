@@ -41,7 +41,7 @@ export function AmbilStatusHalaman(h: RingkasHalamanSitus): {
     }
 
     return h.AdaPerubahan
-        ? { teks: 'Terbit · ada draf baru', jenis: 'peringatan' }
+        ? { teks: 'Terbit | ada draf baru', jenis: 'peringatan' }
         : { teks: 'Terbit', jenis: 'sukses' };
 }
 

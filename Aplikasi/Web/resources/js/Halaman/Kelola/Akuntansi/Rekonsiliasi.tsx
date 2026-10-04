@@ -203,7 +203,7 @@ export default function HalamanRekonsiliasiBank({
                     <div className="flex flex-col gap-1">
                         <dt className="text-teks-sekunder">Mutasi</dt>
                         <dd>
-                            {Ringkasan.BelumCocok} belum cocok · {Ringkasan.Cocok} cocok · {Ringkasan.Diabaikan}{' '}
+                            {Ringkasan.BelumCocok} belum cocok | {Ringkasan.Cocok} cocok | {Ringkasan.Diabaikan}{' '}
                             diabaikan
                         </dd>
                     </div>
@@ -326,7 +326,7 @@ export default function HalamanRekonsiliasiBank({
             {dialog?.jenis === 'cocok' ? (
                 <DialogFormulir
                     judul="Cocokkan dengan buku"
-                    keterangan={`${FormatTanggal(dialog.mutasi.Tanggal)} · ${dialog.mutasi.Keterangan}`}
+                    keterangan={`${FormatTanggal(dialog.mutasi.Tanggal)} | ${dialog.mutasi.Keterangan}`}
                     saatTutup={() => AturDialog(null)}
                 >
                     <ul className="flex flex-col gap-2">
@@ -338,7 +338,7 @@ export default function HalamanRekonsiliasiBank({
                                 <span className="flex min-w-0 flex-col">
                                     <span className="font-mono">{j.Nomor}</span>
                                     <span className="break-words text-teks-sekunder">
-                                        {FormatTanggal(j.Tanggal)} · {j.Keterangan}
+                                        {FormatTanggal(j.Tanggal)} | {j.Keterangan}
                                     </span>
                                 </span>
                                 <span className="flex items-center gap-3">
@@ -375,7 +375,7 @@ function FormAbaikan({ mutasi, saatSelesai }: { mutasi: BarisMutasiBank; saatSel
     return (
         <DialogFormulir
             judul="Abaikan mutasi"
-            keterangan={`${FormatTanggal(mutasi.Tanggal)} · ${mutasi.Keterangan}`}
+            keterangan={`${FormatTanggal(mutasi.Tanggal)} | ${mutasi.Keterangan}`}
             saatTutup={saatSelesai}
         >
             <form onSubmit={Kirim} className="flex flex-col gap-4" noValidate>

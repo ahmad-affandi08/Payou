@@ -57,7 +57,7 @@ void main() {
       await Ketuk(find.byWidgetPredicate((w) => w is UbinProduk && w.nama == 'Americano Panas'));
       await Ketuk(find.descendant(of: find.byType(BarisKeranjang), matching: find.textContaining('Americano')));
       expect(find.text('Dilayani oleh (opsional)'), findsOneWidget);
-      await Ketuk(find.widgetWithText(FilterChip, 'Maya Senior · Barista'));
+      await Ketuk(find.widgetWithText(FilterChip, 'Maya Senior | Barista'));
       await Ketuk(find.widgetWithText(FilterChip, 'Dewi Junior'));
       await Ketuk(find.widgetWithText(FilledButton, 'Simpan perubahan'));
 

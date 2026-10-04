@@ -270,7 +270,7 @@ export default function HalamanTambahPengguna({
                             legenda="Outlet yang ditugaskan"
                             opsi={Outlet.map((baris) => ({
                                 nilai: baris.Uuid,
-                                label: `${baris.Kode} · ${baris.Nama}`,
+                                label: `${baris.Kode} | ${baris.Nama}`,
                             }))}
                             terpilih={d.Outlet}
                             saatBerubah={(terpilih) => formulir.setData('Outlet', terpilih)}

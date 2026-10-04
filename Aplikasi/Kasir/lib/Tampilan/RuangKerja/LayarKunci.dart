@@ -94,7 +94,7 @@ class _LayarKunciState extends ConsumerState<LayarKunci> {
       isi = Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(kasirSama ? 'Terkunci · ${_dipilih!.nama}' : 'PIN ${_dipilih!.nama}', style: teks.titleMedium),
+          Text(kasirSama ? 'Terkunci | ${_dipilih!.nama}' : 'PIN ${_dipilih!.nama}', style: teks.titleMedium),
           const SizedBox(height: TokenJarak.jarak4),
           Text(
             kasirSama ? 'Masukkan PIN untuk melanjutkan.' : 'Masukkan PIN untuk mulai bertugas di shift ini.',

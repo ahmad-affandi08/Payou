@@ -44,9 +44,9 @@ export default function TugasGagal({ Tugas }: { Tugas: Tugas }) {
                             <dd className="text-teks-utama">{FormatTanggalWaktu(Tugas.GagalPada)}</dd>
                         </div>
                         <div>
-                            <dt className="text-teks-sekunder">Koneksi · antrean</dt>
+                            <dt className="text-teks-sekunder">Koneksi | antrean</dt>
                             <dd className="font-mono text-teks-utama">
-                                {Tugas.Koneksi} · {Tugas.Antrean}
+                                {Tugas.Koneksi} | {Tugas.Antrean}
                             </dd>
                         </div>
                         <div>

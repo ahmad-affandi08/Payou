@@ -125,13 +125,13 @@ export default function HalamanDetailOutlet({
                     <CardContent>
                         <dl className="grid grid-cols-1 gap-3 text-isi md:grid-cols-2">
                             <Rincian label="Alamat" nilai={Outlet.Alamat ?? 'Belum diisi'} />
-                            <Rincian label="Kabupaten/kota" nilai={`${namaKota} · ${Outlet.ZonaWaktu}`} />
+                            <Rincian label="Kabupaten/kota" nilai={`${namaKota} | ${Outlet.ZonaWaktu}`} />
                             <Rincian label="Jam tutup buku" nilai={Outlet.JamTutupBuku} />
                             <Rincian label="PKP" nilai={Outlet.Pkp ? 'Ya' : 'Tidak'} />
                             {Outlet.Kanvas ? (
                                 <Rincian
                                     label="Outlet kanvas"
-                                    nilai={`Ya · ${Outlet.NomorKendaraan ?? 'nomor kendaraan belum diisi'}`}
+                                    nilai={`Ya | ${Outlet.NomorKendaraan ?? 'nomor kendaraan belum diisi'}`}
                                 />
                             ) : null}
                         </dl>

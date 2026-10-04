@@ -55,7 +55,7 @@ void main() {
     await Masuk(tester, u);
     await Ketuk(tester, Ubin('Americano Panas'));
     await Ketuk(tester, Ubin('Americano Panas'));
-    expect(find.text('Keranjang · 2 item'), findsOneWidget);
+    expect(find.text('Keranjang | 2 item'), findsOneWidget);
     // Simpan berjeda 300 ms; tunggu sampai tertulis.
     await tester.pump(const Duration(milliseconds: 400));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
@@ -64,7 +64,7 @@ void main() {
     // Aplikasi "ditutup" lalu dibuka lagi dengan basis data yang sama.
     await tester.pumpWidget(const SizedBox.shrink());
     await Masuk(tester, u);
-    expect(find.text('Keranjang · 2 item'), findsOneWidget, reason: 'Keranjang dipulihkan dari draf SQLite.');
+    expect(find.text('Keranjang | 2 item'), findsOneWidget, reason: 'Keranjang dipulihkan dari draf SQLite.');
 
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar'));
     await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Tunai'));

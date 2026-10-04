@@ -20,7 +20,7 @@ export default function KartuArtikel({ artikel }: { artikel: RingkasanArtikel })
                 <p className="text-label text-teks-sekunder">
                     {[artikel.Kategori, artikel.DiterbitkanPada ? FormatTanggal(artikel.DiterbitkanPada) : null]
                         .filter(Boolean)
-                        .join(' · ')}
+                        .join(' | ')}
                 </p>
                 <h2 className="text-subjudul font-semibold text-teks-utama">
                     <TautanSitus href={`/blog/${artikel.Slug}`} className="hover:underline">

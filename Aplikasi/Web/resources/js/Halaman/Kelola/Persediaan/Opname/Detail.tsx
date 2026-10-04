@@ -92,9 +92,9 @@ function KolomLembar(sembunyi: boolean): KolomTabel<BarisStokOpname>[] {
                     <span className="block font-semibold break-words text-teks-utama">{b.NamaProduk}</span>
                     <span className="block text-keterangan text-teks-sekunder">
                         <span className="font-mono">{b.Sku ?? 'Tanpa SKU'}</span>
-                        {b.NomorBatch ? ` · batch ${b.NomorBatch}` : ''}
-                        {b.NomorSeri ? ` · ${b.NomorSeri}` : ''}
-                        {!b.DariSnapshot ? ' · ditambahkan saat hitung' : ''}
+                        {b.NomorBatch ? ` | batch ${b.NomorBatch}` : ''}
+                        {b.NomorSeri ? ` | ${b.NomorSeri}` : ''}
+                        {!b.DariSnapshot ? ' | ditambahkan saat hitung' : ''}
                     </span>
                 </>
             ),
@@ -366,7 +366,7 @@ export default function HalamanDetailStokOpname({
                     {Opname.Status === 'Disetujui' ? (
                         <Keterangan label="Selisih nilai">
                             <span className="tabular-nums">
-                                Lebih {FormatNilai(Opname.TotalNilaiLebih)} · Kurang{' '}
+                                Lebih {FormatNilai(Opname.TotalNilaiLebih)} | Kurang{' '}
                                 {FormatNilai(Opname.TotalNilaiKurang)}
                             </span>
                             {Opname.TanggalPosting ? (
@@ -426,10 +426,10 @@ export default function HalamanDetailStokOpname({
                                         </span>
                                         <span className="block text-keterangan text-teks-sekunder">
                                             <span className="font-mono">{b.Sku ?? 'Tanpa SKU'}</span>
-                                            {b.NomorBatch ? ` · batch ${b.NomorBatch}` : ''}
-                                            {b.NomorSeri ? ` · ${b.NomorSeri}` : ''}
+                                            {b.NomorBatch ? ` | batch ${b.NomorBatch}` : ''}
+                                            {b.NomorSeri ? ` | ${b.NomorSeri}` : ''}
                                             {b.JumlahSistem !== null
-                                                ? ` · sistem ${FormatJumlahStok(b.JumlahSistem, b.SimbolSatuan)}`
+                                                ? ` | sistem ${FormatJumlahStok(b.JumlahSistem, b.SimbolSatuan)}`
                                                 : ''}
                                         </span>
                                     </div>

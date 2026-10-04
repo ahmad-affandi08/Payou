@@ -77,7 +77,7 @@ export function SpesimenStruk({ className }: PropsSpesimen) {
                 </p>
                 {/* Penanda offline: warna tidak menanggung makna sendiri, teksnya yang menjelaskan. */}
                 <p className="text-keterangan rounded-kontrol bg-aksen px-3 py-2 text-center font-semibold text-teks-utama">
-                    Dibuat offline · menunggu terkirim
+                    Dibuat offline | menunggu terkirim
                 </p>
             </div>
         </div>
@@ -104,7 +104,7 @@ export function SpesimenJurnal({ className }: PropsSpesimen) {
                 className,
             )}
         >
-            <p className="text-label mb-4 font-semibold text-teks-sekunder">Jurnal otomatis · PJL/20260927/KSR1/0043</p>
+            <p className="text-label mb-4 font-semibold text-teks-sekunder">Jurnal otomatis | PJL/20260927/KSR1/0043</p>
             <ul className="flex flex-col">
                 {BARIS_JURNAL.map((b) => (
                     <li key={b.Kode} className="flex items-baseline gap-3 border-b border-garis py-3">

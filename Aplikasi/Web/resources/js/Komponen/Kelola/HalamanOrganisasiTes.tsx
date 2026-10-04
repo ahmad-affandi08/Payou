@@ -147,7 +147,7 @@ describe('Kelola/Outlet (F-02 langkah 1, TabelData D-16)', () => {
             />,
         );
 
-        expect(screen.getByText('Makan di tempat, Bawa pulang · bawaan Makan di tempat (otomatis)')).toBeTruthy();
+        expect(screen.getByText('Makan di tempat, Bawa pulang | bawaan Makan di tempat (otomatis)')).toBeTruthy();
         fireEvent.click(screen.getByLabelText('Otomatis menurut jenis usaha outlet'));
         fireEvent.click(screen.getByLabelText('Antar (diantar toko)'));
         fireEvent.click(screen.getByRole('button', { name: 'Simpan jenis pesanan' }));
@@ -375,7 +375,7 @@ describe('Kelola/Pengguna (F-02 langkah 3): undang pengguna di halaman penuh', (
         RenderUji(<HalamanBuatUndangan Peran={peran} Outlet={outletOpsi} BatasPengguna={batas} />);
 
         fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'budi@kopinusantara.id' } });
-        fireEvent.click(screen.getByLabelText('JKT1 · Kopi Nusantara Sudirman'));
+        fireEvent.click(screen.getByLabelText('JKT1 | Kopi Nusantara Sudirman'));
         fireEvent.click(screen.getByRole('button', { name: 'Kirim undangan' }));
 
         expect(kirimanForm[0]).toEqual({

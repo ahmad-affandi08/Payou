@@ -60,11 +60,11 @@ final class Kendaraan extends ModelDasar
         return ['Aktif' => 'boolean', 'Tahun' => 'integer', 'KmTerakhir' => 'integer'];
     }
 
-    /** "Honda Vario 125 · 2021" untuk label pilihan & dokumen. */
+    /** "Honda Vario 125 | 2021" untuk label pilihan & dokumen. */
     public function AmbilLabel(): string
     {
         $nama = trim($this->Merek.' '.($this->Tipe ?? ''));
 
-        return $this->Tahun === null ? $nama : "{$nama} · {$this->Tahun}";
+        return $this->Tahun === null ? $nama : "{$nama} | {$this->Tahun}";
     }
 }

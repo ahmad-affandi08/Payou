@@ -52,7 +52,7 @@ export default function HalamanAbsensi(props: PropsAbsensi) {
 
     return (
         <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 bg-latar px-4 py-6 tepi-bawah-aman">
-            <Head title={`Absen · ${NamaToko}`}>
+            <Head title={`Absen | ${NamaToko}`}>
                 <link rel="manifest" href={`${jalur}/manifest`} />
                 <meta name="mobile-web-app-capable" content="yes" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -94,7 +94,7 @@ export default function HalamanAbsensi(props: PropsAbsensi) {
                             <li key={baris.MasukPada} className="flex flex-col gap-0.5 px-4 py-3 text-keterangan">
                                 <span className="text-teks-utama">
                                     Masuk {FormatTanggalWaktu(baris.MasukPada)}
-                                    {baris.NamaOutlet ? ` · ${baris.NamaOutlet}` : ''}
+                                    {baris.NamaOutlet ? ` | ${baris.NamaOutlet}` : ''}
                                 </span>
                                 <span className="text-teks-sekunder">
                                     {baris.KeluarPada

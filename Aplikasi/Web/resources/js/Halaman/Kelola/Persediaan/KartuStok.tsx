@@ -322,9 +322,9 @@ export default function HalamanKartuStok({
                     keterangan={
                         <>
                             <span className="font-mono">{Produk.Sku ?? 'Tanpa SKU'}</span>
-                            {pelacakan ? ` · ${pelacakan}` : ''} · {FormatLabelGudang(Gudang)} ·{' '}
+                            {pelacakan ? ` | ${pelacakan}` : ''} | {FormatLabelGudang(Gudang)} |{' '}
                             {Saring.Dari ? FormatTanggal(Saring.Dari) : 'awal pencatatan'} sampai{' '}
-                            {Saring.Sampai ? FormatTanggal(Saring.Sampai) : 'hari ini'} · urut sesuai waktu pencatatan
+                            {Saring.Sampai ? FormatTanggal(Saring.Sampai) : 'hari ini'} | urut sesuai waktu pencatatan
                         </>
                     }
                 >

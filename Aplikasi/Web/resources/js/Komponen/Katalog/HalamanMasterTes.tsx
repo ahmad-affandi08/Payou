@@ -251,7 +251,7 @@ describe('Kelola/DaftarHarga (E.7)', () => {
         );
         window.history.replaceState({}, '', '/kelola/daftar-harga/DH-1');
         RenderUji(<HalamanDetailDaftarHarga {...props} />);
-        expect(screen.getByText('Semua outlet · Semua kanal · Pelanggan GROSIR · Prioritas 10')).toBeTruthy();
+        expect(screen.getByText('Semua outlet | Semua kanal | Pelanggan GROSIR | Prioritas 10')).toBeTruthy();
 
         fireEvent.click(screen.getByRole('button', { name: 'Isi harga' }));
         const [hargaSabun] = screen.getAllByLabelText('Harga baris 1');
@@ -314,7 +314,7 @@ describe('Kelola/KelompokPajak (E.8)', () => {
 
     it('memakai istilah "biaya layanan"; ubah hanya dengan izin akuntansi.kelola', () => {
         RenderUji(<HalamanDaftarKelompokPajak {...props} />);
-        expect(screen.getByText('PBJT makanan & minuman · Subtotal + biaya layanan')).toBeTruthy();
+        expect(screen.getByText('PBJT makanan & minuman | Subtotal + biaya layanan')).toBeTruthy();
         expect(document.body.textContent).not.toMatch(/service charge/i);
 
         fireEvent.keyDown(screen.getByRole('button', { name: 'Aksi Makan & minum' }), { key: 'Enter' });
@@ -445,7 +445,7 @@ describe('Kelola/KelompokPilihan (E.9)', () => {
         expect(screen.getByText('+Rp 5.000')).toBeTruthy();
         expect(screen.getByText('Gratis')).toBeTruthy();
         expect(screen.getByText('Keju parut 20 g')).toBeTruthy();
-        expect(screen.getByText('Opsional, maks 3 · dipakai 4 produk')).toBeTruthy();
+        expect(screen.getByText('Opsional, maks 3 | dipakai 4 produk')).toBeTruthy();
 
         fireEvent.keyDown(screen.getByRole('button', { name: 'Aksi Topping' }), { key: 'Enter' });
         fireEvent.click(screen.getByRole('menuitem', { name: 'Ubah kelompok' }));

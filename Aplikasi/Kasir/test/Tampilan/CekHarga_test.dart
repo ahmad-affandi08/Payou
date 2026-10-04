@@ -71,7 +71,7 @@ void main() {
 
       // Tutup panel: keranjang tidak berubah.
       await Ketuk(tester, find.byTooltip('Tutup'));
-      expect(find.textContaining('Keranjang · 0'), findsNothing);
+      expect(find.textContaining('Keranjang | 0'), findsNothing);
       expect(find.byType(BarisKeranjang), findsNothing);
       await Lepas(tester, u);
     });

@@ -74,9 +74,9 @@ void main() {
         await CekHargaSusu(tester);
         final batch = find.byKey(const ValueKey('CekHargaBatch'));
         await tester.ensureVisible(batch);
-        expect(find.descendant(of: batch, matching: find.text('A-DEKAT · 3 pcs · dijual lebih dulu')), findsOneWidget);
+        expect(find.descendant(of: batch, matching: find.text('A-DEKAT | 3 pcs | dijual lebih dulu')), findsOneWidget);
         expect(find.descendant(of: batch, matching: find.text('lewat 2 hari')), findsOneWidget);
-        expect(find.descendant(of: batch, matching: find.text('B-LAMA · 5 pcs')), findsOneWidget);
+        expect(find.descendant(of: batch, matching: find.text('B-LAMA | 5 pcs')), findsOneWidget);
         expect(find.descendant(of: batch, matching: find.text('40 hari lagi')), findsOneWidget);
         expect(tester.takeException(), isNull);
 

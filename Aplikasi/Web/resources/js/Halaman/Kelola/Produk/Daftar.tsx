@@ -49,7 +49,7 @@ const kolom: KolomTabel<BarisProduk>[] = [
                             produk.JumlahVarian > 0 ? `${String(produk.JumlahVarian)} varian` : null,
                         ]
                             .filter(Boolean)
-                            .join(' · ')}
+                            .join(' | ')}
                     </span>
                 </div>
             </div>

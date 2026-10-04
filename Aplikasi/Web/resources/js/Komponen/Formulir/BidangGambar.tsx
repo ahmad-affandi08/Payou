@@ -148,7 +148,7 @@ export default function BidangGambar({
                     {berkas ? (
                         <p className="flex flex-wrap items-center gap-2 text-keterangan text-teks-utama">
                             <span className="break-all">
-                                {berkas.name} · {FormatUkuranBerkas(berkas.size)}
+                                {berkas.name} | {FormatUkuranBerkas(berkas.size)}
                             </span>
                             <Button
                                 type="button"

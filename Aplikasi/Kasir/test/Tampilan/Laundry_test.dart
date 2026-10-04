@@ -77,9 +77,9 @@ void main() {
     testWidgets('isi tiket laundry dari keranjang lalu bayar (${ukuran.width.toInt()} dp)', (tester) async {
       final u = await Masuk(tester, ukuran);
       await Ketuk(tester, find.byWidgetPredicate((w) => w is UbinProduk && w.nama.startsWith('Americano')));
-      await Ketuk(tester, find.text('Tanpa tiket laundry · ketuk untuk mengisi'));
+      await Ketuk(tester, find.text('Tanpa tiket laundry | ketuk untuk mengisi'));
 
-      await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Express · 24 jam'));
+      await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Express | 24 jam'));
       expect(find.textContaining('Perkiraan selesai'), findsOneWidget);
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan tiket laundry'));
       expect(find.text('Isi berat cucian atau tambahkan item satuan (jas, bed cover, ...).'), findsOneWidget);
@@ -96,11 +96,11 @@ void main() {
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan tiket laundry'));
 
       final wadah = ProviderScope.containerOf(tester.element(find.byType(RuangKerja)));
-      expect(wadah.read(penyediaKeranjang).laundry?.RingkasIsi(), '3,5 kg · Bed cover ×1');
-      expect(find.text('Laundry Express · 3,5 kg · Bed cover ×1'), findsOneWidget);
+      expect(wadah.read(penyediaKeranjang).laundry?.RingkasIsi(), '3,5 kg | Bed cover ×1');
+      expect(find.text('Laundry Express | 3,5 kg | Bed cover ×1'), findsOneWidget);
 
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').first);
-      expect(find.text('Tiket laundry Express · 3,5 kg · Bed cover ×1'), findsOneWidget);
+      expect(find.text('Tiket laundry Express | 3,5 kg | Bed cover ×1'), findsOneWidget);
       await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Tunai'));
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Uang pas'));
       expect(find.text('Pembayaran berhasil'), findsOneWidget);
@@ -122,7 +122,7 @@ void main() {
       await Tunggu(tester);
       await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cucian'));
       expect(find.text('Ratna Sari'), findsOneWidget);
-      expect(find.text('Express · 3,5 kg'), findsOneWidget);
+      expect(find.text('Express | 3,5 kg'), findsOneWidget);
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Sudah diambil'));
       expect(find.text('Cucian INV/SLB/260926/POS-001-0001: Sudah diambil.'), findsOneWidget);
       expect(find.text('Ratna Sari'), findsNothing);

@@ -68,7 +68,7 @@ const kolom: KolomTabel<BarisBaganAkun>[] = [
         cell: ({ row: { original: akun } }) =>
             [akun.PeranDipetakan.join(', '), akun.AdaJurnal ? 'Sudah ada jurnal (kode & tipe terkunci)' : '']
                 .filter(Boolean)
-                .join(' · ') || '—',
+                .join(' | ') || '—',
     },
     {
         id: 'Aktif',

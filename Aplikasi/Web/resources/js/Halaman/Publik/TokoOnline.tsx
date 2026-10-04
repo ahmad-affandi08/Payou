@@ -251,7 +251,7 @@ export default function TokoOnline({
                         {Toko ? (
                             <p className="text-keterangan text-teks-sekunder">
                                 {Toko.NamaOutlet}
-                                {Toko.Alamat ? ` · ${Toko.Alamat}` : ''}
+                                {Toko.Alamat ? ` | ${Toko.Alamat}` : ''}
                             </p>
                         ) : null}
                         {Outlet.length > 1 ? (
@@ -328,7 +328,7 @@ export default function TokoOnline({
                                                         .filter((v) => v.Tersedia)
                                                         .map((v) => ({
                                                             Nilai: v.Uuid,
-                                                            Label: `${v.Nama}${v.Harga ? ` · ${FormatRupiah(v.Harga)}` : ''}`,
+                                                            Label: `${v.Nama}${v.Harga ? ` | ${FormatRupiah(v.Harga)}` : ''}`,
                                                         }))}
                                                     kosong="Pilih varian"
                                                     saatBerubah={(nilai) =>
@@ -492,7 +492,7 @@ export default function TokoOnline({
                             {pembeli ? (
                                 <Pemberitahuan jenis="info">
                                     Pesanan tercatat di akun {pembeli.Nama} ({pembeli.NoHp})
-                                    {pembeli.Tier ? ` · harga member ${pembeli.Tier} sudah dihitung` : ''}.
+                                    {pembeli.Tier ? ` | harga member ${pembeli.Tier} sudah dihitung` : ''}.
                                 </Pemberitahuan>
                             ) : Akun.Aktif ? (
                                 <p className="text-keterangan text-teks-sekunder">
@@ -623,7 +623,7 @@ export default function TokoOnline({
                                     </div>
                                     {hasilBerlaku.Zona ? (
                                         <p className="text-keterangan text-teks-sekunder">
-                                            {hasilBerlaku.Zona.Nama} · perkiraan {hasilBerlaku.Zona.EstimasiHariMin}–
+                                            {hasilBerlaku.Zona.Nama} | perkiraan {hasilBerlaku.Zona.EstimasiHariMin}–
                                             {hasilBerlaku.Zona.EstimasiHariMaks} hari
                                         </p>
                                     ) : null}

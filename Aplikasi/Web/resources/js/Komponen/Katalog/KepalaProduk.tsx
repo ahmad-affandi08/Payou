@@ -30,7 +30,7 @@ export default function KepalaProduk({ kepala, tabAktif }: PropsKepalaProduk) {
                     <p className="text-subjudul font-semibold break-words text-teks-utama">{kepala.Nama}</p>
                     <p className="flex flex-wrap items-center gap-2 text-label text-teks-sekunder">
                         <span className="font-mono text-teks-utama">{kepala.Sku ?? 'Tanpa SKU'}</span>
-                        <span aria-hidden="true">·</span>
+                        <span aria-hidden="true">|</span>
                         <span>{kepala.LabelJenis}</span>
                         {kepala.Status === 'Diarsipkan' ? <LabelStatus jenis="netral" teks="Diarsipkan" /> : null}
                     </p>

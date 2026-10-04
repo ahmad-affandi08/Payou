@@ -152,7 +152,7 @@ const kolomBukaUlang: KolomTabel<BarisBukaUlangShift>[] = [
             <>
                 <span className="block break-words text-teks-utama">{b.Alasan}</span>
                 <span className="block text-label text-teks-sekunder">
-                    Diminta {b.DimintaOleh} · disetujui {b.DisetujuiOleh}
+                    Diminta {b.DimintaOleh} | disetujui {b.DisetujuiOleh}
                 </span>
             </>
         ),
@@ -169,7 +169,7 @@ const kolomBukaUlang: KolomTabel<BarisBukaUlangShift>[] = [
                 </span>
                 <span className="block text-label text-teks-sekunder tabular-nums">
                     Selisih {b.SelisihSebelumnya === null ? '—' : FormatRupiah(b.SelisihSebelumnya)}
-                    {b.DitutupOlehSebelumnya ? ` · ditutup ${b.DitutupOlehSebelumnya}` : ''}
+                    {b.DitutupOlehSebelumnya ? ` | ditutup ${b.DitutupOlehSebelumnya}` : ''}
                     {b.DitutupPadaSebelumnya ? ` ${FormatTanggalWaktu(b.DitutupPadaSebelumnya)}` : ''}
                 </span>
             </>
@@ -245,12 +245,12 @@ function BagianLaporan({ laporan, tertutup }: { laporan: LaporanShift; tertutup:
                 </Nilai>
                 <Nilai label="Void">
                     <span className="tabular-nums">
-                        {p.JumlahVoid} · {FormatRupiah(p.NominalVoid)}
+                        {p.JumlahVoid} | {FormatRupiah(p.NominalVoid)}
                     </span>
                 </Nilai>
                 <Nilai label="Retur">
                     <span className="tabular-nums">
-                        {p.JumlahRetur} · {FormatRupiah(p.NominalRetur)}
+                        {p.JumlahRetur} | {FormatRupiah(p.NominalRetur)}
                     </span>
                 </Nilai>
             </dl>
@@ -307,7 +307,7 @@ function BagianTutup({ tutup }: { tutup: TutupShift }) {
             </h2>
             <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Nilai label="Ditutup">
-                    {tutup.DitutupOleh} · {FormatTanggalWaktu(tutup.DitutupPada)}
+                    {tutup.DitutupOleh} | {FormatTanggalWaktu(tutup.DitutupPada)}
                 </Nilai>
                 <Nilai label="Kas seharusnya">
                     <Uang nilai={tutup.KasSeharusnya} />
@@ -364,12 +364,12 @@ function BagianTutup({ tutup }: { tutup: TutupShift }) {
                                 >
                                     <span className="min-w-0 break-words">{m.Nama}</span>
                                     <span className="tabular-nums">
-                                        Sistem {FormatRupiah(m.JumlahSistem)} · Kasir{' '}
+                                        Sistem {FormatRupiah(m.JumlahSistem)} | Kasir{' '}
                                         {m.JumlahDilaporkan === null ? 'tidak diisi' : FormatRupiah(m.JumlahDilaporkan)}
                                         {beda !== null && AmbilTandaDesimal(beda) !== 0 ? (
                                             <span className="font-semibold text-bahaya">
                                                 {' '}
-                                                · beda {FormatRupiah(beda)}
+                                                | beda {FormatRupiah(beda)}
                                             </span>
                                         ) : null}
                                     </span>
@@ -398,7 +398,7 @@ export default function HalamanDetailShift({
     Tutup,
 }: PropsDetailShift) {
     return (
-        <TataLetakAplikasi judul={`Shift ${Shift.NamaKasir} · ${FormatTanggalWaktu(Shift.DibukaPada)}`}>
+        <TataLetakAplikasi judul={`Shift ${Shift.NamaKasir} | ${FormatTanggalWaktu(Shift.DibukaPada)}`}>
             <Button asChild variant="link" className="h-auto self-start px-0">
                 <Link href="/kelola/kasir/shift">Kembali ke daftar shift</Link>
             </Button>

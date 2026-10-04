@@ -279,13 +279,13 @@ class _PanelKalenderBookingState extends ConsumerState<PanelKalenderBooking> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('${s.nama} · ${s.jamMulai}–${s.jamSelesai}', style: teks.titleSmall),
+                  Text('${s.nama} | ${s.jamMulai}–${s.jamSelesai}', style: teks.titleSmall),
                   for (final r in kalender.reservasi.where((r) => r.uuidStaf == s.uuid))
                     Padding(
                       padding: const EdgeInsets.only(top: TokenJarak.jarak4),
                       child: Text(
                         '${LembarReservasi.FormatJam(r.mulaiPada, zona)}–${LembarReservasi.FormatJam(r.selesaiPada, zona)}'
-                        ' · ${r.namaPelanggan} · ${r.namaLayanan} · ${r.labelStatus}',
+                        ' | ${r.namaPelanggan} | ${r.namaLayanan} | ${r.labelStatus}',
                         style: teks.bodyMedium,
                       ),
                     ),
@@ -330,7 +330,7 @@ class _PanelKalenderBookingState extends ConsumerState<PanelKalenderBooking> {
               DropdownMenuItem(
                 value: l.uuid,
                 child: Text(
-                  '${l.nama} · ${l.durasiMenit} menit${l.harga == null ? '' : ' · ${Uang.Dari(l.harga!).FormatRupiah()}'}',
+                  '${l.nama} | ${l.durasiMenit} menit${l.harga == null ? '' : ' | ${Uang.Dari(l.harga!).FormatRupiah()}'}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

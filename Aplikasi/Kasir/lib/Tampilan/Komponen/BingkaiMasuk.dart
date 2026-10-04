@@ -56,7 +56,7 @@ class BingkaiMasuk extends ConsumerWidget {
     final identitas = ref.watch(penyediaIdentitas).value;
     final perangkat = identitas == null
         ? ''
-        : [identitas.outlet, identitas.perangkat].where((b) => b.isNotEmpty).join(' · ');
+        : [identitas.outlet, identitas.perangkat].where((b) => b.isNotEmpty).join(' | ');
 
     // Ikon status bar dibuat terang: di kedua tata letak, puncak layar adalah panel merek yang gelap.
     return AnnotatedRegion<SystemUiOverlayStyle>(

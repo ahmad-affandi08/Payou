@@ -191,9 +191,9 @@ export default function HalamanBuatPencairan({
                                             {p.NomorPenjualan}
                                         </span>
                                         <span className="text-keterangan text-teks-sekunder">
-                                            {FormatTanggal(p.TanggalPenjualan)} · {FormatRupiah(p.Jumlah)}
-                                            {p.StatusPenjualan === 'Lunas' ? '' : ` · ${p.LabelStatusPenjualan}`}
-                                            {p.RefEksternal ? ` · ${p.RefEksternal}` : ''}
+                                            {FormatTanggal(p.TanggalPenjualan)} | {FormatRupiah(p.Jumlah)}
+                                            {p.StatusPenjualan === 'Lunas' ? '' : ` | ${p.LabelStatusPenjualan}`}
+                                            {p.RefEksternal ? ` | ${p.RefEksternal}` : ''}
                                         </span>
                                     </label>
                                 </li>
@@ -208,7 +208,7 @@ export default function HalamanBuatPencairan({
                     <BidangPilihan
                         label="Akun penerima"
                         nilai={uuidAkun}
-                        opsi={OpsiAkun.map((a) => ({ Nilai: a.Uuid, Label: `${a.Kode} · ${a.Nama}` }))}
+                        opsi={OpsiAkun.map((a) => ({ Nilai: a.Uuid, Label: `${a.Kode} | ${a.Nama}` }))}
                         saatBerubah={AturUuidAkun}
                         galat={props.errors.UuidAkunTujuan}
                         kosong="Pilih akun kas/bank"

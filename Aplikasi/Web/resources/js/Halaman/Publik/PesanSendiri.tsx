@@ -258,10 +258,10 @@ export default function HalamanPesanSendiri({ Aktif, Toko, Meja, Token, Slug, Me
     }
 
     return (
-        <KerangkaPublik judul={`Meja ${Meja.Nama} · ${Toko.Nama}`}>
+        <KerangkaPublik judul={`Meja ${Meja.Nama} | ${Toko.Nama}`}>
             <header className="flex flex-col gap-1 border-b border-garis pb-3">
                 <p className="text-label text-teks-sekunder">
-                    {Toko.Nama} · {Toko.NamaOutlet}
+                    {Toko.Nama} | {Toko.NamaOutlet}
                 </p>
                 <JudulHalaman>Meja {Meja.Nama}</JudulHalaman>
             </header>
@@ -443,7 +443,7 @@ function PemesananAktif({ alamat, token, menu, daring }: PropsPemesanan) {
                     >
                         <span className="flex items-center gap-2 font-semibold">
                             <ShoppingBagIcon aria-hidden="true" className="size-5" />
-                            Lihat keranjang · {jumlahItem} item
+                            Lihat keranjang | {jumlahItem} item
                         </span>
                         <span className="font-semibold tabular-nums">
                             {hitung.data ? FormatRupiah(hitung.data.Total ?? hitung.data.Subtotal) : 'Menghitung…'}

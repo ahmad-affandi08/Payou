@@ -70,7 +70,7 @@ const kolom: KolomTabel<Tarif>[] = [
                 <span className="block font-semibold text-teks-utama">{tarif.NamaJenisPajak}</span>
                 <span className="block text-keterangan font-normal text-teks-sekunder">
                     {tarif.KodeWilayah ? `Wilayah ${tarif.KodeWilayah}` : 'Nasional'}
-                    {tarif.BiayaLayananMasukDpp ? ' · biaya layanan masuk DPP' : ''}
+                    {tarif.BiayaLayananMasukDpp ? ' | biaya layanan masuk DPP' : ''}
                 </span>
             </>
         ),

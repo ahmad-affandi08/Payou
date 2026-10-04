@@ -194,22 +194,22 @@ class _KartuPesanan extends StatelessWidget {
                   pesanan.namaPelanggan,
                   pesanan.CekKirim ? 'dikirim' : 'ambil sendiri',
                   pesanan.status.toLowerCase(),
-                ].join(' · '),
+                ].join(' | '),
                 style: teks.bodySmall,
               ),
               Text(
-                '${pesanan.baris.length} barang · ${Uang.Dari(pesanan.total).FormatRupiah()}',
+                '${pesanan.baris.length} barang | ${Uang.Dari(pesanan.total).FormatRupiah()}',
                 style: teks.bodyMedium,
               ),
               if (pesanan.sudahDibayar)
                 Text(
                   sisa.Bandingkan(Uang.Nol()) > 0
-                      ? 'Sudah dibayar online · uang muka ${sisa.FormatRupiah()}'
-                      : 'Sudah dibayar online · uang mukanya sudah terpakai',
+                      ? 'Sudah dibayar online | uang muka ${sisa.FormatRupiah()}'
+                      : 'Sudah dibayar online | uang mukanya sudah terpakai',
                   style: teks.bodySmall,
                 )
               else
-                Text('Belum dibayar · tagih penuh di kasir', style: teks.bodySmall),
+                Text('Belum dibayar | tagih penuh di kasir', style: teks.bodySmall),
               if (alasan != null)
                 Padding(
                   padding: const EdgeInsets.only(top: TokenJarak.jarak8),

@@ -71,7 +71,7 @@ const kolomKritis: KolomTabel<BarisStokKritis>[] = [
         header: 'Lokasi stok',
         meta: { label: 'Lokasi stok', prioritas: 'penting' },
         cell: ({ row }) =>
-            `${row.original.NamaGudang}${row.original.NamaOutlet ? ` · ${row.original.NamaOutlet}` : ''}`,
+            `${row.original.NamaGudang}${row.original.NamaOutlet ? ` | ${row.original.NamaOutlet}` : ''}`,
     },
     {
         id: 'Saldo',
@@ -146,7 +146,7 @@ const kolomKedaluwarsa: KolomTabel<BarisBatchKedaluwarsa>[] = [
         header: 'Lokasi stok',
         meta: { label: 'Lokasi stok', prioritas: 'rendah' },
         cell: ({ row }) =>
-            `${row.original.NamaGudang}${row.original.NamaOutlet ? ` · ${row.original.NamaOutlet}` : ''}`,
+            `${row.original.NamaGudang}${row.original.NamaOutlet ? ` | ${row.original.NamaOutlet}` : ''}`,
     },
 ];
 
@@ -214,7 +214,7 @@ const kolomRestock: KolomTabel<BarisSaranRestock>[] = [
         header: 'Lokasi stok',
         meta: { label: 'Lokasi stok', prioritas: 'rendah' },
         cell: ({ row }) =>
-            `${row.original.NamaGudang}${row.original.NamaOutlet ? ` · ${row.original.NamaOutlet}` : ''}`,
+            `${row.original.NamaGudang}${row.original.NamaOutlet ? ` | ${row.original.NamaOutlet}` : ''}`,
     },
 ];
 

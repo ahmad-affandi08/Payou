@@ -294,7 +294,7 @@ class _PilihProdukState extends ConsumerState<_PilihProduk> {
                         if (p.sku != null) p.sku!,
                         if (p.jenis == 'BahanBaku') 'Bahan baku',
                         if (p.jenis == 'Resep' || p.jenis == 'Paket') 'Dikurangi dari bahannya',
-                      ].join(' · '),
+                      ].join(' | '),
                       style: teks.bodySmall,
                     ),
                     trailing: const Icon(Icons.chevron_right),

@@ -61,7 +61,7 @@ void main() {
 
         await Ketuk(tester, Ubin('Americano Panas'));
         if (ukuran.width < 600) {
-          await Ketuk(tester, find.textContaining('Keranjang ·').first);
+          await Ketuk(tester, find.textContaining('Keranjang |').first);
         }
         await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').last);
         await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Tunai'));

@@ -38,7 +38,7 @@ const kolomKelompok: KolomTabel<PropsPajak['KelompokPajak'][number]>[] = [
                 <ul>
                     {kelompok.Pajak.map((pajak) => (
                         <li key={pajak.KodeJenisPajak}>
-                            {pajak.NamaJenisPajak} · {pajak.LabelDasarPengenaan}
+                            {pajak.NamaJenisPajak} | {pajak.LabelDasarPengenaan}
                         </li>
                     ))}
                 </ul>

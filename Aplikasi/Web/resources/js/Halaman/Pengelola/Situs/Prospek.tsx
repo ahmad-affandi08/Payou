@@ -65,7 +65,7 @@ const kolom: KolomTabel<BarisProspek>[] = [
             <span className="flex flex-col gap-0.5 break-words">
                 <span className="text-teks-utama">{p.Nama}</span>
                 <span className="text-keterangan text-teks-sekunder">
-                    {[p.NamaUsaha, p.JenisUsaha, p.Kota].filter(Boolean).join(' · ') || '-'}
+                    {[p.NamaUsaha, p.JenisUsaha, p.Kota].filter(Boolean).join(' | ') || '-'}
                 </span>
             </span>
         ),

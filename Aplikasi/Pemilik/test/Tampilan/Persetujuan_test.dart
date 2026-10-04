@@ -8,7 +8,7 @@ import 'package:pemilik/Data/PenyimpanSesi.dart';
 import '../Pendukung/PasangPemilik.dart';
 
 /// OWN-03 / X4 persetujuan jarak jauh di Aplikasi Owner: lencana jumlah menunggu, kartu permintaan (judul, nilai,
-/// outlet · perangkat · pemohon, rincian), setujui dengan konfirmasi, tolak wajib alasan ≥ 5 huruf, galat server
+/// outlet | perangkat | pemohon, rincian), setujui dengan konfirmasi, tolak wajib alasan ≥ 5 huruf, galat server
 /// (sudah diputuskan/kedaluwarsa) tampil sebagai pesan; di 360 dan 800 dp.
 void main() {
   late ServerTiruan server;
@@ -112,7 +112,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Kas keluar di atas batas'), findsOneWidget);
       expect(find.text('Rp 350.000'), findsOneWidget);
-      expect(find.textContaining('Solo Baru · Kasir Depan · Rina Wulandari'), findsWidgets);
+      expect(find.textContaining('Solo Baru | Kasir Depan | Rina Wulandari'), findsWidgets);
       expect(find.textContaining('Galon 12 + es balok 4'), findsWidgets);
 
       await tester.tap(find.widgetWithText(FilledButton, 'Setujui').first);

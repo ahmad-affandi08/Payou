@@ -37,7 +37,7 @@ export default function Artikel() {
                 <p className="mt-2 text-label text-teks-sekunder">
                     {[artikel.NamaPenulis, artikel.DiterbitkanPada ? FormatTanggal(artikel.DiterbitkanPada) : null]
                         .filter(Boolean)
-                        .join(' · ')}
+                        .join(' | ')}
                 </p>
                 {artikel.Sampul ? (
                     <img

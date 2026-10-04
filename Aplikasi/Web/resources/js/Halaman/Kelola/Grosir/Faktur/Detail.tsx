@@ -98,7 +98,7 @@ export default function HalamanDetailFakturGrosir({
                 <KeteranganGrosir label="Sisa tagihan">
                     {Faktur.SisaPiutang === null
                         ? '—'
-                        : `${FormatRupiah(Faktur.SisaPiutang)}${Faktur.LabelStatusPiutang ? ` · ${Faktur.LabelStatusPiutang}` : ''}`}
+                        : `${FormatRupiah(Faktur.SisaPiutang)}${Faktur.LabelStatusPiutang ? ` | ${Faktur.LabelStatusPiutang}` : ''}`}
                 </KeteranganGrosir>
                 {Faktur.Catatan !== null ? <KeteranganGrosir label="Catatan">{Faktur.Catatan}</KeteranganGrosir> : null}
             </KartuKeteranganGrosir>
@@ -137,7 +137,7 @@ export default function HalamanDetailFakturGrosir({
                             >
                                 {sj.Nomor}
                             </Link>{' '}
-                            · {FormatTanggal(sj.Tanggal)} · {FormatRupiah(sj.Total)}
+                            | {FormatTanggal(sj.Tanggal)} | {FormatRupiah(sj.Total)}
                         </li>
                     ))}
                 </ul>

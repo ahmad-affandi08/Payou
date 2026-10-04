@@ -256,7 +256,7 @@ export default function HalamanFormTransferStok({
                                             <span className="block text-keterangan text-teks-sekunder">
                                                 <span className="font-mono">{b.Sku ?? 'Tanpa SKU'}</span>
                                                 {b.SaldoDiGudang !== null
-                                                    ? ` · stok asal ${FormatJumlahStok(b.SaldoDiGudang, b.SimbolSatuan)}`
+                                                    ? ` | stok asal ${FormatJumlahStok(b.SaldoDiGudang, b.SimbolSatuan)}`
                                                     : null}
                                             </span>
                                         </div>

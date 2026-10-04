@@ -129,7 +129,7 @@ void main() {
     expect(tester.takeException(), isNull, reason: 'Tidak meluap di 360dp.');
     expect(find.text('Rp 2.160.000'), findsOneWidget);
     expect(find.text('12'), findsOneWidget);
-    expect(find.text('Cangkir · Kurang manis · Extra shot · Catatan: tanpa es'), findsOneWidget);
+    expect(find.text('Cangkir | Kurang manis | Extra shot | Catatan: tanpa es'), findsOneWidget);
     final tombolTambah = find.byTooltip('Tambah Es Kopi Susu Aren Gula Semut Ukuran Besar Sekali');
     expect(tester.getSize(tombolTambah).height, greaterThanOrEqualTo(TokenJarak.targetSentuh));
 

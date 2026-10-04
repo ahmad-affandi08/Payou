@@ -398,8 +398,8 @@ export default function HalamanFormPenerimaan({
                                                 </span>
                                             </span>
                                             <span className="text-keterangan text-teks-sekunder">
-                                                Dipesan {FormatJumlahStok(b.Jumlah, b.SimbolSatuan)} · sudah diterima{' '}
-                                                {FormatJumlahStok(b.JumlahDiterima, b.SimbolSatuan)} · sisa{' '}
+                                                Dipesan {FormatJumlahStok(b.Jumlah, b.SimbolSatuan)} | sudah diterima{' '}
+                                                {FormatJumlahStok(b.JumlahDiterima, b.SimbolSatuan)} | sisa{' '}
                                                 {FormatJumlahStok(b.Sisa, b.SimbolSatuan)}
                                             </span>
                                         </div>

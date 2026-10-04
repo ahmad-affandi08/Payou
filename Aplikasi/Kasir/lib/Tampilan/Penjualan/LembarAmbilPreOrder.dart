@@ -139,11 +139,11 @@ class _LembarAmbilPreOrderState extends ConsumerState<LembarAmbilPreOrder> {
                         '${p.pelanggan?['Nama'] ?? '-'}',
                         'ambil ${p.tanggalAmbil.substring(8, 10)}/${p.tanggalAmbil.substring(5, 7)}',
                         if (p.status == 'Siap') 'siap diambil' else 'masih dibuat',
-                      ].join(' · '),
+                      ].join(' | '),
                       style: teks.bodySmall,
                     ),
                     Text(
-                      '${p.baris.length} barang · DP ${Uang.Dari(p.sisaUangMuka).FormatRupiah()}',
+                      '${p.baris.length} barang | DP ${Uang.Dari(p.sisaUangMuka).FormatRupiah()}',
                       style: teks.bodyMedium,
                     ),
                     const SizedBox(height: TokenJarak.jarak8),

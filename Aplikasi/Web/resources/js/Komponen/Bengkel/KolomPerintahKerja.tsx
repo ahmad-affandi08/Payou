@@ -39,7 +39,7 @@ export function BuatKolomPerintahKerja(): KolomTabel<BarisDaftarPerintahKerja>[]
                 <span className="flex flex-col gap-0.5 break-words">
                     <span className="font-mono font-semibold text-teks-utama">{p.Kendaraan?.NomorPolisi ?? '-'}</span>
                     <span className="text-keterangan text-teks-sekunder">
-                        {p.Kendaraan?.Label ?? ''} · {p.Pelanggan.Nama}
+                        {p.Kendaraan?.Label ?? ''} | {p.Pelanggan.Nama}
                     </span>
                 </span>
             ),
@@ -78,7 +78,7 @@ export function BuatKolomPerintahKerja(): KolomTabel<BarisDaftarPerintahKerja>[]
                           p.ServisBerikutnyaKm === null ? null : `${p.ServisBerikutnyaKm.toLocaleString('id-ID')} km`,
                       ]
                           .filter(Boolean)
-                          .join(' · '),
+                          .join(' | '),
         },
         {
             id: 'Outlet',

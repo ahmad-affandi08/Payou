@@ -98,7 +98,7 @@ void main() {
 
       await Ketuk(tester, find.text('Selesai'));
       await Tunggu(tester, const Duration(seconds: 1));
-      expect(find.text('Buka shift · Rina Wulandari'), findsOneWidget);
+      expect(find.text('Buka shift | Rina Wulandari'), findsOneWidget);
       await Lepas(tester, u);
     });
   }
@@ -207,7 +207,7 @@ void main() {
       await Tunggu(tester, const Duration(seconds: 1));
       await Ketuk(tester, find.text('Selesai'));
       await Tunggu(tester, const Duration(seconds: 1));
-      expect(find.text('Buka shift · Rina Wulandari'), findsOneWidget);
+      expect(find.text('Buka shift | Rina Wulandari'), findsOneWidget);
 
       await Ketuk(tester, find.byKey(const ValueKey('BukaUlangShift')));
       await tester.enterText(find.byKey(const ValueKey('AlasanBukaUlang')), 'ok');

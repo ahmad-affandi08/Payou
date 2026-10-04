@@ -183,8 +183,8 @@ void main() {
       (kembali.jenis, kembali.alamat, kembali.nama),
       (JenisTransport.BluetoothKlasik, '66:22:11:AA:BB:CC', 'RPP02N'),
     );
-    expect(kembali.label, 'Bluetooth RPP02N · 58 mm');
-    expect(const ProfilPrinter(alamat: '192.168.1.50').label, 'LAN/Wi-Fi 192.168.1.50:9100 · 58 mm');
+    expect(kembali.label, 'Bluetooth RPP02N | 58 mm');
+    expect(const ProfilPrinter(alamat: '192.168.1.50').label, 'LAN/Wi-Fi 192.168.1.50:9100 | 58 mm');
     expect(ProfilPrinter.DariJson({'Jenis': 'Merpati', 'Alamat': 'x', 'Port': 1}), isNull);
   });
 }

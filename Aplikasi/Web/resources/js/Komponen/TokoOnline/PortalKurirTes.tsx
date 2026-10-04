@@ -100,7 +100,7 @@ describe('portal kurir', () => {
 
         // Riwayat selesai tanpa telepon & alamat.
         expect(screen.getByText('Selesai 24 jam terakhir')).toBeTruthy();
-        expect(screen.getByText(/diterima Pak Darto · ada foto/)).toBeTruthy();
+        expect(screen.getByText(/diterima Pak Darto \| ada foto/)).toBeTruthy();
         expect(screen.getAllByRole('link')).toHaveLength(1);
     });
 

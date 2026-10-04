@@ -289,7 +289,7 @@ class _PanelItemState extends ConsumerState<PanelItem> {
         children: [
           for (final k in karyawan)
             FilterChip(
-              label: Text(k.jabatan == null ? k.nama : '${k.nama} · ${k.jabatan}'),
+              label: Text(k.jabatan == null ? k.nama : '${k.nama} | ${k.jabatan}'),
               selected: _staf.contains(k.uuid),
               onSelected: (pilih) => setState(() {
                 if (!pilih) {
@@ -383,7 +383,7 @@ class _PanelItemState extends ConsumerState<PanelItem> {
           for (final kelompok in produk?.kelompokPilihan ?? const <KelompokPilihanJual>[]) ...[
             const SizedBox(height: TokenJarak.jarak16),
             Text(
-              '${kelompok.nama} · ${kelompok.CekWajib() ? 'wajib' : 'opsional'}'
+              '${kelompok.nama} | ${kelompok.CekWajib() ? 'wajib' : 'opsional'}'
               '${kelompok.CekSatuSaja()
                   ? ', pilih 1'
                   : kelompok.maksimal != null

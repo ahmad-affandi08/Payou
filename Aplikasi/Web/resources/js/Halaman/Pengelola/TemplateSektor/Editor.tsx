@@ -79,7 +79,7 @@ export default function HalamanEditorTemplate({ Template, Versi, DaftarVersi, Ad
 
     return (
         <TataLetakPengelola
-            judul={`${Template.Nama} · ${Template.Kode}`}
+            judul={`${Template.Nama} | ${Template.Kode}`}
             aksi={
                 <div className="flex flex-wrap gap-2">
                     {draf && bolehKelolaDraf ? (
@@ -138,7 +138,7 @@ export default function HalamanEditorTemplate({ Template, Versi, DaftarVersi, Ad
                     <Link href="/template-sektor">Semua template</Link>
                 </Button>
                 <span aria-hidden className="text-teks-sekunder">
-                    ·
+                    |
                 </span>
                 {DaftarVersi.map((baris) => (
                     <Button
@@ -155,7 +155,7 @@ export default function HalamanEditorTemplate({ Template, Versi, DaftarVersi, Ad
                             href={`/template-sektor/${encodeURIComponent(Template.Kode)}/versi/${baris.Versi}`}
                             aria-current={baris.Versi === Versi.Versi ? 'page' : undefined}
                         >
-                            Versi {baris.Versi} · {baris.Status}
+                            Versi {baris.Versi} | {baris.Status}
                         </Link>
                     </Button>
                 ))}

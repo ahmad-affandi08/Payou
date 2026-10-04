@@ -184,8 +184,8 @@ export default function HalamanDetailImporStokAwal({
                 <LabelStatus jenis={JenisLabelImpor(Impor.Status)} teks={Impor.LabelStatus} />
                 <span>
                     Diunggah {FormatTanggalWaktu(Impor.DibuatPada)} oleh {Impor.NamaPengguna ?? 'Sistem'}
-                    {Impor.JumlahBaris > 0 ? ` · ${Impor.JumlahBaris.toLocaleString('id-ID')} baris` : ''}
-                    {Impor.NamaGudangBawaan ? ` · lokasi bawaan ${Impor.NamaGudangBawaan}` : ''}
+                    {Impor.JumlahBaris > 0 ? ` | ${Impor.JumlahBaris.toLocaleString('id-ID')} baris` : ''}
+                    {Impor.NamaGudangBawaan ? ` | lokasi bawaan ${Impor.NamaGudangBawaan}` : ''}
                 </span>
             </div>
 

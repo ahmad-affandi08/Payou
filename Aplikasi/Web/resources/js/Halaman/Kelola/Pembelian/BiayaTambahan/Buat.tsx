@@ -131,7 +131,7 @@ export default function HalamanBuatBiayaTambahan({
                 <Panel
                     judul="Barang yang dibebani"
                     idJudul="judul-barang-biaya"
-                    keterangan={`${Penerimaan.Nomor} · ${FormatTanggal(Penerimaan.Tanggal)} · ${Penerimaan.NamaGudang}${Penerimaan.NamaPemasok ? ` · ${Penerimaan.NamaPemasok}` : ''}${adaPelacakan ? ' · Barang ber-batch/nomor seri dibebankan ke HPP.' : ''}`}
+                    keterangan={`${Penerimaan.Nomor} | ${FormatTanggal(Penerimaan.Tanggal)} | ${Penerimaan.NamaGudang}${Penerimaan.NamaPemasok ? ` | ${Penerimaan.NamaPemasok}` : ''}${adaPelacakan ? ' | Barang ber-batch/nomor seri dibebankan ke HPP.' : ''}`}
                 >
                     <TabelForm label="Barang penerimaan" lebar="sedang">
                         <TableHeader>

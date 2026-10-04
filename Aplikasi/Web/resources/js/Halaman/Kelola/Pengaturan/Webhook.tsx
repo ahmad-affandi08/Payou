@@ -100,7 +100,7 @@ function RingkasanHasil({ kiriman: k }: { kiriman: KirimanWebhook }) {
 
     return (
         <>
-            <span className="block">{[kode, percobaan, berikutnya].filter(Boolean).join(' · ') || '-'}</span>
+            <span className="block">{[kode, percobaan, berikutnya].filter(Boolean).join(' | ') || '-'}</span>
             {k.CuplikanRespons ? (
                 <span className="block max-w-md truncate font-mono text-label" title={k.CuplikanRespons}>
                     {k.CuplikanRespons}

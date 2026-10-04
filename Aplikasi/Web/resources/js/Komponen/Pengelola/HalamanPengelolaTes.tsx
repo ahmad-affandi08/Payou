@@ -397,7 +397,7 @@ describe('Template sektor (P-03)', () => {
                 Pilihan={pilihan}
             />,
         );
-        expect(screen.getByRole('link', { name: 'Versi 2 · Draf' }).getAttribute('aria-current')).toBe('page');
+        expect(screen.getByRole('link', { name: 'Versi 2 | Draf' }).getAttribute('aria-current')).toBe('page');
 
         fireEvent.mouseDown(screen.getByRole('tab', { name: 'Akun & pajak' }), { button: 0 });
         UbahNilai(screen.getByLabelText('Nama akun baris 1'), 'Kas besar');
@@ -548,8 +548,8 @@ describe('Rilis aplikasi (P-10)', () => {
     it('status: draf, rollout sebagian, beta, dihentikan', () => {
         expect(rilis.map((r) => AmbilStatusRilis(r).teks)).toEqual([
             'Draf',
-            'Aktif · 50%',
-            'Aktif · Beta',
+            'Aktif | 50%',
+            'Aktif | Beta',
             'Dihentikan',
         ]);
     });
@@ -710,7 +710,7 @@ describe('P-10 PGL-19 pengumuman platform', () => {
     };
 
     it('ringkasan sasaran memakai label; kosong = semua', () => {
-        expect(RingkasSasaran(draf, opsi)).toBe('Kasir Android · paket Bisnis · semua sektor · versi …–1.2.0');
+        expect(RingkasSasaran(draf, opsi)).toBe('Kasir Android | paket Bisnis | semua sektor | versi …–1.2.0');
         expect(
             RingkasSasaran(
                 {
@@ -719,7 +719,7 @@ describe('P-10 PGL-19 pengumuman platform', () => {
                 },
                 opsi,
             ),
-        ).toBe('semua platform · semua paket · semua sektor');
+        ).toBe('semua platform | semua paket | semua sektor');
     });
 
     it('daftar & formulir: pemeliharaan meminta jadwal, simpan mengirim sasaran & waktu ISO UTC', () => {

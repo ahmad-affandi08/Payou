@@ -122,7 +122,7 @@ describe('Pencarian cepat di kepala halaman', () => {
             nomorSeri?.AmbilHasil({ Uuid: 'U1', Nomor: 'IMEI-1', NamaProduk: 'Ponsel', LabelStatus: 'Tersedia' }),
         ).toEqual({
             judul: 'IMEI-1',
-            keterangan: 'Ponsel · Tersedia',
+            keterangan: 'Ponsel | Tersedia',
             href: '/kelola/persediaan/kartu-stok/nomor-seri?cari=IMEI-1&unit=U1',
         });
 

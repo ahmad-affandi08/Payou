@@ -33,7 +33,7 @@ final class KontenSitusBawaan
         return [
             'beranda' => [
                 'Judul' => 'Beranda',
-                'JudulSeo' => 'PAYOU · Aplikasi Kasir yang Tetap Jalan Walau Offline',
+                'JudulSeo' => 'PAYOU | Aplikasi Kasir yang Tetap Jalan Walau Offline',
                 'DeskripsiSeo' => 'Aplikasi kasir (POS) untuk kafe, resto, toko, salon, dan laundry: tetap jalan saat offline, stok & HPP otomatis, pajak PPN/PBJT, promo, loyalti, dan laporan keuangan.',
                 'Bagian' => [
                     [
@@ -219,7 +219,7 @@ final class KontenSitusBawaan
             ],
             'solusi/kafe-resto' => [
                 'Judul' => 'Kafe & Resto',
-                'JudulSeo' => 'Aplikasi Kasir Kafe & Resto · PAYOU',
+                'JudulSeo' => 'Aplikasi Kasir Kafe & Resto | PAYOU',
                 'DeskripsiSeo' => 'Aplikasi kasir kafe dan resto: denah meja, pesanan ke dapur, self-order QR, pisah tagihan, pajak PBJT dan biaya layanan.',
                 'Bagian' => [
                     [
@@ -251,7 +251,7 @@ final class KontenSitusBawaan
             ],
             'solusi/toko-retail' => [
                 'Judul' => 'Toko & Retail',
-                'JudulSeo' => 'Aplikasi Kasir Toko & Retail · PAYOU',
+                'JudulSeo' => 'Aplikasi Kasir Toko & Retail | PAYOU',
                 'DeskripsiSeo' => 'Aplikasi kasir toko dan minimarket: pemindai barcode, varian, harga grosir & member, stok multi-gudang, pembelian dan hutang pemasok.',
                 'Bagian' => [
                     [
@@ -282,7 +282,7 @@ final class KontenSitusBawaan
             ],
             'solusi/jasa' => [
                 'Judul' => 'Salon, Laundry & Jasa',
-                'JudulSeo' => 'Aplikasi Kasir Salon, Laundry & Jasa · PAYOU',
+                'JudulSeo' => 'Aplikasi Kasir Salon, Laundry & Jasa | PAYOU',
                 'DeskripsiSeo' => 'Aplikasi kasir usaha jasa: komisi per staf, deposit pelanggan, paket sesi, reservasi, tiket laundry, jadwal & absensi karyawan.',
                 'Bagian' => [
                     [

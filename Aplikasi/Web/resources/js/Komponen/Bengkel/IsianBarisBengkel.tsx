@@ -108,7 +108,7 @@ export default function IsianBarisBengkel({
                     p.StokTersedia === null ? null : `Stok ${FormatJumlahStok(p.StokTersedia, p.Satuan[0]?.Simbol)}`,
                 ]
                     .filter(Boolean)
-                    .join(' · ') || null
+                    .join(' | ') || null
             }
             saatPilih={(p) => saatBerubah([...baris, BuatBarisDariProdukBengkel(p)])}
             pesanKosong={

@@ -207,7 +207,7 @@ export default function HalamanUbahHalamanSitus({ Halaman: halaman, LabelBlok, S
                     />
                     <BidangTeks
                         label="Judul di Google (opsional)"
-                        keterangan={`${formulir.data.JudulSeo.length}/70. Kosong = judul halaman · nama situs.`}
+                        keterangan={`${formulir.data.JudulSeo.length}/70. Kosong = judul halaman | nama situs.`}
                         nilai={formulir.data.JudulSeo}
                         saatBerubah={(v) => formulir.setData('JudulSeo', v)}
                         galat={galat.JudulSeo}

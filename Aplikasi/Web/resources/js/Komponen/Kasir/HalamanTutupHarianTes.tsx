@@ -68,7 +68,7 @@ describe('Tutup harian (F-15)', () => {
         RenderUji(<HalamanTutupHarian Hari={hari} Izin={{ Kelola: true }} />);
         expect(screen.getAllByText(/Sari Pemilik/).length).toBeGreaterThan(0);
         // D-23 D: ditutup otomatis oleh jadwal pagi ditandai "otomatis", bukan nama Owner.
-        expect(screen.getAllByText(/· otomatis/).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/\| otomatis/).length).toBeGreaterThan(0);
     });
 
     it('peringatan wajib dicentang sebelum hari bisa ditutup', () => {

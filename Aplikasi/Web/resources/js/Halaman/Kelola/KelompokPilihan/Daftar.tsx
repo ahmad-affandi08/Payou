@@ -57,7 +57,7 @@ const kolom: KolomTabel<Kelompok>[] = [
             <>
                 <span className="block font-semibold break-words text-teks-utama">{kelompok.Nama}</span>
                 <span className="block text-keterangan text-teks-sekunder">
-                    {RingkasAturanPilih(kelompok.MinimalPilih, kelompok.MaksimalPilih)} · dipakai{' '}
+                    {RingkasAturanPilih(kelompok.MinimalPilih, kelompok.MaksimalPilih)} | dipakai{' '}
                     {kelompok.JumlahProduk} produk
                 </span>
             </>

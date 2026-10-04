@@ -162,7 +162,7 @@ export default function HalamanFormPerintahKerja({ Isian, Awal, OpsiOutlet, Opsi
                                     }
                                     ambilId={(k) => k.Uuid}
                                     ambilJudul={(k) => k.NomorPolisi}
-                                    ambilKeterangan={(k) => `${k.Label} · ${k.Pelanggan.Nama}`}
+                                    ambilKeterangan={(k) => `${k.Label} | ${k.Pelanggan.Nama}`}
                                     saatPilih={(k) => {
                                         AturKendaraan(k);
 
@@ -171,7 +171,7 @@ export default function HalamanFormPerintahKerja({ Isian, Awal, OpsiOutlet, Opsi
                                         }
                                     }}
                                     nilaiTerpilih={
-                                        kendaraan === null ? undefined : `${kendaraan.NomorPolisi} · ${kendaraan.Label}`
+                                        kendaraan === null ? undefined : `${kendaraan.NomorPolisi} | ${kendaraan.Label}`
                                     }
                                     pesanKosong={
                                         pelanggan === null

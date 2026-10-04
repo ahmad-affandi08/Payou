@@ -360,7 +360,7 @@ describe('Halaman promo (F-16c)', () => {
             />,
         );
         expect(screen.getAllByText('HUT7K2M9QXA').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('0 / 1 · 1 sedang di kasir').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('0 / 1 | 1 sedang di kasir').length).toBeGreaterThan(0);
 
         fireEvent.click(screen.getAllByRole('button', { name: 'Tambah voucher' })[0] as HTMLElement);
         fireEvent.change(screen.getByLabelText('Awalan kode (opsional)'), { target: { value: 'hut' } });

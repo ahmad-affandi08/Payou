@@ -99,7 +99,7 @@ export default function HalamanDaftarPeran({ Peran, DaftarIzin }: PropsDaftar) {
                             <p className="text-keterangan text-teks-sekunder">
                                 {peran.Pemilik
                                     ? 'Semua izin, termasuk langganan.'
-                                    : peran.Izin.map((kunci) => labelIzin.get(kunci) ?? kunci).join(' · ') ||
+                                    : peran.Izin.map((kunci) => labelIzin.get(kunci) ?? kunci).join(' | ') ||
                                       'Belum ada izin.'}
                             </p>
                         </li>

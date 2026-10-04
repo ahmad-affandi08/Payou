@@ -137,7 +137,7 @@ function PanelPersetujuan({
                             {p.Tautan}
                         </code>
                         <p className="text-keterangan text-teks-sekunder">
-                            Berlaku sampai {FormatTanggalWaktu(p.KedaluwarsaPada)} ·{' '}
+                            Berlaku sampai {FormatTanggalWaktu(p.KedaluwarsaPada)} |{' '}
                             {p.DikirimPada
                                 ? `terkirim lewat WhatsApp ${FormatTanggalWaktu(p.DikirimPada)}`
                                 : 'belum terkirim lewat WhatsApp'}
@@ -498,7 +498,7 @@ export default function HalamanDetailPerintahKerja({
                         ) : (
                             <span className="font-mono">{pk.Penjualan.Nomor}</span>
                         )}{' '}
-                        · {FormatRupiah(pk.Penjualan.TotalAkhir)}
+                        | {FormatRupiah(pk.Penjualan.TotalAkhir)}
                     </KeteranganGrosir>
                 ) : null}
             </KartuKeteranganGrosir>
@@ -545,7 +545,7 @@ export default function HalamanDetailPerintahKerja({
                     <ol className="flex flex-col gap-1 text-isi">
                         {Riwayat.map((r, i) => (
                             <li key={`${r.Ke}-${String(i)}`} className="break-words text-teks-sekunder">
-                                <span className="font-semibold text-teks-utama">{r.Label}</span> ·{' '}
+                                <span className="font-semibold text-teks-utama">{r.Label}</span> |{' '}
                                 {FormatTanggalWaktu(r.Pada)}
                                 {r.Alasan ? ` — ${r.Alasan}` : ''}
                             </li>

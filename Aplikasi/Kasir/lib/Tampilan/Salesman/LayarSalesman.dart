@@ -371,7 +371,7 @@ class _BannerKunjungan extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          'Sejak ${FormatWaktu.FormatJam(kunjungan.MasukPada)} · '
+                          'Sejak ${FormatWaktu.FormatJam(kunjungan.MasukPada)} | '
                           '${TeksLokasiKunjungan(kunjungan, mencari: mencariLokasi)}',
                           style: teks.bodySmall,
                         ),
@@ -550,7 +550,7 @@ class _InfoPembaruan extends ConsumerWidget {
     return Text(
       waktu == null
           ? 'Belum pernah diperbarui'
-          : '$jumlah pelanggan · terakhir diperbarui ${FormatWaktu.FormatTanggalJam(waktu)}',
+          : '$jumlah pelanggan | terakhir diperbarui ${FormatWaktu.FormatTanggalJam(waktu)}',
       style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
     );
   }
@@ -611,7 +611,7 @@ class _BarisPelanggan extends StatelessWidget {
                       const SizedBox(width: TokenJarak.jarak4),
                       Expanded(
                         child: Text(
-                          'Lewat jatuh tempo ${p.hariLewatJatuhTempo} hari · '
+                          'Lewat jatuh tempo ${p.hariLewatJatuhTempo} hari | '
                           '${p.jumlahPiutangJatuhTempo.FormatRupiah()}',
                           style: teks.bodySmall?.copyWith(color: warna.bahaya),
                         ),

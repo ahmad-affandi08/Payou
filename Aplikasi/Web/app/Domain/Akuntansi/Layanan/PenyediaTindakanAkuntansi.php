@@ -102,7 +102,7 @@ final class PenyediaTindakanAkuntansi implements PenyediaTindakan
                 array_values($giro->take(DataButirTindakan::BATAS_RINCIAN)->map(fn (Giro $g): DataRincianTindakan => new DataRincianTindakan(
                     $g->Uuid,
                     "{$g->NomorGiro} {$g->NamaBank}",
-                    ($g->Arah === ArahGiro::Masuk ? 'Dari ' : 'Ke ').$g->NamaPihak.' · '.Uang::Dari($g->Jumlah)->FormatRupiah(),
+                    ($g->Arah === ArahGiro::Masuk ? 'Dari ' : 'Ke ').$g->NamaPihak.' | '.Uang::Dari($g->Jumlah)->FormatRupiah(),
                     $g->TanggalJatuhTempo->toDateString(),
                     '/kelola/akuntansi/giro?cari='.$g->Uuid,
                 ))->all()),

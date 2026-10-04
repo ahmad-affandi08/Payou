@@ -60,7 +60,7 @@ export default function TiketDukungan({ Tiket, Penangan, PilihanStatus, PilihanP
     const namaPenanggungJawab = Penangan.find((anggota) => anggota.Uuid === Tiket.UuidPenanggungJawab)?.Nama;
 
     return (
-        <TataLetakPengelola judul={`${Tiket.Nomor} · ${Tiket.Judul}`}>
+        <TataLetakPengelola judul={`${Tiket.Nomor} | ${Tiket.Judul}`}>
             <div className="flex flex-wrap items-center gap-2 text-label text-teks-sekunder">
                 <Link href="/dukungan/tiket" className="font-semibold underline">
                     Antrean tiket
@@ -88,7 +88,7 @@ export default function TiketDukungan({ Tiket, Penangan, PilihanStatus, PilihanP
                             />
                             <Rincian
                                 label="Pelapor"
-                                nilai={Tiket.Pelapor ? `${Tiket.Pelapor.Nama} · ${Tiket.Pelapor.Email}` : '—'}
+                                nilai={Tiket.Pelapor ? `${Tiket.Pelapor.Nama} | ${Tiket.Pelapor.Email}` : '—'}
                             />
                             <Rincian label="Kategori" nilai={Tiket.LabelKategori} />
                             <Rincian label="Prioritas" nilai={Tiket.LabelPrioritas} />

@@ -81,9 +81,9 @@ const kolomPenerimaan: KolomTabel<BarisPenerimaanKlaim>[] = [
             <>
                 <span className="block">{p.NamaPemasok}</span>
                 <span className="block text-label text-teks-sekunder">
-                    {p.JumlahKlaim} transaksi · {p.Cara}
+                    {p.JumlahKlaim} transaksi | {p.Cara}
                     {p.AkunKasBank ? ` ke ${p.AkunKasBank}` : ''}
-                    {p.Keterangan ? ` · ${p.Keterangan}` : ''}
+                    {p.Keterangan ? ` | ${p.Keterangan}` : ''}
                 </span>
             </>
         ),

@@ -51,7 +51,7 @@ const kolom: KolomTabel<GambarPustaka>[] = [
         header: 'Ukuran',
         meta: { label: 'Ukuran', prioritas: 'rendah' },
         cell: ({ row: { original: g } }) =>
-            `${g.Lebar && g.Tinggi ? `${g.Lebar}×${g.Tinggi} · ` : ''}${FormatUkuranBerkas(g.Ukuran)}`,
+            `${g.Lebar && g.Tinggi ? `${g.Lebar}×${g.Tinggi} | ` : ''}${FormatUkuranBerkas(g.Ukuran)}`,
     },
     {
         id: 'DibuatPada',

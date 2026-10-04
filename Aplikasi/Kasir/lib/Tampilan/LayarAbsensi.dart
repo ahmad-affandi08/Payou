@@ -116,7 +116,7 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
           ),
           if (!masuk && hasil.masukPada != null)
             Text(
-              'Masuk ${FormatWaktu.FormatJam(hasil.masukPada!)} · bekerja ${_Durasi(hasil.waktu.difference(hasil.masukPada!))}',
+              'Masuk ${FormatWaktu.FormatJam(hasil.masukPada!)} | bekerja ${_Durasi(hasil.waktu.difference(hasil.masukPada!))}',
               style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
             ),
           const SizedBox(height: TokenJarak.jarak8),
@@ -190,8 +190,8 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
               const SizedBox(height: TokenJarak.jarak8),
               for (final a in _terbaru)
                 Text(
-                  '${a.NamaStaf} · masuk ${FormatWaktu.FormatJam(a.MasukPada)}'
-                  '${a.KeluarPada == null ? ' · belum keluar' : ' · keluar ${FormatWaktu.FormatJam(a.KeluarPada!)}'}',
+                  '${a.NamaStaf} | masuk ${FormatWaktu.FormatJam(a.MasukPada)}'
+                  '${a.KeluarPada == null ? ' | belum keluar' : ' | keluar ${FormatWaktu.FormatJam(a.KeluarPada!)}'}',
                   style: teks.bodySmall,
                 ),
             ],

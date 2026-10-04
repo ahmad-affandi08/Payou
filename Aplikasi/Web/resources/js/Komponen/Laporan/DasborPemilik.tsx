@@ -116,7 +116,7 @@ export default function DasborPemilik({ data }: { data: DataDasbor }) {
         <section aria-labelledby="judul-dasbor" className="flex flex-col gap-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 id="judul-dasbor" className="text-subjudul font-semibold text-teks-utama">
-                    Ringkasan hari ini · {FormatTanggal(data.Tanggal)}
+                    Ringkasan hari ini | {FormatTanggal(data.Tanggal)}
                 </h2>
                 <TautanPanel href="/kelola/laporan/penjualan">Buka laporan penjualan</TautanPanel>
             </div>
@@ -219,7 +219,7 @@ export default function DasborPemilik({ data }: { data: DataDasbor }) {
                         <BarisDaftar
                             kiri="Shift masih terbuka"
                             keterangan={
-                                data.Shift.Terbuka.map((s) => `${s.NamaKasir} · ${s.NamaOutlet}`).join(', ') || null
+                                data.Shift.Terbuka.map((s) => `${s.NamaKasir} | ${s.NamaOutlet}`).join(', ') || null
                             }
                             kanan={String(data.Shift.JumlahTerbuka)}
                         />
@@ -266,7 +266,7 @@ export default function DasborPemilik({ data }: { data: DataDasbor }) {
                                                 href={`/kelola/kasir/shift/${s.Uuid}`}
                                                 className="text-brand underline"
                                             >
-                                                {s.NamaKasir || 'Shift'} · {s.NamaOutlet}
+                                                {s.NamaKasir || 'Shift'} | {s.NamaOutlet}
                                             </Link>
                                         }
                                         keterangan={FormatTanggalWaktu(s.DitutupPada)}

@@ -28,7 +28,7 @@ void main() {
 
     expect(find.text('Siapa yang bertugas?'), findsOneWidget);
     expect(find.text('Rina Wulandari'), findsOneWidget);
-    expect(find.text('Kopi Senja Solo Baru · POS-001'), findsOneWidget);
+    expect(find.text('Kopi Senja Solo Baru | POS-001'), findsOneWidget);
     await Lepas(tester, u);
   });
 
@@ -46,7 +46,7 @@ void main() {
     expect(find.textContaining('PIN salah. Sisa 4 percobaan'), findsOneWidget);
 
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
-    expect(find.text('Buka shift · Rina Wulandari'), findsOneWidget);
+    expect(find.text('Buka shift | Rina Wulandari'), findsOneWidget);
 
     await tester.tap(find.text('Hitung per pecahan'));
     await tester.pump();

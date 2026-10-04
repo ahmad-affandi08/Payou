@@ -72,7 +72,7 @@ export default function KemajuanImpor({ impor }: { impor: RingkasanImpor }) {
             <p aria-live="polite" className="text-isi text-teks-utama tabular-nums">
                 {label}: {progres}%
                 {impor.Status === 'Menerapkan'
-                    ? ` · ${String(status?.JumlahDiterapkan ?? impor.JumlahDiterapkan)} baris diterapkan, ${String(status?.JumlahGagal ?? impor.JumlahGagal)} gagal`
+                    ? ` | ${String(status?.JumlahDiterapkan ?? impor.JumlahDiterapkan)} baris diterapkan, ${String(status?.JumlahGagal ?? impor.JumlahGagal)} gagal`
                     : ''}
             </p>
             {kueri.isError ? (

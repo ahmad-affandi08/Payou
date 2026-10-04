@@ -132,7 +132,7 @@ export function RingkasanRekapKanvas({ rekap }: { rekap: RekapKanvas }) {
                 <span className="tabular-nums">{FormatRupiah(uang.PenjualanLain)}</span>
             </KeteranganGrosir>
             <KeteranganGrosir label="Transaksi">
-                {`${String(uang.JumlahTransaksi)} transaksi · ${String(uang.JumlahVoid)} void · ${String(uang.JumlahRetur)} retur`}
+                {`${String(uang.JumlahTransaksi)} transaksi | ${String(uang.JumlahVoid)} void | ${String(uang.JumlahRetur)} retur`}
             </KeteranganGrosir>
             <KeteranganGrosir label="Retur pelanggan">
                 <span className="tabular-nums">{FormatRupiah(uang.NilaiRetur)}</span>

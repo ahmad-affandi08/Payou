@@ -113,7 +113,7 @@ const kolomOverride: KolomTabel<Tampilan360['Override'][number]>[] = [
             <>
                 {baris.Alasan}
                 <span className="block text-keterangan">
-                    {baris.DibuatOleh} · {FormatTanggalWaktu(baris.DibuatPada)}
+                    {baris.DibuatOleh} | {FormatTanggalWaktu(baris.DibuatPada)}
                 </span>
             </>
         ),
@@ -340,7 +340,7 @@ export default function Tampil({ Tenant, Pilihan, Aturan }: PropsTampil) {
 
                     <Panel judul="Outlet & gudang">
                         <p className="text-isi text-teks-sekunder">
-                            {Tenant.Organisasi.Outlet.length} outlet · {Tenant.Organisasi.JumlahGudang} gudang ·{' '}
+                            {Tenant.Organisasi.Outlet.length} outlet | {Tenant.Organisasi.JumlahGudang} gudang |{' '}
                             {Tenant.Organisasi.JumlahMerek} merek
                         </p>
                         {Tenant.Organisasi.Outlet.length === 0 ? (
@@ -351,7 +351,7 @@ export default function Tampil({ Tenant, Pilihan, Aturan }: PropsTampil) {
                                     <li key={outlet.Kode}>
                                         <span className="font-mono text-label">{outlet.Kode}</span> {outlet.Nama}
                                         {outlet.TemplateSektor ? (
-                                            <span className="text-teks-sekunder"> · {outlet.TemplateSektor}</span>
+                                            <span className="text-teks-sekunder"> | {outlet.TemplateSektor}</span>
                                         ) : null}
                                     </li>
                                 ))}
@@ -374,7 +374,7 @@ export default function Tampil({ Tenant, Pilihan, Aturan }: PropsTampil) {
                                             ) : null}
                                         </span>
                                         <span className="break-all text-teks-sekunder">
-                                            {anggota.Email} ·{' '}
+                                            {anggota.Email} |{' '}
                                             {anggota.EmailTerverifikasi
                                                 ? 'email terverifikasi'
                                                 : 'email belum diverifikasi'}
@@ -402,7 +402,7 @@ export default function Tampil({ Tenant, Pilihan, Aturan }: PropsTampil) {
                                         {baris.Jenis} versi {baris.Versi ?? '—'}
                                         <span className="text-teks-sekunder">
                                             {' '}
-                                            · {baris.Pengguna} · {FormatTanggalWaktu(baris.DisetujuiPada)}
+                                            | {baris.Pengguna} | {FormatTanggalWaktu(baris.DisetujuiPada)}
                                         </span>
                                     </li>
                                 ))}
@@ -462,7 +462,7 @@ export default function Tampil({ Tenant, Pilihan, Aturan }: PropsTampil) {
                                     <li key={catatan.Uuid} className="border-t border-garis pt-3">
                                         <p className="whitespace-pre-line text-teks-utama">{catatan.Isi}</p>
                                         <p className="text-keterangan text-teks-sekunder">
-                                            {catatan.Penulis} · {FormatTanggalWaktu(catatan.DibuatPada)}
+                                            {catatan.Penulis} | {FormatTanggalWaktu(catatan.DibuatPada)}
                                         </p>
                                     </li>
                                 ))}
@@ -490,7 +490,7 @@ export default function Tampil({ Tenant, Pilihan, Aturan }: PropsTampil) {
                                             </p>
                                         ) : null}
                                         <p className="text-keterangan text-teks-sekunder">
-                                            {log.Pelaku} · {FormatTanggalWaktu(log.DibuatPada)}
+                                            {log.Pelaku} | {FormatTanggalWaktu(log.DibuatPada)}
                                         </p>
                                     </li>
                                 ))}

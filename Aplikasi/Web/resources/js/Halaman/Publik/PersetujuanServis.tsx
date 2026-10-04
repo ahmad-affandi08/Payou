@@ -35,7 +35,7 @@ export default function HalamanPersetujuanServis({ NamaToko, AlamatDasar, Perint
                 <p className="text-label text-teks-sekunder">{NamaToko}</p>
                 <JudulHalaman>Estimasi servis {pk.Kendaraan?.NomorPolisi ?? ''}</JudulHalaman>
                 <p className="text-keterangan text-teks-sekunder">
-                    <span className="font-mono">{pk.Nomor}</span> · {pk.Kendaraan?.Label ?? ''} · a.n.{' '}
+                    <span className="font-mono">{pk.Nomor}</span> | {pk.Kendaraan?.Label ?? ''} | a.n.{' '}
                     {pk.NamaPelanggan}
                 </p>
                 <div>
@@ -90,8 +90,8 @@ export default function HalamanPersetujuanServis({ NamaToko, AlamatDasar, Perint
                             </div>
                             <span className="text-keterangan text-teks-sekunder">
                                 {FormatJumlahStok(b.Jumlah, b.SimbolSatuan)} × {FormatRupiah(b.HargaSatuan)}
-                                {b.Diskon !== '0.00' ? ` · diskon ${FormatRupiah(b.Diskon)}` : ''}
-                                {!pk.BolehDiputuskan ? (b.Disetujui ? ' · disetujui' : ' · tidak disetujui') : ''}
+                                {b.Diskon !== '0.00' ? ` | diskon ${FormatRupiah(b.Diskon)}` : ''}
+                                {!pk.BolehDiputuskan ? (b.Disetujui ? ' | disetujui' : ' | tidak disetujui') : ''}
                             </span>
                         </li>
                     ))}

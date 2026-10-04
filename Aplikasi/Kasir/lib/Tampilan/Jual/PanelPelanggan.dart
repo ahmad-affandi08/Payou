@@ -156,7 +156,7 @@ class _PanelPelangganState extends ConsumerState<PanelPelanggan> {
     leading: Icon(p.uuid == terpilih?.uuid ? Icons.check_circle : Icons.person_outline),
     title: Text(p.nama, maxLines: 2, overflow: TextOverflow.ellipsis),
     subtitle: Text(
-      [p.noHpSamar, if (p.namaTier != null) p.namaTier!, if (p.saldoPoin != null) '${p.saldoPoin} poin'].join(' · '),
+      [p.noHpSamar, if (p.namaTier != null) p.namaTier!, if (p.saldoPoin != null) '${p.saldoPoin} poin'].join(' | '),
     ),
     onTap: () => unawaited(_Pilih(p)),
   );
@@ -279,7 +279,7 @@ class _PanelPelangganState extends ConsumerState<PanelPelanggan> {
               Text(
                 tukar == null
                     ? 'Terpilih: ${terpilih.nama}'
-                    : 'Terpilih: ${terpilih.nama} · ${tukar.poin} poin ditukar (−${tukar.nilai.FormatRupiah()})',
+                    : 'Terpilih: ${terpilih.nama} | ${tukar.poin} poin ditukar (−${tukar.nilai.FormatRupiah()})',
                 style: teks.bodyMedium,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

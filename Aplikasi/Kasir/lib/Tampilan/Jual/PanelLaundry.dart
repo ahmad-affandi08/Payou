@@ -129,8 +129,8 @@ class _PanelLaundryState extends ConsumerState<PanelLaundry> {
             spacing: TokenJarak.jarak8,
             children: [
               for (final (nilai, label) in [
-                ('Reguler', 'Reguler · ${pengaturan.jamReguler} jam'),
-                ('Express', 'Express · ${pengaturan.jamExpress} jam'),
+                ('Reguler', 'Reguler | ${pengaturan.jamReguler} jam'),
+                ('Express', 'Express | ${pengaturan.jamExpress} jam'),
               ])
                 ChoiceChip(
                   label: Text(label),
@@ -237,7 +237,7 @@ class _PanelLaundryState extends ConsumerState<PanelLaundry> {
               ),
             ),
           ] else
-            Text('Pemilik: ${pelanggan.nama} · ${pelanggan.noHpSamar}', style: teks.bodyMedium),
+            Text('Pemilik: ${pelanggan.nama} | ${pelanggan.noHpSamar}', style: teks.bodyMedium),
           if (_galat != null)
             Padding(
               padding: const EdgeInsets.only(top: TokenJarak.jarak8),

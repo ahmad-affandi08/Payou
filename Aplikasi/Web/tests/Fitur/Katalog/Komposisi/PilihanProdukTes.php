@@ -61,7 +61,7 @@ describe('Pilihan produk', function (): void {
         app(AturKelompokPilihanProduk::class)->Jalankan($induk, [$kelompok->Id]);
         $props = app(PilihanProduk::class)->Ambil($anak);
         expect($props['DariInduk'])->toBeTrue()
-            ->and($props['Terpasang'])->toBe([['Uuid' => $kelompok->Uuid, 'Nama' => 'Level Gula', 'Ringkasan' => 'Wajib pilih 1 · 3 pilihan']])
+            ->and($props['Terpasang'])->toBe([['Uuid' => $kelompok->Uuid, 'Nama' => 'Level Gula', 'Ringkasan' => 'Wajib pilih 1 | 3 pilihan']])
             ->and($props['Tersedia'])->toBe([]);
     });
 
@@ -97,10 +97,10 @@ describe('Pilihan produk', function (): void {
 
         expect(app(PilihanProduk::class)->Ambil($menu))->toBe([
             'Terpasang' => [
-                ['Uuid' => $topping->Uuid, 'Nama' => 'Topping', 'Ringkasan' => 'Opsional, maks. 2 · 2 pilihan'],
-                ['Uuid' => $gula->Uuid, 'Nama' => 'Level Gula', 'Ringkasan' => 'Wajib pilih 1 · 3 pilihan'],
+                ['Uuid' => $topping->Uuid, 'Nama' => 'Topping', 'Ringkasan' => 'Opsional, maks. 2 | 2 pilihan'],
+                ['Uuid' => $gula->Uuid, 'Nama' => 'Level Gula', 'Ringkasan' => 'Wajib pilih 1 | 3 pilihan'],
             ],
-            'Tersedia' => [['Uuid' => $ukuran->Uuid, 'Nama' => 'Ukuran Gelas', 'Ringkasan' => 'Wajib pilih 1 · 2 pilihan']],
+            'Tersedia' => [['Uuid' => $ukuran->Uuid, 'Nama' => 'Ukuran Gelas', 'Ringkasan' => 'Wajib pilih 1 | 2 pilihan']],
             'DariInduk' => false,
         ]);
     });

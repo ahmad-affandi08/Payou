@@ -63,7 +63,7 @@ const kolom: KolomTabel<BarisPemasok>[] = [
         header: 'PKP',
         enableSorting: false,
         meta: { label: 'PKP', prioritas: 'rendah' },
-        cell: ({ row: { original: p } }) => (p.Pkp ? `PKP${p.Npwp ? ` · ${p.Npwp}` : ''}` : 'Bukan PKP'),
+        cell: ({ row: { original: p } }) => (p.Pkp ? `PKP${p.Npwp ? ` | ${p.Npwp}` : ''}` : 'Bukan PKP'),
     },
     {
         id: 'Status',

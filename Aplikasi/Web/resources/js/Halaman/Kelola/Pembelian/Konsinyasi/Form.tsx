@@ -201,7 +201,7 @@ export default function HalamanFormKonsinyasi({
                 <Panel
                     judul={`Barang (${LabelJenis.toLowerCase()})`}
                     idJudul="judul-barang-konsinyasi"
-                    keterangan={`${daftar.length.toLocaleString('id-ID')} dari ${MaksBaris.toLocaleString('id-ID')} baris${masuk ? ` · total ${FormatRupiah(total)}` : ''}`}
+                    keterangan={`${daftar.length.toLocaleString('id-ID')} dari ${MaksBaris.toLocaleString('id-ID')} baris${masuk ? ` | total ${FormatRupiah(total)}` : ''}`}
                 >
                     <PemilihProdukStok
                         label="Tambah produk titipan"
@@ -247,7 +247,7 @@ export default function HalamanFormKonsinyasi({
                                             <span className="block text-keterangan text-teks-sekunder">
                                                 <span className="font-mono">{b.Sku ?? 'Tanpa SKU'}</span>
                                                 {b.SaldoDiGudang !== null
-                                                    ? ` · stok ${FormatJumlahStok(b.SaldoDiGudang, b.SimbolSatuan)}`
+                                                    ? ` | stok ${FormatJumlahStok(b.SaldoDiGudang, b.SimbolSatuan)}`
                                                     : null}
                                             </span>
                                         </div>

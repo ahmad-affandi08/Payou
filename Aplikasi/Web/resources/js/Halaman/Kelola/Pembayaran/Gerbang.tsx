@@ -193,7 +193,7 @@ export default function HalamanGerbangPembayaran({
                                         ? FormatTanggalWaktu(Gerbang.WebhookDiterimaPada)
                                         : 'belum ada'}
                                     {Gerbang.WebhookDitolakPada
-                                        ? ` · Ditolak (tanda tangan salah) terakhir: ${FormatTanggalWaktu(Gerbang.WebhookDitolakPada)}`
+                                        ? ` | Ditolak (tanda tangan salah) terakhir: ${FormatTanggalWaktu(Gerbang.WebhookDitolakPada)}`
                                         : ''}
                                 </p>
                             </div>

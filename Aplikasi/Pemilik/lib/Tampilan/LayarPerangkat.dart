@@ -43,13 +43,13 @@ class LayarPerangkat extends ConsumerWidget {
                     title: Text('${p.nama} (${p.kode})'),
                     subtitle: Text(
                       [
-                        '${p.jenis} · ${p.outlet}',
+                        '${p.jenis} | ${p.outlet}',
                         if (p.status != 'Aktif') p.status,
                         if (p.terakhirAktifPada != null)
                           'aktif ${FormatTampilan.TanggalJam(p.terakhirAktifPada!)}${diam ? ' (lama tidak tersambung)' : ''}',
                         if (p.outboxTertunda > 0) '${p.outboxTertunda} data belum terkirim',
                         if (p.versiAplikasi != null) 'versi ${p.versiAplikasi}',
-                      ].join(' · '),
+                      ].join(' | '),
                     ),
                   );
                 },

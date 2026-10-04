@@ -80,7 +80,7 @@ class _BagianLogPerangkatState extends ConsumerState<BagianLogPerangkat> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${FormatWaktu.FormatTanggalJam(e.waktu)} · ${e.tingkat.nilai} · ${e.sumber}',
+                            '${FormatWaktu.FormatTanggalJam(e.waktu)} | ${e.tingkat.nilai} | ${e.sumber}',
                             style: teks.labelMedium?.copyWith(
                               color: e.tingkat == TingkatLog.galat ? warna.bahaya : warna.teksSekunder,
                             ),

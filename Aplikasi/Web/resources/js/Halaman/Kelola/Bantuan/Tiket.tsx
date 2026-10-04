@@ -57,7 +57,7 @@ export default function TiketBantuan({ Tiket, Lampiran }: { Tiket: DetailTiket; 
                 <span className="font-mono">{Tiket.Nomor}</span>
                 <LabelStatus jenis={jenisLabelStatusTiket[Tiket.Status]} teks={Tiket.LabelStatus} />
                 <span>
-                    {Tiket.LabelKategori} · Prioritas {Tiket.LabelPrioritas} · Dibuat{' '}
+                    {Tiket.LabelKategori} | Prioritas {Tiket.LabelPrioritas} | Dibuat{' '}
                     {FormatTanggalWaktu(Tiket.DibuatPada)}
                 </span>
             </div>

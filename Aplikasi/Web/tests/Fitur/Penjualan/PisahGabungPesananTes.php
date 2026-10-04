@@ -32,7 +32,7 @@ describe('v1.99 pisah tagihan & gabung meja', function (): void {
         expect(BantuanPesananTerbuka::Kirim($this, $k, [$buka, $tambah]))->toBe([['Diterima', null], ['Diterima', null]]);
 
         // Tamu kedua bayar nasinya sendiri: pesanan baru (tanpa meja, berlabel) + pindah baris.
-        $pisah = BantuanPesananTerbuka::ItemBuka($k, null, label: 'Meja 7 · Tagihan 2', tamu: 1);
+        $pisah = BantuanPesananTerbuka::ItemBuka($k, null, label: 'Meja 7 | Tagihan 2', tamu: 1);
         $pindah = BantuanPesananTerbuka::Item($k, 'PindahBaris', $uuid, ['UuidTujuan' => $pisah['Uuid'], 'UuidBaris' => [$uuidNasi]], 'DipindahPada');
         expect(BantuanPesananTerbuka::Kirim($this, $k, [$pisah, $pindah]))->toBe([['Diterima', null], ['Diterima', null]])
             ->and(BantuanPesananTerbuka::Kirim($this, $k, [$pindah]))->toBe([['Duplikat', null]]);

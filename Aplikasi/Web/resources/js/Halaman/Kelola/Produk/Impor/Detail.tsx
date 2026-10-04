@@ -104,9 +104,9 @@ export default function HalamanDetailImpor({
             <div className="flex flex-wrap items-center gap-2 text-isi text-teks-sekunder">
                 <LabelStatus jenis={JenisLabelImpor(Impor.Status)} teks={Impor.LabelStatus} />
                 <span>
-                    Format {Impor.LabelSumber} · diunggah {FormatTanggalWaktu(Impor.DibuatPada)} oleh{' '}
+                    Format {Impor.LabelSumber} | diunggah {FormatTanggalWaktu(Impor.DibuatPada)} oleh{' '}
                     {Impor.NamaPengguna ?? 'Sistem'}
-                    {Impor.JumlahBaris > 0 ? ` · ${Impor.JumlahBaris.toLocaleString('id-ID')} baris` : ''}
+                    {Impor.JumlahBaris > 0 ? ` | ${Impor.JumlahBaris.toLocaleString('id-ID')} baris` : ''}
                 </span>
             </div>
 

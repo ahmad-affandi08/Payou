@@ -128,7 +128,7 @@ export default function HalamanDetailDaftarHarga({
                 <>
                     <span className="block font-semibold break-words text-teks-utama">{baris.NamaProduk}</span>
                     <span className="text-keterangan font-normal text-teks-sekunder">
-                        <span className="font-mono">{baris.Sku ?? 'Tanpa SKU'}</span> · per {baris.NamaSatuan}
+                        <span className="font-mono">{baris.Sku ?? 'Tanpa SKU'}</span> | per {baris.NamaSatuan}
                     </span>
                 </>
             ),
@@ -199,7 +199,7 @@ export default function HalamanDetailDaftarHarga({
                         `Prioritas ${DaftarHarga.Prioritas}`,
                     ]
                         .filter(Boolean)
-                        .join(' · ')}
+                        .join(' | ')}
                 </span>
                 {Izin.UbahHarga ? (
                     <span className="flex flex-wrap gap-2">

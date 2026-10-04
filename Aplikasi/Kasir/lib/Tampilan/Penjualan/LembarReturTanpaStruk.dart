@@ -483,7 +483,7 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
         if (_pelanggan case final p?)
           InputChip(
             key: const ValueKey('PelangganReturTanpaStruk'),
-            label: Text('${p.nama} · ${p.noHpSamar}'),
+            label: Text('${p.nama} | ${p.noHpSamar}'),
             onDeleted: () => setState(() => _pelanggan = null),
           )
         else ...[

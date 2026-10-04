@@ -86,7 +86,7 @@ const kolomTahun: KolomTabel<BarisTahunBuku>[] = [
         meta: { label: 'Ditutup', prioritas: 'rendah', kelasSel: 'text-teks-sekunder' },
         cell: ({ row }) =>
             row.original.Ditutup
-                ? `${FormatTanggalWaktu(row.original.DitutupPada)}${row.original.DitutupOleh ? ` · ${row.original.DitutupOleh}` : ''}`
+                ? `${FormatTanggalWaktu(row.original.DitutupPada)}${row.original.DitutupOleh ? ` | ${row.original.DitutupOleh}` : ''}`
                 : '—',
     },
 ];
@@ -115,7 +115,7 @@ const kolom: KolomTabel<BarisPeriodeAkuntansi>[] = [
         meta: { label: 'Dikunci', prioritas: 'rendah', kelasSel: 'text-teks-sekunder' },
         cell: ({ row }) =>
             row.original.Terkunci
-                ? `${FormatTanggalWaktu(row.original.DikunciPada)}${row.original.DikunciOleh ? ` · ${row.original.DikunciOleh}` : ''}`
+                ? `${FormatTanggalWaktu(row.original.DikunciPada)}${row.original.DikunciOleh ? ` | ${row.original.DikunciOleh}` : ''}`
                 : '—',
     },
 ];

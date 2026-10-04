@@ -35,7 +35,7 @@ class LayarShift extends ConsumerWidget {
                     for (final s in daftar)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Text('${s.kasir} · ${s.outlet}'),
+                        title: Text('${s.kasir} | ${s.outlet}'),
                         subtitle: Text(
                           [
                             if (s.dibukaPada != null) 'Buka ${FormatTampilan.TanggalJam(s.dibukaPada!)}',

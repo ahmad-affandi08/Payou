@@ -28,9 +28,9 @@ const kolom: KolomTabel<BarisKompatibilitas>[] = [
                 <span className="block">{b.Nama}</span>
                 <span className="block text-keterangan text-teks-sekunder">
                     {b.Jenis === 'Printer'
-                        ? `Printer${b.Sambungan ? ` · ${LabelSambunganPrinter[b.Sambungan] ?? b.Sambungan}` : ''}`
+                        ? `Printer${b.Sambungan ? ` | ${LabelSambunganPrinter[b.Sambungan] ?? b.Sambungan}` : ''}`
                         : 'Perangkat'}
-                    {b.Catatan ? ` · ${b.Catatan}` : ''}
+                    {b.Catatan ? ` | ${b.Catatan}` : ''}
                 </span>
             </>
         ),

@@ -48,7 +48,7 @@ const kolom: KolomTabel<KelompokPajak>[] = [
                 <ol className="flex flex-col gap-0.5">
                     {item.Pajak.map((pajak) => (
                         <li key={pajak.KodeJenisPajak}>
-                            {pajak.NamaJenisPajak} · {pajak.LabelDasarPengenaan}
+                            {pajak.NamaJenisPajak} | {pajak.LabelDasarPengenaan}
                         </li>
                     ))}
                 </ol>

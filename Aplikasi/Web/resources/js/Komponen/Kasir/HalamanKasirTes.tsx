@@ -232,7 +232,7 @@ describe('F-06 halaman kasir back-office', () => {
         );
         const tabelBukaUlang = screen.getByRole('table', { name: 'Buka ulang shift' });
         expect(within(tabelBukaUlang).getByText('Salah tekan tutup, pelanggan masih antre')).toBeTruthy();
-        expect(within(tabelBukaUlang).getByText('Diminta Rina Wulandari · disetujui Budi Santoso')).toBeTruthy();
+        expect(within(tabelBukaUlang).getByText('Diminta Rina Wulandari | disetujui Budi Santoso')).toBeTruthy();
         expect(within(tabelBukaUlang).getByText(/Kas aktual Rp 448\.000/)).toBeTruthy();
 
         cleanup();

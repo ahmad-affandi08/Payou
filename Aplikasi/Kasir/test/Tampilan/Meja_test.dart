@@ -94,7 +94,7 @@ void main() {
 
       await Ketuk(tester, find.text('Meja'));
       expect(find.byType(LayarMeja), findsOneWidget);
-      for (final teks in ['Dalam', 'Teras', 'D-01', 'D-02', 'T-01', '0 pesanan terbuka · 3 meja kosong']) {
+      for (final teks in ['Dalam', 'Teras', 'D-01', 'D-02', 'T-01', '0 pesanan terbuka | 3 meja kosong']) {
         expect(find.text(teks), findsOneWidget, reason: teks);
       }
       expect(tester.takeException(), isNull);
@@ -204,14 +204,14 @@ void main() {
     // Selesai → kembali ke Meja; T-01 kosong lagi tetapi perlu dibersihkan (K-12).
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Transaksi baru'));
     expect(find.byType(LayarMeja).hitTestable(), findsOneWidget);
-    expect(find.text('0 pesanan terbuka · 3 meja kosong · 1 perlu dibersihkan'), findsOneWidget);
+    expect(find.text('0 pesanan terbuka | 3 meja kosong | 1 perlu dibersihkan'), findsOneWidget);
     expect(find.text('Perlu dibersihkan'), findsOneWidget);
 
     // Ketuk meja kotor → tandai sudah bersih → outbox `Meja.Bersih`, meja siap dipakai.
     await Ketuk(tester, find.text('T-01'));
     await Ketuk(tester, find.text('Tandai sudah bersih'));
     expect(find.text('Meja T-01 siap dipakai.'), findsOneWidget);
-    expect(find.text('0 pesanan terbuka · 3 meja kosong'), findsOneWidget);
+    expect(find.text('0 pesanan terbuka | 3 meja kosong'), findsOneWidget);
     final bersih = (await AmbilOutbox(tester, u)).firstWhere((o) => o.jenis == 'Meja.Bersih');
     expect(bersih.data['UuidMeja'], '01K5MEJA0000000000000T0101');
     expect(bersih.data['UuidPengguna'], isNotNull);
@@ -239,13 +239,13 @@ void main() {
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Buka pesanan'));
       await Ketuk(tester, find.text('Meja'));
       expect(find.text('Perlu dibersihkan'), findsOneWidget, reason: 'T-01 kotor dari tamu sebelumnya.');
-      expect(find.text('1 pesanan terbuka · 2 meja kosong · 1 perlu dibersihkan'), findsOneWidget);
+      expect(find.text('1 pesanan terbuka | 2 meja kosong | 1 perlu dibersihkan'), findsOneWidget);
 
       await Ketuk(tester, find.byTooltip('Menu pesanan D-01'));
       await Ketuk(tester, find.text('Tandai minta bill'));
       expect(find.text('D-01 minta bill.'), findsOneWidget);
       expect(find.text('Minta bill'), findsOneWidget);
-      expect(find.text('1 pesanan terbuka · 2 meja kosong · 1 minta bill · 1 perlu dibersihkan'), findsOneWidget);
+      expect(find.text('1 pesanan terbuka | 2 meja kosong | 1 minta bill | 1 perlu dibersihkan'), findsOneWidget);
       final ubah = (await AmbilOutbox(tester, u)).lastWhere((o) => o.jenis == 'PesananTerbuka.Ubah');
       expect(ubah.data['MintaBill'], true);
       expect(ubah.data.containsKey('UuidMeja'), isFalse, reason: 'Hanya tanda bill yang diubah.');
@@ -278,17 +278,17 @@ void main() {
       await Ketuk(tester, Ubin('Americano Panas'));
       await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Tahan Utama'));
       expect(find.text('Item Utama T-01 disimpan & ditahan.'), findsOneWidget);
-      expect(find.textContaining('Ditahan · Utama'), findsOneWidget);
-      expect(find.text('Kirim Utama · 1 item'), findsOneWidget);
+      expect(find.textContaining('Ditahan | Utama'), findsOneWidget);
+      expect(find.text('Kirim Utama | 1 item'), findsOneWidget);
       expect((await AmbilOutbox(tester, u)).where((o) => o.jenis == 'PesananTerbuka.KirimDapur'), isEmpty);
       expect(tester.takeException(), isNull);
       // Pilihan kursus tidak menempel: item berikutnya kembali langsung dikirim ke dapur, bukan ikut ditahan.
       expect(find.widgetWithText(OutlinedButton, 'Tahan Utama'), findsNothing);
       expect(find.widgetWithText(OutlinedButton, 'Kirim ke dapur'), findsOneWidget);
 
-      await Ketuk(tester, find.text('Kirim Utama · 1 item'));
+      await Ketuk(tester, find.text('Kirim Utama | 1 item'));
       expect(find.text('Utama T-01 dikirim ke dapur.'), findsOneWidget);
-      expect(find.text('Kirim Utama · 1 item'), findsNothing);
+      expect(find.text('Kirim Utama | 1 item'), findsNothing);
       final kirim = (await AmbilOutbox(tester, u)).lastWhere((o) => o.jenis == 'PesananTerbuka.KirimDapur');
       expect((kirim.data['UuidBaris']! as List<Object?>), hasLength(1));
       expect(tester.takeException(), isNull);
@@ -358,8 +358,8 @@ void main() {
     await Tunggu(tester, const Duration(seconds: 8));
 
     expect(find.text('Pesanan QR menunggu konfirmasi (1)'), findsOneWidget);
-    expect(find.text('Meja D-01 · Bu Ani'), findsOneWidget);
-    expect(find.text('2 × Americano Panas · Tanpa gula'), findsOneWidget);
+    expect(find.text('Meja D-01 | Bu Ani'), findsOneWidget);
+    expect(find.text('2 × Americano Panas | Tanpa gula'), findsOneWidget);
 
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Terima & kirim ke dapur'));
     expect(find.textContaining('Pesanan QR/SLB/260924-0001 diterima'), findsOneWidget);

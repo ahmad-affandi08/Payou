@@ -69,7 +69,7 @@ const kolomResep: KolomTabel<BarisPenjualanObatResep>[] = [
                 <span className="break-words text-teks-utama">{b.NamaProduk}</span>
                 <span className="text-label text-teks-sekunder">
                     {b.LabelGolongan}
-                    {b.ObatWajibApotek ? ' · Obat Wajib Apotek' : ''}
+                    {b.ObatWajibApotek ? ' | Obat Wajib Apotek' : ''}
                 </span>
                 {b.Nomor !== null && b.UuidPenjualan !== null ? (
                     <Link
@@ -117,7 +117,7 @@ const kolomResep: KolomTabel<BarisPenjualanObatResep>[] = [
                     <span className="font-mono break-all">{b.NomorResep}</span>
                     <span className="text-label text-teks-sekunder break-words">
                         {b.NamaDokter}
-                        {b.TanggalResep ? ` · ${FormatTanggal(b.TanggalResep)}` : ''}
+                        {b.TanggalResep ? ` | ${FormatTanggal(b.TanggalResep)}` : ''}
                     </span>
                     {!b.DenganResep ? (
                         <span className="text-label text-teks-sekunder">Baris ini tidak ditandai resep</span>
@@ -170,7 +170,7 @@ const kolomSipnap: KolomTabel<BarisSipnap>[] = [
                 <span className="break-words text-teks-utama">{b.NamaProduk}</span>
                 <span className="text-label text-teks-sekunder">
                     {b.LabelGolongan}
-                    {b.Prekursor ? ' · prekursor' : ''} · {b.SimbolSatuan}
+                    {b.Prekursor ? ' | prekursor' : ''} | {b.SimbolSatuan}
                 </span>
             </span>
         ),

@@ -263,8 +263,8 @@ class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
                   ? (lampau
                         ? 'Tidak ada transaksi pada tanggal ini di perangkat ini.'
                         : 'Belum ada transaksi hari ini di perangkat ini.')
-                  : '${dihitung.length} transaksi · ${total.FormatRupiah()}'
-                        '${jumlahVoid == 0 ? '' : ' · $jumlahVoid void'}',
+                  : '${dihitung.length} transaksi | ${total.FormatRupiah()}'
+                        '${jumlahVoid == 0 ? '' : ' | $jumlahVoid void'}',
               style: teks.titleSmall,
             ),
           ],
@@ -408,7 +408,7 @@ class _BarisRetur extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${FormatWaktu.FormatJam(r.DibuatPada)} · ${r.NamaKasir} · ${r.NomorPenjualanAsal.isEmpty ? 'tanpa struk' : 'dari ${r.NomorPenjualanAsal}'}',
+                  '${FormatWaktu.FormatJam(r.DibuatPada)} | ${r.NamaKasir} | ${r.NomorPenjualanAsal.isEmpty ? 'tanpa struk' : 'dari ${r.NomorPenjualanAsal}'}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: teks.bodySmall,
@@ -481,8 +481,8 @@ class _BarisRiwayat extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            '${FormatWaktu.FormatJam(p.DibuatPada)} · ${p.NamaKasir}'
-            '${riwayat.metode.isEmpty ? '' : ' · ${riwayat.metode.join(' + ')}'}',
+            '${FormatWaktu.FormatJam(p.DibuatPada)} | ${p.NamaKasir}'
+            '${riwayat.metode.isEmpty ? '' : ' | ${riwayat.metode.join(' + ')}'}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: teks.bodySmall,
@@ -621,7 +621,7 @@ class _IsiRincian extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            '${b.NamaMetode}${b.Referensi == null ? '' : ' · ${b.Referensi}'}',
+                            '${b.NamaMetode}${b.Referensi == null ? '' : ' | ${b.Referensi}'}',
                             style: teks.bodySmall,
                           ),
                         ),
@@ -870,7 +870,7 @@ class _DialogRingkasanHarianState extends ConsumerState<_DialogRingkasanHarian> 
       ),
     );
     return AlertDialog(
-      title: Text('Ringkasan outlet · ${_NavigasiTanggal.Label(widget.tanggal)}'),
+      title: Text('Ringkasan outlet | ${_NavigasiTanggal.Label(widget.tanggal)}'),
       content: SizedBox(
         width: 480,
         child: FutureBuilder<RingkasanHarianPos>(
@@ -902,7 +902,7 @@ class _DialogRingkasanHarianState extends ConsumerState<_DialogRingkasanHarian> 
                   Baris('Void', Text('${r.jumlahVoid}', style: teks.bodyMedium)),
                   Baris(
                     'Retur',
-                    Text('${r.jumlahRetur} · ${Uang.Dari(r.retur).FormatRupiah()}', style: teks.bodyMedium),
+                    Text('${r.jumlahRetur} | ${Uang.Dari(r.retur).FormatRupiah()}', style: teks.bodyMedium),
                   ),
                   Baris('Penjualan kotor', TeksUang(Uang.Dari(r.kotor))),
                   Baris('Diskon', TeksUang(Uang.Dari(r.diskon))),
@@ -921,7 +921,7 @@ class _DialogRingkasanHarianState extends ConsumerState<_DialogRingkasanHarian> 
                     const Divider(),
                     Text('Per kasir', style: teks.titleSmall),
                     for (final k in r.perKasir)
-                      Baris('${k.nama} · ${k.jumlahTransaksi} transaksi', TeksUang(Uang.Dari(k.bersih))),
+                      Baris('${k.nama} | ${k.jumlahTransaksi} transaksi', TeksUang(Uang.Dari(k.bersih))),
                   ],
                 ],
               ),

@@ -55,8 +55,8 @@ describe('PemilihPelangganGrosir (dropdown, PRD v3.14)', () => {
 
         await waitFor(() => expect(screen.getByRole('option', { name: /Toko Makmur Jaya/ })).toBeTruthy());
         expect(Ambil.mock.calls[0]?.[0]).toBe('/kelola/grosir/pelanggan/cari?kata=');
-        expect(screen.getByText(/limit Rp\s?50\.000\.000 · piutang Rp\s?2\.000\.000/)).toBeTruthy();
-        expect(screen.getByText('0812****1234 · tanpa limit kredit')).toBeTruthy();
+        expect(screen.getByText(/limit Rp\s?50\.000\.000 \| piutang Rp\s?2\.000\.000/)).toBeTruthy();
+        expect(screen.getByText('0812****1234 | tanpa limit kredit')).toBeTruthy();
 
         fireEvent.click(screen.getByRole('option', { name: /Warung Bu Sri/ }));
         expect(SaatPilih).toHaveBeenCalledWith('P-WARUNG', 'Warung Bu Sri');
@@ -88,7 +88,7 @@ describe('PemilihPelangganGrosir (dropdown, PRD v3.14)', () => {
     it('BuatUrlCariPelanggan & KeteranganKredit', () => {
         expect(BuatUrlCariPelanggan('a b')).toBe('/kelola/grosir/pelanggan/cari?kata=a+b');
         expect(KeteranganKredit({ Uuid: 'x', Nama: 'x', NoHp: null, LimitKredit: null })).toBe(
-            'Tanpa nomor · tanpa limit kredit',
+            'Tanpa nomor | tanpa limit kredit',
         );
     });
 });

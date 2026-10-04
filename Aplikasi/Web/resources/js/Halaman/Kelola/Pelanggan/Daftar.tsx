@@ -29,7 +29,7 @@ const kolom: KolomTabel<BarisPelanggan>[] = [
                     {p.Nama}
                 </Link>
                 {p.Tag.length > 0 ? (
-                    <span className="text-keterangan text-teks-sekunder">{p.Tag.join(' · ')}</span>
+                    <span className="text-keterangan text-teks-sekunder">{p.Tag.join(' | ')}</span>
                 ) : null}
             </span>
         ),

@@ -171,7 +171,7 @@ describe('Impor produk langkah 2–5 (E.10)', () => {
         expect(screen.getByText('Nama produk wajib dipetakan ke satu kolom.')).toBeTruthy();
 
         UbahNilai(screen.getByLabelText('Kolom untuk Nama produk'), '0');
-        expect(screen.getByText('Kopi Susu · Teh Manis')).toBeTruthy();
+        expect(screen.getByText('Kopi Susu | Teh Manis')).toBeTruthy();
         fireEvent.click(screen.getByLabelText(/Lewati produk yang sudah ada/));
         fireEvent.click(screen.getByRole('button', { name: 'Periksa data' }));
         expect(tiruanRouter.put).toHaveBeenCalledWith(

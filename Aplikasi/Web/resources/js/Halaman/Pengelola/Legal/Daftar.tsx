@@ -74,12 +74,12 @@ export default function HalamanDaftarLegal({ Dokumen }: { Dokumen: KelompokDokum
                                                 href={`/legal/${versi.Uuid}`}
                                                 className="font-semibold text-teks-utama underline outline-none focus-visible:ring-2 focus-visible:ring-brand"
                                             >
-                                                Versi {versi.Versi} · {versi.Judul}
+                                                Versi {versi.Versi} | {versi.Judul}
                                             </Link>
                                             <span className="text-keterangan text-teks-sekunder">
                                                 Berlaku mulai {FormatTanggal(versi.BerlakuMulai)}
-                                                {versi.Materiil ? ' · perubahan materiil' : ''}
-                                                {versi.RingkasanPerubahan ? ` · ${versi.RingkasanPerubahan}` : ''}
+                                                {versi.Materiil ? ' | perubahan materiil' : ''}
+                                                {versi.RingkasanPerubahan ? ` | ${versi.RingkasanPerubahan}` : ''}
                                             </span>
                                         </div>
                                         <LabelStatus

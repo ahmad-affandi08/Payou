@@ -372,8 +372,8 @@ export default function HalamanFormOrderProduksi({
                                         <span className="block text-keterangan text-teks-sekunder">
                                             <span className="font-mono">{b.Sku ?? 'Tanpa SKU'}</span>
                                             {AmbilTandaDesimal(b.JumlahStandar) > 0
-                                                ? ` · standar resep ${FormatJumlahStok(b.JumlahStandar, b.SimbolSatuan)}`
-                                                : ' · di luar resep'}
+                                                ? ` | standar resep ${FormatJumlahStok(b.JumlahStandar, b.SimbolSatuan)}`
+                                                : ' | di luar resep'}
                                         </span>
                                     </div>
                                     <Button

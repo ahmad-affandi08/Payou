@@ -220,8 +220,8 @@ export default function HalamanDetailPesananGrosir({
                                 >
                                     {sj.Nomor}
                                 </Link>{' '}
-                                · {FormatTanggal(sj.Tanggal)} · {sj.LabelStatus} · {FormatRupiah(sj.Total)}
-                                {sj.Difakturkan ? ' · sudah difakturkan' : ' · belum difakturkan'}
+                                | {FormatTanggal(sj.Tanggal)} | {sj.LabelStatus} | {FormatRupiah(sj.Total)}
+                                {sj.Difakturkan ? ' | sudah difakturkan' : ' | belum difakturkan'}
                             </li>
                         ))}
                     </ul>

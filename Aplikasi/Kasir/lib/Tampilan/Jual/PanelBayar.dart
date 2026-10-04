@@ -964,7 +964,7 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
       if (keranjang.laundry case final laundry?)
         Padding(
           padding: const EdgeInsets.only(bottom: TokenJarak.jarak8),
-          child: Text('Tiket laundry ${laundry.jenisLayanan} · ${laundry.RingkasIsi()}', style: teks.bodySmall),
+          child: Text('Tiket laundry ${laundry.jenisLayanan} | ${laundry.RingkasIsi()}', style: teks.bodySmall),
         ),
       if (keranjang.reservasi case final reservasi?)
         Padding(
@@ -974,18 +974,18 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
       if (keranjang.perintahKerja case final pk?)
         Padding(
           padding: const EdgeInsets.only(bottom: TokenJarak.jarak8),
-          child: Text(['Menagih perintah kerja ${pk.nomor}', ?pk.nomorPolisi].join(' · '), style: teks.bodySmall),
+          child: Text(['Menagih perintah kerja ${pk.nomor}', ?pk.nomorPolisi].join(' | '), style: teks.bodySmall),
         ),
       if (keranjang.tukar case final tukar?)
         Padding(
           padding: const EdgeInsets.only(bottom: TokenJarak.jarak8),
           child: Text(
-            'Tukar barang ${tukar.tanpaStruk ? 'tanpa struk' : 'dari ${tukar.nomorPenjualanAsal}'} · nilai retur ${tukar.nilai.FormatRupiah()}'
+            'Tukar barang ${tukar.tanpaStruk ? 'tanpa struk' : 'dari ${tukar.nomorPenjualanAsal}'} | nilai retur ${tukar.nilai.FormatRupiah()}'
             '${tukar.nilai.Bandingkan(hitungan.hasil.totalAkhir) <= 0
                 ? ''
                 : tukar.tanpaStruk
-                ? ' · tambah barang pengganti ${tukar.nilai.Kurangi(hitungan.hasil.totalAkhir).FormatRupiah()} lagi (tanpa struk tidak dikembalikan tunai)'
-                : ' · kembalikan ${tukar.nilai.Kurangi(hitungan.hasil.totalAkhir).FormatRupiah()} tunai'}',
+                ? ' | tambah barang pengganti ${tukar.nilai.Kurangi(hitungan.hasil.totalAkhir).FormatRupiah()} lagi (tanpa struk tidak dikembalikan tunai)'
+                : ' | kembalikan ${tukar.nilai.Kurangi(hitungan.hasil.totalAkhir).FormatRupiah()} tunai'}',
             style: teks.bodySmall,
           ),
         ),
@@ -1009,8 +1009,8 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
                   Expanded(
                     child: Text(
                       bagi.perNominal
-                          ? 'Bagi per nominal · tamu $_tamuKe'
-                          : 'Bagi rata ${bagi.jumlahOrang} orang · tamu $_tamuKe dari ${bagi.jumlahOrang}',
+                          ? 'Bagi per nominal | tamu $_tamuKe'
+                          : 'Bagi rata ${bagi.jumlahOrang} orang | tamu $_tamuKe dari ${bagi.jumlahOrang}',
                       style: teks.titleSmall,
                     ),
                   ),
@@ -1036,7 +1036,7 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
       for (final p in _entri)
         Row(
           children: [
-            Expanded(child: Text('${p.metode.Nama}${p.referensi == null ? '' : ' · ${p.referensi}'}')),
+            Expanded(child: Text('${p.metode.Nama}${p.referensi == null ? '' : ' | ${p.referensi}'}')),
             TeksUang(p.jumlah),
             if (p.metode.Jenis == JenisMetodeBayar.uangMuka ||
                 p.metode.Jenis == JenisMetodeBayar.qrisDinamis ||

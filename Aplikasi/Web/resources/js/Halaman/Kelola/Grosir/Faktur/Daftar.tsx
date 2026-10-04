@@ -52,7 +52,7 @@ const kolom: KolomTabel<BarisDaftarFaktur>[] = [
         cell: ({ row: { original: f } }) =>
             f.Sisa === null
                 ? '—'
-                : `${FormatRupiah(f.Sisa)}${f.LabelStatusPiutang ? ` · ${f.LabelStatusPiutang}` : ''}`,
+                : `${FormatRupiah(f.Sisa)}${f.LabelStatusPiutang ? ` | ${f.LabelStatusPiutang}` : ''}`,
     },
 ];
 

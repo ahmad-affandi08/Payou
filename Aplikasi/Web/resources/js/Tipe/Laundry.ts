@@ -49,7 +49,7 @@ export type PengaturanLaundry = {
     HariBelumDiambil: number;
 };
 
-/** Ringkasan isi cucian: "3,5 kg · Bed cover ×1". */
+/** Ringkasan isi cucian: "3,5 kg | Bed cover ×1". */
 export function RingkasIsiLaundry(t: { Berat: string | null; Item: ItemLaundry[] }): string {
     const bagian: string[] = [];
     if (t.Berat) {
@@ -58,7 +58,7 @@ export function RingkasIsiLaundry(t: { Berat: string | null; Item: ItemLaundry[]
     for (const i of t.Item) {
         bagian.push(`${i.Nama} ×${i.Jumlah}`);
     }
-    return bagian.length > 0 ? bagian.join(' · ') : '-';
+    return bagian.length > 0 ? bagian.join(' | ') : '-';
 }
 
 export type PropsDaftarLaundry = {

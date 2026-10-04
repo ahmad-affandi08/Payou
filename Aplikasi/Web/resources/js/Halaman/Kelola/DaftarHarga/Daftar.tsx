@@ -117,7 +117,7 @@ const kolom: KolomTabel<BarisDaftarHarga>[] = [
                 daftar.TierPelanggan ? `Pelanggan ${daftar.TierPelanggan}` : null,
             ]
                 .filter(Boolean)
-                .join(' · '),
+                .join(' | '),
     },
     {
         id: 'Periode',

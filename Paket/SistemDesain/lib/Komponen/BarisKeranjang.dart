@@ -82,7 +82,7 @@ class BarisKeranjang extends StatelessWidget {
                       child: rincian.isEmpty
                           ? const SizedBox.shrink()
                           : Text(
-                              rincian.join(' · '),
+                              rincian.join(' | '),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: teks.bodySmall,

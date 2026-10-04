@@ -523,13 +523,13 @@ class LaundryKeranjang {
   final String? namaPelanggan;
   final String? noHp;
 
-  /// "3,5 kg · Bed cover ×1".
+  /// "3,5 kg | Bed cover ×1".
   String RingkasIsi() {
     final b = berat;
     return [
       if (b != null) '${b.toString().replaceAll('.', ',')} kg',
       for (final i in item) '${i.nama} ×${i.jumlah}',
-    ].join(' · ');
+    ].join(' | ');
   }
 
   Map<String, Object?> KeJson() => {

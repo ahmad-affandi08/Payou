@@ -40,7 +40,7 @@ final class PenyediaTindakanStok implements PenyediaTindakan
             array_map(fn (array $b): DataRincianTindakan => new DataRincianTindakan(
                 (string) $b['Kunci'],
                 (string) $b['NamaProduk'],
-                "Sisa {$b['Saldo']} {$b['SimbolSatuan']}, minimum {$b['StokMinimum']} · {$b['NamaGudang']}",
+                "Sisa {$b['Saldo']} {$b['SimbolSatuan']}, minimum {$b['StokMinimum']} | {$b['NamaGudang']}",
                 null,
                 null,
             ), $kritis['Baris']),
@@ -65,8 +65,8 @@ final class PenyediaTindakanStok implements PenyediaTindakan
             'Lihat batch kedaluwarsa',
             array_map(fn (array $b): DataRincianTindakan => new DataRincianTindakan(
                 (string) $b['Kunci'],
-                "{$b['NamaProduk']} · batch {$b['NomorBatch']}",
-                "Sisa {$b['Sisa']} {$b['SimbolSatuan']} · {$b['NamaGudang']} · ".($b['SisaHari'] < 0 ? 'lewat '.abs($b['SisaHari']).' hari' : ($b['SisaHari'] === 0 ? 'kedaluwarsa hari ini' : "kedaluwarsa {$b['SisaHari']} hari lagi")),
+                "{$b['NamaProduk']} | batch {$b['NomorBatch']}",
+                "Sisa {$b['Sisa']} {$b['SimbolSatuan']} | {$b['NamaGudang']} | ".($b['SisaHari'] < 0 ? 'lewat '.abs($b['SisaHari']).' hari' : ($b['SisaHari'] === 0 ? 'kedaluwarsa hari ini' : "kedaluwarsa {$b['SisaHari']} hari lagi")),
                 $b['TanggalKedaluwarsa'],
                 null,
             ), $kedaluwarsa['Baris']),

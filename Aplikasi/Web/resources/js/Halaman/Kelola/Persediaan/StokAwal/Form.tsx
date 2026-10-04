@@ -319,7 +319,7 @@ export default function HalamanFormStokAwal({
                                                     <span className="block text-keterangan text-teks-sekunder">
                                                         <span className="font-mono">{baris.Sku ?? 'Tanpa SKU'}</span>
                                                         {baris.SaldoDiGudang !== null
-                                                            ? ` · stok saat ini ${FormatJumlahStok(baris.SaldoDiGudang, baris.SimbolSatuan)}`
+                                                            ? ` | stok saat ini ${FormatJumlahStok(baris.SaldoDiGudang, baris.SimbolSatuan)}`
                                                             : null}
                                                     </span>
                                                     {CekSaldoMinus(baris.SaldoDiGudang) ? (

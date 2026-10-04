@@ -108,7 +108,7 @@ describe('TataLetakPengelola: menu sesuai izin, penanda lingkungan, banner (P-01
         expect(kepala?.className).toContain('to-brand');
         expect(kepala?.querySelector('img[src*="LogoHorizontalPutih.webp"]')).toBeTruthy();
         expect(kepala?.querySelector('img[src*="IkonMerekPutih.png"]')).toBeTruthy();
-        expect(kepala?.textContent).not.toContain('Kasir · Pengelola');
+        expect(kepala?.textContent).not.toContain('Kasir | Pengelola');
     });
 
     it('penanda lingkungan selalu tampil dan banner integrasi & operasional ditampilkan', () => {

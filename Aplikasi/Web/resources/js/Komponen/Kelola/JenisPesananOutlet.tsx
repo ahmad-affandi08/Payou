@@ -47,7 +47,7 @@ export default function JenisPesananOutlet({ alamatOutlet, data, bolehKelola }: 
     const ringkas =
         data.JenisPesanan.length === 0
             ? 'Kasir tidak menawarkan pilihan; semua penjualan tercatat Bawa pulang.'
-            : `${data.JenisPesanan.map((j) => label.get(j) ?? j).join(', ')} · bawaan ${
+            : `${data.JenisPesanan.map((j) => label.get(j) ?? j).join(', ')} | bawaan ${
                   label.get(data.JenisPesananBawaan ?? '') ?? '-'
               }${data.Otomatis ? ' (otomatis)' : ''}`;
 

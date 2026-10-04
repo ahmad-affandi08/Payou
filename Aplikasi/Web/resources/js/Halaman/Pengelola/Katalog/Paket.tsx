@@ -68,7 +68,7 @@ function BuatKolom(kolomBatas: string[]): KolomTabel<Paket>[] {
                     </Link>
                     <span className="block font-mono text-keterangan font-normal text-teks-sekunder">{paket.Kode}</span>
                     <span className="block text-keterangan font-normal text-teks-sekunder">
-                        {paket.KunciFitur.length} fitur · trial {paket.MasaTrialHari} hari
+                        {paket.KunciFitur.length} fitur | trial {paket.MasaTrialHari} hari
                     </span>
                 </>
             ),

@@ -64,8 +64,8 @@ Map<String, Object?> TransferGudangUji({String sisa = '30.0000', String status =
   'Tanggal': '2026-09-24',
   'Status': status,
   'LabelStatus': status == 'Diterima' ? 'Diterima' : 'Dikirim',
-  'NamaAsal': 'Pusat · Gudang Utama',
-  'NamaTujuan': 'Kopi Senja Solo Baru · Toko',
+  'NamaAsal': 'Pusat | Gudang Utama',
+  'NamaTujuan': 'Kopi Senja Solo Baru | Toko',
   'Catatan': null,
   'Baris': [
     {
@@ -89,7 +89,7 @@ Map<String, Object?> TransferGudangUji({String sisa = '30.0000', String status =
 Map<String, Object?> OpnameGudangUji({int dihitung = 1, String? fisikRoti}) => {
   'Uuid': UuidGudangUji.opname,
   'Nomor': 'SO/SLB/2609/001',
-  'NamaLokasi': 'Kopi Senja Solo Baru · Toko',
+  'NamaLokasi': 'Kopi Senja Solo Baru | Toko',
   'NamaKategori': null,
   'HitungButa': true,
   'SnapshotPada': '2026-09-24T00:30:00Z',

@@ -31,7 +31,7 @@ class BagianPesanSendiri extends ConsumerStatefulWidget {
 class _BagianPesanSendiriState extends ConsumerState<BagianPesanSendiri> {
   String? _diproses;
 
-  String _Judul(PesananSendiriPos p) => [if (p.namaMeja != null) 'Meja ${p.namaMeja}', ?p.namaPemesan].join(' · ');
+  String _Judul(PesananSendiriPos p) => [if (p.namaMeja != null) 'Meja ${p.namaMeja}', ?p.namaPemesan].join(' | ');
 
   Future<void> _Terima(PesananSendiriPos p) async {
     final k = ref.read(penyediaKonteksPenjualan).value;
@@ -147,7 +147,7 @@ class _BagianPesanSendiriState extends ConsumerState<BagianPesanSendiri> {
                       [
                         '${FormatAngka.FormatDesimal(Decimal.parse(b.jumlah))} × ${b.namaProduk}',
                         if (b.pilihan.isNotEmpty) '(${b.pilihan.map((x) => x['Nama']).join(', ')})',
-                        if (b.catatan != null && b.catatan!.isNotEmpty) '· ${b.catatan}',
+                        if (b.catatan != null && b.catatan!.isNotEmpty) '| ${b.catatan}',
                       ].join(' '),
                       style: teks.bodyMedium,
                     ),

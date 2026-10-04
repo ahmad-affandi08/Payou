@@ -143,9 +143,9 @@ export default function HalamanDetailOrderProduksi({
                         {Order.NamaProduk}
                         <span className="block text-keterangan text-teks-sekunder">
                             {FormatJumlahStok(Order.JumlahHasil, Order.SimbolSatuan)}
-                            {Order.NomorBatch ? ` · batch ${Order.NomorBatch}` : ''}
+                            {Order.NomorBatch ? ` | batch ${Order.NomorBatch}` : ''}
                             {Order.TanggalKedaluwarsa
-                                ? ` · kedaluwarsa ${FormatTanggal(Order.TanggalKedaluwarsa)}`
+                                ? ` | kedaluwarsa ${FormatTanggal(Order.TanggalKedaluwarsa)}`
                                 : ''}
                         </span>
                     </Keterangan>
@@ -163,7 +163,7 @@ export default function HalamanDetailOrderProduksi({
                         <Keterangan label="Nilai hasil">
                             <span className="font-semibold tabular-nums">{FormatNilai(Order.NilaiHasil)}</span>
                             <span className="block text-keterangan text-teks-sekunder">
-                                Bahan {FormatNilai(Order.TotalNilaiBahan)} · HPP {FormatHppSatuan(Order.HppSatuanHasil)}{' '}
+                                Bahan {FormatNilai(Order.TotalNilaiBahan)} | HPP {FormatHppSatuan(Order.HppSatuanHasil)}{' '}
                                 per {Order.SimbolSatuan}
                             </span>
                         </Keterangan>

@@ -111,7 +111,7 @@ function SelPengingat({ pengingat }: { pengingat: PengingatPiutangTerakhir | nul
             <LabelStatus jenis={JenisLabelPengingat[pengingat.Status]} teks={pengingat.LabelStatus} />
             <span className="text-keterangan whitespace-nowrap text-teks-sekunder">
                 {pengingat.Kanal === 'Whatsapp' ? 'WhatsApp' : 'Email'}
-                {pengingat.Waktu ? ` · ${FormatTanggal(pengingat.Waktu)}` : ''}
+                {pengingat.Waktu ? ` | ${FormatTanggal(pengingat.Waktu)}` : ''}
             </span>
         </span>
     );

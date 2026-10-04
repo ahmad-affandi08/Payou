@@ -72,7 +72,7 @@ export default function BidangBerkas({
                             className="flex items-center justify-between gap-2 text-keterangan"
                         >
                             <span className="break-all text-teks-utama">
-                                {file.name} · {FormatUkuranBerkas(file.size)}
+                                {file.name} | {FormatUkuranBerkas(file.size)}
                             </span>
                             <Button
                                 type="button"

@@ -166,7 +166,7 @@ const kolomRiwayat: KolomTabel<BarisRiwayatHarga>[] = [
         header: 'Harga',
         enableSorting: false,
         meta: { label: 'Harga', prioritas: 'utama', wajib: true },
-        cell: ({ row }) => `${row.original.NamaDaftarHarga ?? 'Harga dasar'} · ${row.original.NamaSatuan}`,
+        cell: ({ row }) => `${row.original.NamaDaftarHarga ?? 'Harga dasar'} | ${row.original.NamaSatuan}`,
     },
     {
         id: 'JumlahMinimum',
@@ -194,7 +194,7 @@ const kolomRiwayat: KolomTabel<BarisRiwayatHarga>[] = [
         header: 'Oleh',
         enableSorting: false,
         meta: { label: 'Oleh', prioritas: 'rendah', kelasSel: 'text-teks-sekunder' },
-        cell: ({ row }) => `${row.original.NamaPengubah ?? 'Sistem'} · ${row.original.LabelSumber}`,
+        cell: ({ row }) => `${row.original.NamaPengubah ?? 'Sistem'} | ${row.original.LabelSumber}`,
     },
 ];
 
@@ -265,7 +265,7 @@ export default function HalamanHargaProduk({
                             BandingkanDesimal(item.KonversiKeDasar, '1') !== 0 ? (
                                 <span className="font-normal text-teks-sekunder tabular-nums">
                                     {' '}
-                                    · isi {FormatMasukanJumlah(item.KonversiKeDasar)} satuan dasar
+                                    | isi {FormatMasukanJumlah(item.KonversiKeDasar)} satuan dasar
                                 </span>
                             ) : null}
                         </p>

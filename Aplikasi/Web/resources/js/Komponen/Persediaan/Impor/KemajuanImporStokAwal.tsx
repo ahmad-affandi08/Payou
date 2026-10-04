@@ -80,7 +80,7 @@ export default function KemajuanImporStokAwal({ impor }: { impor: RingkasanImpor
                 <p aria-live="polite" className="text-isi text-teks-utama tabular-nums">
                     {label}: {progres}%
                     {membuatDraf
-                        ? ` · ${(status?.JumlahDokumen ?? impor.JumlahDokumen).toLocaleString('id-ID')} draf dibuat`
+                        ? ` | ${(status?.JumlahDokumen ?? impor.JumlahDokumen).toLocaleString('id-ID')} draf dibuat`
                         : ''}
                 </p>
             )}

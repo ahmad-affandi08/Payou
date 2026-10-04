@@ -54,7 +54,7 @@ const kolom: KolomTabel<BarisAntrean>[] = [
             <>
                 <span className="block break-words text-teks-utama">{tiket.Judul}</span>
                 <span className="text-keterangan font-normal text-teks-sekunder">
-                    {tiket.NamaTenant} · {tiket.Kategori}
+                    {tiket.NamaTenant} | {tiket.Kategori}
                 </span>
             </>
         ),

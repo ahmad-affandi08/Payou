@@ -25,17 +25,17 @@ export function BuatUrlCariPelanggan(kata: string): string {
     return `${alamatCari}?${new URLSearchParams({ kata }).toString()}`;
 }
 
-/** "Limit Rp 50.000.000 · sisa piutang Rp 2.000.000" atau "tanpa limit kredit". */
+/** "Limit Rp 50.000.000 | sisa piutang Rp 2.000.000" atau "tanpa limit kredit". */
 export function KeteranganKredit(p: HasilPelangganGrosir): string {
     const nomor = p.NoHp ?? 'Tanpa nomor';
 
     if (p.LimitKredit === null) {
-        return `${nomor} · tanpa limit kredit`;
+        return `${nomor} | tanpa limit kredit`;
     }
 
-    const piutang = p.SisaPiutang && p.SisaPiutang !== '0.00' ? ` · piutang ${FormatRupiah(p.SisaPiutang)}` : '';
+    const piutang = p.SisaPiutang && p.SisaPiutang !== '0.00' ? ` | piutang ${FormatRupiah(p.SisaPiutang)}` : '';
 
-    return `${nomor} · limit ${FormatRupiah(p.LimitKredit)}${piutang}`;
+    return `${nomor} | limit ${FormatRupiah(p.LimitKredit)}${piutang}`;
 }
 
 /**

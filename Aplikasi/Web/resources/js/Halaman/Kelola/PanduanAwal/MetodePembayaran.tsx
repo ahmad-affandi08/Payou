@@ -142,7 +142,7 @@ function AturBatasHariMenunggu({ metode }: { metode: MetodePembayaranRingkas }) 
         <Dialog open={terbuka} onOpenChange={AturTerbuka}>
             <span className="block text-keterangan">
                 Wajar menunggu pencairan {metode.BatasHariMenunggu} hari
-                {metode.BatasHariKustom ? '' : ' (bawaan)'} ·{' '}
+                {metode.BatasHariKustom ? '' : ' (bawaan)'} |{' '}
                 <DialogTrigger asChild>
                     <button type="button" className="font-semibold text-brand underline">
                         Atur

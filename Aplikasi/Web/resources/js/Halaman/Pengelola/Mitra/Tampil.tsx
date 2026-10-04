@@ -188,7 +188,7 @@ export default function HalamanTampilMitra({ Mitra, OpsiJenis }: PropsTampilMitr
                     <dd>
                         {[Mitra.NamaBank, Mitra.RekeningTersamar, Mitra.NamaPemilikRekening]
                             .filter(Boolean)
-                            .join(' · ') || 'Belum diisi'}
+                            .join(' | ') || 'Belum diisi'}
                     </dd>
                     <dt className="text-teks-sekunder">Tautan pendaftaran</dt>
                     <dd className="flex flex-wrap items-center gap-2">
@@ -221,7 +221,7 @@ export default function HalamanTampilMitra({ Mitra, OpsiJenis }: PropsTampilMitr
             </section>
             <section className="flex flex-col gap-3">
                 <h2 className="text-subjudul font-semibold text-teks-utama">
-                    Komisi · tertunda {FormatRupiah(tertunda.reduce((t, k) => t + Number(k.Jumlah), 0).toFixed(2))}
+                    Komisi | tertunda {FormatRupiah(tertunda.reduce((t, k) => t + Number(k.Jumlah), 0).toFixed(2))}
                 </h2>
                 <TabelData
                     id="pengelola-mitra-komisi"

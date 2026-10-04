@@ -95,7 +95,7 @@ void main() {
       );
       expect(find.text('Roti Tawar Gandum'), findsOneWidget);
       expect(find.text('4 Pcs'), findsOneWidget);
-      expect(find.textContaining('Kedaluwarsa / basi · Budi Santoso'), findsOneWidget);
+      expect(find.textContaining('Kedaluwarsa / basi | Budi Santoso'), findsOneWidget);
       expect(find.text('Belum terkirim'), findsOneWidget);
 
       final outbox = await tester.runAsync(() => u.db.select(u.db.outbox).get());

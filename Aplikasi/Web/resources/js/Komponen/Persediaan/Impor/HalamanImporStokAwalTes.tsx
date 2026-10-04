@@ -211,7 +211,7 @@ describe('Impor stok awal langkah 2–5 (DesainF05a E)', () => {
         expect(screen.getByText('Ada 2 isian yang perlu diperbaiki.')).toBeTruthy();
 
         UbahNilai(screen.getByLabelText('Kolom untuk Harga Modal'), '2');
-        expect(screen.getByText('38.500 · 14.250,75')).toBeTruthy();
+        expect(screen.getByText('38.500 | 14.250,75')).toBeTruthy();
         UbahNilai(screen.getByLabelText('Lokasi stok bawaan'), opsiGudang[0]?.Uuid ?? '');
         UbahNilai(screen.getByLabelText('Tanggal stok awal'), '2026-09-01');
         fireEvent.click(screen.getByRole('button', { name: 'Periksa data' }));

@@ -314,7 +314,7 @@ void main() {
       String Kode(String uuid) => InfoObat.Dari(katalog.CariProduk(uuid)!)!.Kode;
       expect([amoxicillin, asamMefenamat, diazepam, paracetamol, ctm].map(Kode), [
         'K',
-        'K · OWA',
+        'K | OWA',
         'P',
         'Bebas',
         'B. terbatas',

@@ -288,7 +288,7 @@ describe('F-14a laporan penjualan', () => {
         );
 
         expect(screen.getByRole('table', { name: 'Anti-fraud per kasir' })).toBeTruthy();
-        expect(screen.getAllByText('Tinggi · 80').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Tinggi | 80').length).toBeGreaterThan(0);
         expect(screen.getAllByText('3 void tunai ≤ 10 menit setelah bayar').length).toBeGreaterThan(0);
         expect(screen.getByText(/Skor risiko adalah petunjuk untuk diperiksa, bukan bukti/)).toBeTruthy();
     });

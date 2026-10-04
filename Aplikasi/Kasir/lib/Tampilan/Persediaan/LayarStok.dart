@@ -146,7 +146,7 @@ class _BarisBahanTerbuang extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${FormatWaktu.FormatJam(b.DibuatPada)} · $alasan · ${b.NamaPengguna}',
+                  '${FormatWaktu.FormatJam(b.DibuatPada)} | $alasan | ${b.NamaPengguna}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: teks.bodySmall,

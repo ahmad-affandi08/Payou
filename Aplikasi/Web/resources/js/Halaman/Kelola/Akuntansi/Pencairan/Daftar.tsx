@@ -128,14 +128,14 @@ function RekapPotongan({ rekap }: { rekap: RekapPotonganPencairan[] }) {
                         <li key={r.Nama} className="flex flex-col gap-0.5">
                             <span className="font-semibold break-words text-teks-utama">{r.Nama}</span>
                             <span className="text-keterangan text-teks-sekunder">
-                                {r.Jumlah} pencairan · diserahkan {FormatRupiah(r.JumlahKotor)}
+                                {r.Jumlah} pencairan | diserahkan {FormatRupiah(r.JumlahKotor)}
                             </span>
                             <span className="text-isi tabular-nums text-teks-utama">
                                 dipotong {FormatRupiah(r.Biaya)} ({FormatPersen(r.PersenEfektif)})
                             </span>
                             {menyimpang ? (
                                 <span className="text-keterangan text-teks-sekunder">
-                                    perkiraan {FormatRupiah(r.BiayaDiharapkan)} · selisih{' '}
+                                    perkiraan {FormatRupiah(r.BiayaDiharapkan)} | selisih{' '}
                                     {FormatRupiah(r.Selisih.replace('-', ''))}{' '}
                                     {BandingkanDesimal(r.Selisih, '0') > 0 ? 'lebih' : 'kurang'}
                                 </span>

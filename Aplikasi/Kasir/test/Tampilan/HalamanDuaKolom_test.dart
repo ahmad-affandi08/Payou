@@ -76,7 +76,7 @@ void main() {
     await Tunggu(tester);
     expect(find.text('Penjualan shift ini'), findsOneWidget);
     expect(find.text('Rp 33.000'), findsWidgets);
-    expect(find.textContaining('2 transaksi · rata-rata Rp 16.500'), findsOneWidget);
+    expect(find.textContaining('2 transaksi | rata-rata Rp 16.500'), findsOneWidget);
     expect(find.text('Per metode bayar'), findsOneWidget);
     expect(find.text('Produk terlaris'), findsOneWidget);
     expect(find.text('Sebelum tutup shift'), findsOneWidget);

@@ -78,9 +78,9 @@ export default function HalamanPortalKurir({ NamaToko, NamaKurir, AlamatDasar, P
                         {selesai.map((p) => (
                             <li key={p.Uuid} className="flex flex-wrap items-center justify-between gap-2 p-3">
                                 <span>
-                                    <span className="font-mono">{p.Nomor}</span> · {p.NamaPelanggan}
-                                    {p.NamaPenerima ? ` · diterima ${p.NamaPenerima}` : ''}
-                                    {p.AdaBukti ? ' · ada foto' : ''}
+                                    <span className="font-mono">{p.Nomor}</span> | {p.NamaPelanggan}
+                                    {p.NamaPenerima ? ` | diterima ${p.NamaPenerima}` : ''}
+                                    {p.AdaBukti ? ' | ada foto' : ''}
                                 </span>
                                 <LabelStatus jenis={JenisStatus(p.Status)} teks={p.LabelStatus} />
                             </li>

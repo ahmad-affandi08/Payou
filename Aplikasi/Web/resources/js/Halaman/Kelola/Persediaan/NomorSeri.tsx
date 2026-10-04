@@ -46,10 +46,10 @@ export function BuatQueryNomorSeri(saring: {
     return query;
 }
 
-/** "Terjual 7 Oktober 2026 · INV/…" untuk unit terjual, selain itu lokasi stok. */
+/** "Terjual 7 Oktober 2026 | INV/…" untuk unit terjual, selain itu lokasi stok. */
 function KeteranganUnit(u: UnitNomorSeri): string {
     if (u.Status === 'Terjual' && u.NomorPenjualan) {
-        return `Terjual ${u.TanggalJual ? FormatTanggal(u.TanggalJual) : ''} · ${u.NomorPenjualan}`.replace('  ', ' ');
+        return `Terjual ${u.TanggalJual ? FormatTanggal(u.TanggalJual) : ''} | ${u.NomorPenjualan}`.replace('  ', ' ');
     }
 
     return u.NamaGudang ?? '—';
@@ -306,7 +306,7 @@ export default function HalamanNomorSeri({
                     <Panel
                         judul={`Riwayat ${unit.Nomor}`}
                         aksi={<LabelStatusUnit unit={unit} />}
-                        keterangan={unit.Sku ? `${unit.NamaProduk} · ${unit.Sku}` : unit.NamaProduk}
+                        keterangan={unit.Sku ? `${unit.NamaProduk} | ${unit.Sku}` : unit.NamaProduk}
                     >
                         <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                             <Butir judul="Produk">
@@ -321,7 +321,7 @@ export default function HalamanNomorSeri({
                             <Butir judul={unit.Status === 'Terjual' ? 'Terjual' : 'Lokasi stok'}>
                                 {unit.Status === 'Terjual' && unit.NomorPenjualan ? (
                                     <>
-                                        {unit.TanggalJual ? `${FormatTanggal(unit.TanggalJual)} · ` : ''}
+                                        {unit.TanggalJual ? `${FormatTanggal(unit.TanggalJual)} | ` : ''}
                                         {Izin.Penjualan && unit.UuidPenjualan ? (
                                             <Link
                                                 href={`/kelola/penjualan/${unit.UuidPenjualan}`}

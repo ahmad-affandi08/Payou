@@ -129,7 +129,7 @@ class _LayarBukaShiftState extends ConsumerState<LayarBukaShift> {
   @override
   Widget build(BuildContext context) {
     return BingkaiMasuk(
-      judul: 'Buka shift · ${widget.kasir.nama}',
+      judul: 'Buka shift | ${widget.kasir.nama}',
       keterangan: 'Hitung uang di laci sebelum mulai berjualan.',
       catatan: 'Shift tetap bisa dibuka tanpa internet dan akan terkirim otomatis saat online.',
       lebarIsi: 520,

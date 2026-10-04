@@ -138,7 +138,7 @@ export default function FormIsiBisnis({ url, isi, pilihan, bolehUbah }: PropsFor
                                 legenda="Fitur aktif"
                                 opsi={pilihan.Fitur.map((fitur) => ({
                                     nilai: fitur.Nilai,
-                                    label: `${fitur.Label} · ${fitur.Kelompok}`,
+                                    label: `${fitur.Label} | ${fitur.Kelompok}`,
                                 }))}
                                 terpilih={data.KunciFitur}
                                 saatBerubah={(terpilih) => formulir.setData('KunciFitur', terpilih)}

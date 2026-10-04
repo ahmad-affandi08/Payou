@@ -31,8 +31,8 @@ export default function PercakapanTiket({ pesan, tautanLampiran }: PropsPercakap
             {pesan.map((baris) =>
                 baris.JenisPengirim === 'Sistem' ? (
                     <li key={baris.Uuid} className="text-keterangan text-teks-sekunder">
-                        {baris.CatatanInternal ? <strong className="font-semibold">Internal · </strong> : null}
-                        {baris.Isi} · {FormatTanggalWaktu(baris.DibuatPada)}
+                        {baris.CatatanInternal ? <strong className="font-semibold">Internal | </strong> : null}
+                        {baris.Isi} | {FormatTanggalWaktu(baris.DibuatPada)}
                     </li>
                 ) : (
                     <li

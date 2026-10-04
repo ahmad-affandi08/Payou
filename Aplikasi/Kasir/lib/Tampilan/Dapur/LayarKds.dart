@@ -224,7 +224,7 @@ class _LayarKdsState extends ConsumerState<LayarKds> {
                             [
                               if (identitas?.outlet.isNotEmpty ?? false) identitas!.outlet,
                               '${aktif.length} tiket aktif',
-                            ].join(' · '),
+                            ].join(' | '),
                             style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
                           ),
                         ],
@@ -386,7 +386,7 @@ class _KartuTiket extends StatelessWidget {
                       children: [
                         Text(judul, maxLines: 1, overflow: TextOverflow.ellipsis, style: teks.titleLarge),
                         Text(
-                          '${tiket.ronde > 1 ? 'Tambahan ke-${tiket.ronde - 1} · ' : ''}${tiket.status}',
+                          '${tiket.ronde > 1 ? 'Tambahan ke-${tiket.ronde - 1} | ' : ''}${tiket.status}',
                           style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
                         ),
                       ],

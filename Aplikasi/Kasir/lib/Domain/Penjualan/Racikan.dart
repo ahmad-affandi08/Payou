@@ -77,8 +77,8 @@ class RacikanBaris {
     return terkuat == null ? null : InfoObat(golongan: terkuat);
   }
 
-  /// "10 kemasan · 3 x 1 bungkus sesudah makan" (keranjang & struk).
-  String get Ringkasan => ['$jumlahKemasan kemasan', ?aturanPakai].join(' · ');
+  /// "10 kemasan | 3 x 1 bungkus sesudah makan" (keranjang & struk).
+  String get Ringkasan => ['$jumlahKemasan kemasan', ?aturanPakai].join(' | ');
 
   Map<String, Object?> KeJson() => {
     'Nama': nama,

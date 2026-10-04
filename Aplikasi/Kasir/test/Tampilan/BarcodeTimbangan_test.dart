@@ -61,7 +61,7 @@ void main() {
     await Pindai(tester, '2912345012502');
     // Awalan 29 tidak diatur: bukan barcode timbangan, keranjang tidak berubah (katalog tersaring kata cari).
     expect(find.text('Jeruk Medan'), findsOneWidget);
-    expect(find.textContaining('Keranjang · 1,25 item'), findsOneWidget);
+    expect(find.textContaining('Keranjang | 1,25 item'), findsOneWidget);
     expect(find.text('Rp 40.000'), findsWidgets);
     await Lepas(tester, u);
   });

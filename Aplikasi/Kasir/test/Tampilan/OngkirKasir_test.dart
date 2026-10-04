@@ -82,18 +82,18 @@ void main() {
       await Ketuk(tester, Ubin('Croissant'));
       await Ketuk(tester, Ubin('Croissant'));
       if (ukuran.width < 600) {
-        await Ketuk(tester, find.textContaining('Keranjang ·').first);
+        await Ketuk(tester, find.textContaining('Keranjang |').first);
       }
       expect(find.byKey(const ValueKey('IsiOngkir')), findsNothing, reason: 'Belum kanal Antar.');
 
       await Ketuk(tester, find.byKey(const ValueKey('PilihKanal')));
       await Ketuk(tester, find.byKey(const ValueKey('Kanal-Antar')));
-      expect(find.text('Tanpa ongkir · ketuk untuk mengisi'), findsOneWidget);
+      expect(find.text('Tanpa ongkir | ketuk untuk mengisi'), findsOneWidget);
 
       await Ketuk(tester, find.byKey(const ValueKey('IsiOngkir')));
       await tester.enterText(find.byKey(const ValueKey('NilaiOngkir')), '15000');
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan'));
-      expect(find.text('Ongkir Rp 15.000 · ketuk untuk mengubah'), findsOneWidget);
+      expect(find.text('Ongkir Rp 15.000 | ketuk untuk mengubah'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('Gratis ongkir'), 100, scrollable: find.byType(Scrollable).last);
       expect(find.text('Gratis ongkir'), findsOneWidget);
       expect(tester.takeException(), isNull);

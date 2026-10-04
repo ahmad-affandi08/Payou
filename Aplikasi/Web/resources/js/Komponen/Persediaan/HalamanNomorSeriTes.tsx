@@ -117,7 +117,7 @@ describe('Kelola/Persediaan/NomorSeri (F-05h)', () => {
 
         expect(screen.getByRole('heading', { name: 'Hasil pencarian (120)' })).toBeTruthy();
         expect(screen.getByText(/Menampilkan 50 dari 120 nomor/)).toBeTruthy();
-        expect(screen.getByText(/Terjual 7 \w+ 2026 · INV\/SLB\/261007\/POS-001-0012/)).toBeTruthy();
+        expect(screen.getByText(/Terjual 7 \w+ 2026 \| INV\/SLB\/261007\/POS-001-0012/)).toBeTruthy();
         expect(screen.getByRole('link', { name: /Ekspor CSV/ }).getAttribute('href')).toBe(
             '/kelola/persediaan/kartu-stok/nomor-seri/ekspor?cari=3569380',
         );

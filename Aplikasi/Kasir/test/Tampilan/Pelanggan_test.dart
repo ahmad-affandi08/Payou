@@ -92,7 +92,7 @@ void main() {
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan & pakai'));
 
       expect(find.byType(PanelPelanggan), findsNothing);
-      expect(find.text('Budi Santoso · 0813****2222'), findsOneWidget);
+      expect(find.text('Budi Santoso | 0813****2222'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar'));
@@ -160,10 +160,10 @@ void main() {
     await Ketuk(tester, find.textContaining('Pelanggan umum'));
     await tester.enterText(find.widgetWithText(TextField, 'Cari nama atau nomor HP (min. 3 huruf)'), 'ani');
     await Tunggu(tester, const Duration(milliseconds: 600));
-    expect(find.text('0812****7890 · Gold · 120 poin'), findsOneWidget);
+    expect(find.text('0812****7890 | Gold | 120 poin'), findsOneWidget);
     await Ketuk(tester, find.text('Ani Rahmawati'));
 
-    expect(find.text('Ani Rahmawati · 0812****7890 · Gold'), findsOneWidget);
+    expect(find.text('Ani Rahmawati | 0812****7890 | Gold'), findsOneWidget);
     // Harga Gold 22.000 + PBJT 10% = 24.200.
     expect(find.text('Rp 24.200'), findsWidgets);
     expect(find.text('Rp 27.500'), findsNothing);
@@ -193,9 +193,9 @@ void main() {
     await Tunggu(tester, const Duration(milliseconds: 600));
     await Ketuk(tester, find.text('Ani Rahmawati'));
 
-    await Ketuk(tester, find.textContaining('Ani Rahmawati · 0812****7890'));
+    await Ketuk(tester, find.textContaining('Ani Rahmawati | 0812****7890'));
     await Ketuk(tester, find.text('Tukar poin'));
-    expect(find.text('Saldo 120 poin · 1 poin = Rp 100 · minimal 10 poin'), findsOneWidget);
+    expect(find.text('Saldo 120 poin | 1 poin = Rp 100 | minimal 10 poin'), findsOneWidget);
     // Sisa belanja 25.000 → maksimal min(120, 250) = 120 poin.
     expect(find.text('Bisa ditukar sampai 120 poin untuk belanja ini.'), findsOneWidget);
     await tester.enterText(find.widgetWithText(TextField, 'Poin yang ditukar'), '5');
@@ -212,7 +212,7 @@ void main() {
     expect(find.text('Rp 22.000'), findsWidgets);
 
     u.server.penangan = (p) async => throw http.ClientException('offline');
-    await Ketuk(tester, find.textContaining('Ani Rahmawati · 0812****7890'));
+    await Ketuk(tester, find.textContaining('Ani Rahmawati | 0812****7890'));
     await Ketuk(tester, find.text('Tukar poin'));
     expect(find.text('Tukar poin perlu koneksi internet. Coba lagi saat perangkat online.'), findsOneWidget);
     expect(tester.takeException(), isNull);

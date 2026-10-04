@@ -81,7 +81,7 @@ export default function HalamanDetailPelunasan({
                                 <span className="font-mono font-semibold break-all">{a.Nomor ?? '—'}</span>
                                 <span className="text-keterangan text-teks-sekunder">
                                     {a.JatuhTempo ? `Jatuh tempo ${FormatTanggal(a.JatuhTempo)}` : ''}
-                                    {a.Sisa ? ` · sisa sekarang ${FormatRupiah(a.Sisa)}` : ''}
+                                    {a.Sisa ? ` | sisa sekarang ${FormatRupiah(a.Sisa)}` : ''}
                                 </span>
                             </span>
                             <span className="tabular-nums">{FormatRupiah(a.Jumlah)}</span>

@@ -72,14 +72,14 @@ void main() {
     await PasangPemilik(tester, server: server, sesi: sesi);
 
     expect(find.text('Karyawan hari ini'), findsOneWidget);
-    expect(find.text('1 hadir · 1 terlambat · 1 belum masuk'), findsOneWidget);
+    expect(find.text('1 hadir | 1 terlambat | 1 belum masuk'), findsOneWidget);
 
     await tester.tap(find.text('Karyawan hari ini'));
     await tester.pumpAndSettle();
 
     expect(find.text('Budi'), findsOneWidget);
-    expect(find.text('Jadwal 09:00–16:00 · Solo Baru'), findsOneWidget);
-    expect(find.text('Masuk 08:20, masih bekerja · terlambat 20 menit · dari HP · Solo Baru'), findsOneWidget);
+    expect(find.text('Jadwal 09:00–16:00 | Solo Baru'), findsOneWidget);
+    expect(find.text('Masuk 08:20, masih bekerja | terlambat 20 menit | dari HP | Solo Baru'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Komisi bulan ini'), 200);
     expect(find.textContaining('(40,0%)'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsOneWidget);

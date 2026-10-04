@@ -205,7 +205,7 @@ export default function HalamanDetailSuratJalan({
                                 >
                                     {r.Nomor}
                                 </Link>{' '}
-                                · {FormatTanggal(r.Tanggal)} · {r.LabelStatus} · {FormatRupiah(r.Total)}
+                                | {FormatTanggal(r.Tanggal)} | {r.LabelStatus} | {FormatRupiah(r.Total)}
                             </li>
                         ))}
                     </ul>

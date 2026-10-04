@@ -138,7 +138,7 @@ class _BarisMutasi extends StatelessWidget {
                     LembarMutasiKas.AmbilJudul(m.Jenis),
                     if (m.Catatan != null) m.Catatan!,
                     if (m.DisetujuiOleh != null) 'disetujui supervisor',
-                  ].join(' · '),
+                  ].join(' | '),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: teks.bodySmall,

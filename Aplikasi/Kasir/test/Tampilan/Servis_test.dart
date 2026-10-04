@@ -69,13 +69,13 @@ void main() {
       online = true;
       await Ketuk(find.widgetWithText(OutlinedButton, 'Muat ulang'));
       expect(find.text('AD 1234 XY'), findsOneWidget);
-      expect(find.text('Bambang Sutrisno · Selesai · 2 baris'), findsOneWidget);
+      expect(find.text('Bambang Sutrisno | Selesai | 2 baris'), findsOneWidget);
 
       await Ketuk(find.text('AD 1234 XY'));
       expect(find.text('Jasa'), findsOneWidget);
       expect(find.text('Sparepart'), findsOneWidget);
-      expect(find.text('1 × Rp 50.000 · Mekanik: Joko Prasetyo'), findsOneWidget);
-      expect(find.text('1 × Rp 55.000 · diskon Rp 5.000'), findsOneWidget);
+      expect(find.text('1 × Rp 50.000 | Mekanik: Joko Prasetyo'), findsOneWidget);
+      expect(find.text('1 × Rp 55.000 | diskon Rp 5.000'), findsOneWidget);
       expect(find.text('Keluhan: Rem belakang bunyi, tarikan berat'), findsOneWidget);
       await Ketuk(find.widgetWithText(FilledButton, 'Tagih ke keranjang'));
 
@@ -87,7 +87,7 @@ void main() {
       expect(find.textContaining('Servis AD 1234 XY'), findsWidgets, reason: 'Judul keranjang = kendaraannya.');
 
       await Ketuk(find.widgetWithText(FilledButton, 'Bayar').first);
-      expect(find.text('Menagih perintah kerja WO/SLB/2610/0007 · AD 1234 XY'), findsOneWidget);
+      expect(find.text('Menagih perintah kerja WO/SLB/2610/0007 | AD 1234 XY'), findsOneWidget);
       expect(find.widgetWithText(OutlinedButton, 'Jadikan pre-order (bayar DP)'), findsNothing);
       await Ketuk(find.widgetWithText(ChoiceChip, 'Tunai'));
       await Ketuk(find.widgetWithText(FilledButton, 'Uang pas'));

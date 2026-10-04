@@ -157,10 +157,10 @@ void main() {
 
       // 2 × 15.000 + 25.000 = 55.000 + PBJT 10% = 60.500.
       if (ukuran.width < 600) {
-        expect(find.text('Keranjang · 2 baris'), findsOneWidget);
+        expect(find.text('Keranjang | 2 baris'), findsOneWidget);
         expect(find.text('Rp 60.500'), findsOneWidget);
       } else {
-        expect(find.text('Keranjang · 3 item'), findsOneWidget);
+        expect(find.text('Keranjang | 3 item'), findsOneWidget);
         expect(find.text('PBJT 10%'), findsOneWidget);
         expect(find.text('Rp 60.500'), findsOneWidget);
         expect(find.byType(BarisKeranjang), findsNWidgets(2));
@@ -275,7 +275,7 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await Tunggu(tester);
     expect(find.text('Pembayaran berhasil'), findsNothing);
-    expect(find.text('Keranjang · 1 item'), findsOneWidget, reason: 'Produk masuk ke transaksi baru.');
+    expect(find.text('Keranjang | 1 item'), findsOneWidget, reason: 'Produk masuk ke transaksi baru.');
     expect(tester.takeException(), isNull);
     await Lepas(tester, u);
   });
@@ -290,8 +290,8 @@ void main() {
 
     await Ketuk(tester, Ubin('Es Kopi Susu Aren'));
     expect(tester.widget<PanelTugas>(find.byType(PanelTugas)).judul, 'Es Kopi Susu Aren');
-    expect(find.text('Level gula · wajib, pilih 1'), findsOneWidget);
-    expect(find.text('Tambahan · opsional, maks. 2'), findsOneWidget);
+    expect(find.text('Level gula | wajib, pilih 1'), findsOneWidget);
+    expect(find.text('Tambahan | opsional, maks. 2'), findsOneWidget);
 
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Tambah ke keranjang'));
     expect(find.text('Pilih minimal 1 untuk "Level gula".'), findsOneWidget);
@@ -302,7 +302,7 @@ void main() {
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Tambah ke keranjang'));
 
     expect(find.byType(PanelTugas), findsNothing);
-    expect(find.text('@ Rp 18.000/Cangkir · Kurang manis · Extra shot +Rp 5.000'), findsOneWidget);
+    expect(find.text('@ Rp 18.000/Cangkir | Kurang manis | Extra shot +Rp 5.000'), findsOneWidget);
     // 23.000 + PBJT 2.300.
     expect(find.text('Rp 23.000'), findsNWidgets(2));
     expect(find.text('Rp 25.300'), findsOneWidget);
@@ -445,7 +445,7 @@ void main() {
     final bayar = ((await AmbilOutboxPenjualan(tester, u)).single['Pembayaran']! as List<Object?>)
         .cast<Map<String, Object?>>();
     expect(bayar.map((b) => (b['UuidMetodePembayaran'], b['Jumlah'], b['Referensi'])), [
-      ('01K5MTD0000000000000000003', '20000.00', 'Mandiri · 004512'),
+      ('01K5MTD0000000000000000003', '20000.00', 'Mandiri | 004512'),
       ('01K5MTD0000000000000000001', '7500.00', null),
     ]);
     await Lepas(tester, u);
@@ -465,7 +465,7 @@ void main() {
     // Pindai tanpa mengetuk kolom cari: produk masuk keranjang; pindai lagi → jumlah +1.
     await Pindai(UuidUji.barcodeAmericano);
     await Pindai(UuidUji.barcodeAmericano);
-    expect(find.text('Keranjang · 2 item'), findsOneWidget);
+    expect(find.text('Keranjang | 2 item'), findsOneWidget);
     expect(find.descendant(of: find.byType(BarisKeranjang), matching: find.text('2')), findsOneWidget);
 
     // Barcode satuan lusin → baris dengan satuan Lusin.
@@ -492,7 +492,7 @@ void main() {
     expect(Ubin('Americano Panas'), findsNothing);
     await tester.testTextInput.receiveAction(TextInputAction.search);
     await Tunggu(tester);
-    expect(find.text('Keranjang · 4 item'), findsOneWidget, reason: 'Enter di kolom cari dengan satu hasil menambah.');
+    expect(find.text('Keranjang | 4 item'), findsOneWidget, reason: 'Enter di kolom cari dengan satu hasil menambah.');
 
     // F8 → halaman Bayar; Esc → kembali ke keranjang.
     await tester.sendKeyEvent(LogicalKeyboardKey.f8);
@@ -507,7 +507,7 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await Tunggu(tester);
     expect(find.text('Batalkan transaksi ini?'), findsNothing);
-    expect(find.text('Keranjang · 3 item'), findsOneWidget);
+    expect(find.text('Keranjang | 3 item'), findsOneWidget);
     expect(
       find.text('Croissant Mentega Prancis Isi Cokelat Lumer Ukuran Jumbo dihapus dari keranjang.'),
       findsOneWidget,
@@ -577,10 +577,10 @@ void main() {
 
     await Ketuk(tester, find.byTooltip('Pesanan tertahan (1)'));
     expect(tester.widget<PanelTugas>(find.byType(PanelTugas)).judul, 'Pesanan tertahan');
-    expect(find.textContaining('Americano Panas · '), findsOneWidget);
+    expect(find.textContaining('Americano Panas | '), findsOneWidget);
     await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Buka'));
     expect(find.byType(PanelTugas), findsNothing);
-    expect(find.text('Keranjang · 1 item'), findsOneWidget);
+    expect(find.text('Keranjang | 1 item'), findsOneWidget);
     expect(await tester.runAsync(() => u.db.select(u.db.pesananTertahan).get()), isEmpty);
     expect(await AmbilOutboxPenjualan(tester, u), isEmpty, reason: 'Pesanan tertahan tidak dikirim ke server.');
     await Lepas(tester, u);

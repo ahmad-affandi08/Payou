@@ -164,7 +164,7 @@ export default function TataLetakPengelola({ judul, jejak = [], aksi, children }
             item: grup.item.filter((menu) => menu.izin === null || PunyaIzin(pengguna, menu.izin)),
         }))
         .filter((grup) => grup.item.length > 0);
-    const namaPlatform = `${props.NamaAplikasi} · Pengelola`;
+    const namaPlatform = `${props.NamaAplikasi} | Pengelola`;
 
     return (
         <SidebarProvider defaultOpen={BacaSidebarTerbuka()}>

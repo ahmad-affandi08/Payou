@@ -189,7 +189,7 @@ class _LembarVoidState extends ConsumerState<LembarVoid> {
           children: [
             TeksKode(p.Nomor, gaya: teks.titleSmall),
             const SizedBox(height: TokenJarak.jarak4),
-            Text('${FormatWaktu.FormatJam(p.DibuatPada)} · ${p.NamaKasir}', style: teks.bodySmall),
+            Text('${FormatWaktu.FormatJam(p.DibuatPada)} | ${p.NamaKasir}', style: teks.bodySmall),
             const SizedBox(height: TokenJarak.jarak8),
             _BarisNilai(label: 'Total transaksi', nilai: Uang.Dari(p.TotalAkhir)),
           ],

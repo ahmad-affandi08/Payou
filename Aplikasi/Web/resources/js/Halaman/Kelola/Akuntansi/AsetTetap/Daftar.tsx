@@ -56,8 +56,8 @@ const kolom: KolomTabel<BarisAsetTetap>[] = [
             <span className="flex flex-col">
                 <span className="font-semibold break-words">{a.Nama}</span>
                 <span className="text-keterangan text-teks-sekunder">
-                    {a.LabelKelompok} · {FormatMasaManfaat(a.UmurBulan)}
-                    {a.NamaOutlet ? ` · ${a.NamaOutlet}` : ''}
+                    {a.LabelKelompok} | {FormatMasaManfaat(a.UmurBulan)}
+                    {a.NamaOutlet ? ` | ${a.NamaOutlet}` : ''}
                 </span>
             </span>
         ),

@@ -79,7 +79,7 @@ export default function HalamanBuatFakturGrosir({ SuratJalan, HariIni, Izin }: P
                                         {sj.Nomor}
                                     </span>
                                     <span className="text-keterangan text-teks-sekunder">
-                                        {sj.NamaPelanggan} · diserahkan {FormatTanggal(sj.Tanggal)} ·{' '}
+                                        {sj.NamaPelanggan} | diserahkan {FormatTanggal(sj.Tanggal)} |{' '}
                                         {FormatRupiah(sj.Total)}
                                     </span>
                                 </label>
@@ -109,7 +109,7 @@ export default function HalamanBuatFakturGrosir({ SuratJalan, HariIni, Izin }: P
                     />
                 </div>
                 <p className="mt-3 text-isi text-teks-utama">
-                    {terpilih.length} surat jalan dipilih · total tagihan{' '}
+                    {terpilih.length} surat jalan dipilih | total tagihan{' '}
                     <span className="font-semibold tabular-nums">{FormatRupiah(total)}</span>
                 </p>
             </Panel>

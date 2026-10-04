@@ -423,7 +423,7 @@ export default function HalamanResepProduk({ Kepala, Resep, VersiTerbaru, Daftar
                                     </Link>
                                 )}
                                 <span className="text-keterangan text-teks-sekunder">
-                                    {FormatTanggalWaktu(versi.DibuatPada)} · {versi.NamaPembuat ?? 'Sistem'}
+                                    {FormatTanggalWaktu(versi.DibuatPada)} | {versi.NamaPembuat ?? 'Sistem'}
                                 </span>
                             </li>
                         ))}

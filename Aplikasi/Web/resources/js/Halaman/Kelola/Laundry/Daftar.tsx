@@ -71,11 +71,11 @@ const kolom: KolomTabel<TiketLaundry>[] = [
         cell: ({ row: { original: t } }) => (
             <span className="flex flex-col gap-0.5 break-words">
                 <span>
-                    {t.JenisLayanan} · {RingkasIsiLaundry(t)}
+                    {t.JenisLayanan} | {RingkasIsiLaundry(t)}
                 </span>
                 {t.Parfum || t.Catatan ? (
                     <span className="text-keterangan text-teks-sekunder">
-                        {[t.Parfum ? `Parfum ${t.Parfum}` : null, t.Catatan].filter(Boolean).join(' · ')}
+                        {[t.Parfum ? `Parfum ${t.Parfum}` : null, t.Catatan].filter(Boolean).join(' | ')}
                     </span>
                 ) : null}
             </span>

@@ -75,7 +75,7 @@ class HitunganKeranjang {
   /// `2×` / `1,5×` untuk tampilan.
   String? AmbilLabelPoinBerlipat() {
     final p = poinBerlipat;
-    return p == null ? null : 'Poin ${p.pengali.toString().replaceAll('.', ',')}× · ${namaPromo[p.uuid] ?? p.kode}';
+    return p == null ? null : 'Poin ${p.pengali.toString().replaceAll('.', ',')}× | ${namaPromo[p.uuid] ?? p.kode}';
   }
 }
 
@@ -132,7 +132,7 @@ class PenjualanTersimpan {
   /// Untuk struk yang dicetak langsung setelah bayar (nama pelanggan tidak disimpan di tabel penjualan lokal).
   final String? namaPelanggan;
 
-  /// F-16c bagian 4a: "Poin 2× · nama promo" bila promo poin berlipat berlaku (dicetak di struk setelah bayar).
+  /// F-16c bagian 4a: "Poin 2× | nama promo" bila promo poin berlipat berlaku (dicetak di struk setelah bayar).
   final String? labelPoin;
 }
 
@@ -1305,12 +1305,12 @@ class LayananPenjualan {
   }
 
   /// Server membatasi `Pembayaran.*.Referensi` paling panjang 100 karakter. EDC menggabungkan bank & nomor approval
-  /// (`bank · approval`), jadi masing-masing dibatasi agar gabungannya ≤ 100 (40 + 3 + 56 = 99).
+  /// (`bank | approval`), jadi masing-masing dibatasi agar gabungannya ≤ 100 (40 + 3 + 56 = 99).
   static const int panjangMaksReferensi = 100;
   static const int panjangMaksBankEdc = 40;
   static const int panjangMaksApprovalEdc = 56;
 
-  /// Referensi EDC `bank · approval` (bank opsional); tiap bagian dipangkas ke batasnya.
+  /// Referensi EDC `bank | approval` (bank opsional); tiap bagian dipangkas ke batasnya.
   static String SusunReferensiEdc(String bank, String approval) {
     String Pangkas(String teks, int maks) {
       final rapi = teks.trim();
@@ -1320,7 +1320,7 @@ class LayananPenjualan {
     return [
       Pangkas(bank, panjangMaksBankEdc),
       Pangkas(approval, panjangMaksApprovalEdc),
-    ].where((t) => t.isNotEmpty).join(' · ');
+    ].where((t) => t.isNotEmpty).join(' | ');
   }
 
   /// Aturan pembayaran fase 1 (Rincian F-07b langkah 9) yang bisa diperiksa sebelum dihitung.
@@ -1597,7 +1597,7 @@ class LayananPenjualan {
       PesananTertahanCompanion.insert(
         Uuid: BuatUuid(),
         Label:
-            '${keranjang.baris.first.nama}${keranjang.baris.length > 1 ? ' +${keranjang.baris.length - 1}' : ''} · $jam',
+            '${keranjang.baris.first.nama}${keranjang.baris.length > 1 ? ' +${keranjang.baris.length - 1}' : ''} | $jam',
         Data: jsonEncode(keranjang.KeJson()),
         Total: total.KeString(),
         JumlahItem: keranjang.baris.length,

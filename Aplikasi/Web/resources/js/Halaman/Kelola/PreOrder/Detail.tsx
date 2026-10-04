@@ -91,7 +91,7 @@ export default function HalamanDetailPreOrder({ Pesanan: p, OpsiAkun, OpsiCara, 
                 <Keterangan label="Pelanggan">
                     {p.Pelanggan}
                     {p.NoHpPelanggan ? (
-                        <span className="font-mono text-teks-sekunder"> · {p.NoHpPelanggan}</span>
+                        <span className="font-mono text-teks-sekunder"> | {p.NoHpPelanggan}</span>
                     ) : null}
                 </Keterangan>
                 <Keterangan label="Tanggal pesan">{FormatTanggal(p.TanggalPesan)}</Keterangan>
@@ -123,7 +123,7 @@ export default function HalamanDetailPreOrder({ Pesanan: p, OpsiAkun, OpsiCara, 
                                         b.Catatan,
                                     ]
                                         .filter(Boolean)
-                                        .join(' · ')}
+                                        .join(' | ')}
                                 </span>
                             </span>
                         </li>
@@ -137,7 +137,7 @@ export default function HalamanDetailPreOrder({ Pesanan: p, OpsiAkun, OpsiCara, 
                         <li key={b.Uuid} className="flex flex-wrap items-center justify-between gap-2">
                             <span>
                                 {b.Metode}
-                                {b.Referensi ? <span className="text-teks-sekunder"> · {b.Referensi}</span> : null}
+                                {b.Referensi ? <span className="text-teks-sekunder"> | {b.Referensi}</span> : null}
                             </span>
                             <span className="tabular-nums">{FormatRupiah(b.Jumlah)}</span>
                         </li>
@@ -184,7 +184,7 @@ export default function HalamanDetailPreOrder({ Pesanan: p, OpsiAkun, OpsiCara, 
                             <BidangPilihan
                                 label="Dikembalikan dari akun"
                                 nilai={akun}
-                                opsi={OpsiAkun.map((a) => ({ Nilai: a.Uuid, Label: `${a.Kode} · ${a.Nama}` }))}
+                                opsi={OpsiAkun.map((a) => ({ Nilai: a.Uuid, Label: `${a.Kode} | ${a.Nama}` }))}
                                 saatBerubah={AturAkun}
                                 galat={galat.UuidAkun}
                                 required

@@ -83,8 +83,8 @@ const kolom: KolomTabel<BarisBahanTerbuang>[] = [
             <>
                 <span className="block font-semibold break-words text-teks-utama">{b.NamaProduk}</span>
                 <span className="block text-keterangan text-teks-sekunder">
-                    {FormatJumlahStok(b.Jumlah)} · {b.LabelAlasan}
-                    {b.Catatan ? ` · ${b.Catatan}` : ''}
+                    {FormatJumlahStok(b.Jumlah)} | {b.LabelAlasan}
+                    {b.Catatan ? ` | ${b.Catatan}` : ''}
                 </span>
                 {b.PerluTinjauan ? <LabelStatus jenis="peringatan" teks="Perlu dicek" /> : null}
             </>
@@ -99,7 +99,7 @@ const kolom: KolomTabel<BarisBahanTerbuang>[] = [
             <>
                 <span className="block break-words text-teks-utama">{b.NamaGudang}</span>
                 <span className="block text-keterangan text-teks-sekunder">
-                    {b.NamaPencatat ?? '-'} · {b.Sumber === 'Pos' ? 'kasir' : 'back-office'}
+                    {b.NamaPencatat ?? '-'} | {b.Sumber === 'Pos' ? 'kasir' : 'back-office'}
                 </span>
             </>
         ),

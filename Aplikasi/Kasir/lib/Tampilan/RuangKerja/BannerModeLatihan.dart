@@ -27,7 +27,7 @@ class BannerModeLatihan extends ConsumerWidget {
               const SizedBox(width: TokenJarak.jarak8),
               Expanded(
                 child: Text(
-                  'MODE LATIHAN · transaksi tidak disimpan & tidak dicetak',
+                  'MODE LATIHAN | transaksi tidak disimpan & tidak dicetak',
                   style: teks.labelLarge?.copyWith(color: warna.peringatan),
                   maxLines: 2,
                 ),

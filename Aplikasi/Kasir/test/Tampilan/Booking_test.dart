@@ -107,8 +107,8 @@ void main() {
       await Ketuk(find.widgetWithText(OutlinedButton, 'Reservasi hari ini'));
       await Ketuk(find.text('Kalender & booking'));
       expect(find.text('Kamis, 24 Sep 2026 (hari ini)'), findsOneWidget);
-      expect(find.text('Maya · 09:00–12:00'), findsOneWidget);
-      expect(find.text('10.00–11.00 · Ratna Sari · Creambath Ginseng · Dikonfirmasi'), findsOneWidget);
+      expect(find.text('Maya | 09:00–12:00'), findsOneWidget);
+      expect(find.text('10.00–11.00 | Ratna Sari | Creambath Ginseng | Dikonfirmasi'), findsOneWidget);
       expect(find.text('Kosong: 09:00–10:00, 11:00–12:00'), findsOneWidget);
       expect(
         tester
@@ -143,7 +143,7 @@ void main() {
         'Catatan': null,
       });
       expect(find.textContaining('Booking RS/2026/09/0001 dicatat: Dina Lestari, 11.00 dengan Maya.'), findsOneWidget);
-      expect(find.text('Maya · 09:00–12:00'), findsOneWidget, reason: 'Kembali ke kalender setelah tersimpan.');
+      expect(find.text('Maya | 09:00–12:00'), findsOneWidget, reason: 'Kembali ke kalender setelah tersimpan.');
 
       await Ketuk(
         find.descendant(

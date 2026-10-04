@@ -107,7 +107,7 @@ describe('Grosir › Kanvas (Modul Salesman bagian 3)', () => {
         expect(screen.getByText('Rp 1.000.000')).toBeTruthy();
         expect(screen.getByText('Rp 1.575.000')).toBeTruthy();
         expect(screen.getByText('Kurang Rp 25.000')).toBeTruthy();
-        expect(screen.getByText('2 transaksi · 1 void · 1 retur')).toBeTruthy();
+        expect(screen.getByText('2 transaksi | 1 void | 1 retur')).toBeTruthy();
 
         expect(screen.getByRole('link', { name: 'Muat stok' }).getAttribute('href')).toBe(
             '/kelola/persediaan/transfer/buat',

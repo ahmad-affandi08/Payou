@@ -118,7 +118,7 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
   static _Dokumen _DariPesanan(PesananGudangPos p) => _Dokumen(
     uuid: p.uuid,
     judul: p.nomor,
-    keterangan: '${p.namaPemasok} · ${p.labelStatus}${p.perkiraanTiba == null ? '' : ' · tiba ${p.perkiraanTiba}'}',
+    keterangan: '${p.namaPemasok} | ${p.labelStatus}${p.perkiraanTiba == null ? '' : ' | tiba ${p.perkiraanTiba}'}',
     asli: p,
     baris: [
       for (final b in p.baris)
@@ -132,11 +132,11 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
           sisa: b.sisa,
           pelacakan: b.pelacakan,
           info:
-              'Dipesan ${_F(b.jumlah)} · diterima ${_F(b.jumlahDiterima)} · sisa ${_F(b.sisa)} ${b.simbolSatuan}'
+              'Dipesan ${_F(b.jumlah)} | diterima ${_F(b.jumlahDiterima)} | sisa ${_F(b.sisa)} ${b.simbolSatuan}'
               '${b.pelacakan == 'Batch'
-                  ? ' · wajib nomor batch'
+                  ? ' | wajib nomor batch'
                   : b.pelacakan == 'Seri'
-                  ? ' · wajib nomor seri'
+                  ? ' | wajib nomor seri'
                   : ''}',
         ),
     ],
@@ -145,7 +145,7 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
   static _Dokumen _DariTransfer(TransferGudangPos t) => _Dokumen(
     uuid: t.uuid,
     judul: t.nomor,
-    keterangan: 'Dari ${t.namaAsal} · ${t.labelStatus}',
+    keterangan: 'Dari ${t.namaAsal} | ${t.labelStatus}',
     asli: t,
     baris: [
       for (final b in t.baris)
@@ -160,8 +160,8 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
           nomorBatch: b.nomorBatch,
           nomorSeri: b.nomorSeri,
           info:
-              'Dikirim ${_F(b.jumlahDikirim)} · diterima ${_F(b.jumlahDiterima)} · sisa ${_F(b.sisa)} ${b.simbolSatuan}'
-              '${b.nomorBatch == null ? '' : ' · batch ${b.nomorBatch}'}${b.nomorSeri == null ? '' : ' · seri ${b.nomorSeri}'}',
+              'Dikirim ${_F(b.jumlahDikirim)} | diterima ${_F(b.jumlahDiterima)} | sisa ${_F(b.sisa)} ${b.simbolSatuan}'
+              '${b.nomorBatch == null ? '' : ' | batch ${b.nomorBatch}'}${b.nomorSeri == null ? '' : ' | seri ${b.nomorSeri}'}',
         ),
     ],
   );
@@ -170,8 +170,8 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
     uuid: o.uuid,
     judul: o.nomor,
     keterangan:
-        '${o.namaLokasi}${o.namaKategori == null ? '' : ' · ${o.namaKategori}'} · ${o.jumlahDihitung}/${o.jumlahBaris} '
-        'dihitung${o.hitungButa ? ' · hitung buta' : ''}',
+        '${o.namaLokasi}${o.namaKategori == null ? '' : ' | ${o.namaKategori}'} | ${o.jumlahDihitung}/${o.jumlahBaris} '
+        'dihitung${o.hitungButa ? ' | hitung buta' : ''}',
     asli: o,
     baris: [
       for (final b in o.baris)
@@ -190,7 +190,7 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
             if (b.nomorBatch != null) 'batch ${b.nomorBatch}',
             if (b.nomorSeri != null) 'seri ${b.nomorSeri} (isi 1 bila ada, 0 bila tidak)',
             if (b.jumlahFisik != null) 'tersimpan ${_F(b.jumlahFisik!)}',
-          ].join(' · '),
+          ].join(' | '),
         ),
     ],
   );
@@ -597,7 +597,7 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
           minTileHeight: TokenJarak.targetSentuh,
           contentPadding: EdgeInsets.zero,
           title: TeksKode(d.judul, gaya: teks.labelLarge),
-          subtitle: Text('${d.keterangan} · ${d.baris.length} baris', style: teks.bodySmall),
+          subtitle: Text('${d.keterangan} | ${d.baris.length} baris', style: teks.bodySmall),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => unawaited(_Buka(d)),
         ),
@@ -687,7 +687,7 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
       for (final e in _produkBaru.entries)
         _BarisIsian(
           nama: katalog.CariProduk(e.key)?.nama ?? 'Produk baru',
-          info: 'Tidak ada di lembar hitung · ditambahkan dari pindai',
+          info: 'Tidak ada di lembar hitung | ditambahkan dari pindai',
           pengendali: e.value,
           bolehDesimal: true,
           saatUbah: _Ubah,

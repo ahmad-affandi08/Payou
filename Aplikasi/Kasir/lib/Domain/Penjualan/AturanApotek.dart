@@ -63,11 +63,11 @@ class InfoObat {
   /// Psikotropika & narkotika: alamat pasien wajib (data pendukung pelaporan SIPNAP).
   bool get CekWajibAlamat => golongan == GolonganObat.Psikotropika || golongan == GolonganObat.Narkotika;
 
-  /// Teks lencana: "Bebas", "B. terbatas", "K", "K · OWA", "P" (psikotropika), "N" (narkotika).
+  /// Teks lencana: "Bebas", "B. terbatas", "K", "K | OWA", "P" (psikotropika), "N" (narkotika).
   String get Kode => switch (golongan) {
     GolonganObat.Bebas => 'Bebas',
     GolonganObat.BebasTerbatas => 'B. terbatas',
-    GolonganObat.Keras => obatWajibApotek ? 'K · OWA' : 'K',
+    GolonganObat.Keras => obatWajibApotek ? 'K | OWA' : 'K',
     GolonganObat.Psikotropika => 'P',
     GolonganObat.Narkotika => 'N',
   };

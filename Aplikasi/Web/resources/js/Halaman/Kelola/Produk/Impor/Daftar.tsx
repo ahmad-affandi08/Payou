@@ -58,7 +58,7 @@ const kolomRiwayat: KolomTabel<RingkasanImpor>[] = [
                     {impor.NamaBerkas}
                 </Link>
                 <span className="block text-keterangan font-normal text-teks-sekunder">
-                    Format {impor.LabelSumber} · {impor.NamaPengguna ?? 'Sistem'}
+                    Format {impor.LabelSumber} | {impor.NamaPengguna ?? 'Sistem'}
                 </span>
             </>
         ),
@@ -196,7 +196,7 @@ export default function HalamanDaftarImpor({
                                         </p>
                                     ) : berkas ? (
                                         <p className="text-keterangan text-teks-utama">
-                                            {berkas.name} · {FormatUkuranBerkas(berkas.size)}
+                                            {berkas.name} | {FormatUkuranBerkas(berkas.size)}
                                         </p>
                                     ) : null}
                                 </div>

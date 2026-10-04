@@ -168,7 +168,7 @@ void main() {
     await u.repositoriPelanggan.Simpan('PLG2', 'Budi Hartono', '0813****1111', DateTime.now());
     final budi = LayananPelanggan.DariCache((await u.repositoriPelanggan.AmbilTerakhir()).single);
     final denganPelanggan = u.penjualan.Hitung(keranjang.Salin(pelanggan: () => budi), k);
-    expect(denganPelanggan.AmbilLabelPoinBerlipat(), 'Poin 2× · Poin dobel akhir pekan');
+    expect(denganPelanggan.AmbilLabelPoinBerlipat(), 'Poin 2× | Poin dobel akhir pekan');
     expect(denganPelanggan.hasil.totalAkhir, tanpaPelanggan.hasil.totalAkhir);
     expect(denganPelanggan.promoTerpakai, isEmpty, reason: 'Promo poin tidak dikirim sebagai potongan.');
 
@@ -180,6 +180,6 @@ void main() {
       kasir: rina,
       k: k,
     );
-    expect(hasil.labelPoin, 'Poin 2× · Poin dobel akhir pekan');
+    expect(hasil.labelPoin, 'Poin 2× | Poin dobel akhir pekan');
   });
 }

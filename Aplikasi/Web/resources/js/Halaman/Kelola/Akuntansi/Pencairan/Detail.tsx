@@ -184,7 +184,7 @@ export default function HalamanDetailPencairan({ Pencairan, Baris, Jurnal, Riway
                                 >
                                     {j.Nomor}
                                 </Link>{' '}
-                                · {FormatTanggal(j.Tanggal)} · {j.KunciSumber} · {FormatRupiah(j.TotalDebit)}
+                                | {FormatTanggal(j.Tanggal)} | {j.KunciSumber} | {FormatRupiah(j.TotalDebit)}
                             </li>
                         ))}
                     </ul>
@@ -197,7 +197,7 @@ export default function HalamanDetailPencairan({ Pencairan, Baris, Jurnal, Riway
                     <ol className="flex flex-col gap-1 text-isi">
                         {Riwayat.map((r, i) => (
                             <li key={`${r.Pada}-${String(i)}`} className="break-words text-teks-sekunder">
-                                <span className="font-semibold text-teks-utama">{r.StatusKe}</span> ·{' '}
+                                <span className="font-semibold text-teks-utama">{r.StatusKe}</span> |{' '}
                                 {FormatTanggalWaktu(r.Pada)}
                                 {r.Oleh ? ` oleh ${r.Oleh}` : ''}
                                 {r.Alasan ? ` — ${r.Alasan}` : ''}

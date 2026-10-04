@@ -43,7 +43,7 @@ const kolomBaris: KolomTabel<BarisDetailTransferStok>[] = [
                 {b.NomorBatch ? (
                     <span className="block text-keterangan text-teks-sekunder">
                         Batch <span className="font-mono">{b.NomorBatch}</span>
-                        {b.TanggalKedaluwarsa ? ` · kedaluwarsa ${FormatTanggal(b.TanggalKedaluwarsa)}` : ''}
+                        {b.TanggalKedaluwarsa ? ` | kedaluwarsa ${FormatTanggal(b.TanggalKedaluwarsa)}` : ''}
                     </span>
                 ) : null}
                 {b.NomorSeri ? (
@@ -331,8 +331,8 @@ export default function HalamanDetailTransferStok({
                                         </span>
                                         <span className="block text-keterangan text-teks-sekunder">
                                             Sisa {FormatJumlahStok(b.JumlahSisa, b.SimbolSatuan)}
-                                            {b.NomorBatch ? ` · batch ${b.NomorBatch}` : ''}
-                                            {b.NomorSeri ? ` · ${b.NomorSeri}` : ''}
+                                            {b.NomorBatch ? ` | batch ${b.NomorBatch}` : ''}
+                                            {b.NomorSeri ? ` | ${b.NomorSeri}` : ''}
                                         </span>
                                     </div>
                                     <BidangJumlah

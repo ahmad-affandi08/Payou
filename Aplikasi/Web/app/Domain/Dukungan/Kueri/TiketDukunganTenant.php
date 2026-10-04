@@ -64,7 +64,7 @@ final class TiketDukunganTenant
                 'Uuid' => $baris->Uuid,
                 'JenisPengirim' => $baris->JenisPengirim->value,
                 'NamaPengirim' => match ($baris->JenisPengirim) {
-                    JenisPengirimPesan::Pengelola => trim(($baris->NamaPengirim ?? '').' · Tim Dukungan', ' ·'),
+                    JenisPengirimPesan::Pengelola => trim(($baris->NamaPengirim ?? '').' | Tim Dukungan', ' |'),
                     JenisPengirimPesan::Sistem => 'Sistem',
                     JenisPengirimPesan::Pengguna => $baris->NamaPengirim ?? 'Pengguna',
                 },

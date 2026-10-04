@@ -134,7 +134,7 @@ export default function Pengembang() {
                                     Akses: <span className="font-mono">{e.Cakupan}</span>
                                     {e.Parameter.length > 0 ? (
                                         <>
-                                            {' · '}Parameter:{' '}
+                                            {' | '}Parameter:{' '}
                                             <span className="font-mono">
                                                 {e.Parameter.map((p) => (p.Wajib ? `${p.Nama} (wajib)` : p.Nama)).join(
                                                     ', ',

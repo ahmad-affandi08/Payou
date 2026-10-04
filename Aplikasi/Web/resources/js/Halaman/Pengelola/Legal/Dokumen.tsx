@@ -48,7 +48,7 @@ export default function HalamanDokumenLegal({ Dokumen }: { Dokumen: DokumenLegal
 
     return (
         <TataLetakPengelola
-            judul={`${Dokumen.Label} · versi ${Dokumen.Versi}`}
+            judul={`${Dokumen.Label} | versi ${Dokumen.Versi}`}
             aksi={
                 bolehUbah ? (
                     <Tombol varian="bahaya" memproses={memproses} onClick={() => AturKonfirmasiHapus(true)}>

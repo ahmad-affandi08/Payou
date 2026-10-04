@@ -178,11 +178,11 @@ export default function HalamanDetailPesanan({ Pesanan, Baris, Penerimaan, Riway
                     {Pesanan.PerkiraanTiba ? FormatTanggal(Pesanan.PerkiraanTiba) : '—'}
                 </Keterangan>
                 <Keterangan label="Pemasok">
-                    {Pesanan.Pemasok.Nama} ({Pesanan.Pemasok.Kode}){Pesanan.Pemasok.Pkp ? ' · PKP' : ''}
+                    {Pesanan.Pemasok.Nama} ({Pesanan.Pemasok.Kode}){Pesanan.Pemasok.Pkp ? ' | PKP' : ''}
                 </Keterangan>
                 <Keterangan label="Lokasi tujuan">
                     {Pesanan.NamaGudang}
-                    {Pesanan.NamaOutlet ? ` · ${Pesanan.NamaOutlet}` : ''}
+                    {Pesanan.NamaOutlet ? ` | ${Pesanan.NamaOutlet}` : ''}
                 </Keterangan>
                 <Keterangan label="Termin">
                     {Pesanan.TerminHari === 0 ? 'Tunai' : `Tempo ${String(Pesanan.TerminHari)} hari`}
@@ -191,7 +191,7 @@ export default function HalamanDetailPesanan({ Pesanan, Baris, Penerimaan, Riway
                 {Pesanan.DisetujuiOleh ? (
                     <Keterangan label="Disetujui">
                         {Pesanan.DisetujuiOleh}
-                        {Pesanan.DisetujuiPada ? ` · ${FormatTanggalWaktu(Pesanan.DisetujuiPada)}` : ''}
+                        {Pesanan.DisetujuiPada ? ` | ${FormatTanggalWaktu(Pesanan.DisetujuiPada)}` : ''}
                     </Keterangan>
                 ) : null}
                 {Pesanan.Catatan ? <Keterangan label="Catatan">{Pesanan.Catatan}</Keterangan> : null}

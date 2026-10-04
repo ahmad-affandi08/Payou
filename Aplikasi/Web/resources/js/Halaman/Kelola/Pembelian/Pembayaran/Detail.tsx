@@ -94,7 +94,7 @@ export default function HalamanDetailPembayaran({
                                 )}
                                 <span className="text-keterangan text-teks-sekunder">
                                     {a.NomorFakturPemasok ? `No. pemasok ${a.NomorFakturPemasok}` : ''}
-                                    {a.JatuhTempo ? ` · jatuh tempo ${FormatTanggal(a.JatuhTempo)}` : ''}
+                                    {a.JatuhTempo ? ` | jatuh tempo ${FormatTanggal(a.JatuhTempo)}` : ''}
                                 </span>
                             </span>
                             <span className="tabular-nums">{FormatRupiah(a.Jumlah)}</span>

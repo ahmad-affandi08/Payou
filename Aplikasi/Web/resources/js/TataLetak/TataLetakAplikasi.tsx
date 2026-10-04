@@ -469,7 +469,7 @@ const sumberPencarian: SumberPencarian[] = [
         AmbilHasil: (b) => ({
             judul: String(b.Nomor),
             keterangan:
-                [b.NamaProduk, b.LabelStatus].filter((x): x is string => typeof x === 'string').join(' · ') || null,
+                [b.NamaProduk, b.LabelStatus].filter((x): x is string => typeof x === 'string').join(' | ') || null,
             href: `/kelola/persediaan/kartu-stok/nomor-seri?${new URLSearchParams({ cari: String(b.Nomor), unit: String(b.Uuid) }).toString()}`,
         }),
     },

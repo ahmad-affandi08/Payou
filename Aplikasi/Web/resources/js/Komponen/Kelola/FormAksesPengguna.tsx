@@ -99,7 +99,7 @@ export default function FormAksesPengguna({
             {!formulir.data.SemuaOutlet && !semuaOutletPaksa ? (
                 <GrupCentang
                     legenda="Outlet yang ditugaskan"
-                    opsi={outlet.map((baris) => ({ nilai: baris.Uuid, label: `${baris.Kode} · ${baris.Nama}` }))}
+                    opsi={outlet.map((baris) => ({ nilai: baris.Uuid, label: `${baris.Kode} | ${baris.Nama}` }))}
                     terpilih={formulir.data.Outlet}
                     saatBerubah={(terpilih) => formulir.setData('Outlet', terpilih)}
                     galat={formulir.errors.Outlet}

@@ -77,8 +77,8 @@ describe('X6 insight produk di laporan penjualan', () => {
 
         const nav = screen.getByRole('navigation', { name: 'Jenis laporan penjualan' });
         expect(within(nav).getByRole('link', { name: 'Analisis ABC' }).getAttribute('aria-current')).toBe('page');
-        expect(screen.getByText('Kelas A · 1 produk')).toBeTruthy();
-        expect(screen.getByText('Kelas C · 0 produk')).toBeTruthy();
+        expect(screen.getByText('Kelas A | 1 produk')).toBeTruthy();
+        expect(screen.getByText('Kelas C | 0 produk')).toBeTruthy();
         expect(screen.getByRole('table', { name: 'Analisis ABC produk' })).toBeTruthy();
         expect(screen.getAllByText('Kelas B').length).toBeGreaterThan(0);
         expect(screen.getAllByText('80,00%').length).toBeGreaterThan(0);

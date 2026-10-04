@@ -138,8 +138,8 @@ const kolom: KolomTabel<BarisAbsensi>[] = [
                 <LabelStatus jenis={JenisStatus(a.Status)} teks={a.LabelStatus} />
                 {a.Sumber === 'Web' ? (
                     <span className="text-keterangan text-teks-sekunder">
-                        Dari HP · {a.JarakMasukMeter ?? '—'} m dari outlet
-                        {a.JarakKeluarMeter !== null ? ` (keluar ${String(a.JarakKeluarMeter)} m)` : ''} · wajah{' '}
+                        Dari HP | {a.JarakMasukMeter ?? '—'} m dari outlet
+                        {a.JarakKeluarMeter !== null ? ` (keluar ${String(a.JarakKeluarMeter)} m)` : ''} | wajah{' '}
                         {a.KemiripanWajahMasuk ?? '—'}
                     </span>
                 ) : null}

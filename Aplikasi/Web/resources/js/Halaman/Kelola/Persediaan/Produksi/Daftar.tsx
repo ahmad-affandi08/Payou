@@ -47,7 +47,7 @@ const kolom: KolomTabel<BarisDaftarOrderProduksi>[] = [
                 <span className="block break-words text-teks-utama">{o.NamaProduk}</span>
                 <span className="block text-keterangan text-teks-sekunder">
                     {FormatJumlahStok(o.JumlahHasil)}
-                    {o.NomorBatch ? ` · batch ${o.NomorBatch}` : ''}
+                    {o.NomorBatch ? ` | batch ${o.NomorBatch}` : ''}
                 </span>
             </>
         ),

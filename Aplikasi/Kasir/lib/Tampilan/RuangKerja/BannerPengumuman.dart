@@ -60,7 +60,7 @@ class _KeadaanBannerPengumuman extends State<BannerPengumuman> {
             const SizedBox(width: TokenJarak.jarak8),
             Expanded(
               child: Text(
-                [utama.judul, if (jadwal.isNotEmpty) jadwal].join(' · '),
+                [utama.judul, if (jadwal.isNotEmpty) jadwal].join(' | '),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: teks.bodyMedium?.copyWith(color: warna.teksUtama),

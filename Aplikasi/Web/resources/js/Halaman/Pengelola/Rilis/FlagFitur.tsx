@@ -77,7 +77,7 @@ const kolom: KolomTabel<AturanFlagFitur>[] = [
         header: 'Diubah',
         meta: { label: 'Diubah', prioritas: 'rendah', kelasSel: 'text-teks-sekunder' },
         cell: ({ row: { original: a } }) =>
-            `${a.DiubahPada ? FormatTanggalWaktu(a.DiubahPada) : '—'}${a.DiubahOleh ? ` · ${a.DiubahOleh}` : ''}`,
+            `${a.DiubahPada ? FormatTanggalWaktu(a.DiubahPada) : '—'}${a.DiubahOleh ? ` | ${a.DiubahOleh}` : ''}`,
     },
 ];
 

@@ -57,7 +57,7 @@ export default function GrafikPenjualanHarian({ data, judul }: { data: TitikGraf
                                 labelFormatter={(_, isi) => FormatTanggal(String(isi[0]?.payload?.Tanggal ?? ''))}
                                 formatter={(_, __, item) => (
                                     <span className="tabular-nums">
-                                        {FormatRupiah(String(item.payload?.Bersih ?? '0'))} ·{' '}
+                                        {FormatRupiah(String(item.payload?.Bersih ?? '0'))} |{' '}
                                         {String(item.payload?.JumlahTransaksi ?? 0)} transaksi
                                     </span>
                                 )}

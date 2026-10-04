@@ -24,5 +24,6 @@ paths:
 - [ ] POS: layar berada di bingkai Ruang Kerja Kasir, maksimal dua ketukan dari layar Jual, rapi di 360 / 800 / 1280dp (§17.2.7).
 - [ ] Font & ukuran dari token §17.5; uang tabular rata kanan; kode memakai font Mono.
 - [ ] Keadaan §17.6.6 lengkap (memuat, kosong, galat, offline, tertunda sinkron, butuh persetujuan, tanpa izin, data ekstrem).
+- [ ] Pemisah dalam satu baris keterangan (jam, nama, metode bayar, jumlah) memakai garis tegak berspasi " | " (D-41), bukan titik tengah "·" atau bulatan "•". `•` hanya untuk menyamarkan rahasia (`••••7788`) dan daftar di pesan WhatsApp.
 - [ ] Microcopy §17.6.7 & kamus istilah §13.7.1.
 - [ ] Mode kepadatan benar: Nyaman (POS, KDS, Owner, web publik) / Ringkas (back-office, pengelola).

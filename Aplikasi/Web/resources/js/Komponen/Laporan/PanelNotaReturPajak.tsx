@@ -80,8 +80,8 @@ export default function PanelNotaReturPajak({ query }: { query: Record<string, s
                                 <li key={r.Nomor} className="flex flex-wrap gap-x-2">
                                     <span className="font-mono">{r.Nomor}</span>
                                     <span className="text-teks-sekunder">
-                                        atas Faktur Pajak <span className="font-mono">{r.NomorFakturPajak}</span> ·{' '}
-                                        {r.Pembeli} · PPN {FormatRupiah(r.Ppn)}
+                                        atas Faktur Pajak <span className="font-mono">{r.NomorFakturPajak}</span> |{' '}
+                                        {r.Pembeli} | PPN {FormatRupiah(r.Ppn)}
                                     </span>
                                 </li>
                             ))}

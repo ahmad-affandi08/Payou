@@ -122,13 +122,13 @@ class BarisPesananMeja {
     kursus: b.kursus,
   );
 
-  /// Label status untuk kasir: status tiket dapur, "Belum dikirim", "Ditahan · Utama" (K-13), atau "Dibatalkan".
+  /// Label status untuk kasir: status tiket dapur, "Belum dikirim", "Ditahan | Utama" (K-13), atau "Dibatalkan".
   String AmbilLabelStatus() {
     if (dibatalkan) {
       return 'Dibatalkan';
     }
     if (!dikirimKeDapur) {
-      return kursus == null ? 'Belum dikirim' : 'Ditahan · $kursus';
+      return kursus == null ? 'Belum dikirim' : 'Ditahan | $kursus';
     }
     return switch (statusDapur) {
       'Dimasak' => 'Dimasak',

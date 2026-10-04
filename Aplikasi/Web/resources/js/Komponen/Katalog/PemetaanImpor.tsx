@@ -176,7 +176,7 @@ export default function PemetaanImpor({
                                         />
                                     </TableCell>
                                     <TableCell className="pr-0 text-keterangan break-all whitespace-normal text-teks-sekunder">
-                                        {contoh.length === 0 ? '—' : contoh.filter(Boolean).slice(0, 3).join(' · ')}
+                                        {contoh.length === 0 ? '—' : contoh.filter(Boolean).slice(0, 3).join(' | ')}
                                     </TableCell>
                                 </TableRow>
                             );
@@ -221,7 +221,7 @@ export default function PemetaanImpor({
                             kosong="Tidak ada (baris tanpa pajak ditolak)"
                             opsi={kelompokPajak.map((item) => ({
                                 Nilai: item.Uuid,
-                                Label: `${item.Nama} · ${item.LabelKategori}`,
+                                Label: `${item.Nama} | ${item.LabelKategori}`,
                             }))}
                             saatBerubah={(nilai) =>
                                 AturOpsi({ ...opsi, UuidKelompokPajakBawaan: nilai === '' ? null : nilai })

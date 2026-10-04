@@ -47,7 +47,7 @@ describe('POST /api/pos/v1/perangkat/profil-hardware (v1.96)', function (): void
 
         BantuanPersediaan::MasukSebagai($this, $tenant->Id, PeranTenantBawaan::Pemilik);
         $this->get('/kelola/perangkat')->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
-            ->where('Perangkat.0.PerangkatKeras', 'SUNMI V2s · Printer bawaan Sunmi V2s (58 mm) · uji lolos'));
+            ->where('Perangkat.0.PerangkatKeras', 'SUNMI V2s | Printer bawaan Sunmi V2s (58 mm) | uji lolos'));
 
         // Hasil uji berubah (printer gagal) = disimpan & diaudit lagi.
         $this->withToken($token)->postJson('/api/pos/v1/perangkat/profil-hardware', [...$profil, 'Uji' => ['Cetak' => 'Gagal']])->assertOk();

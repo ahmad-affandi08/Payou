@@ -130,7 +130,7 @@ class DetailPelangganSalesman extends StatelessWidget {
           const SizedBox(height: TokenJarak.jarak16),
           if (diSini)
             Text(
-              'Sedang berkunjung · ${TeksLokasiKunjungan(berjalan, mencari: mencariLokasi)}',
+              'Sedang berkunjung | ${TeksLokasiKunjungan(berjalan, mencari: mencariLokasi)}',
               style: teks.bodyMedium?.copyWith(color: warna.info),
             ),
           if (diTempatLain)
@@ -403,11 +403,11 @@ class _BarisPiutang extends StatelessWidget {
                 child: Text(
                   'Jatuh tempo ${p.jatuhTempo}'
                   '${lewat
-                      ? ' · lewat ${p.umurHari} hari'
+                      ? ' | lewat ${p.umurHari} hari'
                       : p.umurHari == 0
-                      ? ' · hari ini'
+                      ? ' | hari ini'
                       : ''}'
-                  ' · dari ${p.jumlah.FormatRupiah()}',
+                  ' | dari ${p.jumlah.FormatRupiah()}',
                   style: teks.bodySmall?.copyWith(color: lewat ? warna.bahaya : warna.teksSekunder),
                 ),
               ),

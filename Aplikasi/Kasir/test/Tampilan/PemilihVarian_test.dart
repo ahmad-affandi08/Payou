@@ -142,7 +142,7 @@ void main() {
       expect(tester.takeException(), isNull);
 
       if (ukuran.width < 600) {
-        await Ketuk(find.textContaining('Keranjang ·').first);
+        await Ketuk(find.textContaining('Keranjang |').first);
       }
       await Ketuk(find.widgetWithText(FilledButton, 'Bayar').last);
       await Ketuk(find.widgetWithText(ChoiceChip, 'Tunai'));

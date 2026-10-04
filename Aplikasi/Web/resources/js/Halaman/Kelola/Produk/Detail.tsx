@@ -49,7 +49,7 @@ const kolomVarian: KolomTabel<Varian>[] = [
                     {varian.Nama}
                 </Link>
                 <span className="block text-keterangan text-teks-sekunder">
-                    {varian.Atribut.map((a) => `${a.Nama}: ${a.Nilai}`).join(' · ')}
+                    {varian.Atribut.map((a) => `${a.Nama}: ${a.Nilai}`).join(' | ')}
                 </span>
             </>
         ),
@@ -285,7 +285,7 @@ export default function HalamanDetailProduk({
                         <Baris label="Pelacakan">{Produk.LabelPelacakan}</Baris>
                         <Baris label="Kelompok pajak">
                             {Produk.KelompokPajak
-                                ? `${Produk.KelompokPajak.Nama} · ${Produk.KelompokPajak.LabelKategori}`
+                                ? `${Produk.KelompokPajak.Nama} | ${Produk.KelompokPajak.LabelKategori}`
                                 : 'Belum dipilih'}
                         </Baris>
                         <Baris label="Harga termasuk pajak">
@@ -419,7 +419,7 @@ export default function HalamanDetailProduk({
                             >
                                 <span className="text-teks-utama">{item.Peristiwa}</span>
                                 <span className="text-keterangan text-teks-sekunder">
-                                    {item.NamaPengguna ?? 'Sistem'} · {FormatTanggalWaktu(item.DibuatPada)}
+                                    {item.NamaPengguna ?? 'Sistem'} | {FormatTanggalWaktu(item.DibuatPada)}
                                 </span>
                             </li>
                         ))}

@@ -150,7 +150,7 @@ export default function HalamanDetailTransaksiKasBank({ Transaksi: t, Jurnal, Iz
                                         {j.Nomor}
                                     </Link>
                                     <span className="text-label break-words text-teks-sekunder">
-                                        {FormatTanggal(j.Tanggal)} · {j.Keterangan}
+                                        {FormatTanggal(j.Tanggal)} | {j.Keterangan}
                                     </span>
                                 </span>
                                 <span className="tabular-nums">{FormatRupiah(j.TotalDebit)}</span>

@@ -221,8 +221,8 @@ export default function HalamanFormPelunasan({
                                     <span className="flex flex-col">
                                         <span className="font-mono font-semibold break-all">{p.Nomor}</span>
                                         <span className="text-keterangan text-teks-sekunder">
-                                            {FormatTanggal(p.TanggalBisnis)} · jatuh tempo {FormatTanggal(p.JatuhTempo)}{' '}
-                                            · sisa {FormatRupiah(p.Sisa)} dari {FormatRupiah(p.Jumlah)}
+                                            {FormatTanggal(p.TanggalBisnis)} | jatuh tempo {FormatTanggal(p.JatuhTempo)}{' '}
+                                            | sisa {FormatRupiah(p.Sisa)} dari {FormatRupiah(p.Jumlah)}
                                         </span>
                                     </span>
                                     <BidangUang

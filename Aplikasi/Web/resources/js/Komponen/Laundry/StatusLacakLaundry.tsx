@@ -17,8 +17,8 @@ export default function StatusLacakLaundry({ Laundry }: { Laundry: StatusLaundry
             <div>
                 <h2 className="text-isi font-semibold text-teks-utama">Status cucian: {Laundry.LabelStatus}</h2>
                 <p className="text-keterangan text-teks-sekunder">
-                    {Laundry.JenisLayanan} · {RingkasIsiLaundry(Laundry)}
-                    {Laundry.Parfum ? ` · parfum ${Laundry.Parfum}` : ''}
+                    {Laundry.JenisLayanan} | {RingkasIsiLaundry(Laundry)}
+                    {Laundry.Parfum ? ` | parfum ${Laundry.Parfum}` : ''}
                 </p>
                 {Laundry.DiambilPada ? (
                     <p className="text-keterangan text-teks-sekunder">

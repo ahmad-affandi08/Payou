@@ -31,7 +31,7 @@ final class PengaturanSitusBerlaku
         return [
             'NamaSitus' => 'PAYOU',
             'Slogan' => 'Smart Choice Your Business Partner',
-            'JudulSeo' => 'PAYOU · Aplikasi Kasir & Pembukuan untuk Usaha Indonesia',
+            'JudulSeo' => 'PAYOU | Aplikasi Kasir & Pembukuan untuk Usaha Indonesia',
             'DeskripsiSeo' => 'Aplikasi kasir (POS) yang tetap jalan saat offline, lengkap dengan stok, pajak, promo, pelanggan, dan laporan keuangan. Cocok untuk kafe, resto, toko, salon, dan laundry.',
             'KataKunci' => 'aplikasi kasir, POS, kasir offline, aplikasi kasir kafe, aplikasi kasir toko, pembukuan UMKM',
             'UuidGambarOg' => null,

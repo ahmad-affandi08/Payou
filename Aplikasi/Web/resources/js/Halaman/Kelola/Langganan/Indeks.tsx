@@ -323,7 +323,7 @@ const kolomTagihan: KolomTabel<TagihanLangganan>[] = [
         header: 'Paket',
         enableSorting: false,
         meta: { label: 'Paket', prioritas: 'rendah' },
-        cell: ({ row }) => `${row.original.NamaPaket} · ${row.original.Siklus}`,
+        cell: ({ row }) => `${row.original.NamaPaket} | ${row.original.Siklus}`,
     },
     {
         id: 'JatuhTempoPada',

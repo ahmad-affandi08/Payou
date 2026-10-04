@@ -66,7 +66,7 @@ const kolom: KolomTabel<BarisTutupHarian>[] = [
         cell: ({ row }) =>
             row.original.PenjualanBersih === null
                 ? '—'
-                : `${FormatRupiah(row.original.PenjualanBersih)} · ${row.original.JumlahTransaksi ?? 0} trx`,
+                : `${FormatRupiah(row.original.PenjualanBersih)} | ${row.original.JumlahTransaksi ?? 0} trx`,
     },
     {
         id: 'DitutupPada',
@@ -77,9 +77,9 @@ const kolom: KolomTabel<BarisTutupHarian>[] = [
             row.original.Ditutup
                 ? `${FormatTanggalWaktu(row.original.DitutupPada)}${
                       row.original.DitutupOtomatis === true
-                          ? ' · otomatis'
+                          ? ' | otomatis'
                           : row.original.DitutupOleh
-                            ? ` · ${row.original.DitutupOleh}`
+                            ? ` | ${row.original.DitutupOleh}`
                             : ''
                   }`
                 : '—',

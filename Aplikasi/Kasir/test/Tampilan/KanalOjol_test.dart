@@ -53,7 +53,7 @@ void main() {
   /// Di HP keranjang ada di lembar bawah: buka dengan mengetuk bilah ringkasan.
   Future<void> BukaKeranjangHp(WidgetTester tester, Size ukuran) async {
     if (ukuran.width < 600) {
-      await Ketuk(tester, find.textContaining('Keranjang ·').first);
+      await Ketuk(tester, find.textContaining('Keranjang |').first);
     }
   }
 
@@ -65,7 +65,7 @@ void main() {
         await Ketuk(tester, Ubin('Americano Panas'));
         await BukaKeranjangHp(tester, ukuran);
 
-        expect(find.text('Kanal: Bawa pulang · ketuk untuk mengganti'), findsOneWidget);
+        expect(find.text('Kanal: Bawa pulang | ketuk untuk mengganti'), findsOneWidget);
         // Americano 15.000 + PBJT 10% = 16.500.
         expect(find.text('Rp 16.500'), findsWidgets);
 
@@ -81,7 +81,7 @@ void main() {
         );
         await Ketuk(tester, find.byKey(const ValueKey('Kanal-GoFood')));
 
-        expect(find.text('Kanal: GoFood · ketuk untuk mengganti'), findsOneWidget);
+        expect(find.text('Kanal: GoFood | ketuk untuk mengganti'), findsOneWidget);
         // Harga GoFood 19.000 + PBJT 10% = 20.900.
         expect(find.text('Rp 20.900'), findsWidgets);
         expect(tester.takeException(), isNull);

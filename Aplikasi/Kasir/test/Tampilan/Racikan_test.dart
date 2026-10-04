@@ -69,9 +69,9 @@ void main() {
       await tester.tap(find.text('Paracetamol 500 mg Tablet Strip 10').first);
       await Tunggu(tester);
       if (ukuran.width < 600) {
-        await Ketuk(tester, find.textContaining('Keranjang ·').first);
+        await Ketuk(tester, find.textContaining('Keranjang |').first);
       }
-      await Ketuk(tester, find.text('Buat racikan obat · ketuk untuk menyusun'));
+      await Ketuk(tester, find.text('Buat racikan obat | ketuk untuk menyusun'));
       expect(find.byType(PanelRacikan), findsOneWidget);
 
       // Belum lengkap: pesan jelas, keranjang tetap kosong.
@@ -93,9 +93,9 @@ void main() {
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Tambah racikan ke keranjang'));
       expect(find.byType(PanelRacikan), findsNothing);
       if (ukuran.width < 600 && find.textContaining('Racikan Puyer demam anak').evaluate().isEmpty) {
-        await Ketuk(tester, find.textContaining('Keranjang ·').first);
+        await Ketuk(tester, find.textContaining('Keranjang |').first);
       }
-      expect(find.textContaining('Racikan Puyer demam anak · 10 kemasan · 3 x 1 bungkus'), findsOneWidget);
+      expect(find.textContaining('Racikan Puyer demam anak | 10 kemasan | 3 x 1 bungkus'), findsOneWidget);
 
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').first);
       expect(find.text('Penyerahan obat'), findsNothing, reason: 'Racikan obat bebas tidak butuh resep.');

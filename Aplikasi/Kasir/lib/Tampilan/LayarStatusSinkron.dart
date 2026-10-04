@@ -105,8 +105,8 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
     ];
 
     final teksKoneksi = switch (koneksi) {
-      StatusKoneksi.Online => 'Online · tersambung ke server',
-      StatusKoneksi.Offline => 'Offline · data aman di perangkat dan dikirim otomatis saat online',
+      StatusKoneksi.Online => 'Online | tersambung ke server',
+      StatusKoneksi.Offline => 'Offline | data aman di perangkat dan dikirim otomatis saat online',
       StatusKoneksi.BelumDiketahui => 'Koneksi belum diperiksa',
     };
 

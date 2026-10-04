@@ -176,7 +176,7 @@ const kolomAntiFraud: KolomTabel<BarisAntiFraudLaporan>[] = [
         meta: { label: 'Risiko', prioritas: 'utama', wajib: true },
         cell: ({ row: { original: b } }) => (
             <span className="flex flex-col items-start gap-1">
-                <LabelStatus jenis={JenisTingkat[b.Tingkat]} teks={`${b.Tingkat} · ${String(b.Skor)}`} />
+                <LabelStatus jenis={JenisTingkat[b.Tingkat]} teks={`${b.Tingkat} | ${String(b.Skor)}`} />
                 {b.Alasan.map((a) => (
                     <span key={a} className="text-keterangan text-teks-sekunder">
                         {a}
@@ -457,7 +457,7 @@ function IsiTab({ tab, isi }: { tab: TabLaporanPenjualan; isi: PropsLaporanPenju
                         {(['A', 'B', 'C'] as const).map((k) => (
                             <div key={k} className="min-w-0">
                                 <dt className="text-label font-semibold text-teks-utama">
-                                    Kelas {k} · {String(abc.Ringkasan[k].Jumlah)} produk
+                                    Kelas {k} | {String(abc.Ringkasan[k].Jumlah)} produk
                                 </dt>
                                 <dd className="text-subjudul font-semibold text-teks-utama tabular-nums">
                                     {FormatRupiah(abc.Ringkasan[k].Bersih)}

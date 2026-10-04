@@ -73,7 +73,7 @@ describe('Reservasi (F-07 mode service)', () => {
 
     it('waktu reservasi berformat Indonesia; aksi baris mengikuti transisi status', () => {
         expect(FormatWaktuReservasi(baris.MulaiPada, baris.SelesaiPada)).toMatch(
-            /13 Okt 2026 · \d{2}\.\d{2}–\d{2}\.\d{2}/,
+            /13 Okt 2026 \| \d{2}\.\d{2}–\d{2}\.\d{2}/,
         );
         RenderUji(<HalamanDaftarReservasi {...Props()} />);
         expect(screen.getAllByText('Rina Wulandari Kusumaningrum').length).toBeGreaterThan(0);

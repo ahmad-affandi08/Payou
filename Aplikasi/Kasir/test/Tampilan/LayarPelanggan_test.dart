@@ -63,7 +63,7 @@ void main() {
       expect(keranjang.total, isNotNull);
 
       if (ukuran.width < 600) {
-        await Ketuk(tester, find.textContaining('Keranjang · '));
+        await Ketuk(tester, find.textContaining('Keranjang | '));
       }
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').last);
       expect(layar.isi.last.keadaan, KeadaanLayarPelanggan.Bayar);

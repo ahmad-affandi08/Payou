@@ -490,11 +490,11 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
           children: [
             TeksKode(p.nomor, gaya: teks.titleSmall),
             const SizedBox(height: TokenJarak.jarak4),
-            Text('${_FormatTanggal(p.tanggalBisnis)} · ${p.namaKasir} · ${p.labelStatus}', style: teks.bodySmall),
+            Text('${_FormatTanggal(p.tanggalBisnis)} | ${p.namaKasir} | ${p.labelStatus}', style: teks.bodySmall),
             _BarisNilai(label: 'Total transaksi', nilai: Uang.Dari(p.totalAkhir)),
             for (final r in hasil.retur)
               Text(
-                'Sudah diretur: ${r.nomor} · ${Uang.Dari(r.totalRefund).FormatRupiah()}',
+                'Sudah diretur: ${r.nomor} | ${Uang.Dari(r.totalRefund).FormatRupiah()}',
                 style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
               ),
           ],
@@ -692,7 +692,7 @@ class _BarisRetur extends StatelessWidget {
           ),
           if (baris.pilihan.isNotEmpty) Text(baris.pilihan.join(', '), style: teks.bodySmall),
           Text(
-            'Terjual ${FormatAngka.FormatJumlah(Kuantitas.Dari(baris.jumlah))}$satuan · '
+            'Terjual ${FormatAngka.FormatJumlah(Kuantitas.Dari(baris.jumlah))}$satuan | '
             '${habis ? 'sudah diretur semua' : 'bisa diretur ${FormatAngka.FormatJumlah(sisa)}$satuan'}',
             style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
           ),

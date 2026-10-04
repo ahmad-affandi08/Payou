@@ -99,7 +99,7 @@ function KartuPembayaran({
                             <div>
                                 <dt className="text-keterangan text-teks-sekunder">Pengirim</dt>
                                 <dd>
-                                    {pembayaran.BankPengirim} · {pembayaran.NamaPengirim}
+                                    {pembayaran.BankPengirim} | {pembayaran.NamaPengirim}
                                 </dd>
                             </div>
                             <div>

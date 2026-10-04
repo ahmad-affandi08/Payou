@@ -65,7 +65,7 @@ const kolom: KolomTabel<Outlet>[] = [
     },
     {
         id: 'NamaKota',
-        accessorFn: (outlet) => `${outlet.NamaKota ?? 'Belum diisi'} · ${outlet.ZonaWaktu}`,
+        accessorFn: (outlet) => `${outlet.NamaKota ?? 'Belum diisi'} | ${outlet.ZonaWaktu}`,
         header: 'Kota',
         meta: { label: 'Kota', prioritas: 'penting', kelasSel: 'text-teks-sekunder' },
     },
@@ -189,7 +189,7 @@ function BagianMerek({ merek, bolehKelola }: { merek: Merek[]; bolehKelola: bool
                         >
                             <span>
                                 <span className="font-semibold text-teks-utama">{baris.Nama}</span>
-                                <span className="text-teks-sekunder"> · {baris.JumlahOutlet} outlet</span>
+                                <span className="text-teks-sekunder"> | {baris.JumlahOutlet} outlet</span>
                             </span>
                             {bolehKelola ? (
                                 <MenuAksiBaris

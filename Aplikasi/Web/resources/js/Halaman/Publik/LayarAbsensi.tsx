@@ -54,7 +54,7 @@ export default function LayarAbsensi(props: PropsLayarAbsensi) {
 
     return (
         <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-latar px-4 py-8 text-center">
-            <Head title={`Absen · ${data.NamaOutlet}`} />
+            <Head title={`Absen | ${data.NamaOutlet}`} />
             <header className="flex flex-col gap-1">
                 <p className="text-isi text-teks-sekunder">{props.NamaToko}</p>
                 <JudulHalaman skala="situs">Absen {data.NamaOutlet}</JudulHalaman>

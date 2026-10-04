@@ -46,7 +46,7 @@ final class ArtikelSitusPublik
             'Halaman' => $halaman,
             'JumlahHalaman' => $jumlahHalaman,
             'Seo' => $this->BuatSeo(
-                'Blog · '.$p['NamaSitus'],
+                'Blog | '.$p['NamaSitus'],
                 'Tips kasir, stok, keuangan, dan pemasaran untuk usaha di Indonesia dari tim '.$p['NamaSitus'].'.',
                 '/blog'.($halaman > 1 ? '?halaman='.$halaman : ''),
                 null,
@@ -81,7 +81,7 @@ final class ArtikelSitusPublik
             ],
             'Terkait' => array_map(fn (ArtikelSitus $a): array => $this->PetakanRingkas($a, $gambar), $terkait),
             'Seo' => $this->BuatSeo(
-                $artikel->JudulSeo ?? $artikel->Judul.' · '.$p['NamaSitus'],
+                $artikel->JudulSeo ?? $artikel->Judul.' | '.$p['NamaSitus'],
                 $artikel->DeskripsiSeo ?? $artikel->Ringkasan ?? $p['DeskripsiSeo'],
                 '/blog/'.$artikel->Slug,
                 $artikel->UuidGambarSampul !== null ? ($gambar[$artikel->UuidGambarSampul]['UrlAbsolut'] ?? null) : null,

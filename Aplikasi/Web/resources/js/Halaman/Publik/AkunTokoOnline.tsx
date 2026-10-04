@@ -102,7 +102,7 @@ export default function AkunTokoOnline({ Slug, Toko, AkunAktif, Pelanggan, Riway
 
     return (
         <main className="min-h-screen bg-latar text-teks-utama">
-            <Head title={Toko ? `Akun saya · ${Toko.Nama}` : 'Akun saya'} />
+            <Head title={Toko ? `Akun saya | ${Toko.Nama}` : 'Akun saya'} />
             <header className="border-b border-garis bg-permukaan">
                 <div className="mx-auto flex max-w-3xl flex-col gap-2 px-4 py-5">
                     <a href={`/${Slug}`} className="text-label text-brand underline">
@@ -183,8 +183,8 @@ export default function AkunTokoOnline({ Slug, Toko, AkunAktif, Pelanggan, Riway
                                                     {p.Nomor}
                                                 </a>
                                                 <span className="text-keterangan text-teks-sekunder">
-                                                    {FormatTanggalWaktu(p.DibuatPada)} · {p.JenisPemenuhan}
-                                                    {p.Outlet ? ` · ${p.Outlet}` : ''}
+                                                    {FormatTanggalWaktu(p.DibuatPada)} | {p.JenisPemenuhan}
+                                                    {p.Outlet ? ` | ${p.Outlet}` : ''}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-3">
@@ -222,7 +222,7 @@ export default function AkunTokoOnline({ Slug, Toko, AkunAktif, Pelanggan, Riway
                                                 </a>
                                                 <span className="text-keterangan text-teks-sekunder">
                                                     {FormatTanggal(b.Tanggal)}
-                                                    {b.Outlet ? ` · ${b.Outlet}` : ''}
+                                                    {b.Outlet ? ` | ${b.Outlet}` : ''}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-3">

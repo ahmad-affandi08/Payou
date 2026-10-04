@@ -297,7 +297,7 @@ export default function HalamanFormPenyesuaianStok({
                                             <span className="block text-keterangan text-teks-sekunder">
                                                 <span className="font-mono">{b.Sku ?? 'Tanpa SKU'}</span>
                                                 {b.SaldoDiGudang !== null
-                                                    ? ` · stok ${FormatJumlahStok(b.SaldoDiGudang, b.SimbolSatuan)}`
+                                                    ? ` | stok ${FormatJumlahStok(b.SaldoDiGudang, b.SimbolSatuan)}`
                                                     : null}
                                             </span>
                                         </div>

@@ -85,7 +85,7 @@ void main() {
     final r = PuyerDemam();
     expect(
       (r.nama, r.aturanPakai, r.Ringkasan),
-      ('Puyer demam anak', '3 x 1 bungkus sesudah makan', '10 kemasan · 3 x 1 bungkus sesudah makan'),
+      ('Puyer demam anak', '3 x 1 bungkus sesudah makan', '10 kemasan | 3 x 1 bungkus sesudah makan'),
     );
   });
 
@@ -180,7 +180,7 @@ void main() {
         ),
         LebarKertas.Mm80,
       ).map((b) => b.trim()).toList();
-      expect(struk, containsAll(['Racikan: Puyer demam anak', '10 kemasan - 3 x 1 bungkus sesudah makan']));
+      expect(struk, containsAll(['Racikan: Puyer demam anak', '10 kemasan | 3 x 1 bungkus sesudah makan']));
       expect(struk.any((b) => b.contains('Paracetamol')), isFalse, reason: 'Komposisi tidak dicetak di struk.');
     },
   );

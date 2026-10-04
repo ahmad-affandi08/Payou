@@ -106,7 +106,7 @@ export default function HalamanCetakFakturGrosir({ Faktur, SuratJalan, Baris, Us
                 <ul className="flex flex-col gap-0.5">
                     {SuratJalan.map((s) => (
                         <li key={s.Nomor}>
-                            <span className="font-mono">{s.Nomor}</span> · {FormatTanggal(s.Tanggal)} ·{' '}
+                            <span className="font-mono">{s.Nomor}</span> | {FormatTanggal(s.Tanggal)} |{' '}
                             <span className="tabular-nums">{FormatRupiah(s.Total)}</span>
                         </li>
                     ))}

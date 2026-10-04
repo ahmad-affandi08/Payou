@@ -71,7 +71,7 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('HargaTerbuka')), '8000');
     await tester.tap(find.widgetWithText(FilledButton, 'Tambah'));
     await Tunggu(tester);
-    expect(find.textContaining('Keranjang · 2 item'), findsOneWidget);
+    expect(find.textContaining('Keranjang | 2 item'), findsOneWidget);
     expect(find.text('Rp 8.000'), findsWidgets);
     await Lepas(tester, u);
   });
@@ -93,7 +93,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Batal'));
     await Tunggu(tester);
     expect(find.byType(DialogHargaTerbuka), findsNothing);
-    expect(find.textContaining('Keranjang · '), findsNothing);
+    expect(find.textContaining('Keranjang | '), findsNothing);
     await Lepas(tester, u);
   });
 }

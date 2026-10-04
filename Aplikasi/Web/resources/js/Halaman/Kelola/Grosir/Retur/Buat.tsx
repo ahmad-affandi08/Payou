@@ -133,7 +133,7 @@ export default function HalamanBuatReturGrosir({ SuratJalan, Baris, OpsiKondisi,
                                             <span className="flex flex-col">
                                                 <span className="font-semibold break-words">{b.NamaProduk}</span>
                                                 <span className="font-mono text-keterangan text-teks-sekunder">
-                                                    {b.Sku ?? 'Tanpa SKU'} · {FormatRupiah(b.Harga)}
+                                                    {b.Sku ?? 'Tanpa SKU'} | {FormatRupiah(b.Harga)}
                                                 </span>
                                             </span>
                                         </TableCell>
@@ -169,7 +169,7 @@ export default function HalamanBuatReturGrosir({ SuratJalan, Baris, OpsiKondisi,
                     </TabelForm>
                 )}
                 <p className="mt-3 text-isi text-teks-utama">
-                    {terisi.length} baris diisi · perkiraan nilai barang{' '}
+                    {terisi.length} baris diisi | perkiraan nilai barang{' '}
                     <span className="font-semibold tabular-nums">{FormatRupiah(perkiraan)}</span>
                     <span className="text-teks-sekunder"> (sebelum alokasi diskon & pajak; dihitung server)</span>
                 </p>

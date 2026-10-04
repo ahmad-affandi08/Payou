@@ -197,7 +197,7 @@ class _LembarCucianState extends ConsumerState<LembarCucian> {
                         t.jenisLayanan,
                         if (t.berat != null) '${t.berat!.replaceAll(RegExp(r'\.?0+$'), '').replaceAll('.', ',')} kg',
                         for (final i in t.item) '${i.nama} ×${i.jumlah}',
-                      ].join(' · '),
+                      ].join(' | '),
                       style: teks.bodyMedium,
                     ),
                     Text(

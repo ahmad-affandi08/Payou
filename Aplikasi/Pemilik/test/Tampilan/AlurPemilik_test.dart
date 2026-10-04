@@ -150,7 +150,7 @@ void main() {
 
     await tester.tap(find.text('Shift'));
     await tester.pumpAndSettle();
-    expect(find.text('Rina · Solo Baru'), findsOneWidget);
+    expect(find.text('Rina | Solo Baru'), findsOneWidget);
     expect(find.text('−Rp 20.000'), findsOneWidget);
 
     await tester.tap(find.text('Perangkat'));

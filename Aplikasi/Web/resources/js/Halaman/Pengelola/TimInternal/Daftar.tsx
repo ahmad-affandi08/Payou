@@ -205,7 +205,7 @@ export default function Daftar({ Anggota, Undangan, Peran }: PropsDaftar) {
                                 >
                                     <span className="font-semibold text-teks-utama">{undangan.Email}</span>
                                     <span className="text-teks-sekunder">
-                                        {TampilkanPeran(undangan.KodePeran)} · berlaku sampai{' '}
+                                        {TampilkanPeran(undangan.KodePeran)} | berlaku sampai{' '}
                                         {FormatTanggalWaktu(undangan.BerlakuSampai)}
                                     </span>
                                 </li>

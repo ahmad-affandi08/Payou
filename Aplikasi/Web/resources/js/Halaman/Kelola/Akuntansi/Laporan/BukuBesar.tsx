@@ -51,7 +51,7 @@ const kolom: KolomTabel<BarisBukuBesar>[] = [
                 <span className="block break-words text-teks-utama">{b.Memo ?? b.Keterangan}</span>
                 <span className="text-label text-teks-sekunder">
                     {b.LabelSumber}
-                    {b.NomorSumber ? ' · ' : ''}
+                    {b.NomorSumber ? ' | ' : ''}
                     {b.NomorSumber && b.TautanSumber ? (
                         <Link href={b.TautanSumber} className="font-mono break-all text-brand underline">
                             {b.NomorSumber}

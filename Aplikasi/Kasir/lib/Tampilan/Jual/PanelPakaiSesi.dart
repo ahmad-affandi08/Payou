@@ -168,7 +168,7 @@ class _PanelPakaiSesiState extends ConsumerState<PanelPakaiSesi> {
                   title: Text(p.namaPaket),
                   subtitle: Text(
                     'Sisa ${p.sisaSesi} dari ${p.jumlahSesi} sesi'
-                    '${p.berlakuSampai == null ? '' : ' · berlaku sampai ${FormatWaktu.FormatTanggal(DateTime.parse(p.berlakuSampai!))}'}',
+                    '${p.berlakuSampai == null ? '' : ' | berlaku sampai ${FormatWaktu.FormatTanggal(DateTime.parse(p.berlakuSampai!))}'}',
                   ),
                   onTap: _sibuk
                       ? null

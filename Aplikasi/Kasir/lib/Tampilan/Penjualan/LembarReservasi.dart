@@ -195,7 +195,7 @@ class _LembarReservasiState extends ConsumerState<LembarReservasi> {
                     ),
                     Text(r.namaPelanggan, style: teks.bodyLarge),
                     Text(
-                      [r.namaLayanan, if (r.namaStaf != null) 'oleh ${r.namaStaf}'].join(' · '),
+                      [r.namaLayanan, if (r.namaStaf != null) 'oleh ${r.namaStaf}'].join(' | '),
                       style: teks.bodyMedium,
                     ),
                     if (r.catatan != null && r.catatan!.isNotEmpty)

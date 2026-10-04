@@ -265,7 +265,7 @@ describe('F-07b halaman penjualan back-office', () => {
 
         expect(
             screen.getByText(
-                /Racikan Puyer batuk anak · 10 kemasan · 3 x 1 bungkus sesudah makan: Paracetamol 500 mg Tablet 2,5, CTM 4 mg Tablet 1/,
+                /Racikan Puyer batuk anak \| 10 kemasan \| 3 x 1 bungkus sesudah makan: Paracetamol 500 mg Tablet 2,5, CTM 4 mg Tablet 1/,
             ),
         ).toBeTruthy();
     });

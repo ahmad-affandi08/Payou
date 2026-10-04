@@ -241,7 +241,7 @@ export default function HalamanUbahArtikelSitus({
                     </div>
                     <BidangTeks
                         label="Judul di Google (opsional)"
-                        keterangan={`${d.JudulSeo.length}/70. Kosong = judul · nama situs.`}
+                        keterangan={`${d.JudulSeo.length}/70. Kosong = judul | nama situs.`}
                         nilai={d.JudulSeo}
                         saatBerubah={(v) => formulir.setData('JudulSeo', v)}
                         galat={galat.JudulSeo}

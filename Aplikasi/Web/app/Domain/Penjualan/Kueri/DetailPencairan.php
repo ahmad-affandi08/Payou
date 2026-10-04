@@ -81,7 +81,7 @@ final class DetailPencairan
      */
     private static function Label(?array $akun): string
     {
-        return $akun === null ? '' : "{$akun['Kode']} · {$akun['Nama']}";
+        return $akun === null ? '' : "{$akun['Kode']} | {$akun['Nama']}";
     }
 
     /**

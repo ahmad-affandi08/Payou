@@ -44,7 +44,7 @@ export default function HalamanDetailDokumenKonsinyasi({ Dokumen, Baris }: Props
                         )}
                     </Nilai>
                     <Nilai label="Lokasi stok">
-                        {Dokumen.NamaOutlet ? `${Dokumen.NamaGudang} · ${Dokumen.NamaOutlet}` : Dokumen.NamaGudang}
+                        {Dokumen.NamaOutlet ? `${Dokumen.NamaGudang} | ${Dokumen.NamaOutlet}` : Dokumen.NamaGudang}
                     </Nilai>
                     <Nilai label="Nilai titipan">
                         <span className="font-semibold tabular-nums">{FormatRupiah(Dokumen.TotalNilai)}</span>

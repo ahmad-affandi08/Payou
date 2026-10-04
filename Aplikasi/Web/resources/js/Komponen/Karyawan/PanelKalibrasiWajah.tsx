@@ -119,7 +119,7 @@ function IsiKalibrasi({ data }: { data: KalibrasiWajah }) {
                                 {k.Dari === '0.00'
                                     ? `< ${TulisDesimal(k.Sampai)}`
                                     : `${TulisDesimal(k.Dari)}–${TulisDesimal(k.Sampai)}`}
-                                {memuatAmbang ? ' · ambang' : ''}
+                                {memuatAmbang ? ' | ambang' : ''}
                             </span>
                             <span className="flex flex-col gap-0.5">
                                 <BarisBatang

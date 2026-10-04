@@ -121,7 +121,7 @@ abstract final class PenyusunLayarPelanggan {
 
   static String? _Rincian(ItemKeranjang b) {
     final bagian = ['${_FormatJumlah(b.jumlah)} × ${b.hargaSatuan.FormatRupiah()}', for (final p in b.pilihan) p.nama];
-    return bagian.join(' · ');
+    return bagian.join(' | ');
   }
 
   static String _FormatJumlah(Kuantitas jumlah) {

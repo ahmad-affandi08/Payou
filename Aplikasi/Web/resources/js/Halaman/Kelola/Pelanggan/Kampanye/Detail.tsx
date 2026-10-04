@@ -118,7 +118,7 @@ export default function HalamanDetailKampanye({
                 ))}
             </dl>
 
-            <Panel judul="Pesan" idJudul="judul-pesan-kampanye" keterangan={k.Segmen.join(' · ')}>
+            <Panel judul="Pesan" idJudul="judul-pesan-kampanye" keterangan={k.Segmen.join(' | ')}>
                 {k.Judul ? <p className="text-isi font-semibold text-teks-utama">{k.Judul}</p> : null}
                 <p className="text-label text-teks-sekunder">Contoh yang diterima pelanggan bernama Budi:</p>
                 <p className="rounded-kontrol border border-garis bg-latar p-3 text-isi break-words whitespace-pre-line text-teks-utama">

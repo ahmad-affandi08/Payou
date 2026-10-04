@@ -124,7 +124,7 @@ describe('Struk digital publik (POS-11)', () => {
             />,
         );
         expect(screen.getByRole('heading', { name: 'Status cucian: Dicuci' })).toBeTruthy();
-        expect(screen.getByText('Express · 3,5 kg · Bed cover king ×1 · parfum Lavender')).toBeTruthy();
+        expect(screen.getByText('Express | 3,5 kg | Bed cover king ×1 | parfum Lavender')).toBeTruthy();
         expect(screen.getByText(/Perkiraan selesai/)).toBeTruthy();
         expect(screen.getAllByText('(sudah)')).toHaveLength(2);
         expect(screen.getAllByText('(belum)')).toHaveLength(1);

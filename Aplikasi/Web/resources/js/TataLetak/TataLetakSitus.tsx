@@ -243,7 +243,7 @@ function KakiSitus({ situs }: { situs: DataSitus }) {
                 <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 text-label sm:flex-row sm:items-center sm:justify-between">
                     <p>
                         © {situs.Tahun} {situs.NamaSitus}
-                        {situs.Slogan ? ` · ${situs.Slogan}` : ''}
+                        {situs.Slogan ? ` | ${situs.Slogan}` : ''}
                     </p>
                     <div className="flex flex-wrap gap-x-4 gap-y-2">
                         {AdaAnalitik(situs.Analitik) ? (

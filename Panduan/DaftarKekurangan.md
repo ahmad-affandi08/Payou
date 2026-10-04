@@ -1,6 +1,6 @@
 # Daftar Kekurangan & Pekerjaan Tertunda PAYOU
 
-Status per 2 Oktober 2026 (PRD v4.49; bagian K disisir dari kode 2 Oktober 2026 dan statusnya diperbarui tiap butir selesai sampai K-25; butir A3, A14, dan A15 disisir ulang di v3.25, sisanya belum disisir butir demi butir sejak v2.88, lihat catatan audit di bawah). Dokumen ini mencatat apa yang **belum ada**, **belum diuji di produksi**, atau **menunggu keputusan pemilik produk**, supaya sistem bisa dibuka ke publik lebih dulu dengan risiko yang diketahui. Perbarui setiap kali satu butir selesai.
+Status per 2 Oktober 2026 (PRD v4.50; bagian K disisir dari kode 2 Oktober 2026 dan statusnya diperbarui tiap butir selesai sampai K-25; butir A3, A14, dan A15 disisir ulang di v3.25, sisanya belum disisir butir demi butir sejak v2.88, lihat catatan audit di bawah). Dokumen ini mencatat apa yang **belum ada**, **belum diuji di produksi**, atau **menunggu keputusan pemilik produk**, supaya sistem bisa dibuka ke publik lebih dulu dengan risiko yang diketahui. Perbarui setiap kali satu butir selesai.
 
 Status butir (audit F-26): **TERBUKA** = belum dikerjakan; **SELESAI @ versi** = sudah dikerjakan & ada test regresinya; **DITUNDA** = sengaja ditunda; **MENUNGGU KEPUTUSAN** = butuh pemilik produk. Butir baru ditandai SELESAI hanya bila test regresinya ada.
 

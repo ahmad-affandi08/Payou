@@ -13,9 +13,9 @@ import { TulisTanggal } from '@/Pustaka/Tanggal';
 
 export type DataPemetaanStokAwal = NonNullable<PropsDetailImporStokAwal['Pemetaan']>;
 
-/** Label opsi lokasi stok: "Nama · Outlet" (lokasi tanpa outlet cukup namanya). */
+/** Label opsi lokasi stok: "Nama | Outlet" (lokasi tanpa outlet cukup namanya). */
 export function LabelOpsiGudang(gudang: OpsiGudang): string {
-    return gudang.NamaOutlet ? `${gudang.Nama} · ${gudang.NamaOutlet}` : gudang.Nama;
+    return gudang.NamaOutlet ? `${gudang.Nama} | ${gudang.NamaOutlet}` : gudang.Nama;
 }
 
 /**
@@ -199,7 +199,7 @@ export default function PemetaanImporStokAwal({
                                         />
                                     </TableCell>
                                     <TableCell className="pr-0 text-keterangan break-all whitespace-normal text-teks-sekunder">
-                                        {contoh.length === 0 ? '—' : contoh.filter(Boolean).slice(0, 3).join(' · ')}
+                                        {contoh.length === 0 ? '—' : contoh.filter(Boolean).slice(0, 3).join(' | ')}
                                     </TableCell>
                                 </TableRow>
                             );

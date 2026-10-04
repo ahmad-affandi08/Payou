@@ -64,7 +64,7 @@ void main() {
   Future<void> BayarUangPas(WidgetTester tester, Size ukuran) async {
     await Ketuk(tester, find.byWidgetPredicate((w) => w is UbinProduk && w.nama.startsWith('Americano')));
     if (ukuran.width < 600) {
-      await Ketuk(tester, find.textContaining('Keranjang · '));
+      await Ketuk(tester, find.textContaining('Keranjang | '));
     }
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').last);
     await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Tunai'));
@@ -93,8 +93,8 @@ void main() {
       expect(find.text('Printer belum diatur'), findsOneWidget, reason: 'Cetak uji belum menyimpan printer.');
 
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
-      await GulirKe(tester, find.text('Printer LAN/Wi-Fi 192.168.1.50:9100 · 80 mm'));
-      expect(find.text('Printer LAN/Wi-Fi 192.168.1.50:9100 · 80 mm'), findsOneWidget);
+      await GulirKe(tester, find.text('Printer LAN/Wi-Fi 192.168.1.50:9100 | 80 mm'));
+      expect(find.text('Printer LAN/Wi-Fi 192.168.1.50:9100 | 80 mm'), findsOneWidget);
       expect(find.text('Printer siap'), findsOneWidget);
       final profil = await tester.runAsync(() => ProfilPrinter.Muat(u.repositori));
       expect(profil?.alamat, '192.168.1.50');
@@ -193,8 +193,8 @@ void main() {
       expect(u.pemindai.transportDibuat.last.alamat, '00:11:22:33:44:55');
 
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
-      await GulirKe(tester, find.text('Printer Bluetooth MTP-II · 58 mm'));
-      expect(find.text('Printer Bluetooth MTP-II · 58 mm'), findsOneWidget);
+      await GulirKe(tester, find.text('Printer Bluetooth MTP-II | 58 mm'));
+      expect(find.text('Printer Bluetooth MTP-II | 58 mm'), findsOneWidget);
       expect(find.text('Printer siap'), findsOneWidget);
       final profil = await tester.runAsync(() => ProfilPrinter.Muat(u.repositori));
       expect(
@@ -230,7 +230,7 @@ void main() {
         await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cetak uji').last);
         expect(u.printer.AmbilTeks(), contains('TIKET DAPUR'));
         await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer dapur'));
-        expect(find.text('Printer Bluetooth Printer Dapur · 80 mm'), findsOneWidget);
+        expect(find.text('Printer Bluetooth Printer Dapur | 80 mm'), findsOneWidget);
 
         final tersimpan = await tester.runAsync(() => PrinterDapur.MuatSemua(u.repositori));
         expect(tersimpan!['01K5STAS1VN000000000BAR001']?.samaDenganStruk, isTrue);
@@ -269,8 +269,8 @@ void main() {
     await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cari printer'));
     // Satu printer ditemukan langsung terpilih.
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
-    await GulirKe(tester, find.text('Printer Bluetooth LE Printer_5D2B · 58 mm'));
-    expect(find.text('Printer Bluetooth LE Printer_5D2B · 58 mm'), findsOneWidget);
+    await GulirKe(tester, find.text('Printer Bluetooth LE Printer_5D2B | 58 mm'));
+    expect(find.text('Printer Bluetooth LE Printer_5D2B | 58 mm'), findsOneWidget);
 
     await Ketuk(tester, find.text('Jual').last);
     await BayarUangPas(tester, const Size(1280, 900));

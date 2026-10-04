@@ -329,14 +329,14 @@ function KartuIntegrasi({ slot, bolehKelola }: { slot: SlotIntegrasi; bolehKelol
                             <dt className="text-teks-sekunder">Tes koneksi terakhir</dt>
                             <dd className="text-teks-utama">
                                 {konfigurasi.HasilUji && konfigurasi.TerakhirDiujiPada
-                                    ? `${FormatTanggalWaktu(konfigurasi.TerakhirDiujiPada)} · ${konfigurasi.HasilUji.Pesan}`
+                                    ? `${FormatTanggalWaktu(konfigurasi.TerakhirDiujiPada)} | ${konfigurasi.HasilUji.Pesan}`
                                     : 'Belum pernah diuji'}
                             </dd>
                         </div>
                         <div className="flex flex-col sm:col-span-2">
                             <dt className="text-teks-sekunder">Kredensial terakhir diganti</dt>
                             <dd className="text-teks-utama">
-                                {FormatTanggalWaktu(konfigurasi.KredensialDiubahPada)} · rotasi setiap{' '}
+                                {FormatTanggalWaktu(konfigurasi.KredensialDiubahPada)} | rotasi setiap{' '}
                                 {konfigurasi.RotasiSetiapHari} hari
                             </dd>
                         </div>
@@ -468,7 +468,7 @@ function FormIntegrasi({ slot, saatSelesai }: { slot: SlotIntegrasi; saatSelesai
             <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
                 <SheetHeader>
                     <SheetTitle className="text-subjudul text-teks-utama">
-                        {konfigurasi ? 'Ubah konfigurasi' : 'Atur konfigurasi'} {slot.LabelJenis} · {slot.Lingkungan}
+                        {konfigurasi ? 'Ubah konfigurasi' : 'Atur konfigurasi'} {slot.LabelJenis} | {slot.Lingkungan}
                     </SheetTitle>
                     <SheetDescription>
                         Pilih penyedia lalu isi bidangnya. Kredensial disimpan terenkripsi dan tidak pernah ditampilkan

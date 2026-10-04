@@ -115,7 +115,7 @@ export default function PanelAbsenHp({ karyawan, saatTutup }: { karyawan: BarisK
         <Sheet open onOpenChange={(terbuka) => (terbuka ? undefined : saatTutup())}>
             <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
                 <SheetHeader>
-                    <SheetTitle className="text-subjudul text-teks-utama">Absen dari HP · {karyawan.Nama}</SheetTitle>
+                    <SheetTitle className="text-subjudul text-teks-utama">Absen dari HP | {karyawan.Nama}</SheetTitle>
                     <SheetDescription>
                         Karyawan membuka tautan pribadinya di HP, mendaftarkan wajah sekali, lalu absen di dalam radius
                         outlet dengan pencocokan wajah. Tanpa PIN.

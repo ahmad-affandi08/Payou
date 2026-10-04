@@ -7,7 +7,7 @@ import '../../Aplikasi/Penyedia.dart';
 import '../../Domain/Sesi/StafLokal.dart';
 import 'JamRuangKerja.dart';
 
-/// Bilah atas ruang kerja (PRD §17.2.7): logo PAYOU di tengah, outlet · perangkat di kiri, lalu identitas kasir,
+/// Bilah atas ruang kerja (PRD §17.2.7): logo PAYOU di tengah, outlet | perangkat di kiri, lalu identitas kasir,
 /// jam, dan tombol Kunci di kanan.
 ///
 /// Latarnya memakai warna merek gelap, bukan permukaan putih: bingkai ruang kerja adalah satu-satunya bagian layar
@@ -39,7 +39,7 @@ class BilahAtasRuangKerja extends ConsumerWidget {
     final lega = MediaQuery.sizeOf(context).width >= lebarLega;
     final lokasi = identitas == null
         ? ''
-        : [identitas.outlet, identitas.perangkat].where((b) => b.isNotEmpty).join(' · ');
+        : [identitas.outlet, identitas.perangkat].where((b) => b.isNotEmpty).join(' | ');
     final gayaBilah = teks.labelLarge?.copyWith(color: warna.permukaan);
     final gayaTombol = TextButton.styleFrom(foregroundColor: warna.permukaan);
 

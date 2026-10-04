@@ -137,7 +137,7 @@ void main() {
   testWidgets('tanpa apoteker berizin di perangkat: obat keras diblokir dengan pesan jelas (360 dp)', (tester) async {
     final u = await MasukJual(tester, const Size(360, 740), tanpaApoteker: true);
     await TambahProduk(tester, 'Mefenam', 'Asam Mefenamat 500 mg Tablet Strip 10');
-    expect(find.text('K · OWA'), findsWidgets);
+    expect(find.text('K | OWA'), findsWidgets);
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').first);
     expect(find.textContaining('Wajib resep dokter'), findsNothing, reason: 'OWA tanpa resep.');
     expect(find.text('Hanya diserahkan apoteker: Asam Mefenamat 500 mg Tablet Strip 10.'), findsOneWidget);

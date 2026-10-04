@@ -52,7 +52,7 @@ void main() {
     await Ketuk(tester, Ubin('Croissant Mentega Prancis Isi Cokelat Lumer Ukuran Jumbo'));
     await Ketuk(tester, Ubin('Americano Panas'));
     if (ukuran.width < 600) {
-      await Ketuk(tester, find.textContaining('Keranjang ·').first);
+      await Ketuk(tester, find.textContaining('Keranjang |').first);
     }
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').last);
   }
@@ -74,7 +74,7 @@ void main() {
       await Ketuk(tester, find.byTooltip('Tambah orang'));
       expect(find.text('2 × Rp 14.666 + tamu terakhir Rp 14.668'), findsOneWidget);
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Mulai bagi'));
-      expect(find.text('Bagi rata 3 orang · tamu 1 dari 3'), findsOneWidget);
+      expect(find.text('Bagi rata 3 orang | tamu 1 dari 3'), findsOneWidget);
       expect(find.text('Porsi per orang Rp 14.666'), findsOneWidget);
 
       await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Tunai'));
@@ -108,14 +108,14 @@ void main() {
     await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Bagi tagihan'));
     await Ketuk(tester, find.text('Per nominal'));
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Mulai bagi'));
-    expect(find.text('Bagi per nominal · tamu 1'), findsOneWidget);
+    expect(find.text('Bagi per nominal | tamu 1'), findsOneWidget);
 
     await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Tunai'));
     await tester.enterText(find.widgetWithText(TextField, 'Uang diterima'), '30000');
     await Tunggu(tester);
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Tambah pembayaran Tunai'));
     expect(find.text('Tamu 1 membayar Rp 30.000 (Tunai).'), findsOneWidget);
-    expect(find.text('Bagi per nominal · tamu 2'), findsOneWidget);
+    expect(find.text('Bagi per nominal | tamu 2'), findsOneWidget);
 
     await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Tunai'));
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Uang pas'));

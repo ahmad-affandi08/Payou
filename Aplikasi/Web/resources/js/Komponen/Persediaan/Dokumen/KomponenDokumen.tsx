@@ -72,7 +72,7 @@ export function PanelRiwayatDokumen({ riwayat, id }: { riwayat: RiwayatDokumenPe
                             <span className="text-isi font-semibold text-teks-utama">{r.LabelStatusKe}</span>
                             <span className="text-keterangan text-teks-sekunder">
                                 {FormatTanggalWaktu(r.Pada)}
-                                {r.Oleh ? ` · ${r.Oleh}` : ''}
+                                {r.Oleh ? ` | ${r.Oleh}` : ''}
                             </span>
                             {r.Alasan ? (
                                 <span className="text-keterangan text-teks-sekunder">Alasan: {r.Alasan}</span>

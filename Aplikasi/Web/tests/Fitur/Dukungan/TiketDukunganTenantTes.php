@@ -173,7 +173,7 @@ describe('Isolasi tenant (PRD §13.4)', function (): void {
                 ->component('Kelola/Bantuan/Tiket')
                 ->has('Tiket.Pesan', 2)
                 ->where('Tiket.Pesan.1.Isi', 'Mohon kirim foto layar pengaturan printer.')
-                ->where('Tiket.Pesan.1.NamaPengirim', "{$petugas->Nama} · Tim Dukungan"));
+                ->where('Tiket.Pesan.1.NamaPengirim', "{$petugas->Nama} | Tim Dukungan"));
     });
 });
 

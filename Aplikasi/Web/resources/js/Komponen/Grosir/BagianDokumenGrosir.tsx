@@ -219,7 +219,7 @@ export function RiwayatGrosirDokumen({ riwayat }: { riwayat: RiwayatGrosir[] }) 
             <ol className="flex flex-col gap-1 text-isi">
                 {riwayat.map((r, i) => (
                     <li key={`${r.Pada}-${String(i)}`} className="break-words text-teks-sekunder">
-                        <span className="font-semibold text-teks-utama">{r.StatusKe}</span> ·{' '}
+                        <span className="font-semibold text-teks-utama">{r.StatusKe}</span> |{' '}
                         {FormatTanggalWaktu(r.Pada)}
                         {r.Oleh ? ` oleh ${r.Oleh}` : ''}
                         {r.Alasan ? ` — ${r.Alasan}` : ''}
@@ -252,7 +252,7 @@ export function JurnalDokumenGrosir({ jurnal, izin }: { jurnal: JurnalGrosir[]; 
                         ) : (
                             <span className="font-mono font-semibold text-teks-utama">{j.Nomor}</span>
                         )}{' '}
-                        · {FormatTanggal(j.Tanggal)} · {j.KunciSumber} · {FormatRupiah(j.TotalDebit)}
+                        | {FormatTanggal(j.Tanggal)} | {j.KunciSumber} | {FormatRupiah(j.TotalDebit)}
                     </li>
                 ))}
             </ul>

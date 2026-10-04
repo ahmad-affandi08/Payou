@@ -377,7 +377,7 @@ export default function HalamanDetailStokAwal({
                                 <span className="text-isi font-semibold text-teks-utama">{riwayat.LabelStatusKe}</span>
                                 <span className="text-keterangan text-teks-sekunder">
                                     {FormatTanggalWaktu(riwayat.Pada)}
-                                    {riwayat.Oleh ? ` · ${riwayat.Oleh}` : ''}
+                                    {riwayat.Oleh ? ` | ${riwayat.Oleh}` : ''}
                                 </span>
                                 {riwayat.Alasan ? (
                                     <span className="text-keterangan text-teks-sekunder">Alasan: {riwayat.Alasan}</span>

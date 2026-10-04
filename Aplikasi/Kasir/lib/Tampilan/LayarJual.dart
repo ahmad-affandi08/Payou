@@ -735,7 +735,7 @@ class _LayarJualState extends ConsumerState<LayarJual> {
                 Text(item.nama, style: teks.titleMedium),
                 const SizedBox(height: TokenJarak.jarak4),
                 Text(
-                  '${FormatAngka.FormatJumlah(item.jumlah)} × ${item.hargaSatuan.FormatRupiah()} · ${baris.AmbilLabelStatus()}',
+                  '${FormatAngka.FormatJumlah(item.jumlah)} × ${item.hargaSatuan.FormatRupiah()} | ${baris.AmbilLabelStatus()}',
                 ),
                 if ((item.catatan ?? '').isNotEmpty) Text('Catatan: ${item.catatan}'),
                 const SizedBox(height: TokenJarak.jarak12),
@@ -1629,7 +1629,7 @@ class _LayarJualState extends ConsumerState<LayarJual> {
       judul:
           pesanan?.AmbilJudul() ??
           switch ((keranjang.tukar, keranjang.perintahKerja)) {
-            (final tukar?, _) => 'Tukar barang · ${tukar.nilai.FormatRupiah()}',
+            (final tukar?, _) => 'Tukar barang | ${tukar.nilai.FormatRupiah()}',
             // Bengkel bagian 2: keranjang menagih perintah kerja → kendaraannya jadi judul.
             (null, final pk?) => 'Servis ${pk.nomorPolisi ?? pk.nomor}',
             _ => null,
@@ -1762,7 +1762,7 @@ class _LayarJualState extends ConsumerState<LayarJual> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        keranjang.CekKosong ? '$judul kosong' : '$judul · ${keranjang.baris.length} baris',
+                        keranjang.CekKosong ? '$judul kosong' : '$judul | ${keranjang.baris.length} baris',
                         style: teks.bodySmall,
                       ),
                       TeksUang(hitungan?.hasil.totalAkhir ?? Uang.Nol(), rataKanan: false, gaya: teks.titleMedium),
@@ -1815,7 +1815,7 @@ class _LayarJualState extends ConsumerState<LayarJual> {
         ),
       ),
       _JenisPanel.Varian => (
-        judul: 'Pilih varian · ${_produkPanel?.nama ?? ''}',
+        judul: 'Pilih varian | ${_produkPanel?.nama ?? ''}',
         isi: Builder(
           builder: (context) {
             final katalog = ref.read(penyediaKatalog).value;

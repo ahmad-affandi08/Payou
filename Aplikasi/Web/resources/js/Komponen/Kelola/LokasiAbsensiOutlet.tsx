@@ -88,7 +88,7 @@ export default function LokasiAbsensiOutlet({ alamatOutlet, data, bolehKelola }:
                     <span className="font-mono tabular-nums">
                         {data.Lintang}, {data.Bujur}
                     </span>
-                    <span>· radius {data.RadiusMeter} m ·</span>
+                    <span>| radius {data.RadiusMeter} m |</span>
                     <a
                         className="text-brand underline underline-offset-2"
                         href={`https://www.google.com/maps?q=${data.Lintang ?? ''},${data.Bujur ?? ''}`}

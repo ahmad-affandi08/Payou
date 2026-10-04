@@ -57,7 +57,7 @@ void main() {
 
   Future<void> BukaKeranjangHp(WidgetTester tester, Size ukuran) async {
     if (ukuran.width < 600) {
-      await Ketuk(tester, find.textContaining('Keranjang ·').first);
+      await Ketuk(tester, find.textContaining('Keranjang |').first);
     }
   }
 
@@ -138,7 +138,7 @@ void main() {
       await Ketuk(tester, find.byKey(const ValueKey('IsiNamaPemesan')));
       await tester.enterText(find.byKey(const ValueKey('NamaPemesan')), '  Budi Santoso ');
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan'));
-      expect(find.text('Pemesan: Budi Santoso · ketuk untuk mengubah'), findsOneWidget);
+      expect(find.text('Pemesan: Budi Santoso | ketuk untuk mengubah'), findsOneWidget);
       await Bayar(tester);
 
       expect(find.text('Nomor antrian'), findsOneWidget);
@@ -153,7 +153,7 @@ void main() {
       await Ketuk(tester, find.text('Transaksi baru'));
       await Ketuk(tester, Ubin('Americano Panas'));
       await BukaKeranjangHp(tester, ukuran);
-      expect(find.text('Nama pemesan · ketuk untuk mengisi'), findsOneWidget);
+      expect(find.text('Nama pemesan | ketuk untuk mengisi'), findsOneWidget);
       await Bayar(tester);
       expect(find.text('002'), findsOneWidget);
       expect((await OutboxTerakhir(tester, u)).containsKey('NamaPemesan'), isFalse);

@@ -468,8 +468,8 @@ class _LayarMejaState extends ConsumerState<LayarMeja> {
     final terisi = pesanan != null;
     final item = pesanan?.AmbilBarisAktif().length ?? 0;
     final keterangan = pesanan == null
-        ? 'Kosong${kapasitas == null ? '' : ' · $kapasitas kursi'}'
-        : '${pesanan.jumlahTamu} tamu · $item item · ${_FormatLama(sekarang.toUtc().difference(pesanan.dibukaPada.toUtc()))}';
+        ? 'Kosong${kapasitas == null ? '' : ' | $kapasitas kursi'}'
+        : '${pesanan.jumlahTamu} tamu | $item item | ${_FormatLama(sekarang.toUtc().difference(pesanan.dibukaPada.toUtc()))}';
     // K-12: status layanan; warna selalu disertai ikon & teks.
     final status = pesanan?.mintaBillPada != null
         ? (ikon: Icons.receipt_long_outlined, teks: 'Minta bill')
@@ -655,7 +655,7 @@ class _LayarMejaState extends ConsumerState<LayarMeja> {
             '${meja.length - terisi.length} meja kosong',
             if (jumlahMintaBill > 0) '$jumlahMintaBill minta bill',
             if (jumlahKotor > 0) '$jumlahKotor perlu dibersihkan',
-          ].join(' · '),
+          ].join(' | '),
           style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
         ),
         if (_pesan != null) ...[

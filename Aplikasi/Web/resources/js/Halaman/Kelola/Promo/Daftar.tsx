@@ -45,7 +45,7 @@ const kolom: KolomTabel<BarisPromo>[] = [
         cell: ({ row: { original: p } }) =>
             [p.LabelAksi, p.Eksklusif ? 'eksklusif' : null, p.WajibVoucher ? 'wajib voucher' : null]
                 .filter(Boolean)
-                .join(' · '),
+                .join(' | '),
     },
     {
         id: 'Periode',

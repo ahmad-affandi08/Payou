@@ -20,7 +20,7 @@ use Tests\Pendukung\Tenant\BantuanTagihan;
 use Tests\TestCase;
 
 /*
- * P-08 langkah 3 · BR-P08.11 (PRD v4.06): pembayaran langganan lewat gerbang yang notifikasi webhook-nya tidak pernah
+ * P-08 langkah 3 | BR-P08.11 (PRD v4.06): pembayaran langganan lewat gerbang yang notifikasi webhook-nya tidak pernah
  * tiba direkonsiliasi tiap 15 menit lewat API status Midtrans, dan hasilnya diproses jalur yang sama dengan webhook.
  */
 

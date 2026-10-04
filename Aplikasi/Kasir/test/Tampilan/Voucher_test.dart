@@ -82,7 +82,7 @@ void main() {
         final u = await MasukJual(tester, ukuran);
         await Ketuk(tester, find.byWidgetPredicate((w) => w is UbinProduk && w.nama.startsWith('Americano')));
         if (ukuran.width < 600) {
-          await Ketuk(tester, find.textContaining('Keranjang · '));
+          await Ketuk(tester, find.textContaining('Keranjang | '));
         }
         await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Diskon'));
         expect(find.text('Voucher & diskon'), findsOneWidget);
@@ -96,7 +96,7 @@ void main() {
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await Tunggu(tester);
         expect(find.text('HEMAT'), findsOneWidget);
-        expect(find.text('Voucher hemat · −Rp 5.000'), findsOneWidget);
+        expect(find.text('Voucher hemat | −Rp 5.000'), findsOneWidget);
         if (ukuran.width >= 600) {
           expect(find.text('Promo Voucher hemat'), findsWidgets);
         }

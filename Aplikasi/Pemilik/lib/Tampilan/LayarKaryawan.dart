@@ -31,12 +31,12 @@ class LayarKaryawan extends ConsumerWidget {
     _ => 'di kasir',
   };
 
-  /// Ringkasan satu baris untuk kartu Beranda, misal "5 hadir · 1 terlambat · 2 belum masuk".
+  /// Ringkasan satu baris untuk kartu Beranda, misal "5 hadir | 1 terlambat | 2 belum masuk".
   static String Ringkasan(PantauKaryawanPemilik d) => [
     '${d.hadir} hadir',
     if (d.terlambat > 0) '${d.terlambat} terlambat',
     if (d.belumMasuk > 0) '${d.belumMasuk} belum masuk',
-  ].join(' · ');
+  ].join(' | ');
 }
 
 class _IsiKaryawan extends StatelessWidget {
@@ -70,7 +70,7 @@ class _IsiKaryawan extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
         Text(
-          'Hari ini · ${FormatTampilan.Tanggal(DateTime.parse(d.tanggal))}',
+          'Hari ini | ${FormatTampilan.Tanggal(DateTime.parse(d.tanggal))}',
           style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
         ),
         const SizedBox(height: TokenJarak.jarak8),
@@ -89,7 +89,7 @@ class _IsiKaryawan extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.person_off_outlined, color: warna.bahaya),
               title: Text(b.nama),
-              subtitle: Text(['Jadwal ${b.jadwal}', ?b.outlet].join(' · ')),
+              subtitle: Text(['Jadwal ${b.jadwal}', ?b.outlet].join(' | ')),
             ),
         ],
         Judul('Kehadiran'),
@@ -110,7 +110,7 @@ class _IsiKaryawan extends StatelessWidget {
                   if (k.terlambatMenit > 0) 'terlambat ${k.terlambatMenit} menit',
                   LayarKaryawan.LabelSumber(k.sumber),
                   ?k.outlet,
-                ].join(' · '),
+                ].join(' | '),
               ),
             ),
         if (d.target.isNotEmpty) ...[
@@ -133,7 +133,7 @@ class _IsiKaryawan extends StatelessWidget {
                       '${FormatTampilan.Rupiah(t.realisasi)} dari ${FormatTampilan.Rupiah(t.nilai)} '
                           '(${t.persen.replaceAll('.', ',')}%)',
                       if (t.proyeksi != null) 'proyeksi ${FormatTampilan.Rupiah(t.proyeksi!)}',
-                    ].join(' · '),
+                    ].join(' | '),
                     style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
                   ),
                 ],

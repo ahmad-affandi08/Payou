@@ -47,9 +47,9 @@ class ProfilPrinter {
   final bool bukaLaciTunai;
 
   String get label => switch (jenis) {
-    JenisTransport.Jaringan => 'LAN/Wi-Fi $alamat:$port · ${lebar.label}',
-    JenisTransport.CetakSistem => 'Printer sistem (PDF/AirPrint/driver) · ${lebar.label}',
-    _ => '${jenis.label} ${nama ?? alamat} · ${lebar.label}',
+    JenisTransport.Jaringan => 'LAN/Wi-Fi $alamat:$port | ${lebar.label}',
+    JenisTransport.CetakSistem => 'Printer sistem (PDF/AirPrint/driver) | ${lebar.label}',
+    _ => '${jenis.label} ${nama ?? alamat} | ${lebar.label}',
   };
 
   /// Alamat IPv4 atau nama host sederhana; port 1–65535.

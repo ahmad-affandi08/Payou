@@ -559,7 +559,7 @@ void main() {
       final qris = PembayaranMasukan(metode: Metode('QrisStatis'), jumlah: Uang.DariBulat(20000));
       expect(u.penjualan.HitungTagihanTunai(keranjang, k, [qris]), Uang.DariBulat(47000));
 
-      final edc = PembayaranMasukan(metode: Metode('Edc'), jumlah: Uang.DariBulat(20000), referensi: 'BCA · 123456');
+      final edc = PembayaranMasukan(metode: Metode('Edc'), jumlah: Uang.DariBulat(20000), referensi: 'BCA | 123456');
       final hasil = await u.penjualan.Bayar(
         keranjang: keranjang,
         pembayaran: [
@@ -574,7 +574,7 @@ void main() {
       final data = await AmbilDataOutbox(hasil.uuid);
       expect(data['PembulatanTunai'], {'Kelipatan': 1000, 'Arah': 'Bawah'});
       expect((data['Ringkasan']! as Map<String, Object?>)['Pembulatan'], '-100.00');
-      expect(((data['Pembayaran']! as List<Object?>).first! as Map<String, Object?>)['Referensi'], 'BCA · 123456');
+      expect(((data['Pembayaran']! as List<Object?>).first! as Map<String, Object?>)['Referensi'], 'BCA | 123456');
     });
 
     test('pembayaran kurang, non-tunai melebihi total, dan tunai ganda ditolak', () async {
@@ -670,7 +670,7 @@ void main() {
       await u.penjualan.TahanPesanan(keranjang, rina, Uang.DariBulat(67100));
 
       final daftar = await u.db.select(u.db.pesananTertahan).get();
-      expect(daftar.single.Label, startsWith('Es Kopi Susu Aren +1 · '));
+      expect(daftar.single.Label, startsWith('Es Kopi Susu Aren +1 | '));
       expect(await u.db.select(u.db.outbox).get(), hasLength(1), reason: 'Hanya Shift.Buka; pesanan tertahan lokal.');
 
       final dibuka = await u.penjualan.BukaPesanan(daftar.single.Uuid);
@@ -842,18 +842,18 @@ void main() {
       expect(pkp.hasil.totalPajak, Uang.DariBulat(1320));
     });
 
-    test('Referensi EDC "bank · approval" tidak pernah melebihi 100 karakter (batas server)', () {
+    test('Referensi EDC "bank | approval" tidak pernah melebihi 100 karakter (batas server)', () {
       final bank = 'B' * 60;
       final approval = '9' * 80;
       final referensi = LayananPenjualan.SusunReferensiEdc(bank, approval);
       expect(referensi.length, lessThanOrEqualTo(LayananPenjualan.panjangMaksReferensi));
-      expect(referensi, '${'B' * 40} · ${'9' * 56}');
+      expect(referensi, '${'B' * 40} | ${'9' * 56}');
       expect(
         LayananPenjualan.panjangMaksBankEdc + 3 + LayananPenjualan.panjangMaksApprovalEdc,
         lessThanOrEqualTo(LayananPenjualan.panjangMaksReferensi),
       );
       expect(LayananPenjualan.SusunReferensiEdc('  ', ' 123456 '), '123456');
-      expect(LayananPenjualan.SusunReferensiEdc('BCA', '123456'), 'BCA · 123456');
+      expect(LayananPenjualan.SusunReferensiEdc('BCA', '123456'), 'BCA | 123456');
     });
 
     test('Referensi pembayaran > 100 karakter ditolak sebelum disimpan', () async {

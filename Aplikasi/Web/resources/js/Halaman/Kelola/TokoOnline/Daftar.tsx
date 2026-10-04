@@ -376,7 +376,7 @@ function FormKembalikanUang({ p, opsiAkun }: { p: Pesanan; opsiAkun: { Uuid: str
             <BidangPilihan
                 label="Uang keluar dari"
                 nilai={form.data.UuidAkun}
-                opsi={opsiAkun.map((a) => ({ Nilai: a.Uuid, Label: `${a.Kode} · ${a.Nama}` }))}
+                opsi={opsiAkun.map((a) => ({ Nilai: a.Uuid, Label: `${a.Kode} | ${a.Nama}` }))}
                 saatBerubah={(v) => form.setData('UuidAkun', v)}
                 required
             />
@@ -591,11 +591,11 @@ export default function DaftarTokoOnline(props: Props) {
                                         />
                                     </div>
                                     <p className="text-keterangan text-teks-sekunder">
-                                        {namaOutlet.get(z.UuidOutlet)} · {z.KodePos.join(', ')}
+                                        {namaOutlet.get(z.UuidOutlet)} | {z.KodePos.join(', ')}
                                     </p>
                                     <p>
                                         {FormatRupiah(z.Ongkir)}
-                                        {z.GratisMulai ? ` · gratis mulai ${FormatRupiah(z.GratisMulai)}` : ''}
+                                        {z.GratisMulai ? ` | gratis mulai ${FormatRupiah(z.GratisMulai)}` : ''}
                                     </p>
                                     <div className="mt-2">
                                         <Tombol
@@ -626,7 +626,7 @@ export default function DaftarTokoOnline(props: Props) {
                                     </div>
                                     <p className="text-keterangan text-teks-sekunder">
                                         {k.Jenis === 'Internal' ? 'Internal' : (k.NamaPenyedia ?? 'Pihak ketiga')}
-                                        {k.NoHp ? ` · ${k.NoHp}` : ''}
+                                        {k.NoHp ? ` | ${k.NoHp}` : ''}
                                     </p>
                                     <div className="mt-2">
                                         <Tombol
@@ -659,7 +659,7 @@ export default function DaftarTokoOnline(props: Props) {
                                     <div>
                                         <strong className="font-mono">{p.Nomor}</strong>
                                         <p>
-                                            {p.NamaPelanggan} · {p.NoHp}
+                                            {p.NamaPelanggan} | {p.NoHp}
                                         </p>
                                         {p.Pelanggan ? (
                                             <p className="text-keterangan">
@@ -673,7 +673,7 @@ export default function DaftarTokoOnline(props: Props) {
                                             </p>
                                         ) : null}
                                         <p className="text-keterangan text-teks-sekunder">
-                                            {p.DibuatPada ? FormatTanggalWaktu(p.DibuatPada) : '-'} ·{' '}
+                                            {p.DibuatPada ? FormatTanggalWaktu(p.DibuatPada) : '-'} |{' '}
                                             {p.JenisPemenuhan === 'Kirim' ? 'Dikirim' : 'Ambil sendiri'}
                                         </p>
                                     </div>
@@ -697,7 +697,7 @@ export default function DaftarTokoOnline(props: Props) {
                                 <ul className="mt-3 list-inside list-disc text-isi text-teks-sekunder">
                                     {p.Baris.map((b, i) => (
                                         <li key={`${p.Uuid}-${String(i)}`}>
-                                            {b.Jumlah} × {b.NamaProduk} · {FormatRupiah(b.TotalBaris)}
+                                            {b.Jumlah} × {b.NamaProduk} | {FormatRupiah(b.TotalBaris)}
                                         </li>
                                     ))}
                                 </ul>
@@ -713,10 +713,10 @@ export default function DaftarTokoOnline(props: Props) {
                                         Dibayar di muka {FormatRupiah(p.JumlahDibayar ?? '0')} pada{' '}
                                         {FormatTanggalWaktu(p.DibayarPada)}
                                         {Number(p.SisaUangMuka) > 0
-                                            ? ` · sisa uang muka ${FormatRupiah(p.SisaUangMuka)}`
-                                            : ' · sudah dipakai penjualan'}
+                                            ? ` | sisa uang muka ${FormatRupiah(p.SisaUangMuka)}`
+                                            : ' | sudah dipakai penjualan'}
                                         {p.DikembalikanPada
-                                            ? ` · dikembalikan ${FormatTanggalWaktu(p.DikembalikanPada)}`
+                                            ? ` | dikembalikan ${FormatTanggalWaktu(p.DikembalikanPada)}`
                                             : ''}
                                     </p>
                                 ) : null}

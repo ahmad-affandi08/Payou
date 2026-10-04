@@ -57,7 +57,7 @@ const kolom: KolomTabel<BarisDaftarStokOpname>[] = [
                 <span className="block break-words text-teks-utama">{o.NamaGudang}</span>
                 <span className="block text-keterangan text-teks-sekunder">
                     {o.NamaKategori ? `Kategori ${o.NamaKategori}` : 'Seluruh produk'}
-                    {o.NamaOutlet ? ` · ${o.NamaOutlet}` : ''}
+                    {o.NamaOutlet ? ` | ${o.NamaOutlet}` : ''}
                 </span>
             </>
         ),

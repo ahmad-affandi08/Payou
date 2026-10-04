@@ -66,7 +66,7 @@ const kolom: KolomTabel<Kendaraan>[] = [
         cell: ({ row: { original: k } }) =>
             k.ServisTerakhirPada === null
                 ? 'Belum pernah'
-                : `${FormatTanggal(k.ServisTerakhirPada.slice(0, 10))} · ${String(k.JumlahServis)}×`,
+                : `${FormatTanggal(k.ServisTerakhirPada.slice(0, 10))} | ${String(k.JumlahServis)}×`,
     },
     {
         id: 'Aktif',

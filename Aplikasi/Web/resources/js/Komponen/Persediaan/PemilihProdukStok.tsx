@@ -147,12 +147,12 @@ export default function PemilihProdukStok({
                         <span className="font-semibold break-words text-teks-utama">{produk.Nama}</span>
                         <span className="text-keterangan text-teks-sekunder">
                             {produk.Sku ? <span className="font-mono">{produk.Sku}</span> : 'Tanpa SKU'}
-                            {' · '}
+                            {' | '}
                             {produk.SaldoDiGudang === null
                                 ? `satuan ${produk.SimbolSatuan}`
                                 : `stok ${FormatJumlahStok(produk.SaldoDiGudang, produk.SimbolSatuan)}`}
-                            {produk.Pelacakan === 'Batch' ? ' · batch' : null}
-                            {produk.Pelacakan === 'Seri' ? ' · nomor seri' : null}
+                            {produk.Pelacakan === 'Batch' ? ' | batch' : null}
+                            {produk.Pelacakan === 'Seri' ? ' | nomor seri' : null}
                         </span>
                         {tertolak ? (
                             <span className="text-keterangan font-semibold text-teks-sekunder">

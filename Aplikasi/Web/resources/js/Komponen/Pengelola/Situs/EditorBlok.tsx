@@ -386,7 +386,7 @@ export default function EditorBlok({
                 <span className="flex min-w-0 flex-col">
                     <span className="text-keterangan font-semibold text-teks-sekunder">
                         {indeks + 1}. {labelJenis}
-                        {adaGalat ? <span className="ml-2 text-bahaya">· perlu diperbaiki</span> : null}
+                        {adaGalat ? <span className="ml-2 text-bahaya">| perlu diperbaiki</span> : null}
                     </span>
                     <span className="truncate text-isi font-semibold text-teks-utama">{ringkas}</span>
                 </span>

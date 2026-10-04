@@ -23,7 +23,7 @@ export default function RincianTagihan({ tagihan, namaTenant }: PropsRincianTagi
                         {tagihan.Nomor}
                     </h2>
                     <p className="text-keterangan text-teks-sekunder">
-                        {namaTenant ? `${namaTenant} · ` : ''}
+                        {namaTenant ? `${namaTenant} | ` : ''}
                         {tagihan.LabelJenis}
                     </p>
                 </div>
@@ -58,7 +58,7 @@ export default function RincianTagihan({ tagihan, namaTenant }: PropsRincianTagi
                 <TableBody>
                     <TableRow className="border-garis hover:bg-transparent">
                         <TableHead scope="row" className="h-auto px-4 py-2 font-normal whitespace-normal text-inherit">
-                            Paket {tagihan.NamaPaket} · {tagihan.Siklus === 'Tahunan' ? '12 bulan' : '1 bulan'}
+                            Paket {tagihan.NamaPaket} | {tagihan.Siklus === 'Tahunan' ? '12 bulan' : '1 bulan'}
                         </TableHead>
                         <TableCell className="px-4 py-2 text-right tabular-nums">
                             {FormatRupiah(tagihan.Subtotal)}

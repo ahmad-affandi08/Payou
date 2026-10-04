@@ -25,7 +25,7 @@ async function MuatHalaman(nama: string): Promise<ComponentType> {
 }
 
 void createInertiaApp({
-    title: (judul) => (judul ? `${judul} · Pengelola` : 'Platform Pengelola'),
+    title: (judul) => (judul ? `${judul} | Pengelola` : 'Platform Pengelola'),
     resolve: MuatHalaman,
     setup({ el, App, props }) {
         createRoot(el).render(

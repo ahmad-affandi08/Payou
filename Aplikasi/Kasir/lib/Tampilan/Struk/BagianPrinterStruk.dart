@@ -95,7 +95,7 @@ class _BagianPrinterStrukState extends ConsumerState<BagianPrinterStruk> {
         Text('Printer ${profil.label}', style: teks.bodyLarge),
         Text(
           '${profil.cetakOtomatis ? 'Cetak otomatis setelah bayar' : 'Cetak manual'}'
-          '${profil.bukaLaciTunai ? ' · buka laci untuk tunai' : ''}',
+          '${profil.bukaLaciTunai ? ' | buka laci untuk tunai' : ''}',
           style: teks.bodySmall,
         ),
         const SizedBox(height: TokenJarak.jarak12),

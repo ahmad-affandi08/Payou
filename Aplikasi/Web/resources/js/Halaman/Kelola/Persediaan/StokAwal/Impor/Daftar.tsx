@@ -78,7 +78,7 @@ const kolomRiwayat: KolomTabel<RingkasanImporStokAwal>[] = [
                     {impor.NamaBerkas}
                 </Link>
                 <span className="block text-keterangan font-normal text-teks-sekunder">
-                    {impor.NamaGudangBawaan ? `Lokasi bawaan ${impor.NamaGudangBawaan}` : 'Tanpa lokasi bawaan'} ·{' '}
+                    {impor.NamaGudangBawaan ? `Lokasi bawaan ${impor.NamaGudangBawaan}` : 'Tanpa lokasi bawaan'} |{' '}
                     {impor.NamaPengguna ?? 'Sistem'}
                 </span>
             </>
@@ -222,7 +222,7 @@ export default function HalamanDaftarImporStokAwal({
                                         </p>
                                     ) : berkas ? (
                                         <p className="text-keterangan text-teks-utama">
-                                            {berkas.name} · {FormatUkuranBerkas(berkas.size)}
+                                            {berkas.name} | {FormatUkuranBerkas(berkas.size)}
                                         </p>
                                     ) : null}
                                 </div>

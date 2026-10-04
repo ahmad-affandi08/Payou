@@ -353,8 +353,8 @@ class _BagianVoucherState extends ConsumerState<BagianVoucher> {
                     TeksKode(voucher.kode, gaya: teks.titleSmall),
                     Text(
                       potongan == null
-                          ? '${voucher.namaPromo} · belum memenuhi syarat promo'
-                          : '${voucher.namaPromo} · −${potongan.FormatRupiah()}',
+                          ? '${voucher.namaPromo} | belum memenuhi syarat promo'
+                          : '${voucher.namaPromo} | −${potongan.FormatRupiah()}',
                       style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
                     ),
                   ],

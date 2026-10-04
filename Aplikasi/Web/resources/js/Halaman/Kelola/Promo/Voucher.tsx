@@ -82,7 +82,7 @@ const kolom: KolomTabel<BarisVoucher>[] = [
                     ? v.JumlahDipakai.toLocaleString('id-ID')
                     : `${v.JumlahDipakai.toLocaleString('id-ID')} / ${v.MaksimalPakai.toLocaleString('id-ID')}`;
 
-            return v.Dipesan > 0 ? `${pakai} · ${v.Dipesan} sedang di kasir` : pakai;
+            return v.Dipesan > 0 ? `${pakai} | ${v.Dipesan} sedang di kasir` : pakai;
         },
     },
     {

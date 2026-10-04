@@ -117,10 +117,10 @@ void main() {
 
       // Pelanggan diunduh otomatis lalu tampil dari cache: tier, piutang lewat jatuh tempo berteks, kunjungan terakhir.
       expect(find.text('Toko Kelontong Makmur Jaya Abadi Sentosa'), findsOneWidget);
-      expect(find.text('Lewat jatuh tempo 12 hari · Rp 3.250.000'), findsOneWidget);
+      expect(find.text('Lewat jatuh tempo 12 hari | Rp 3.250.000'), findsOneWidget);
       expect(find.text('Terakhir dikunjungi 20 Sep 2026'), findsOneWidget);
       expect(find.text('Belum pernah dikunjungi'), findsOneWidget);
-      expect(find.textContaining('2 pelanggan · terakhir diperbarui'), findsOneWidget);
+      expect(find.textContaining('2 pelanggan | terakhir diperbarui'), findsOneWidget);
       expect(
         u.server.permintaan.where((p) => p.url.path.endsWith('/salesman/pelanggan')).single.headers['X-Id-Kasir'],
         UuidSalesmanUji.dewi,
@@ -191,9 +191,9 @@ void main() {
 
       // Riwayat: pesanan & kunjungan dengan status kirim berteks.
       await Ketuk(tester, find.text('Riwayat'));
-      expect(find.text('Pesanan · Toko Kelontong Makmur Jaya Abadi Sentosa'), findsOneWidget);
-      expect(find.text('Kunjungan · Toko Kelontong Makmur Jaya Abadi Sentosa'), findsOneWidget);
-      expect(find.textContaining('1 produk · perkiraan Rp 132.000'), findsOneWidget);
+      expect(find.text('Pesanan | Toko Kelontong Makmur Jaya Abadi Sentosa'), findsOneWidget);
+      expect(find.text('Kunjungan | Toko Kelontong Makmur Jaya Abadi Sentosa'), findsOneWidget);
+      expect(find.textContaining('1 produk | perkiraan Rp 132.000'), findsOneWidget);
       expect(find.text('Terkirim'), findsNWidgets(2));
       await tester.scrollUntilVisible(
         find.text('Belum ada kunjungan yang diterima kantor hari ini.'),

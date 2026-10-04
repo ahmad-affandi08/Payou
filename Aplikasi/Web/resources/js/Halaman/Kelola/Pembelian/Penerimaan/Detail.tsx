@@ -38,7 +38,7 @@ export const kolomBarisPenerimaan: KolomTabel<BarisDetailPenerimaan>[] = [
                 {b.NomorBatch ? (
                     <span className="text-keterangan text-teks-sekunder">
                         Batch {b.NomorBatch}
-                        {b.TanggalKedaluwarsa ? ` · kedaluwarsa ${FormatTanggal(b.TanggalKedaluwarsa)}` : ''}
+                        {b.TanggalKedaluwarsa ? ` | kedaluwarsa ${FormatTanggal(b.TanggalKedaluwarsa)}` : ''}
                     </span>
                 ) : null}
                 {b.NomorSeri.length > 0 ? (
@@ -188,7 +188,7 @@ export default function HalamanDetailPenerimaan({
                 </Keterangan>
                 <Keterangan label="Lokasi stok">
                     {p.NamaGudang}
-                    {p.NamaOutlet ? ` · ${p.NamaOutlet}` : ''}
+                    {p.NamaOutlet ? ` | ${p.NamaOutlet}` : ''}
                 </Keterangan>
                 <Keterangan label={p.BelanjaStok ? 'Nomor nota' : 'Surat jalan'}>{p.NomorSuratJalan ?? '—'}</Keterangan>
                 <Keterangan label="Dicatat oleh">{p.DibuatOleh ?? '—'}</Keterangan>

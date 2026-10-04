@@ -54,7 +54,7 @@ export function RingkasSasaran(
         bagian.push(`versi ${s.VersiMinimal ?? '…'}–${s.VersiMaksimal ?? '…'}`);
     }
 
-    return bagian.join(' · ');
+    return bagian.join(' | ');
 }
 
 type Dialog =

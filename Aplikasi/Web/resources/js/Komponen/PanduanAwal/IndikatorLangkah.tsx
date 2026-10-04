@@ -35,7 +35,7 @@ export default function IndikatorLangkah({ langkah, aktif }: PropsIndikatorLangk
     return (
         <nav aria-label="Langkah panduan awal" className="flex flex-col gap-2">
             <p className="text-label text-teks-sekunder">
-                {indeksAktif >= 0 ? `Langkah ${String(indeksAktif + 1)} dari ${String(langkah.length)} · ` : ''}
+                {indeksAktif >= 0 ? `Langkah ${String(indeksAktif + 1)} dari ${String(langkah.length)} | ` : ''}
                 {`${String(jumlahSelesai)} dari ${String(langkah.length)} langkah selesai`}
             </p>
             {/* Visual saja; angka progres sudah tertulis di atas. */}
@@ -66,7 +66,7 @@ export default function IndikatorLangkah({ langkah, aktif }: PropsIndikatorLangk
                                     className={`inline-flex items-center gap-1 text-keterangan font-semibold ${kelasStatus[item.Status]}`}
                                 >
                                     <IkonStatus aria-hidden="true" className="size-3.5 shrink-0" />
-                                    {sedangDibuka ? 'Sedang dibuka · ' : ''}
+                                    {sedangDibuka ? 'Sedang dibuka | ' : ''}
                                     {teksStatusLangkah[item.Status]}
                                 </span>
                             </Link>

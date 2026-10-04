@@ -45,11 +45,11 @@ function RincianPelacakan({ saldo }: { saldo: BarisSaldoStok }) {
         <ul className="text-keterangan text-teks-sekunder" aria-label={`Batch ${saldo.NamaProduk}`}>
             {saldo.Batch.slice(0, batasBatchTampil).map((batch) => (
                 <li key={batch.NomorBatch}>
-                    <span className="font-mono">{batch.NomorBatch}</span> ·{' '}
+                    <span className="font-mono">{batch.NomorBatch}</span> |{' '}
                     {batch.TanggalKedaluwarsa
                         ? `kedaluwarsa ${FormatTanggal(batch.TanggalKedaluwarsa)}`
                         : 'tanpa tanggal'}{' '}
-                    · {FormatJumlahStok(batch.JumlahSisa, saldo.SimbolSatuan)}
+                    | {FormatJumlahStok(batch.JumlahSisa, saldo.SimbolSatuan)}
                 </li>
             ))}
             {sisa > 0 ? <li>dan {sisa.toLocaleString('id-ID')} batch lain (lihat kartu stok)</li> : null}
@@ -71,7 +71,7 @@ const kolom: KolomTabel<BarisSaldoStok>[] = [
                     <span className="block font-semibold break-words text-teks-utama">{saldo.NamaProduk}</span>
                     <span className="block text-keterangan font-normal text-teks-sekunder">
                         <span className="font-mono">{saldo.Sku ?? 'Tanpa SKU'}</span>
-                        {pelacakan ? ` · ${pelacakan}` : null}
+                        {pelacakan ? ` | ${pelacakan}` : null}
                     </span>
                     <RincianPelacakan saldo={saldo} />
                 </>

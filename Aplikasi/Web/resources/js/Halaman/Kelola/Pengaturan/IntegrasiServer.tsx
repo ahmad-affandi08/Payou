@@ -118,7 +118,7 @@ export default function HalamanIntegrasiServer({ Integrasi }: { Integrasi: SlotI
                                     <dt className="text-teks-sekunder">Uji koneksi terakhir</dt>
                                     <dd className="text-teks-utama">
                                         {konfigurasi.HasilUji && konfigurasi.TerakhirDiujiPada
-                                            ? `${FormatTanggalWaktu(konfigurasi.TerakhirDiujiPada)} · ${konfigurasi.HasilUji.Pesan}`
+                                            ? `${FormatTanggalWaktu(konfigurasi.TerakhirDiujiPada)} | ${konfigurasi.HasilUji.Pesan}`
                                             : 'Belum pernah diuji'}
                                     </dd>
                                 </dl>

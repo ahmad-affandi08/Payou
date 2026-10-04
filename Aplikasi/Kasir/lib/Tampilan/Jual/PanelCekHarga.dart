@@ -274,8 +274,8 @@ class _BagianBatchState extends ConsumerState<_BagianBatch> {
                         const SizedBox(width: TokenJarak.jarak8),
                         Expanded(
                           child: Text(
-                            '${b.nomorBatch} · ${FormatAngka.FormatJumlah(Kuantitas.Dari(b.jumlahSisa))} '
-                            '${info.simbolSatuan}${i == 0 ? ' · dijual lebih dulu' : ''}',
+                            '${b.nomorBatch} | ${FormatAngka.FormatJumlah(Kuantitas.Dari(b.jumlahSisa))} '
+                            '${info.simbolSatuan}${i == 0 ? ' | dijual lebih dulu' : ''}',
                             style: teks.bodySmall,
                           ),
                         ),

@@ -23,7 +23,7 @@ export default function HalamanDokumenLegalPublik({ Dokumen }: PropsDokumenLegal
             <main className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-10">
                 <JudulHalaman>{Dokumen.Judul}</JudulHalaman>
                 <p className="text-keterangan text-teks-sekunder">
-                    Versi {Dokumen.Versi} · {Dokumen.Terjadwal ? 'akan berlaku mulai' : 'berlaku mulai'}{' '}
+                    Versi {Dokumen.Versi} | {Dokumen.Terjadwal ? 'akan berlaku mulai' : 'berlaku mulai'}{' '}
                     {FormatTanggal(Dokumen.BerlakuMulai)}
                 </p>
                 <Separator className="bg-garis" />

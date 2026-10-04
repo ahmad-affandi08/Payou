@@ -39,7 +39,7 @@ const kolom: KolomTabel<BarisAturanKomisi>[] = [
             <span className="flex flex-col">
                 <span className="break-words">{a.NamaSasaran}</span>
                 <span className="text-keterangan text-teks-sekunder">
-                    {a.LabelCakupan} · {a.LevelStaf ? `level ${a.LevelStaf}` : 'semua level'}
+                    {a.LabelCakupan} | {a.LevelStaf ? `level ${a.LevelStaf}` : 'semua level'}
                 </span>
             </span>
         ),

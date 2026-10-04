@@ -71,7 +71,7 @@ export default function HalamanDetailJurnal({ Jurnal, Baris, Total }: PropsDetai
                         {Jurnal.LabelJenisSumber}
                         {Jurnal.NomorSumber ? (
                             <>
-                                {' · '}
+                                {' | '}
                                 {Jurnal.TautanSumber ? (
                                     <Link
                                         href={Jurnal.TautanSumber}
@@ -90,7 +90,7 @@ export default function HalamanDetailJurnal({ Jurnal, Baris, Total }: PropsDetai
                     </Keterangan>
                     <Keterangan label="Dibuat">
                         {Jurnal.Otomatis ? 'Otomatis' : 'Manual'}
-                        {Jurnal.DibuatOleh ? ` oleh ${Jurnal.DibuatOleh}` : ''} ·{' '}
+                        {Jurnal.DibuatOleh ? ` oleh ${Jurnal.DibuatOleh}` : ''} |{' '}
                         {FormatTanggalWaktu(Jurnal.DibuatPada === '' ? null : Jurnal.DibuatPada)}
                     </Keterangan>
                     <div className="sm:col-span-2 lg:col-span-3">

@@ -189,9 +189,9 @@ export default function HalamanJadwalKerja({ OpsiOutlet, UuidOutlet, Senin, Jadw
                             <p className="font-semibold break-words">
                                 {b.Nama}
                                 {b.Jabatan ? (
-                                    <span className="font-normal text-teks-sekunder"> · {b.Jabatan}</span>
+                                    <span className="font-normal text-teks-sekunder"> | {b.Jabatan}</span>
                                 ) : null}
-                                {!b.Aktif ? <span className="font-normal text-teks-sekunder"> · nonaktif</span> : null}
+                                {!b.Aktif ? <span className="font-normal text-teks-sekunder"> | nonaktif</span> : null}
                             </p>
                             <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                                 {Jadwal.Hari.map((tanggal, i) => {

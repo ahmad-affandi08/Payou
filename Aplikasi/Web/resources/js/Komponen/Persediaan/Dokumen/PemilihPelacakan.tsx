@@ -65,7 +65,7 @@ export default function PemilihPelacakan({
             ? (kueri.data?.Batch ?? []).map((b) => ({
                   Nilai: b.Uuid,
                   Label: b.NomorBatch,
-                  Keterangan: `Sisa ${FormatJumlahStok(b.JumlahSisa, simbolSatuan)}${b.TanggalKedaluwarsa ? ` · kedaluwarsa ${FormatTanggal(b.TanggalKedaluwarsa)}` : ''}`,
+                  Keterangan: `Sisa ${FormatJumlahStok(b.JumlahSisa, simbolSatuan)}${b.TanggalKedaluwarsa ? ` | kedaluwarsa ${FormatTanggal(b.TanggalKedaluwarsa)}` : ''}`,
               }))
             : (kueri.data?.Seri ?? []).map((s) => ({ Nilai: s.Uuid, Label: s.Nomor }));
 

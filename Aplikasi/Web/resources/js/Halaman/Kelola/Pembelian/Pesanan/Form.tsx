@@ -144,7 +144,7 @@ export default function HalamanFormPesanan({
                             opsi={OpsiPemasok.filter((p) => p.Aktif || p.Uuid === pemasok).map((p) => ({
                                 Nilai: p.Uuid,
                                 Label: p.Nama,
-                                Keterangan: `${p.Kode}${p.Pkp ? ' · PKP' : ''}`,
+                                Keterangan: `${p.Kode}${p.Pkp ? ' | PKP' : ''}`,
                             }))}
                             saatBerubah={PilihPemasok}
                             required

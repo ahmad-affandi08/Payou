@@ -242,7 +242,7 @@ class _PanelRacikanState extends ConsumerState<PanelRacikan> {
             ListTile(
               dense: true,
               title: Text(p.nama),
-              subtitle: Text([p.sku, InfoObat.Dari(p)?.Label].whereType<String>().join(' · ')),
+              subtitle: Text([p.sku, InfoObat.Dari(p)?.Label].whereType<String>().join(' | ')),
               trailing: const Icon(Icons.add),
               onTap: () => _Tambah(p),
             ),

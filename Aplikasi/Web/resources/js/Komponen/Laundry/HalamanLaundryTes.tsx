@@ -65,7 +65,7 @@ describe('Laundry (§9.9)', () => {
     afterEach(() => cleanup());
 
     it('ringkasan isi cucian: berat berkoma & item', () => {
-        expect(RingkasIsiLaundry({ Berat: '3.50', Item: [{ Nama: 'Jas', Jumlah: 2 }] })).toBe('3,5 kg · Jas ×2');
+        expect(RingkasIsiLaundry({ Berat: '3.50', Item: [{ Nama: 'Jas', Jumlah: 2 }] })).toBe('3,5 kg | Jas ×2');
         expect(RingkasIsiLaundry({ Berat: '4.00', Item: [] })).toBe('4 kg');
         expect(RingkasIsiLaundry({ Berat: null, Item: [] })).toBe('-');
     });

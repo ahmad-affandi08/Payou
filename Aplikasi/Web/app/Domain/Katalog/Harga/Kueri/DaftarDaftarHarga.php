@@ -111,7 +111,7 @@ final class DaftarDaftarHarga
     }
 
     /**
-     * Ringkasan kondisi daftar untuk ditampilkan, misal "Outlet Bandara · Online · Tier Grosir · Prioritas 10".
+     * Ringkasan kondisi daftar untuk ditampilkan, misal "Outlet Bandara | Online | Tier Grosir | Prioritas 10".
      *
      * @param  array<int, string>  $namaOutlet
      */
@@ -134,7 +134,7 @@ final class DaftarDaftarHarga
 
         $bagian[] = "Prioritas {$daftar->Prioritas}";
 
-        return implode(' · ', $bagian);
+        return implode(' | ', $bagian);
     }
 
     /**

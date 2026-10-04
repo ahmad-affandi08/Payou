@@ -76,7 +76,7 @@ void main() {
     await PasangPemilik(tester, server: server, sesi: sesi);
 
     expect(find.text('Insight minggu lalu'), findsOneWidget);
-    expect(find.textContaining('(+745,5%) · 2 transaksi'), findsOneWidget);
+    expect(find.textContaining('(+745,5%) | 2 transaksi'), findsOneWidget);
 
     await tester.tap(find.text('Insight minggu lalu'));
     await tester.pumpAndSettle();
@@ -84,7 +84,7 @@ void main() {
     expect(find.textContaining('+745,5% dari minggu sebelumnya'), findsOneWidget);
     expect(find.text('36 terjual'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Segera restock'), 200);
-    expect(find.text('habis ±1 hari lagi · Toko · saran beli 40 krg'), findsOneWidget);
+    expect(find.text('habis ±1 hari lagi | Toko | saran beli 40 krg'), findsOneWidget);
   });
 
   testWidgets('tanpa penjualan untuk dibandingkan: kartu tidak tampil', (tester) async {

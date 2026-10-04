@@ -227,8 +227,8 @@ export default function HalamanFormPembayaran({
                                     <span className="flex flex-col">
                                         <span className="font-mono font-semibold">{f.Nomor}</span>
                                         <span className="text-keterangan text-teks-sekunder">
-                                            No. pemasok {f.NomorFakturPemasok} · jatuh tempo{' '}
-                                            {FormatTanggal(f.JatuhTempo)} · sisa {FormatRupiah(f.Sisa)} dari{' '}
+                                            No. pemasok {f.NomorFakturPemasok} | jatuh tempo{' '}
+                                            {FormatTanggal(f.JatuhTempo)} | sisa {FormatRupiah(f.Sisa)} dari{' '}
                                             {FormatRupiah(f.Total)}
                                         </span>
                                     </span>

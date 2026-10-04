@@ -77,7 +77,7 @@ void main() {
       await Tunggu(tester);
       await Ketuk(find.widgetWithText(OutlinedButton, 'Reservasi hari ini'));
       expect(find.text('10.00–11.00'), findsOneWidget, reason: 'Jam menurut zona outlet (WIB).');
-      expect(find.text('Americano Panas · oleh Maya'), findsOneWidget);
+      expect(find.text('Americano Panas | oleh Maya'), findsOneWidget);
       await Ketuk(find.widgetWithText(FilledButton, 'Layani Ratna'));
 
       final wadah = ProviderScope.containerOf(tester.element(find.byType(RuangKerja)));

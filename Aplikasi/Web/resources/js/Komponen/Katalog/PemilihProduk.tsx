@@ -345,7 +345,7 @@ export default function PemilihProduk({
                 >
                     <span className="font-semibold break-words text-teks-utama">{produk.Nama}</span>
                     <span className="text-keterangan text-teks-sekunder">
-                        {produk.Sku ? <span className="font-mono">{produk.Sku}</span> : 'Tanpa SKU'} ·{' '}
+                        {produk.Sku ? <span className="font-mono">{produk.Sku}</span> : 'Tanpa SKU'} |{' '}
                         {produk.Satuan.map((satuan) => satuan.Simbol).join(', ')}
                     </span>
                 </CommandItem>

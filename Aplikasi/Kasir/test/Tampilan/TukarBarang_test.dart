@@ -97,10 +97,10 @@ void main() {
         await Ketuk(tester, Ubin('Croissant Mentega Prancis Isi Cokelat Lumer Ukuran Jumbo'));
         await Ketuk(tester, Ubin('Americano Panas'));
         if (ukuran.width < 600) {
-          expect(find.text('Tukar barang · 2 baris'), findsOneWidget);
-          await Ketuk(tester, find.textContaining('Tukar barang ·').first);
+          expect(find.text('Tukar barang | 2 baris'), findsOneWidget);
+          await Ketuk(tester, find.textContaining('Tukar barang |').first);
         } else {
-          expect(find.textContaining('Tukar barang · Rp 33.333,33'), findsOneWidget);
+          expect(find.textContaining('Tukar barang | Rp 33.333,33'), findsOneWidget);
         }
         await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').last);
         expect(find.textContaining('Tukar barang dari ${UuidStruk.nomor}'), findsOneWidget);
@@ -169,7 +169,7 @@ void main() {
     await Ketuk(tester, Ubin('Americano Panas'));
     await Ketuk(tester, find.byTooltip('Batalkan transaksi'));
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Batalkan transaksi'));
-    expect(find.textContaining('Tukar barang ·'), findsNothing);
+    expect(find.textContaining('Tukar barang |'), findsNothing);
     expect(await Outbox(tester, u), isEmpty);
     await Lepas(tester, u);
   });

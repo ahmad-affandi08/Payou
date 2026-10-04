@@ -121,9 +121,9 @@ export function BuatUrlKartuStok(uuidProduk: string, uuidGudang: string, dari?: 
     return `/kelola/persediaan/kartu-stok?${parameter.toString()}`;
 }
 
-/** Label opsi lokasi stok: "Gudang Utama · Outlet Solo"; ditandai bila lokasi diarsipkan. */
+/** Label opsi lokasi stok: "Gudang Utama | Outlet Solo"; ditandai bila lokasi diarsipkan. */
 export function FormatLabelGudang(gudang: Pick<OpsiGudang, 'Nama' | 'NamaOutlet' | 'Aktif'>): string {
-    const nama = gudang.NamaOutlet ? `${gudang.Nama} · ${gudang.NamaOutlet}` : gudang.Nama;
+    const nama = gudang.NamaOutlet ? `${gudang.Nama} | ${gudang.NamaOutlet}` : gudang.Nama;
 
     return gudang.Aktif ? nama : `${nama} (diarsipkan)`;
 }

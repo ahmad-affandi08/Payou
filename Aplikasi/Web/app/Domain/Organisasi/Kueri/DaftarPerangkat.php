@@ -101,7 +101,7 @@ final class DaftarPerangkat
     }
 
     /**
-     * v1.96: ringkasan `ProfilHardware` untuk daftar perangkat, misal "SUNMI V2s · Printer bawaan (58 mm) · uji lolos".
+     * v1.96: ringkasan `ProfilHardware` untuk daftar perangkat, misal "SUNMI V2s | Printer bawaan (58 mm) | uji lolos".
      *
      * @param  array<string, mixed>|null  $profil
      */
@@ -119,7 +119,7 @@ final class DaftarPerangkat
             $teks($printer['Nama'] ?? null) === '' ? '' : $teks($printer['Nama']).($teks($printer['Lebar'] ?? null) === '' ? '' : ' ('.$teks($printer['Lebar']).')'),
             $uji === [] ? '' : (in_array('Gagal', $uji, true) ? 'uji ada yang gagal' : 'uji lolos'),
         ];
-        $hasil = implode(' · ', array_filter($bagian, fn (string $b): bool => $b !== ''));
+        $hasil = implode(' | ', array_filter($bagian, fn (string $b): bool => $b !== ''));
 
         return $hasil === '' ? null : $hasil;
     }

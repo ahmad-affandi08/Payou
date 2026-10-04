@@ -25,7 +25,7 @@ use Tests\Pendukung\Tenant\BantuanTagihan;
 use Tests\TestCase;
 
 /*
- * BR-P08.11 · P-08 langkah 3 jalur gerbang: tenant membayar tagihan langganan lewat Snap Midtrans (akun platform),
+ * BR-P08.11 | P-08 langkah 3 jalur gerbang: tenant membayar tagihan langganan lewat Snap Midtrans (akun platform),
  * dan tagihan menjadi Lunas **hanya** dari notifikasi webhook bertanda tangan.
  *
  * Yang dijaga berkas ini: pelunasannya memakai layanan yang sama dengan verifikasi transfer manual

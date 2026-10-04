@@ -92,14 +92,14 @@ void main() {
       await tester.tap(find.byTooltip('Hari sebelumnya'));
       await Tunggu(tester, const Duration(milliseconds: 600));
       expect(find.text('23 Sep 2026'), findsOneWidget);
-      expect(find.textContaining('1 transaksi ·'), findsOneWidget);
+      expect(find.textContaining('1 transaksi |'), findsOneWidget);
 
       await tester.tap(find.text('Ringkasan outlet'));
       await Tunggu(tester, const Duration(milliseconds: 600));
       expect(tanggalDiminta, '2026-09-23');
       final ringkasan = find.byKey(const ValueKey('RingkasanOutlet'));
       expect(find.descendant(of: ringkasan, matching: find.text('Rp 1.225.000')), findsOneWidget);
-      expect(find.descendant(of: ringkasan, matching: find.text('Budi Santoso · 2 transaksi')), findsOneWidget);
+      expect(find.descendant(of: ringkasan, matching: find.text('Budi Santoso | 2 transaksi')), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Tutup'));
       await Tunggu(tester);

@@ -85,7 +85,7 @@ class _BagianRiwayatSalesmanState extends ConsumerState<BagianRiwayatSalesman> {
         child: ListView(
           padding: EdgeInsets.all(widget.tepi),
           children: [
-            Text('Di perangkat ini · $hariRiwayatSalesman hari terakhir', style: teks.titleMedium),
+            Text('Di perangkat ini | $hariRiwayatSalesman hari terakhir', style: teks.titleMedium),
             const SizedBox(height: TokenJarak.jarak8),
             if (memuat) const LinearProgressIndicator(),
             if (pesanan.hasError || kunjungan.hasError)
@@ -162,24 +162,24 @@ class _BagianRiwayatSalesmanState extends ConsumerState<BagianRiwayatSalesman> {
 class _ButirRiwayat {
   _ButirRiwayat.Pesanan(RiwayatPesananSalesman p)
     : waktu = p.baris.DibuatPada,
-      judul = 'Pesanan · ${p.baris.NamaPelanggan}',
+      judul = 'Pesanan | ${p.baris.NamaPelanggan}',
       rincian =
-          '${p.baris.JumlahBaris} produk · perkiraan ${Uang.Dari(p.baris.PerkiraanTotal).FormatRupiah()}'
-          '${p.baris.Catatan == null ? '' : ' · ${p.baris.Catatan}'}',
+          '${p.baris.JumlahBaris} produk | perkiraan ${Uang.Dari(p.baris.PerkiraanTotal).FormatRupiah()}'
+          '${p.baris.Catatan == null ? '' : ' | ${p.baris.Catatan}'}',
       ikon = Icons.receipt_long_outlined,
       status = p.status,
       pesanGalat = p.pesanGalat;
 
   _ButirRiwayat.Kunjungan(RiwayatKunjunganSalesman k)
     : waktu = k.baris.MasukPada,
-      judul = 'Kunjungan · ${k.baris.NamaPelanggan}',
+      judul = 'Kunjungan | ${k.baris.NamaPelanggan}',
       rincian = [
         HasilKunjungan.Cari(k.baris.Hasil)?.label ?? k.baris.Hasil ?? '',
         if (k.baris.KeluarPada != null)
           '${FormatWaktu.FormatJam(k.baris.MasukPada)}–${FormatWaktu.FormatJam(k.baris.KeluarPada!)}',
         if (k.baris.Latitude == null) 'tanpa lokasi',
         ?k.baris.Catatan,
-      ].join(' · '),
+      ].join(' | '),
       ikon = Icons.directions_walk,
       status = k.status,
       pesanGalat = k.pesanGalat;
@@ -215,7 +215,7 @@ class _BarisRiwayat extends StatelessWidget {
               children: [
                 Text(butir.judul, maxLines: 2, overflow: TextOverflow.ellipsis, style: teks.labelLarge),
                 Text(
-                  '${FormatWaktu.FormatTanggalJam(butir.waktu)} · ${butir.rincian}',
+                  '${FormatWaktu.FormatTanggalJam(butir.waktu)} | ${butir.rincian}',
                   style: teks.bodySmall,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -262,7 +262,7 @@ class _BarisKunjunganServer extends StatelessWidget {
           k.labelHasil,
           if (k.nomorPesananGrosir != null) 'Pesanan ${k.nomorPesananGrosir}',
           if (k.latitude == null) 'tanpa lokasi',
-        ].join(' · '),
+        ].join(' | '),
         style: teks.bodySmall,
       ),
     );

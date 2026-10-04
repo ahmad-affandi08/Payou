@@ -45,7 +45,7 @@ class LayarInsight extends ConsumerWidget {
   /// Ringkasan satu baris untuk kartu Beranda.
   static String Ringkasan(InsightMingguanPemilik d) {
     final persen = Persen(d.persenPerubahan);
-    return '${FormatTampilan.Rupiah(d.bersih)}${persen == null ? '' : ' ($persen)'} · ${d.jumlahTransaksi} transaksi';
+    return '${FormatTampilan.Rupiah(d.bersih)}${persen == null ? '' : ' ($persen)'} | ${d.jumlahTransaksi} transaksi';
   }
 }
 
@@ -98,7 +98,7 @@ class _IsiInsight extends StatelessWidget {
             '${d.jumlahTransaksi} transaksi, rata-rata ${FormatTampilan.Rupiah(d.rataTransaksi)}',
             if (d.hariTeramai != null)
               'teramai ${Tanggal(d.hariTeramai!.tanggal)} (${FormatTampilan.Rupiah(d.hariTeramai!.bersih)})',
-          ].join(' · '),
+          ].join(' | '),
           style: teks.bodyMedium,
         ),
         if (d.lebaran != null) ...[
@@ -148,7 +148,7 @@ class _IsiInsight extends StatelessWidget {
               leading: Icon(Icons.inventory_2_outlined, color: warna.peringatan),
               title: Text(r.nama),
               subtitle: Text(
-                '${r.hariHabis <= 0 ? 'habis' : 'habis ±${r.hariHabis} hari lagi'} · ${r.gudang} · '
+                '${r.hariHabis <= 0 ? 'habis' : 'habis ±${r.hariHabis} hari lagi'} | ${r.gudang} | '
                 'saran beli ${FormatTampilan.Jumlah(r.saranBeli)} ${r.satuan}',
               ),
             ),

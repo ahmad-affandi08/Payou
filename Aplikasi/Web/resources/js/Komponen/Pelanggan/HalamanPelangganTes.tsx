@@ -65,7 +65,7 @@ describe('Halaman pelanggan (F-16a)', () => {
             />,
         );
         expect(screen.getAllByText('Rp 12.500.000').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Langganan · Reseller').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Langganan | Reseller').length).toBeGreaterThan(0);
         expect(screen.getByRole('link', { name: 'Tambah pelanggan' }).getAttribute('href')).toBe(
             '/kelola/pelanggan/buat',
         );

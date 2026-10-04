@@ -138,7 +138,7 @@ class _PanelTukarPoinState extends ConsumerState<PanelTukarPoin> {
 
     final isi = <Widget>[
       Text(
-        'Tukar poin · ${widget.pelanggan.nama}',
+        'Tukar poin | ${widget.pelanggan.nama}',
         style: teks.titleMedium,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
@@ -184,7 +184,7 @@ class _PanelTukarPoinState extends ConsumerState<PanelTukarPoin> {
       final bisa = maksimal >= saldo.minimalTukarPoin;
       isi.addAll([
         Text(
-          'Saldo ${saldo.saldoPoin} poin · 1 poin = ${nilaiPerPoin.FormatRupiah()} · minimal ${saldo.minimalTukarPoin} poin',
+          'Saldo ${saldo.saldoPoin} poin | 1 poin = ${nilaiPerPoin.FormatRupiah()} | minimal ${saldo.minimalTukarPoin} poin',
           style: teks.bodyMedium,
         ),
         const SizedBox(height: TokenJarak.jarak4),

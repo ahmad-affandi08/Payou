@@ -45,7 +45,7 @@ describe('FormatPersediaan: tampilan Indonesia dari string desimal server (§17.
         expect(AmbilLabelPelacakan('Tidak')).toBeNull();
         expect(AmbilLabelMetodeHpp('Fifo')).toContain('FIFO');
         expect(FormatLabelGudang({ Nama: 'Gudang Utama', NamaOutlet: 'Outlet Solo', Aktif: true })).toBe(
-            'Gudang Utama · Outlet Solo',
+            'Gudang Utama | Outlet Solo',
         );
         expect(FormatLabelGudang({ Nama: 'Gudang Lama', NamaOutlet: null, Aktif: false })).toBe(
             'Gudang Lama (diarsipkan)',

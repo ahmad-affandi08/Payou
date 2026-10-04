@@ -298,7 +298,7 @@ export default function DasborOperasional({ Dasbor }: { Dasbor: Dasbor }) {
                         <dt className="text-teks-sekunder">Backup berhasil terakhir</dt>
                         <dd className="text-teks-utama">
                             {Backup.BackupTerakhir
-                                ? `${FormatTanggalWaktu(Backup.BackupTerakhir.SelesaiPada)} · ${FormatUkuranBerkas(Backup.BackupTerakhir.UkuranByte)}`
+                                ? `${FormatTanggalWaktu(Backup.BackupTerakhir.SelesaiPada)} | ${FormatUkuranBerkas(Backup.BackupTerakhir.UkuranByte)}`
                                 : 'Belum ada'}
                         </dd>
                     </div>
@@ -306,7 +306,7 @@ export default function DasborOperasional({ Dasbor }: { Dasbor: Dasbor }) {
                         <dt className="text-teks-sekunder">Uji restore terakhir</dt>
                         <dd className="text-teks-utama">
                             {Backup.UjiRestoreTerakhir
-                                ? `${Backup.UjiRestoreTerakhir.Hasil} · ${FormatTanggalWaktu(Backup.UjiRestoreTerakhir.SelesaiPada)}`
+                                ? `${Backup.UjiRestoreTerakhir.Hasil} | ${FormatTanggalWaktu(Backup.UjiRestoreTerakhir.SelesaiPada)}`
                                 : 'Belum pernah dicatat (wajib tiap bulan, §14.5)'}
                         </dd>
                     </div>
@@ -373,7 +373,7 @@ export default function DasborOperasional({ Dasbor }: { Dasbor: Dasbor }) {
                                 : `${String(Kesehatan.PeringatanIntegrasi.length)} peringatan`}
                             {PunyaIzin(props.Pengguna, IzinPengelola.IntegrasiLihat) ? (
                                 <>
-                                    {' · '}
+                                    {' | '}
                                     <Button asChild variant="link" className="h-auto p-0 text-label font-semibold">
                                         <Link href="/integrasi">Buka integrasi</Link>
                                     </Button>

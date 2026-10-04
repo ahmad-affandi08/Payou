@@ -48,7 +48,7 @@ describe('Kalibrasi wajah', () => {
         );
         RenderUji(<PanelKalibrasiWajah />);
 
-        expect(await screen.findByText('0,60–0,65 · ambang')).not.toBeNull();
+        expect(await screen.findByText('0,60–0,65 | ambang')).not.toBeNull();
         expect(screen.getByText('< 0,30')).not.toBeNull();
         expect(screen.getByText('88 diterima')).not.toBeNull();
         expect(screen.getByText('4 (4,3%)')).not.toBeNull();

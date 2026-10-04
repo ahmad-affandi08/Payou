@@ -149,7 +149,7 @@ export default function HalamanFormRetur({ Penerimaan: p, Baris, HariIni }: Prop
                                         <span className="flex flex-wrap items-baseline justify-between gap-2">
                                             <span className="font-semibold break-words">{b.NamaProduk}</span>
                                             <span className="text-keterangan text-teks-sekunder">
-                                                Bisa diretur {FormatJumlahStok(b.SisaBisaDiretur)} · nilai per satuan{' '}
+                                                Bisa diretur {FormatJumlahStok(b.SisaBisaDiretur)} | nilai per satuan{' '}
                                                 {FormatHppSatuan(b.HppSatuan)}
                                             </span>
                                         </span>

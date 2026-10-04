@@ -47,7 +47,7 @@ final class DaftarFlagFitur
                     'DiubahPada' => $f->DiubahPada?->toIso8601String(),
                 ];
             })->all()),
-            'OpsiKunci' => array_values(Fitur::query()->orderBy('Kunci')->get(['Kunci', 'Nama'])->map(fn (Fitur $f): array => ['Nilai' => $f->Kunci, 'Label' => "{$f->Kunci} · {$f->Nama}"])->all()),
+            'OpsiKunci' => array_values(Fitur::query()->orderBy('Kunci')->get(['Kunci', 'Nama'])->map(fn (Fitur $f): array => ['Nilai' => $f->Kunci, 'Label' => "{$f->Kunci} | {$f->Nama}"])->all()),
             'OpsiPaket' => array_values($paket->map(fn (Paket $p): array => ['Nilai' => $p->Uuid, 'Label' => $p->Nama])->all()),
             'OpsiTenant' => array_values(Tenant::query()->orderBy('Nama')->limit(self::MAKS_TENANT)->get(['Uuid', 'Nama'])->map(fn (Tenant $t): array => ['Nilai' => $t->Uuid, 'Label' => $t->Nama])->all()),
         ];

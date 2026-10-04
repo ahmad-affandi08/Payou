@@ -22,8 +22,8 @@ class KartuLaporanShift extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          '${s.NamaKasir} · dibuka ${FormatWaktu.FormatTanggalJam(s.DibukaPada)}'
-          '${s.DitutupPada == null ? '' : ' · ditutup ${FormatWaktu.FormatTanggalJam(s.DitutupPada!)}'}',
+          '${s.NamaKasir} | dibuka ${FormatWaktu.FormatTanggalJam(s.DibukaPada)}'
+          '${s.DitutupPada == null ? '' : ' | ditutup ${FormatWaktu.FormatTanggalJam(s.DitutupPada!)}'}',
           style: teks.bodyMedium,
         ),
         const SizedBox(height: TokenJarak.jarak12),
@@ -38,17 +38,17 @@ class KartuLaporanShift extends StatelessWidget {
             if (!l.biayaLayanan.BernilaiNol()) _BarisLaporan('Biaya layanan', nilai: l.biayaLayanan),
             if (!l.pembulatan.BernilaiNol()) _BarisLaporan('Pembulatan', nilai: l.pembulatan),
             _BarisLaporan('Total dibayar pelanggan', nilai: l.totalAkhir, tebal: true),
-            _BarisLaporan('Void', teksKanan: '${l.jumlahVoid} transaksi · ${l.nominalVoid.FormatRupiah()}'),
-            _BarisLaporan('Retur', teksKanan: '${l.jumlahRetur} dokumen · ${l.nominalRetur.FormatRupiah()}'),
+            _BarisLaporan('Void', teksKanan: '${l.jumlahVoid} transaksi | ${l.nominalVoid.FormatRupiah()}'),
+            _BarisLaporan('Retur', teksKanan: '${l.jumlahRetur} dokumen | ${l.nominalRetur.FormatRupiah()}'),
             if (l.jumlahUangMuka > 0)
               _BarisLaporan(
                 'Uang muka pre-order',
-                teksKanan: '${l.jumlahUangMuka} pesanan · ${(l.nominalUangMuka ?? Uang.Nol()).FormatRupiah()}',
+                teksKanan: '${l.jumlahUangMuka} pesanan | ${(l.nominalUangMuka ?? Uang.Nol()).FormatRupiah()}',
               ),
             if (l.jumlahIsiDeposit > 0)
               _BarisLaporan(
                 'Isi deposit pelanggan',
-                teksKanan: '${l.jumlahIsiDeposit} kali · ${(l.nominalIsiDeposit ?? Uang.Nol()).FormatRupiah()}',
+                teksKanan: '${l.jumlahIsiDeposit} kali | ${(l.nominalIsiDeposit ?? Uang.Nol()).FormatRupiah()}',
               ),
           ],
         ),

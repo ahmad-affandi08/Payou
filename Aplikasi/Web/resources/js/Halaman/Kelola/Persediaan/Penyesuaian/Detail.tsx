@@ -38,8 +38,8 @@ const kolom: KolomTabel<BarisDetailPenyesuaianStok>[] = [
                 <span className="block font-semibold break-words text-teks-utama">{b.NamaProduk}</span>
                 <span className="block text-keterangan text-teks-sekunder">
                     <span className="font-mono">{b.Sku ?? 'Tanpa SKU'}</span>
-                    {b.NomorBatch ? ` · batch ${b.NomorBatch}` : ''}
-                    {b.NomorSeri ? ` · ${b.NomorSeri}` : ''}
+                    {b.NomorBatch ? ` | batch ${b.NomorBatch}` : ''}
+                    {b.NomorSeri ? ` | ${b.NomorSeri}` : ''}
                 </span>
             </>
         ),
@@ -159,7 +159,7 @@ export default function HalamanDetailPenyesuaianStok({
                     <Keterangan label={Penyesuaian.Status === 'Diposting' ? 'Nilai tercatat' : 'Nilai (perkiraan)'}>
                         <span className="font-semibold tabular-nums">
                             {Penyesuaian.Status === 'Diposting'
-                                ? `Masuk ${FormatNilai(Penyesuaian.TotalNilaiMasuk)} · Keluar ${FormatNilai(Penyesuaian.TotalNilaiKeluar)}`
+                                ? `Masuk ${FormatNilai(Penyesuaian.TotalNilaiMasuk)} | Keluar ${FormatNilai(Penyesuaian.TotalNilaiKeluar)}`
                                 : FormatNilai(Penyesuaian.NilaiPerkiraan)}
                         </span>
                     </Keterangan>

@@ -144,7 +144,7 @@ export function DaftarJurnalDokumen({ jurnal, bolehLihat }: { jurnal: JurnalDoku
                                     <span className="font-mono font-semibold">{j.Nomor}</span>
                                 )}
                                 <span className="text-label break-words text-teks-sekunder">
-                                    {FormatTanggal(j.Tanggal)} · {j.Pembalik ? 'Pembalik · ' : ''}
+                                    {FormatTanggal(j.Tanggal)} | {j.Pembalik ? 'Pembalik | ' : ''}
                                     {j.Keterangan}
                                 </span>
                             </span>
@@ -169,7 +169,7 @@ export function DaftarRiwayatDokumen({ riwayat }: { riwayat: RiwayatDokumen[] })
             <ol className="flex flex-col gap-1 text-isi">
                 {riwayat.map((r, i) => (
                     <li key={`${r.Pada}-${String(i)}`} className="break-words text-teks-sekunder">
-                        <span className="font-semibold text-teks-utama">{r.StatusKe}</span> ·{' '}
+                        <span className="font-semibold text-teks-utama">{r.StatusKe}</span> |{' '}
                         {FormatTanggalWaktu(r.Pada)}
                         {r.Oleh ? ` oleh ${r.Oleh}` : ''}
                         {r.Alasan ? ` — ${r.Alasan}` : ''}

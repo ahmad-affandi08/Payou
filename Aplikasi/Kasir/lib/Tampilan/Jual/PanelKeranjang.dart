@@ -6,7 +6,7 @@ import '../../Domain/Penjualan/Keranjang.dart';
 import '../../Domain/Penjualan/LayananPenjualan.dart';
 import '../Komponen/FormatAngka.dart';
 
-/// Isi keranjang layar Jual (PRD §17.2.3, §17.2.7): daftar baris, ringkasan total, dan aksi Diskon · Tahan · BAYAR.
+/// Isi keranjang layar Jual (PRD §17.2.3, §17.2.7): daftar baris, ringkasan total, dan aksi Diskon | Tahan | BAYAR.
 /// Pintasan: F8 bayar, F9 uang pas. Hierarki: TOTAL paling besar, lalu tombol BAYAR, lalu isi keranjang. Hanya tampilan; aksinya lewat callback.
 class PanelKeranjang extends StatelessWidget {
   const PanelKeranjang({
@@ -95,7 +95,7 @@ class PanelKeranjang extends StatelessWidget {
   final String? kursusDipilih;
   final ValueChanged<String?>? saatKursus;
 
-  /// K-13: kursus yang ditahan di pesanan (urut saji) → tombol "Kirim Utama · 2 item".
+  /// K-13: kursus yang ditahan di pesanan (urut saji) → tombol "Kirim Utama | 2 item".
   final List<({String kursus, int jumlah})> kursusDitahan;
   final ValueChanged<String>? saatKirimKursus;
 
@@ -115,7 +115,7 @@ class PanelKeranjang extends StatelessWidget {
     if (b.diskon != null)
       b.diskon!.persen != null ? b.diskon!.AmbilLabel() : 'Diskon ${b.diskon!.jumlah!.FormatRupiah()}',
     if (b.nomorSeri.isNotEmpty) 'No. seri: ${b.nomorSeri.join(', ')}',
-    if (b.racikan case final r?) 'Racikan ${r.nama} · ${r.Ringkasan}',
+    if (b.racikan case final r?) 'Racikan ${r.nama} | ${r.Ringkasan}',
     if (b.catatan != null) 'Catatan: ${b.catatan}',
   ];
 
@@ -155,7 +155,7 @@ class PanelKeranjang extends StatelessWidget {
                       child: Text(
                         kosong
                             ? judul ?? 'Keranjang'
-                            : '${judul ?? 'Keranjang'} · ${FormatAngka.FormatJumlah(keranjang.HitungJumlahItem())} item',
+                            : '${judul ?? 'Keranjang'} | ${FormatAngka.FormatJumlah(keranjang.HitungJumlahItem())} item',
                         style: teks.titleMedium,
                       ),
                     ),
@@ -244,7 +244,7 @@ class PanelKeranjang extends StatelessWidget {
                         key: ValueKey('KirimKursus-${d.kursus}'),
                         onPressed: saatKirimKursus == null ? null : () => saatKirimKursus!(d.kursus),
                         icon: const Icon(Icons.soup_kitchen_outlined),
-                        label: Text('Kirim ${d.kursus} · ${d.jumlah} item'),
+                        label: Text('Kirim ${d.kursus} | ${d.jumlah} item'),
                       ),
                     ),
                   ],
@@ -276,8 +276,8 @@ class PanelKeranjang extends StatelessWidget {
                       Expanded(
                         child: Text(
                           keranjang.namaPemesan == null
-                              ? 'Nama pemesan · ketuk untuk mengisi'
-                              : 'Pemesan: ${keranjang.namaPemesan} · ketuk untuk mengubah',
+                              ? 'Nama pemesan | ketuk untuk mengisi'
+                              : 'Pemesan: ${keranjang.namaPemesan} | ketuk untuk mengubah',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: teks.bodyMedium,
@@ -315,7 +315,7 @@ class PanelKeranjang extends StatelessWidget {
                       const SizedBox(width: TokenJarak.jarak8),
                       Expanded(
                         child: Text(
-                          'Kanal: ${LayananPenjualan.AmbilLabelKanal(LayananPenjualan.AmbilKanal(keranjang))} · ketuk untuk mengganti',
+                          'Kanal: ${LayananPenjualan.AmbilLabelKanal(LayananPenjualan.AmbilKanal(keranjang))} | ketuk untuk mengganti',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: teks.bodyMedium,
@@ -352,8 +352,8 @@ class PanelKeranjang extends StatelessWidget {
                       Expanded(
                         child: Text(
                           keranjang.biayaKirim.BernilaiNol()
-                              ? 'Tanpa ongkir · ketuk untuk mengisi'
-                              : 'Ongkir ${keranjang.biayaKirim.FormatRupiah()} · ketuk untuk mengubah',
+                              ? 'Tanpa ongkir | ketuk untuk mengisi'
+                              : 'Ongkir ${keranjang.biayaKirim.FormatRupiah()} | ketuk untuk mengubah',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: teks.bodyMedium,
@@ -389,12 +389,12 @@ class PanelKeranjang extends StatelessWidget {
                       Expanded(
                         child: Text(
                           keranjang.pelanggan == null
-                              ? 'Pelanggan umum · ketuk untuk memilih (F2)'
+                              ? 'Pelanggan umum | ketuk untuk memilih (F2)'
                               : [
                                   keranjang.pelanggan!.nama,
                                   keranjang.pelanggan!.noHpSamar,
                                   if (keranjang.pelanggan!.namaTier != null) keranjang.pelanggan!.namaTier!,
-                                ].join(' · '),
+                                ].join(' | '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: teks.bodyMedium,
@@ -425,7 +425,7 @@ class PanelKeranjang extends StatelessWidget {
                       const SizedBox(width: TokenJarak.jarak8),
                       Expanded(
                         child: Text(
-                          'Buat racikan obat · ketuk untuk menyusun',
+                          'Buat racikan obat | ketuk untuk menyusun',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: teks.bodyMedium,
@@ -461,8 +461,8 @@ class PanelKeranjang extends StatelessWidget {
                       Expanded(
                         child: Text(
                           keranjang.laundry == null
-                              ? 'Tanpa tiket laundry · ketuk untuk mengisi'
-                              : 'Laundry ${keranjang.laundry!.jenisLayanan} · ${keranjang.laundry!.RingkasIsi()}',
+                              ? 'Tanpa tiket laundry | ketuk untuk mengisi'
+                              : 'Laundry ${keranjang.laundry!.jenisLayanan} | ${keranjang.laundry!.RingkasIsi()}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: teks.bodyMedium,
@@ -589,7 +589,7 @@ class PanelKeranjang extends StatelessWidget {
                         child: SizedBox(
                           height: 56,
                           child: Tooltip(
-                            message: 'Bayar (F8) · uang pas (F9)',
+                            message: 'Bayar (F8) | uang pas (F9)',
                             child: FilledButton(
                               onPressed: kosong ? null : saatBayar,
                               child: Text('Bayar', style: teks.titleMedium?.copyWith(color: warna.permukaan)),

@@ -54,11 +54,11 @@ export function AmbilStatusRilis(r: RilisAplikasi): {
         return { teks: 'Dihentikan', jenis: 'bahaya' };
     }
     if (r.Kanal === 'Beta') {
-        return { teks: 'Aktif · Beta', jenis: 'sukses' };
+        return { teks: 'Aktif | Beta', jenis: 'sukses' };
     }
     return r.PersenRollout >= 100
-        ? { teks: 'Aktif · 100%', jenis: 'sukses' }
-        : { teks: `Aktif · ${String(r.PersenRollout)}%`, jenis: 'peringatan' };
+        ? { teks: 'Aktif | 100%', jenis: 'sukses' }
+        : { teks: `Aktif | ${String(r.PersenRollout)}%`, jenis: 'peringatan' };
 }
 
 function CekMinimumBelumBerlaku(r: RilisAplikasi): boolean {
@@ -116,7 +116,7 @@ const kolom: KolomTabel<RilisAplikasi>[] = [
         cell: ({ row: { original: r } }) =>
             r.VersiMinimum === null
                 ? '—'
-                : `${CekMinimumBelumBerlaku(r) ? 'Mulai' : 'Berlaku sejak'} ${FormatTanggal(r.VersiMinimumBerlakuPada)}${r.PerbaikanKeamanan ? ' · keamanan' : ''}`,
+                : `${CekMinimumBelumBerlaku(r) ? 'Mulai' : 'Berlaku sejak'} ${FormatTanggal(r.VersiMinimumBerlakuPada)}${r.PerbaikanKeamanan ? ' | keamanan' : ''}`,
     },
     {
         id: 'DiterbitkanPada',

@@ -55,7 +55,7 @@ describe('Situs bagian B2: blog', () => {
     it('daftar artikel menaut ke /blog/{slug}, chip kategori, dan navigasi halaman', () => {
         props = {
             Situs: situs,
-            Halaman: { Seo: { Judul: 'Blog · PAYOU', Deskripsi: 'Tips usaha.' } },
+            Halaman: { Seo: { Judul: 'Blog | PAYOU', Deskripsi: 'Tips usaha.' } },
             Artikel: [BuatArtikel('tips-satu'), BuatArtikel('tips-dua')],
             Kategori: ['Stok', 'Tips kasir'],
             KategoriAktif: 'Tips kasir',
@@ -89,7 +89,7 @@ describe('Situs bagian B2: blog', () => {
     it('artikel: judul h1, isi berformat aman, jejak kategori, dan artikel terkait', () => {
         props = {
             Situs: situs,
-            Halaman: { Seo: { Judul: 'Tips satu · PAYOU', Deskripsi: '' } },
+            Halaman: { Seo: { Judul: 'Tips satu | PAYOU', Deskripsi: '' } },
             Artikel: { ...BuatArtikel('tips-satu'), Isi: '## Langkah\n\n<script>x</script>', DiubahPada: null },
             Terkait: [BuatArtikel('tips-dua')],
         };

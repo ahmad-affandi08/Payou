@@ -121,7 +121,7 @@ class LayarShift extends ConsumerWidget {
   }
 
   List<Widget> _SusunIsi(BuildContext context, LaporanShift l, DateTime sekarang) {
-    final rataRata = l.jumlahTransaksi == 0 ? '' : ' · rata-rata ${l.rataRataTransaksi.FormatRupiah()}';
+    final rataRata = l.jumlahTransaksi == 0 ? '' : ' | rata-rata ${l.rataRataTransaksi.FormatRupiah()}';
     final metode = BagianKerja(
       judul: 'Per metode bayar',
       ikon: Icons.account_balance_wallet_outlined,

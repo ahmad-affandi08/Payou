@@ -372,7 +372,7 @@ class _DialogPisahTagihan extends StatefulWidget {
 
 class _DialogPisahTagihanState extends State<_DialogPisahTagihan> {
   final Set<String> _dipilih = {};
-  late final TextEditingController _label = TextEditingController(text: '${widget.pesanan.AmbilJudul()} · Tagihan 2');
+  late final TextEditingController _label = TextEditingController(text: '${widget.pesanan.AmbilJudul()} | Tagihan 2');
   String? _galat;
 
   @override
@@ -477,7 +477,7 @@ Future<PesananMeja?> PilihPesananTujuan(
               constraints: const BoxConstraints(minHeight: TokenJarak.targetSentuh),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text('${p.AmbilJudul()} · ${p.AmbilBarisAktif().length} item'),
+                child: Text('${p.AmbilJudul()} | ${p.AmbilBarisAktif().length} item'),
               ),
             ),
           ),

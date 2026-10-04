@@ -556,7 +556,7 @@ void main() {
       );
       var lokal = (await u.repositoriMeja.CariPesanan(pesanan.uuid))!;
       expect(LayananPesananMeja.AmbilKursusDitahan(lokal.baris), [(kursus: KursusPesanan.utama, jumlah: 1)]);
-      expect(lokal.baris.single.AmbilLabelStatus(), 'Ditahan · Utama');
+      expect(lokal.baris.single.AmbilLabelStatus(), 'Ditahan | Utama');
       final tambah = (await Outbox()).lastWhere((o) => o.Jenis == 'PesananTerbuka.Tambah');
       expect(((Data(tambah)['Baris']! as List<Object?>).single! as Map<String, Object?>)['Kursus'], 'Utama');
 
@@ -637,7 +637,7 @@ void main() {
         () => u.pesananMeja.Pisah(
           uuidAsal: pesanan.uuid,
           uuidBaris: isi.baris.map((b) => b.uuid).toList(),
-          label: 'D-01 · Tagihan 2',
+          label: 'D-01 | Tagihan 2',
           kasir: rina,
           k: k,
         ),
@@ -647,12 +647,12 @@ void main() {
       final hasil = await u.pesananMeja.Pisah(
         uuidAsal: pesanan.uuid,
         uuidBaris: [croissant],
-        label: 'D-01 · Tagihan 2',
+        label: 'D-01 | Tagihan 2',
         kasir: rina,
         k: k,
       );
       expect(hasil.asal.AmbilBarisAktif().map((b) => b.namaProduk), ['Es Kopi Susu Aren']);
-      expect(hasil.baru.AmbilJudul(), 'D-01 · Tagihan 2');
+      expect(hasil.baru.AmbilJudul(), 'D-01 | Tagihan 2');
       expect(hasil.baru.baris.single.uuid, croissant);
       expect(hasil.baru.baris.single.dikirimKeDapur, isTrue, reason: 'Status dapur ikut pindah.');
 
