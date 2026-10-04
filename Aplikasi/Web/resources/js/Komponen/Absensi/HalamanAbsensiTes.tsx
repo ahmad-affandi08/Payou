@@ -113,4 +113,50 @@ describe('Halaman absensi web', () => {
         expect(screen.getByText(/Tidak ada koneksi internet/)).not.toBeNull();
         expect((screen.getByRole('button', { name: 'Absen masuk' }) as HTMLButtonElement).disabled).toBe(true);
     });
+
+    it('sedang bekerja: status, lama bekerja berjalan, jam masuk WIB, dan riwayat berdurasi', () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date('2026-10-05T04:00:00Z'));
+        const disetujui = { Status: 'Disetujui' as const, Label: 'Disetujui', AlasanTolak: null };
+        RenderUji(
+            <HalamanAbsensi
+                {...dasar}
+                Wajah={disetujui}
+                AbsensiTerbuka={{
+                    Uuid: '01K5ABSEN0000000000000000A',
+                    MasukPada: '2026-10-05T01:00:00Z',
+                    NamaOutlet: 'Outlet Solo',
+                }}
+                Riwayat={[
+                    { MasukPada: '2026-10-04T01:00:00Z', KeluarPada: '2026-10-04T09:30:00Z', NamaOutlet: 'Outlet Solo' },
+                ]}
+            />,
+        );
+
+        expect(screen.getByText('Sedang bekerja')).not.toBeNull();
+        expect(screen.getByText('Masuk pukul 08.00 di Outlet Solo')).not.toBeNull();
+        expect(screen.getAllByText('3 jam').length).toBeGreaterThan(0);
+        expect(screen.getByText('Selamat siang,')).not.toBeNull();
+        expect(screen.getByText('8 jam 30 menit')).not.toBeNull();
+        expect(screen.getByText('Selesai')).not.toBeNull();
+        vi.useRealTimers();
+    });
+
+    it('belum absen: status netral dan tiga syarat absen tampil', () => {
+        RenderUji(<HalamanAbsensi {...dasar} Wajah={{ Status: 'Disetujui', Label: 'Disetujui', AlasanTolak: null }} />);
+
+        expect(screen.getByText('Belum absen masuk')).not.toBeNull();
+        expect(screen.getByText('Internet siap')).not.toBeNull();
+        expect(screen.getByText('Dalam radius outlet')).not.toBeNull();
+        expect(screen.getByText('Wajah dicek')).not.toBeNull();
+    });
+
+    it('daftar wajah: langkah pendaftaran maju ke "Rekam wajah" setelah persetujuan', () => {
+        RenderUji(<HalamanAbsensi {...dasar} />);
+
+        const langkah = screen.getByRole('list', { name: 'Langkah pendaftaran' });
+        expect(langkah.querySelector('[aria-current="step"]')?.textContent).toContain('Setujui penggunaan data');
+        fireEvent.click(screen.getByRole('checkbox'));
+        expect(langkah.querySelector('[aria-current="step"]')?.textContent).toContain('Rekam wajah');
+    });
 });

@@ -1,15 +1,29 @@
 import { Head, router } from '@inertiajs/react';
-import { CameraIcon, CheckCircle2Icon, MapPinIcon, QrCodeIcon, WifiOffIcon } from 'lucide-react';
+import {
+    CameraIcon,
+    CheckCircle2Icon,
+    ClockIcon,
+    LogInIcon,
+    LogOutIcon,
+    MapPinIcon,
+    QrCodeIcon,
+    ScanFaceIcon,
+    ShieldCheckIcon,
+    SunIcon,
+    WifiIcon,
+    WifiOffIcon,
+} from 'lucide-react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
 import Tombol from '@/Komponen/Formulir/Tombol';
+import { Spinner } from '@/Komponen/Ui/spinner';
 import JudulHalaman from '@/Komponen/Umpan/JudulHalaman';
 import LabelStatus from '@/Komponen/Umpan/LabelStatus';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
 import { AmbilPendeteksiQr, CekKodeQrLengkap, NormalkanKodeQr } from '@/Fitur/Absensi/KodeQr';
 import { AmbilPetunjukWajah, KeAkurasiMeter, KeTeksKoordinat } from '@/Fitur/Absensi/SidikWajah';
-import { FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
+import { FormatDurasi, FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
 import { GalatPermintaan, KirimJson } from '@/Pustaka/PermintaanJson';
 import { BuatUlid } from '@/Pustaka/Ulid';
 
@@ -33,15 +47,62 @@ type Lokasi = { Lintang: string; Bujur: string; AkurasiMeter: number };
 const BATAS_TUNGGU_GPS_MS = 15_000;
 const AKURASI_CUKUP_METER = 25;
 
+const formatJam = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+const formatJamDetik = new Intl.DateTimeFormat('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Asia/Jakarta',
+});
+const formatHariPanjang = new Intl.DateTimeFormat('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Asia/Jakarta',
+});
+const formatHari = new Intl.DateTimeFormat('id-ID', { day: '2-digit', timeZone: 'Asia/Jakarta' });
+const formatBulan = new Intl.DateTimeFormat('id-ID', { month: 'short', timeZone: 'Asia/Jakarta' });
+
+/** "08.30" dari waktu ISO, zona WIB. */
+function FormatJam(iso: string): string {
+    return formatJam.format(new Date(iso));
+}
+
+function SalamWaktu(sekarang: Date): string {
+    const jam = Number(
+        new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }).format(sekarang),
+    );
+
+    if (jam < 11) {
+        return 'Selamat pagi';
+    }
+
+    if (jam < 15) {
+        return 'Selamat siang';
+    }
+
+    return jam < 18 ? 'Selamat sore' : 'Selamat malam';
+}
+
+/** Detik antara dua waktu ISO (atau sampai [sampai]); tidak pernah negatif. */
+function SelisihDetik(dari: string, sampai: Date | string): number {
+    return Math.max(0, Math.floor((new Date(sampai).getTime() - new Date(dari).getTime()) / 1000));
+}
+
 /**
  * F-18 bagian 4 (D-37): halaman absensi web karyawan di HP pribadi. Mobile-first, satu tugas per layar, bisa dipasang
  * ke layar utama (PWA; cakupan hanya halaman ini). Wajah didaftarkan sekali (persetujuan UU PDP, langsung aktif),
  * lalu tiap absen: lokasi GPS + pindai wajah dengan kedip → server menilai radius outlet & kecocokan wajah.
+ *
+ * Tampilan: kepala merek dengan jam hidup & salam, kartu aksi tumpang-tindih di bawahnya (tombol absen bulat besar,
+ * lama bekerja berjalan), lalu riwayat sebagai garis waktu berdurasi.
  */
 export default function HalamanAbsensi(props: PropsAbsensi) {
     const { NamaToko, NamaKaryawan, AlamatDasar, Wajah, Riwayat } = props;
     const jalur = new URL(AlamatDasar, window.location.origin).pathname;
     const daring = useStatusDaring();
+    const sekarang = useSekarang();
 
     useEffect(() => {
         // Gagal mendaftarkan service worker tidak menghalangi absen; hanya fitur pasang & cache model yang hilang.
@@ -51,7 +112,7 @@ export default function HalamanAbsensi(props: PropsAbsensi) {
     }, [jalur]);
 
     return (
-        <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 bg-latar px-4 py-6 tepi-bawah-aman">
+        <div className="min-h-dvh bg-latar">
             <Head title={`Absen | ${NamaToko}`}>
                 <link rel="manifest" href={`${jalur}/manifest`} />
                 <meta name="mobile-web-app-capable" content="yes" />
@@ -60,53 +121,121 @@ export default function HalamanAbsensi(props: PropsAbsensi) {
                 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
             </Head>
 
-            <header className="flex flex-col gap-1">
-                <p className="text-keterangan text-teks-sekunder">{NamaToko}</p>
-                <JudulHalaman>{NamaKaryawan}</JudulHalaman>
+            <header className="bg-brand-gelap px-4 pt-6 pb-20 text-permukaan">
+                <div className="mx-auto flex w-full max-w-md flex-col gap-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <p className="min-w-0 truncate text-label font-semibold text-brand-gelap-teks">{NamaToko}</p>
+                        <span
+                            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-gelap-sorot px-2.5 py-1 text-keterangan font-semibold text-permukaan"
+                            role="status"
+                        >
+                            {daring ? (
+                                <WifiIcon aria-hidden="true" className="size-3.5" />
+                            ) : (
+                                <WifiOffIcon aria-hidden="true" className="size-3.5" />
+                            )}
+                            {daring ? 'Tersambung' : 'Luring'}
+                        </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <p className="text-isi text-brand-gelap-teks">{SalamWaktu(sekarang)},</p>
+                        <JudulHalaman className="text-permukaan">{NamaKaryawan}</JudulHalaman>
+                    </div>
+                    <div className="flex items-end justify-between gap-3">
+                        <p
+                            className="text-sorotan-hp font-semibold tabular-nums text-permukaan"
+                            aria-label="Jam sekarang"
+                        >
+                            {formatJamDetik.format(sekarang)}
+                        </p>
+                        <p className="pb-1 text-right text-keterangan text-brand-gelap-teks">
+                            {formatHariPanjang.format(sekarang)}
+                        </p>
+                    </div>
+                </div>
             </header>
 
-            {!daring ? (
-                <Pemberitahuan jenis="peringatan">
-                    <span className="inline-flex items-center gap-2">
-                        <WifiOffIcon aria-hidden="true" className="size-4 shrink-0" />
-                        Tidak ada koneksi internet. Absen butuh internet karena lokasi dan wajah diperiksa server.
-                    </span>
-                </Pemberitahuan>
-            ) : null}
+            <main className="mx-auto -mt-12 flex w-full max-w-md flex-col gap-5 px-4 pb-8 tepi-bawah-aman">
+                {!daring ? (
+                    <Pemberitahuan jenis="peringatan">
+                        <span className="inline-flex items-center gap-2">
+                            <WifiOffIcon aria-hidden="true" className="size-4 shrink-0" />
+                            Tidak ada koneksi internet. Absen butuh internet karena lokasi dan wajah diperiksa server.
+                        </span>
+                    </Pemberitahuan>
+                ) : null}
 
-            {Wajah?.Status === 'Disetujui' ? (
-                <PanelAbsen {...props} jalur={jalur} daring={daring} />
-            ) : Wajah?.Status === 'Menunggu' ? (
-                <Pemberitahuan jenis="info">
-                    Wajah Anda sudah terdaftar dan menunggu persetujuan pengelola. Setelah disetujui, buka lagi halaman
-                    ini untuk absen.
-                </Pemberitahuan>
-            ) : (
-                <PanelDaftarWajah {...props} jalur={jalur} daring={daring} />
-            )}
-            {Riwayat.length > 0 ? (
-                <section className="flex flex-col gap-2" aria-labelledby="judul-riwayat">
-                    <h2 id="judul-riwayat" className="text-label font-semibold text-teks-utama">
-                        Absen terakhir
-                    </h2>
-                    <ul className="divide-y divide-garis rounded-panel border border-garis bg-permukaan">
-                        {Riwayat.map((baris) => (
-                            <li key={baris.MasukPada} className="flex flex-col gap-0.5 px-4 py-3 text-keterangan">
-                                <span className="text-teks-utama">
-                                    Masuk {FormatTanggalWaktu(baris.MasukPada)}
-                                    {baris.NamaOutlet ? ` | ${baris.NamaOutlet}` : ''}
+                {Wajah?.Status === 'Disetujui' ? (
+                    <PanelAbsen {...props} jalur={jalur} daring={daring} sekarang={sekarang} />
+                ) : Wajah?.Status === 'Menunggu' ? (
+                    <section className="flex flex-col items-center gap-3 rounded-panel border border-garis bg-permukaan p-6 text-center">
+                        <span className="grid size-14 place-items-center rounded-full bg-info-lembut text-info">
+                            <ClockIcon aria-hidden="true" className="size-7" />
+                        </span>
+                        <p className="text-isi text-teks-utama">
+                            Wajah Anda sudah terdaftar dan menunggu persetujuan pengelola. Setelah disetujui, buka
+                            lagi halaman ini untuk absen.
+                        </p>
+                    </section>
+                ) : (
+                    <PanelDaftarWajah {...props} jalur={jalur} daring={daring} />
+                )}
+
+                {Riwayat.length > 0 ? <GarisWaktuRiwayat riwayat={Riwayat} sekarang={sekarang} /> : null}
+            </main>
+        </div>
+    );
+}
+
+function GarisWaktuRiwayat({ riwayat, sekarang }: { riwayat: PropsAbsensi['Riwayat']; sekarang: Date }) {
+    return (
+        <section className="flex flex-col gap-3" aria-labelledby="judul-riwayat">
+            <h2 id="judul-riwayat" className="text-subjudul font-semibold text-teks-utama">
+                Absen terakhir
+            </h2>
+            <ul className="flex flex-col gap-2">
+                {riwayat.map((baris) => {
+                    const selesai = baris.KeluarPada !== null;
+
+                    return (
+                        <li
+                            key={baris.MasukPada}
+                            className="flex items-center gap-3 rounded-panel border border-garis bg-permukaan p-3"
+                        >
+                            <span
+                                className="flex w-12 shrink-0 flex-col items-center rounded-panel bg-brand-lembut py-1.5 text-brand"
+                                aria-hidden="true"
+                            >
+                                <span className="text-judul leading-none font-semibold tabular-nums">
+                                    {formatHari.format(new Date(baris.MasukPada))}
                                 </span>
-                                <span className="text-teks-sekunder">
-                                    {baris.KeluarPada
-                                        ? `Keluar ${FormatTanggalWaktu(baris.KeluarPada)}`
-                                        : 'Belum absen keluar'}
+                                <span className="text-keterangan uppercase">
+                                    {formatBulan.format(new Date(baris.MasukPada))}
                                 </span>
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-            ) : null}
-        </main>
+                            </span>
+                            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                                <span className="text-isi font-semibold text-teks-utama tabular-nums">
+                                    {FormatJam(baris.MasukPada)}
+                                    {selesai ? ` – ${FormatJam(baris.KeluarPada as string)}` : ' – …'}
+                                    <span className="sr-only"> ({FormatTanggalWaktu(baris.MasukPada)})</span>
+                                </span>
+                                <span className="truncate text-keterangan text-teks-sekunder">
+                                    {baris.NamaOutlet ?? 'Outlet'}
+                                </span>
+                            </span>
+                            <span className="flex shrink-0 flex-col items-end gap-1">
+                                <span className="text-keterangan font-semibold text-teks-utama tabular-nums">
+                                    {FormatDurasi(SelisihDetik(baris.MasukPada, baris.KeluarPada ?? sekarang))}
+                                </span>
+                                <span className="text-keterangan text-teks-sekunder">
+                                    {selesai ? 'Selesai' : 'Belum absen keluar'}
+                                </span>
+                            </span>
+                        </li>
+                    );
+                })}
+            </ul>
+        </section>
     );
 }
 
@@ -116,7 +245,8 @@ function PanelAbsen({
     WajibQr,
     jalur,
     daring,
-}: PropsAbsensi & { jalur: string; daring: boolean }) {
+    sekarang,
+}: PropsAbsensi & { jalur: string; daring: boolean; sekarang: Date }) {
     const [pindai, AturPindai] = useState(false);
     const [langkah, AturLangkah] = useState<string | null>(null);
     const [galat, AturGalat] = useState<string | null>(null);
@@ -178,24 +308,45 @@ function PanelAbsen({
         }
     };
 
+    const sibuk = langkah !== null;
+
     return (
-        <section className="flex flex-col gap-4 rounded-panel border border-garis bg-permukaan p-4" aria-live="polite">
-            {AbsensiTerbuka ? (
-                <p className="text-isi text-teks-utama">
-                    Masuk {FormatTanggalWaktu(AbsensiTerbuka.MasukPada)}
-                    {AbsensiTerbuka.NamaOutlet ? ` di ${AbsensiTerbuka.NamaOutlet}` : ''}.
-                </p>
-            ) : (
-                <p className="text-isi text-teks-sekunder">Belum absen masuk.</p>
-            )}
+        <section
+            className="flex flex-col gap-5 rounded-panel border border-garis bg-permukaan p-5"
+            aria-live="polite"
+            aria-label="Absensi"
+        >
+            <div className="flex flex-col items-center gap-2 text-center">
+                {AbsensiTerbuka ? (
+                    <>
+                        <LabelStatus jenis="sukses" teks="Sedang bekerja" />
+                        <p className="text-sorotan-besar-hp font-semibold tabular-nums text-teks-utama">
+                            {FormatDurasi(SelisihDetik(AbsensiTerbuka.MasukPada, sekarang))}
+                        </p>
+                        <p className="text-isi text-teks-sekunder">
+                            Masuk pukul {FormatJam(AbsensiTerbuka.MasukPada)}
+                            {AbsensiTerbuka.NamaOutlet ? ` di ${AbsensiTerbuka.NamaOutlet}` : ''}
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <LabelStatus jenis="netral" teks="Belum absen masuk" />
+                        <p className="inline-flex items-center gap-2 text-isi text-teks-sekunder">
+                            <SunIcon aria-hidden="true" className="size-4" />
+                            Siap mulai kerja hari ini?
+                        </p>
+                    </>
+                )}
+            </div>
 
             {berhasil ? (
-                <Pemberitahuan jenis="sukses">
-                    <span className="inline-flex items-center gap-2">
-                        <CheckCircle2Icon aria-hidden="true" className="size-4 shrink-0" />
-                        {berhasil}
-                    </span>
-                </Pemberitahuan>
+                <div
+                    className="flex animate-in items-center gap-3 rounded-panel bg-sukses-lembut p-3 text-sukses duration-300 zoom-in-95 fade-in"
+                    role="status"
+                >
+                    <CheckCircle2Icon aria-hidden="true" className="size-6 shrink-0" />
+                    <p className="text-isi font-semibold">{berhasil}</p>
+                </div>
             ) : null}
             {galat ? <Pemberitahuan jenis="bahaya">{galat}</Pemberitahuan> : null}
 
@@ -209,7 +360,7 @@ function PanelAbsen({
                         saatBatal={() => AturPindaiQr(false)}
                     />
                 ) : (
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 rounded-panel bg-permukaan-redup p-3">
                         <BidangTeks
                             label="Kode QR outlet"
                             nilai={kodeQr}
@@ -243,17 +394,47 @@ function PanelAbsen({
                 />
             ) : (
                 <>
-                    <Tombol
-                        ukuran="besar"
-                        disabled={!daring || langkah !== null || !qrSiap || pindaiQr}
-                        memproses={langkah !== null}
+                    <button
+                        type="button"
+                        disabled={!daring || sibuk || !qrSiap || pindaiQr}
+                        aria-busy={sibuk || undefined}
                         onClick={Mulai}
+                        className={`mx-auto flex size-40 flex-col items-center justify-center gap-2 rounded-full text-brand-teks ring-8 transition-transform duration-150 select-none focus-visible:ring-offset-2 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 ${
+                            keluar ? 'bg-brand-gelap ring-brand-gelap-gulir' : 'bg-brand ring-brand-lembut-sorot'
+                        }`}
                     >
-                        {langkah ?? (keluar ? 'Absen keluar' : 'Absen masuk')}
-                    </Tombol>
-                    <p className="flex items-start gap-2 text-keterangan text-teks-sekunder">
-                        <MapPinIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-                        Absen hanya bisa di dalam radius outlet. Izinkan lokasi dan kamera saat diminta.
+                        {sibuk ? (
+                            <Spinner role={undefined} aria-label={undefined} aria-hidden="true" className="size-8" />
+                        ) : keluar ? (
+                            <LogOutIcon aria-hidden="true" className="size-9" />
+                        ) : (
+                            <LogInIcon aria-hidden="true" className="size-9" />
+                        )}
+                        <span className="px-3 text-center text-subjudul font-semibold">
+                            {langkah ?? (keluar ? 'Absen keluar' : 'Absen masuk')}
+                        </span>
+                    </button>
+
+                    <ul className="grid grid-cols-3 gap-2 text-center text-keterangan text-teks-sekunder">
+                        <li className="flex flex-col items-center gap-1 rounded-panel bg-permukaan-redup px-2 py-2.5">
+                            {daring ? (
+                                <WifiIcon aria-hidden="true" className="size-5 text-sukses" />
+                            ) : (
+                                <WifiOffIcon aria-hidden="true" className="size-5 text-bahaya" />
+                            )}
+                            {daring ? 'Internet siap' : 'Tanpa internet'}
+                        </li>
+                        <li className="flex flex-col items-center gap-1 rounded-panel bg-permukaan-redup px-2 py-2.5">
+                            <MapPinIcon aria-hidden="true" className="size-5 text-brand" />
+                            Dalam radius outlet
+                        </li>
+                        <li className="flex flex-col items-center gap-1 rounded-panel bg-permukaan-redup px-2 py-2.5">
+                            <ScanFaceIcon aria-hidden="true" className="size-5 text-brand" />
+                            Wajah dicek
+                        </li>
+                    </ul>
+                    <p className="text-center text-keterangan text-teks-sekunder">
+                        Izinkan lokasi dan kamera saat diminta. Absen hanya bisa dilakukan di dalam radius outlet.
                     </p>
                 </>
             )}
@@ -293,16 +474,23 @@ function PanelDaftarWajah({
         }
     };
 
+    const langkah = setuju ? 2 : 1;
+
     return (
         <section
-            className="flex flex-col gap-4 rounded-panel border border-garis bg-permukaan p-4"
+            className="flex flex-col gap-5 rounded-panel border border-garis bg-permukaan p-5"
             aria-labelledby="judul-daftar-wajah"
         >
-            <div className="flex flex-wrap items-center gap-2">
-                <h2 id="judul-daftar-wajah" className="text-subjudul font-semibold text-teks-utama">
-                    Daftarkan wajah
-                </h2>
-                {Wajah?.Status === 'Ditolak' ? <LabelStatus jenis="bahaya" teks="Ditolak, daftar ulang" /> : null}
+            <div className="flex items-center gap-3">
+                <span className="grid size-12 shrink-0 place-items-center rounded-full bg-brand-lembut text-brand">
+                    <ScanFaceIcon aria-hidden="true" className="size-6" />
+                </span>
+                <div className="flex min-w-0 flex-col gap-1">
+                    <h2 id="judul-daftar-wajah" className="text-judul font-semibold text-teks-utama">
+                        Daftarkan wajah
+                    </h2>
+                    {Wajah?.Status === 'Ditolak' ? <LabelStatus jenis="bahaya" teks="Ditolak, daftar ulang" /> : null}
+                </div>
             </div>
             {Wajah?.AlasanTolak ? (
                 <Pemberitahuan jenis="peringatan">Alasan pengelola: {Wajah.AlasanTolak}</Pemberitahuan>
@@ -311,6 +499,48 @@ function PanelDaftarWajah({
                 Sekali saja sebelum absen pertama. Kamera depan akan mengambil {JumlahFotoDaftar} foto wajah Anda
                 berturut-turut. Pengelola memeriksa fotonya sebelum Anda bisa absen.
             </p>
+
+            <ol className="grid grid-cols-2 gap-2 text-keterangan" aria-label="Langkah pendaftaran">
+                {['Setujui penggunaan data', 'Rekam wajah'].map((nama, indeks) => {
+                    const nomor = indeks + 1;
+                    const aktif = nomor === langkah;
+                    const lewat = nomor < langkah;
+
+                    return (
+                        <li
+                            key={nama}
+                            aria-current={aktif ? 'step' : undefined}
+                            className={`flex items-center gap-2 rounded-panel border p-2 ${
+                                aktif ? 'border-brand bg-brand-lembut text-teks-utama' : 'border-garis text-teks-sekunder'
+                            }`}
+                        >
+                            <span
+                                className={`grid size-6 shrink-0 place-items-center rounded-full font-semibold ${
+                                    lewat ? 'bg-sukses text-permukaan' : aktif ? 'bg-brand text-brand-teks' : 'bg-permukaan-sorot'
+                                }`}
+                            >
+                                {lewat ? <CheckCircle2Icon aria-hidden="true" className="size-4" /> : nomor}
+                            </span>
+                            {nama}
+                        </li>
+                    );
+                })}
+            </ol>
+
+            <ul className="flex flex-col gap-2 rounded-panel bg-permukaan-redup p-3 text-keterangan text-teks-sekunder">
+                <li className="flex items-start gap-2">
+                    <SunIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-brand" />
+                    Cari tempat yang terang, wajah menghadap lurus ke kamera.
+                </li>
+                <li className="flex items-start gap-2">
+                    <ScanFaceIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-brand" />
+                    Lepas masker dan kacamata gelap, lalu kedip saat diminta.
+                </li>
+                <li className="flex items-start gap-2">
+                    <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-brand" />
+                    Data wajah disimpan terenkripsi dan hanya dipakai untuk absensi.
+                </li>
+            </ul>
 
             <label
                 htmlFor={idSetuju}
@@ -466,8 +696,8 @@ function PemindaiWajah({
     }, []);
 
     return (
-        <div className="flex flex-col items-center gap-3">
-            <div className="relative aspect-square w-full max-w-72 overflow-hidden rounded-full border-4 border-brand bg-permukaan-redup">
+        <div className="flex flex-col items-center gap-4">
+            <div className="relative aspect-square w-full max-w-72 overflow-hidden rounded-full border-4 border-brand bg-permukaan-redup ring-8 ring-brand-lembut">
                 <video
                     ref={video}
                     className="size-full -scale-x-100 object-cover"
@@ -476,13 +706,27 @@ function PemindaiWajah({
                     aria-label="Pratinjau kamera depan"
                 />
             </div>
-            <p className="min-h-10 text-center text-isi text-teks-utama" aria-live="assertive">
+            <p
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-panel bg-brand-lembut px-3 py-2 text-center text-isi font-semibold text-teks-utama"
+                aria-live="assertive"
+            >
+                <ScanFaceIcon aria-hidden="true" className="size-5 shrink-0 text-brand" />
                 {petunjuk}
             </p>
             {jumlah > 1 ? (
-                <p className="text-keterangan text-teks-sekunder">
-                    Foto {Math.min(terkumpul + 1, jumlah)} dari {jumlah}
-                </p>
+                <div className="flex flex-col items-center gap-2">
+                    <div className="flex gap-2" aria-hidden="true">
+                        {Array.from({ length: jumlah }, (_, indeks) => (
+                            <span
+                                key={indeks}
+                                className={`h-2 w-10 rounded-full ${indeks < terkumpul ? 'bg-sukses' : 'bg-garis'}`}
+                            />
+                        ))}
+                    </div>
+                    <p className="text-keterangan text-teks-sekunder">
+                        Foto {Math.min(terkumpul + 1, jumlah)} dari {jumlah}
+                    </p>
+                </div>
             ) : null}
             <Tombol
                 varian="sekunder"
@@ -646,4 +890,17 @@ function useStatusDaring(): boolean {
     }, []);
 
     return daring;
+}
+
+/** Waktu sekarang yang berdetak tiap detik (jam hidup & lama bekerja). */
+function useSekarang(): Date {
+    const [sekarang, AturSekarang] = useState(() => new Date());
+
+    useEffect(() => {
+        const penghitung = setInterval(() => AturSekarang(new Date()), 1000);
+
+        return () => clearInterval(penghitung);
+    }, []);
+
+    return sekarang;
 }
