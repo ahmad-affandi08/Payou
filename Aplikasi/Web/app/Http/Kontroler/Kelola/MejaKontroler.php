@@ -8,7 +8,9 @@ use App\Domain\Organisasi\Aksi\AturPesanSendiriOutlet;
 use App\Domain\Organisasi\Aksi\BuatUlangTokenPesanSendiri;
 use App\Domain\Organisasi\Aksi\SimpanAreaMeja;
 use App\Domain\Organisasi\Aksi\SimpanMeja;
+use App\Domain\Organisasi\Aksi\SimpanMejaMassal;
 use App\Domain\Organisasi\Aksi\UbahStatusMeja;
+use App\Domain\Organisasi\Enum\BentukMeja;
 use App\Domain\Organisasi\Enum\StatusOrganisasi;
 use App\Domain\Organisasi\Kueri\MejaOutlet;
 use App\Domain\Organisasi\Layanan\PembuatQrMeja;
@@ -20,6 +22,7 @@ use App\Domain\Tenant\Kueri\ProfilTenant;
 use App\Domain\Tenant\Layanan\PemeriksaFiturTenant;
 use App\Http\Permintaan\Kelola\AturPesanSendiriOutletPermintaan;
 use App\Http\Permintaan\Kelola\SimpanAreaMejaPermintaan;
+use App\Http\Permintaan\Kelola\SimpanMejaMassalPermintaan;
 use App\Http\Permintaan\Kelola\SimpanMejaPermintaan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -69,6 +72,25 @@ final class MejaKontroler extends DasarKelolaKontroler
         $meja = $simpan->Jalankan($this->CariOutlet($outlet), null, $permintaan->AmbilData());
 
         return back()->with('Kilat', "Meja {$meja->Nama} ditambahkan.");
+    }
+
+    /** Buat banyak meja sekaligus, bernomor berurutan. */
+    public function SimpanMassal(string $outlet, SimpanMejaMassalPermintaan $permintaan, SimpanMejaMassal $simpan): RedirectResponse
+    {
+        $dibuat = $simpan->Jalankan(
+            $this->CariOutlet($outlet),
+            $permintaan->string('Awalan')->toString(),
+            $permintaan->integer('Mulai'),
+            $permintaan->integer('Jumlah'),
+            $permintaan->filled('Area') ? $permintaan->string('Area')->toString() : null,
+            $permintaan->integer('Kapasitas'),
+            BentukMeja::from($permintaan->string('Bentuk')->toString()),
+        );
+
+        $awal = collect($dibuat)->first()?->Nama;
+        $akhir = collect($dibuat)->last()?->Nama;
+
+        return back()->with('Kilat', count($dibuat).' meja ditambahkan: '.$awal.($awal === $akhir ? '' : ' sampai '.$akhir).'.');
     }
 
     public function Ubah(string $outlet, string $meja, SimpanMejaPermintaan $permintaan, SimpanMeja $simpan): RedirectResponse

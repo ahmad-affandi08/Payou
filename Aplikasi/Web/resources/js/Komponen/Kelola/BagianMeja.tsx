@@ -62,6 +62,7 @@ function TindakanStatus(alamat: string, status: StatusOrganisasi) {
 export default function BagianMeja({ alamatOutlet, modeMeja, bentuk, bolehKelola, pesanSendiri }: PropsBagianMeja) {
     const [suntingArea, AturSuntingArea] = useState<AreaMeja | 'baru' | null>(null);
     const [suntingMeja, AturSuntingMeja] = useState<Meja | 'baru' | null>(null);
+    const [banyakMeja, AturBanyakMeja] = useState(false);
     const [qrMeja, AturQrMeja] = useState<Meja | null>(null);
     const bolehTambah = bolehKelola && modeMeja.Aktif;
     const labelBentuk = useMemo(() => new Map(bentuk.map((b) => [b.Nilai, b.Label])), [bentuk]);
@@ -137,6 +138,9 @@ export default function BagianMeja({ alamatOutlet, modeMeja, bentuk, bolehKelola
                         <Tombol varian="sekunder" onClick={() => AturSuntingArea('baru')}>
                             Tambah area
                         </Tombol>
+                        <Tombol varian="sekunder" onClick={() => AturBanyakMeja(true)}>
+                            Tambah banyak meja
+                        </Tombol>
                         <Tombol varian="sekunder" onClick={() => AturSuntingMeja('baru')}>
                             Tambah meja
                         </Tombol>
@@ -175,6 +179,20 @@ export default function BagianMeja({ alamatOutlet, modeMeja, bentuk, bolehKelola
                         alamatOutlet={alamatOutlet}
                         area={suntingArea === 'baru' ? null : suntingArea}
                         saatSelesai={() => AturSuntingArea(null)}
+                    />
+                </DialogFormulir>
+            ) : null}
+            {banyakMeja ? (
+                <DialogFormulir
+                    judul="Tambah banyak meja"
+                    keterangan="Buat meja bernomor berurutan sekaligus, misal Meja 1 sampai Meja 20. Semua atau tidak sama sekali: kalau ada nama yang sudah dipakai, tidak ada meja yang dibuat."
+                    saatTutup={() => AturBanyakMeja(false)}
+                >
+                    <FormMejaBanyak
+                        alamatOutlet={alamatOutlet}
+                        opsiArea={opsiArea}
+                        bentuk={bentuk}
+                        saatSelesai={() => AturBanyakMeja(false)}
                     />
                 </DialogFormulir>
             ) : null}
@@ -377,6 +395,108 @@ function FormMeja({ alamatOutlet, meja, opsiArea, bentuk, saatSelesai }: PropsFo
             <div className="flex flex-wrap gap-2">
                 <Tombol type="submit" memproses={formulir.processing}>
                     Simpan meja
+                </Tombol>
+                <Tombol varian="sekunder" onClick={saatSelesai}>
+                    Batal
+                </Tombol>
+            </div>
+        </form>
+    );
+}
+
+function FormMejaBanyak({ alamatOutlet, opsiArea, bentuk, saatSelesai }: Omit<PropsFormMeja, 'meja'>) {
+    const formulir = useForm({
+        Awalan: 'Meja',
+        Mulai: '1',
+        Jumlah: '10',
+        Area: '',
+        Kapasitas: '4',
+        Bentuk: 'Persegi',
+    });
+    // Nama yang bentrok dilaporkan server pada kunci `Nama` (bukan bidang formulir ini).
+    const galatNama = (formulir.errors as Record<string, string | undefined>).Nama;
+    const mulai = Number(formulir.data.Mulai);
+    const jumlah = Number(formulir.data.Jumlah);
+    const awalan = formulir.data.Awalan.trim();
+    const Nama = (nomor: number) => (awalan === '' ? String(nomor) : `${awalan} ${String(nomor)}`);
+    const pratinjau =
+        Number.isInteger(mulai) && Number.isInteger(jumlah) && jumlah >= 1
+            ? jumlah === 1
+                ? Nama(mulai)
+                : `${Nama(mulai)} sampai ${Nama(mulai + jumlah - 1)}`
+            : null;
+
+    const Kirim = (peristiwa: FormEvent) => {
+        peristiwa.preventDefault();
+        formulir.post(`${alamatOutlet}/meja/massal`, { preserveScroll: true, onSuccess: saatSelesai });
+    };
+
+    return (
+        <form onSubmit={Kirim} className="flex flex-col gap-4" noValidate>
+            <BidangTeks
+                label="Awalan nama"
+                nilai={formulir.data.Awalan}
+                saatBerubah={(nilai) => formulir.setData('Awalan', nilai)}
+                galat={formulir.errors.Awalan}
+                keterangan="Misal Meja atau VIP. Kosongkan bila nama meja hanya nomor."
+                maxLength={25}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+                <BidangTeks
+                    label="Mulai dari nomor"
+                    nilai={formulir.data.Mulai}
+                    saatBerubah={(nilai) => formulir.setData('Mulai', nilai.replace(/\D/g, ''))}
+                    galat={formulir.errors.Mulai}
+                    inputMode="numeric"
+                    maxLength={4}
+                    required
+                />
+                <BidangTeks
+                    label="Jumlah meja"
+                    nilai={formulir.data.Jumlah}
+                    saatBerubah={(nilai) => formulir.setData('Jumlah', nilai.replace(/\D/g, ''))}
+                    galat={formulir.errors.Jumlah}
+                    inputMode="numeric"
+                    maxLength={3}
+                    keterangan="Paling banyak 100 sekali buat."
+                    required
+                />
+            </div>
+            {pratinjau !== null ? (
+                <p className="text-keterangan text-teks-sekunder" aria-live="polite">
+                    Akan dibuat: <span className="font-semibold text-teks-utama">{pratinjau}</span>
+                </p>
+            ) : null}
+            <BidangPilihan
+                label="Area"
+                nilai={formulir.data.Area}
+                opsi={opsiArea}
+                saatBerubah={(nilai) => formulir.setData('Area', nilai)}
+                galat={formulir.errors.Area}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+                <BidangTeks
+                    label="Kapasitas tiap meja (orang)"
+                    nilai={formulir.data.Kapasitas}
+                    saatBerubah={(nilai) => formulir.setData('Kapasitas', nilai.replace(/\D/g, ''))}
+                    galat={formulir.errors.Kapasitas}
+                    inputMode="numeric"
+                    maxLength={2}
+                    required
+                />
+                <BidangPilihan
+                    label="Bentuk"
+                    nilai={formulir.data.Bentuk}
+                    opsi={bentuk}
+                    saatBerubah={(nilai) => formulir.setData('Bentuk', nilai)}
+                    galat={formulir.errors.Bentuk}
+                    required
+                />
+            </div>
+            {galatNama ? <p className="text-keterangan font-semibold text-bahaya">{galatNama}</p> : null}
+            <div className="flex flex-wrap gap-2">
+                <Tombol type="submit" memproses={formulir.processing}>
+                    Buat meja
                 </Tombol>
                 <Tombol varian="sekunder" onClick={saatSelesai}>
                     Batal

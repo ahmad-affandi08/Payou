@@ -133,3 +133,37 @@ describe('F-10a meja & area', function (): void {
         unset($pemilikA);
     });
 });
+
+describe('F-10a buat banyak meja', function (): void {
+    it('Meja 1 sampai 12 dalam satu aksi: area, kapasitas, urutan; nama bentrok menggagalkan semuanya; batas dan izin', function (): void {
+        ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant('Kedai Kopi Senja Massal');
+        $outlet = OutletUtamaMeja($tenant);
+        $alamat = "/kelola/outlet/{$outlet->Uuid}";
+        BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id);
+        $this->post("{$alamat}/area-meja", ['Nama' => 'Indoor'])->assertSessionHasNoErrors();
+        $area = AreaMeja::query()->sole();
+
+        $this->post("{$alamat}/meja/massal", ['Awalan' => 'Meja', 'Mulai' => 1, 'Jumlah' => 12, 'Area' => $area->Uuid, 'Kapasitas' => 4, 'Bentuk' => 'Persegi'])
+            ->assertSessionHasNoErrors()->assertSessionHas('Kilat', '12 meja ditambahkan: Meja 1 sampai Meja 12.');
+        $meja = Meja::query()->orderBy('Urutan')->get();
+        expect($meja)->toHaveCount(12)->and($meja->first()->Nama)->toBe('Meja 1')->and($meja->last()->Nama)->toBe('Meja 12')
+            ->and($meja->every(fn (Meja $m): bool => $m->IdAreaMeja === $area->Id && $m->Kapasitas === 4))->toBeTrue()
+            ->and(LogAudit::query()->where('Peristiwa', 'meja.buat')->count())->toBe(12);
+
+        // Meja 10 sampai 14 bentrok di Meja 10: tidak satu pun ditambah.
+        $this->post("{$alamat}/meja/massal", ['Awalan' => 'Meja', 'Mulai' => 10, 'Jumlah' => 5, 'Kapasitas' => 2, 'Bentuk' => 'Bundar'])->assertSessionHasErrors('Nama');
+        expect(Meja::query()->count())->toBe(12);
+
+        // Tanpa awalan: nomor saja. Batas jumlah, nomor, dan kapasitas dijaga.
+        $this->post("{$alamat}/meja/massal", ['Awalan' => '', 'Mulai' => 20, 'Jumlah' => 3, 'Kapasitas' => 2, 'Bentuk' => 'Panjang'])
+            ->assertSessionHas('Kilat', '3 meja ditambahkan: 20 sampai 22.');
+        $this->post("{$alamat}/meja/massal", ['Mulai' => 1, 'Jumlah' => 101, 'Kapasitas' => 2, 'Bentuk' => 'Panjang'])->assertSessionHasErrors('Jumlah');
+        $this->post("{$alamat}/meja/massal", ['Mulai' => 9999, 'Jumlah' => 5, 'Kapasitas' => 2, 'Bentuk' => 'Panjang'])->assertSessionHasErrors('Mulai');
+        $this->post("{$alamat}/meja/massal", ['Mulai' => 30, 'Jumlah' => 2, 'Kapasitas' => 0, 'Bentuk' => 'Panjang'])->assertSessionHasErrors('Kapasitas');
+        expect(Meja::query()->count())->toBe(15);
+
+        $kasir = BantuanOrganisasi::TambahAnggota($tenant->Id, PeranTenantBawaan::Kasir);
+        BantuanOrganisasi::Masuk($this, $kasir, $tenant->Id)
+            ->post("{$alamat}/meja/massal", ['Mulai' => 40, 'Jumlah' => 2, 'Kapasitas' => 2, 'Bentuk' => 'Panjang'])->assertForbidden();
+    });
+});
