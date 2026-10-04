@@ -6,7 +6,7 @@ teks di bawah siap ditempel. Bagian bertanda **[isi pemilik]** adalah data yang 
 | | PAYOU POS | PAYOU Owner |
 |---|---|---|
 | ID paket | `id.payou.kasir` | `id.payou.pemilik` |
-| Versi saat ini (`pubspec.yaml`) | `1.0.0+1` | `0.1.0+1` (naikkan ke `1.0.0+1` sebelum rilis publik) |
+| Versi saat ini (`pubspec.yaml`) | `1.0.0+1` | `1.0.0+1` |
 | Kategori | Bisnis | Bisnis |
 | Tag | Kasir, POS, Bisnis kecil | Bisnis, Analitik |
 | Harga | Gratis (langganan dibayar di dashboard web, bukan lewat Play) | Gratis |
@@ -191,7 +191,7 @@ Firebase Cloud Messaging hanya untuk notifikasi push; tidak ada analitik Firebas
 
 - [ ] Email dukungan & kebijakan privasi terbit di `payou.id/legal/kebijakan-privasi`
 - [ ] Tenant demo + kode aktivasi + akun Owner untuk peninjau
-- [ ] Versi Pemilik dinaikkan ke 1.0.0, angka build naik tiap unggah
+- [x] Versi Pemilik dinaikkan ke 1.0.0, angka build naik tiap unggah
 - [ ] Keystore unggah tersimpan aman + Play App Signing aktif
 - [ ] AAB dibangun dengan `ALAMAT_SERVER` produksi
 - [ ] Ikon, grafis fitur, screenshot ponsel & tablet diunggah

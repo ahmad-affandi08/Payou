@@ -9,7 +9,7 @@ import '../Data/NotifikasiPush.dart';
 import '../Data/PenyimpanSesi.dart';
 import 'Lingkungan.dart';
 
-const String versiAplikasi = '0.1.0';
+const String versiAplikasi = '1.0.0';
 
 final penyediaLingkungan = Provider<Lingkungan>((ref) => Lingkungan.Dev);
 final penyediaKlienHttp = Provider<http.Client>((ref) => http.Client());
