@@ -112,13 +112,15 @@ export default function PencarianCepat({ halaman, sumber }: PropsPencarianCepat)
 
     return (
         <>
+            {/* Di HP hanya ikon, seukuran kotak logo usaha di kiri (size-8); area sentuh tetap 44px lewat `after:`. */}
             <Button
                 type="button"
                 variant="outline"
+                size="sm"
                 onClick={() => AturTerbuka(true)}
                 aria-label="Pencarian cepat"
                 aria-keyshortcuts="Control+K Meta+K"
-                className="mr-1 h-8 min-w-0 gap-2 border-garis-input bg-permukaan px-2 text-label font-normal text-teks-sekunder pointer-coarse:h-11 sm:w-64 sm:justify-start sm:px-3 lg:w-72"
+                className="relative mr-1 size-8 min-w-0 gap-2 rounded-lg border-garis bg-permukaan px-0 text-label font-normal text-teks-sekunder after:absolute after:-inset-1.5 has-[>svg]:px-0 sm:w-64 sm:justify-start sm:rounded-md sm:border-garis-input sm:px-3 sm:after:hidden sm:has-[>svg]:px-3 sm:pointer-coarse:h-11 lg:w-72"
             >
                 <SearchIcon aria-hidden="true" className="shrink-0" />
                 <span className="hidden min-w-0 flex-1 truncate text-left sm:inline">Cari halaman atau data…</span>
