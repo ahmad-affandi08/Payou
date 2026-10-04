@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import PilihanCari from '@/Komponen/Formulir/PilihanCari';
 import Tombol from '@/Komponen/Formulir/Tombol';
+import DialogHargaMassal from '@/Komponen/Katalog/DialogHargaMassal';
 import type { KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { BarisProduk } from '@/Tipe/Katalog';
 
@@ -18,10 +19,14 @@ export const MaksProdukMassal = 200;
 export default function AksiMassalProduk({
     konteks,
     kategori,
+    bolehUbahHarga = false,
 }: {
     konteks: KonteksAksiMassal<BarisProduk>;
     kategori: { Uuid: string; Jalur: string }[];
+    /** Izin `produk.harga.ubah`: menampilkan tombol "Ubah harga…". */
+    bolehUbahHarga?: boolean;
 }) {
+    const [dialogHarga, AturDialogHarga] = useState(false);
     const [uuidKategori, AturUuidKategori] = useState('');
     const [memproses, AturMemproses] = useState<AksiProduk | null>(null);
     const uuid = konteks.terpilih.map((p) => p.Uuid);
@@ -89,6 +94,21 @@ export default function AksiMassalProduk({
             >
                 Pulihkan
             </Tombol>
+            {bolehUbahHarga ? (
+                <Tombol varian="sekunder" disabled={nonaktif} onClick={() => AturDialogHarga(true)}>
+                    Ubah harga…
+                </Tombol>
+            ) : null}
+            {dialogHarga ? (
+                <DialogHargaMassal
+                    uuid={uuid}
+                    saatTutup={() => AturDialogHarga(false)}
+                    saatSelesai={() => {
+                        AturDialogHarga(false);
+                        konteks.bersihkan();
+                    }}
+                />
+            ) : null}
             <Tombol
                 varian="bahaya"
                 disabled={nonaktif}

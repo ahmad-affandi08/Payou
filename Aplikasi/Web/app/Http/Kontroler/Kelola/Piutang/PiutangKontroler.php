@@ -12,6 +12,7 @@ use App\Domain\Organisasi\Enum\IzinTenant;
 use App\Domain\Organisasi\Kueri\AksesPengguna;
 use App\Domain\Organisasi\Kueri\TanggalBisnisOutlet;
 use App\Domain\Pelanggan\Aksi\AntrekanPengingatPiutang;
+use App\Domain\Pelanggan\Aksi\AntrekanPengingatPiutangMassal;
 use App\Domain\Pelanggan\Aksi\BatalkanPembayaranPiutang;
 use App\Domain\Pelanggan\Aksi\SimpanPembayaranPiutang;
 use App\Domain\Pelanggan\Aksi\SimpanPengaturanPengingatPiutang;
@@ -106,6 +107,31 @@ final class PiutangKontroler extends DasarKelolaKontroler
         $antrekan->Jalankan($this->IdTenant(), $piutang, JenisPengingatPiutang::Manual, $this->Pelaku()->Id);
 
         return back()->with('Kilat', "Pengingat {$piutang->Nomor} sedang dikirim lewat WhatsApp.");
+    }
+
+    /** Aksi massal: pengingat WhatsApp untuk piutang terpilih; yang tidak bisa dikirim dilewati dengan alasannya. */
+    public function KirimPengingatMassal(Request $permintaan, AntrekanPengingatPiutangMassal $antrekan): RedirectResponse
+    {
+        $valid = $permintaan->validate([
+            'Uuid' => ['required', 'array', 'min:1', 'max:'.AntrekanPengingatPiutangMassal::MAKS],
+            'Uuid.*' => ['required', 'ulid'],
+        ], attributes: ['Uuid' => 'piutang terpilih']);
+        /** @var list<string> $uuid */
+        $uuid = array_values($valid['Uuid']);
+        $hasil = $antrekan->Jalankan($this->IdTenant(), $uuid, $this->Pelaku()->Id, $this->IdOutletBoleh());
+        $dilewati = [];
+
+        foreach ($hasil['Dilewati'] as $alasan => $jumlah) {
+            $dilewati[] = "{$jumlah} dilewati: {$alasan}";
+        }
+
+        $rincian = implode(' ', $dilewati);
+
+        if ($hasil['Diantrekan'] === 0) {
+            return back()->withErrors(['Umum' => trim("Tidak ada pengingat yang dikirim. {$rincian}")]);
+        }
+
+        return back()->with('Kilat', trim("{$hasil['Diantrekan']} pengingat sedang dikirim lewat WhatsApp. {$rincian}"));
     }
 
     /** D-23 D: pengaturan pengingat piutang otomatis. */

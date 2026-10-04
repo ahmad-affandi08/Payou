@@ -19,6 +19,7 @@ use App\Domain\Katalog\Data\DataSaringProduk;
 use App\Domain\Katalog\Enum\JenisProduk;
 use App\Domain\Katalog\Enum\PelacakanProduk;
 use App\Domain\Katalog\Enum\StatusProduk;
+use App\Domain\Katalog\Harga\Aksi\UbahHargaProdukMassal;
 use App\Domain\Katalog\Kueri\DaftarProduk;
 use App\Domain\Katalog\Kueri\DaftarSatuan;
 use App\Domain\Katalog\Kueri\DetailProduk;
@@ -40,6 +41,7 @@ use App\Domain\Persediaan\Aksi\CatatStokAwalProdukBaru;
 use App\Domain\Tenant\Kueri\ProfilTenant;
 use App\Domain\Tenant\Layanan\PastikanBatasPaket;
 use App\Http\Permintaan\Kelola\Katalog\SimpanProdukPermintaan;
+use App\Http\Permintaan\Kelola\Katalog\UbahHargaProdukMassalPermintaan;
 use App\Http\Permintaan\Kelola\Katalog\UbahProdukMassalPermintaan;
 use App\Http\Respons\ResponsTabel;
 use Brick\Math\BigDecimal;
@@ -221,6 +223,25 @@ final class ProdukKontroler extends DasarKatalogKontroler
         };
 
         return back()->with('Kilat', "{$jumlah} produk {$kata}.");
+    }
+
+    /** Aksi massal harga: naik/turun persen atau nominal pada produk terpilih (izin `produk.harga.ubah`). */
+    public function HargaMassal(UbahHargaProdukMassalPermintaan $permintaan, UbahHargaProdukMassal $ubah): RedirectResponse
+    {
+        /** @var list<string> $uuid */
+        $uuid = array_values((array) $permintaan->validated('Uuid'));
+        $hasil = $ubah->Jalankan(
+            (string) $permintaan->validated('Mode'),
+            (string) $permintaan->validated('Nilai'),
+            (int) $permintaan->validated('Pembulatan'),
+            $uuid,
+        );
+
+        if ($hasil['Produk'] === 0) {
+            return back()->with('Kilat', 'Tidak ada harga yang berubah.');
+        }
+
+        return back()->with('Kilat', "Harga {$hasil['Produk']} produk diubah ({$hasil['Harga']} baris harga).");
     }
 
     public function Pulihkan(string $produk, PulihkanProduk $pulihkan): RedirectResponse

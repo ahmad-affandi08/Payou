@@ -201,7 +201,7 @@ export default function HalamanDaftarProduk({ Produk, Kategori, Jenis, BatasSku,
                 {...(Izin.Kelola
                     ? {
                           aksiMassal: (konteks: KonteksAksiMassal<BarisProduk>) => (
-                              <AksiMassalProduk konteks={konteks} kategori={Kategori} />
+                              <AksiMassalProduk konteks={konteks} kategori={Kategori} bolehUbahHarga={Izin.UbahHarga} />
                           ),
                           aksiBaris: (produk: BarisProduk) => {
                               const aktif = produk.Status === 'Aktif';

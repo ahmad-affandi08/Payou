@@ -71,4 +71,32 @@ describe('Aksi massal produk (audit kemudahan pakai #19)', () => {
             expect.anything(),
         );
     });
+
+    it('Ubah harga hanya tampil bila berizin, dan mengirim mode, nilai, dan pembulatan', () => {
+        const { unmount: Bongkar } = RenderUji(<AksiMassalProduk konteks={Konteks} kategori={[]} />);
+        expect(screen.queryByRole('button', { name: 'Ubah harga…' })).toBeNull();
+        Bongkar();
+
+        RenderUji(<AksiMassalProduk konteks={Konteks} kategori={[]} bolehUbahHarga />);
+        fireEvent.click(screen.getByRole('button', { name: 'Ubah harga…' }));
+
+        const dialog = screen.getByRole('dialog');
+        expect(dialog.textContent).toContain('Ubah harga 2 produk');
+        expect((screen.getByRole('button', { name: 'Ubah harga' }) as HTMLButtonElement).disabled).toBe(true);
+
+        fireEvent.change(screen.getByLabelText(/Besar perubahan/), { target: { value: '10' } });
+        PilihOpsi(screen.getByRole('combobox', { name: /Pembulatan harga baru/ }), '500');
+        fireEvent.click(screen.getByRole('button', { name: 'Ubah harga' }));
+
+        expect(tiruanRouter.post).toHaveBeenLastCalledWith(
+            '/kelola/produk/harga-massal',
+            {
+                Mode: 'NaikPersen',
+                Nilai: '10',
+                Pembulatan: 500,
+                Uuid: ['01J9PRD0000000000000000001', '01J9PRD0000000000000000002'],
+            },
+            expect.anything(),
+        );
+    });
 });

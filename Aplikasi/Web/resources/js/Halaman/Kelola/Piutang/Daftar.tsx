@@ -7,7 +7,7 @@ import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
 import KotakCentang from '@/Komponen/Formulir/KotakCentang';
 import Tombol from '@/Komponen/Formulir/Tombol';
 import { KolomUang } from '@/Komponen/Pembelian/DaftarPembelian';
-import TabelData from '@/Komponen/TabelData/TabelData';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { DefinisiSaring, HasilTabel, KolomTabel } from '@/Komponen/TabelData/Tipe';
 import DialogFormulir from '@/Komponen/Tindakan/DialogFormulir';
 import { ItemAksiBaris } from '@/Komponen/Tindakan/MenuAksiBaris';
@@ -25,6 +25,7 @@ import type {
 } from '@/Tipe/Piutang';
 
 import { FormatHariLewat } from '@/Halaman/Kelola/Pembelian/Hutang/Daftar';
+import AksiMassalPiutang from '@/Komponen/Piutang/AksiMassalPiutang';
 import { AlamatPiutang, HalamanDaftarPiutang, LabelStatusPiutang } from '@/Komponen/Piutang/BagianPiutang';
 
 const kolom: KolomTabel<BarisPiutang>[] = [
@@ -295,6 +296,13 @@ export default function HalamanDaftarPiutangPelanggan({
                     />
                 )}
                 labelBaris={(p) => `piutang ${p.Nomor}`}
+                {...(bolehIngatkan && Pengingat
+                    ? {
+                          aksiMassal: (konteks: KonteksAksiMassal<BarisPiutang>) => (
+                              <AksiMassalPiutang konteks={konteks} />
+                          ),
+                      }
+                    : {})}
                 aksiBaris={(p: BarisPiutang) => <ItemAksiBaris aksi={AksiBaris(p)} />}
                 kosong={{
                     ilustrasi: true,

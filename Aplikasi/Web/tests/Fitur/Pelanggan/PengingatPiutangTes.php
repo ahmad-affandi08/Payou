@@ -200,3 +200,23 @@ it('piutang lunas saat pengingat akan dikirim = dibatalkan, pelanggan tidak dita
     expect($pengingat->refresh()->Status)->toBe(StatusPengingatPiutang::Dibatalkan)
         ->and(PesanPengingatTerkirim())->toHaveCount(0);
 });
+
+it('massal: pengingat banyak piutang sekaligus, yang baru diingatkan dilewati dengan alasannya, Uuid asing menolak semuanya', function (): void {
+    $k = SiapkanPiutangPengingat($this);
+
+    // Satu nota sudah diingatkan (jeda 12 jam): massal mengirim yang lain dan merangkum yang dilewati.
+    $this->post("/kelola/piutang/{$k['P1']->Uuid}/pengingat")->assertSessionHasNoErrors();
+    $this->post('/kelola/piutang/pengingat-massal', ['Uuid' => [$k['P1']->Uuid, $k['P2']->Uuid]])
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('Kilat', '1 pengingat sedang dikirim lewat WhatsApp. 1 dilewati: Pelanggan ini baru saja diingatkan untuk nota yang sama. Coba lagi besok.');
+    expect(PesanPengingatTerkirim())->toHaveCount(2);
+
+    // Semua dilewati = galat umum, bukan pesan berhasil.
+    $this->post('/kelola/piutang/pengingat-massal', ['Uuid' => [$k['P1']->Uuid, $k['P2']->Uuid]])
+        ->assertSessionHasErrors('Umum');
+
+    $this->post('/kelola/piutang/pengingat-massal', ['Uuid' => [$k['P1']->Uuid, '01J9ZZZZZZZZZZZZZZZZZZZZZZ']])
+        ->assertSessionHasErrors('Uuid');
+    $this->post('/kelola/piutang/pengingat-massal', ['Uuid' => []])->assertSessionHasErrors('Uuid');
+    expect(PesanPengingatTerkirim())->toHaveCount(2);
+});

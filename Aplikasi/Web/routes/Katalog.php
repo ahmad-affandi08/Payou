@@ -50,6 +50,7 @@ Route::middleware(SiapkanAuditTenant::class)->group(function () use ($izin, $uli
     Route::post('/produk/{produk}/habis', [KetersediaanProdukKontroler::class, 'Ubah'])->middleware($kelola)->where('produk', $ulid)->name('kelola.produk.habis');
     // Audit kemudahan pakai #19: aksi massal produk terpilih (arsip, kategori, tampil di kasir).
     Route::post('/produk/massal', [ProdukKontroler::class, 'Massal'])->middleware($kelola)->name('kelola.produk.massal');
+    Route::post('/produk/harga-massal', [ProdukKontroler::class, 'HargaMassal'])->middleware($izin(IzinTenant::ProdukHargaUbah))->name('kelola.produk.harga-massal');
     Route::post('/produk/{produk}/arsipkan', [ProdukKontroler::class, 'Arsipkan'])->middleware($kelola)->where('produk', $ulid)->name('kelola.produk.arsipkan');
     Route::post('/produk/{produk}/pulihkan', [ProdukKontroler::class, 'Pulihkan'])->middleware($kelola)->where('produk', $ulid)->name('kelola.produk.pulihkan');
     Route::delete('/produk/{produk}', [ProdukKontroler::class, 'Hapus'])->middleware($kelola)->where('produk', $ulid)->name('kelola.produk.hapus');
