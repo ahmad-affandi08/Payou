@@ -17,9 +17,10 @@ use Throwable;
 
 /**
  * F-18 bagian 4 (D-37): karyawan mendaftarkan wajah dari tautan absennya. Wajib persetujuan pemrosesan data biometrik
- * (UU PDP Pasal 4 & 20), sejumlah `config('karyawan.JumlahFotoDaftarWajah')` foto + sidik wajah berpanjang sama. Hasilnya
- * Menunggu sampai pengelola menyetujui. Daftar ulang hanya bila belum ada wajah Menunggu/Disetujui; pendaftaran yang
- * pernah ditolak dibersihkan.
+ * (UU PDP Pasal 4 & 20), sejumlah `config('karyawan.JumlahFotoDaftarWajah')` foto + sidik wajah berpanjang sama. Sejak D-45
+ * wajah yang didaftarkan **langsung Disetujui** (tanpa menunggu pengelola): karyawan bisa absen seketika. Pengelola tetap
+ * melihat foto dan boleh menolak/mengatur ulang bila fotonya tidak layak. Daftar ulang hanya bila belum ada wajah
+ * Menunggu/Disetujui; pendaftaran yang pernah ditolak dibersihkan.
  */
 final class DaftarkanWajahKaryawan
 {
@@ -81,7 +82,7 @@ final class DaftarkanWajahKaryawan
                     'IdKaryawan' => $karyawan->Id,
                     'SidikWajah' => $sidik,
                     'PathFoto' => $path,
-                    'Status' => StatusWajahKaryawan::Menunggu,
+                    'Status' => StatusWajahKaryawan::Disetujui,
                     'PersetujuanKaryawanPada' => now(),
                 ]);
             });

@@ -54,8 +54,8 @@ final class AbsenHpKaryawanKontroler extends DasarKelolaKontroler
             'Alasan' => ['nullable', 'string', 'max:200'],
         ]);
         $baris = $this->CariKaryawan($karyawan);
-        $wajah = WajahKaryawan::query()->where('IdKaryawan', $baris->Id)->where('Status', StatusWajahKaryawan::Menunggu->value)->first()
-            ?? throw new PelanggaranAturanBisnis('WajahTidakMenunggu', 'Tidak ada wajah yang menunggu persetujuan.', 'Wajah');
+        $wajah = WajahKaryawan::query()->where('IdKaryawan', $baris->Id)->whereIn('Status', [StatusWajahKaryawan::Menunggu->value, StatusWajahKaryawan::Disetujui->value])->first()
+            ?? throw new PelanggaranAturanBisnis('WajahTidakMenunggu', 'Karyawan ini belum punya wajah terdaftar yang bisa ditinjau.', 'Wajah');
         $setujui = (bool) $valid['Setujui'];
         $tinjau->Jalankan($wajah, $setujui, is_string($valid['Alasan'] ?? null) ? $valid['Alasan'] : null, $this->Pelaku()->Id);
 

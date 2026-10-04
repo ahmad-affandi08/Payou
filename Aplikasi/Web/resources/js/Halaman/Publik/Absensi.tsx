@@ -35,7 +35,7 @@ const AKURASI_CUKUP_METER = 25;
 
 /**
  * F-18 bagian 4 (D-37): halaman absensi web karyawan di HP pribadi. Mobile-first, satu tugas per layar, bisa dipasang
- * ke layar utama (PWA; cakupan hanya halaman ini). Wajah didaftarkan sekali (persetujuan UU PDP, disetujui pengelola),
+ * ke layar utama (PWA; cakupan hanya halaman ini). Wajah didaftarkan sekali (persetujuan UU PDP, langsung aktif),
  * lalu tiap absen: lokasi GPS + pindai wajah dengan kedip → server menilai radius outlet & kecocokan wajah.
  */
 export default function HalamanAbsensi(props: PropsAbsensi) {

@@ -65,7 +65,6 @@ function SiapkanAbsensiWeb(TestCase $tes, bool $wajahDisetujui = true): array
     if ($wajahDisetujui) {
         $tes->postJson("{$alamat}/wajah", ['SidikWajah' => [SidikWajahUji(), SidikWajahUji(), SidikWajahUji()], 'Foto' => [SwafotoAbsenWebUji(), SwafotoAbsenWebUji(), SwafotoAbsenWebUji()], 'Persetujuan' => true])->assertCreated();
         BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
-        app(TinjauWajahKaryawan::class)->Jalankan(WajahKaryawan::query()->sole(), true, null, $k['Pemilik']->Id);
     }
 
     return [$k, $karyawan->refresh(), $alamat];
@@ -88,18 +87,21 @@ it('halaman absen hanya dengan tautan sah; tanpa sidik wajah, foto, atau koordin
     $this->get(substr($alamat, 0, -40).str_repeat('A', 40))->assertNotFound();
 });
 
-it('daftar wajah: persetujuan pemrosesan wajib, jumlah foto pas, tidak bisa daftar ganda; absen ditolak sebelum disetujui', function (): void {
+it('daftar wajah: persetujuan pemrosesan wajib, jumlah foto pas, tidak bisa daftar ganda; absen ditolak sebelum mendaftar dan langsung bisa sesudahnya (D-45)', function (): void {
     [$k, , $alamat] = SiapkanAbsensiWeb($this, wajahDisetujui: false);
     $isi = ['SidikWajah' => [SidikWajahUji(), SidikWajahUji(), SidikWajahUji()], 'Foto' => [SwafotoAbsenWebUji(), SwafotoAbsenWebUji(), SwafotoAbsenWebUji()]];
 
+    $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertStatus(422)->assertJsonPath('Galat.Kode', 'WajahBelumDisetujui');
     $this->postJson("{$alamat}/wajah", [...$isi, 'Persetujuan' => false])->assertStatus(422)->assertJsonPath('Galat.Kode', 'PersetujuanWajib');
     $this->postJson("{$alamat}/wajah", [...$isi, 'Foto' => [SwafotoAbsenWebUji()], 'Persetujuan' => true])->assertStatus(422)->assertJsonPath('Galat.Kode', 'JumlahFotoWajah');
-    $this->postJson("{$alamat}/wajah", [...$isi, 'Persetujuan' => true])->assertCreated()->assertJsonPath('Status', 'Menunggu');
+    $this->postJson("{$alamat}/wajah", [...$isi, 'Persetujuan' => true])->assertCreated()->assertJsonPath('Status', 'Disetujui');
     $this->postJson("{$alamat}/wajah", [...$isi, 'Persetujuan' => true])->assertStatus(422)->assertJsonPath('Galat.Kode', 'WajahSudahTerdaftar');
-    $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertStatus(422)->assertJsonPath('Galat.Kode', 'WajahBelumDisetujui');
+    // Tanpa menunggu pengelola: setelah mendaftar, karyawan langsung bisa absen.
+    $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertOk();
 
     BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
-    expect(Absensi::query()->count())->toBe(0);
+    expect(Absensi::query()->count())->toBe(1)
+        ->and(WajahKaryawan::query()->sole()->DitinjauOleh)->toBeNull();
 });
 
 it('masuk & keluar di dalam radius dengan wajah cocok: Sumber Web, jarak & kemiripan tercatat, idempoten per Uuid', function (): void {
@@ -183,7 +185,7 @@ it('tinjau wajah: tolak wajib beralasan dan menghapus sidik & foto; sesudahnya k
     $this->get($alamat)->assertInertia(fn (AssertableInertia $h) => $h->where('Wajah.AlasanTolak', 'Foto gelap, ulangi di tempat terang'));
     $this->postJson("{$alamat}/wajah", $isi)->assertCreated();
     BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
-    expect(WajahKaryawan::query()->sole()->Status)->toBe(StatusWajahKaryawan::Menunggu);
+    expect(WajahKaryawan::query()->sole()->Status)->toBe(StatusWajahKaryawan::Disetujui);
 });
 
 it('PWA: manifest per tautan (cakupan hanya halaman absen ini) dan service worker dengan Service-Worker-Allowed', function (): void {
@@ -211,16 +213,18 @@ it('back-office absen HP: tautan dibuat ulang & dicabut, panel tanpa sidik wajah
 
     BantuanOrganisasi::Masuk($this, $k['Pemilik'], $k['Tenant']->Id);
     $isi = $this->getJson("{$panel}/absen-hp")->assertOk()
-        ->assertJsonPath('Wajah.Status', 'Menunggu')
+        ->assertJsonPath('Wajah.Status', 'Disetujui')
         ->assertJsonPath('Wajah.JumlahFoto', 3)
         ->assertJsonMissingPath('Wajah.SidikWajah');
     expect($isi->json('Tautan'))->toEndWith(substr($alamat, -40));
     $this->get("{$panel}/wajah/foto/0")->assertOk()->assertHeader('Content-Type', 'image/jpeg');
 
     $this->post("{$panel}/wajah/tinjau", ['Setujui' => false, 'Alasan' => ''])->assertSessionHasErrors('Alasan');
-    $this->post("{$panel}/wajah/tinjau", ['Setujui' => true])->assertSessionHasNoErrors();
+    // D-45: wajah yang sudah aktif tidak perlu disetujui lagi, tetapi pengelola masih boleh menolak fotonya.
+    $this->post("{$panel}/wajah/tinjau", ['Setujui' => true])->assertSessionHasErrors();
+    $this->post("{$panel}/wajah/tinjau", ['Setujui' => false, 'Alasan' => 'Foto gelap'])->assertSessionHasNoErrors();
     BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
-    expect(WajahKaryawan::query()->sole()->Status)->toBe(StatusWajahKaryawan::Disetujui);
+    expect(WajahKaryawan::query()->sole()->Status)->toBe(StatusWajahKaryawan::Ditolak);
 
     $this->post("{$panel}/tautan-absen")->assertSessionHasNoErrors();
     $this->get($alamat)->assertNotFound();

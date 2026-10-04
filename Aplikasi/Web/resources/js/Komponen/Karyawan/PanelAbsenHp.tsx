@@ -55,7 +55,7 @@ const isiKonfirmasi: Record<AksiBerisiko, { judul: string; akibat: string; label
     },
     hapus: {
         judul: 'Atur ulang wajah?',
-        akibat: 'Wajah terdaftar dan fotonya dihapus. Karyawan harus mendaftarkan wajah lagi dan menunggu persetujuan sebelum bisa absen.',
+        akibat: 'Wajah terdaftar dan fotonya dihapus. Karyawan harus mendaftarkan wajah lagi sebelum bisa absen.',
         label: 'Hapus wajah',
     },
 };
@@ -237,17 +237,21 @@ export default function PanelAbsenHp({ karyawan, saatTutup }: { karyawan: BarisK
                                     </div>
                                 ) : null}
 
-                                {data.Wajah?.Status === 'Menunggu' && !tolak ? (
+                                {(data.Wajah?.Status === 'Menunggu' || data.Wajah?.Status === 'Disetujui') && !tolak ? (
                                     <div className="flex flex-wrap gap-2">
-                                        <Tombol
-                                            memproses={memproses === 'setujui'}
-                                            disabled={memproses !== null}
-                                            onClick={() =>
-                                                Kirim('setujui', 'post', `${alamat}/wajah/tinjau`, { Setujui: true })
-                                            }
-                                        >
-                                            Setujui wajah
-                                        </Tombol>
+                                        {data.Wajah.Status === 'Menunggu' ? (
+                                            <Tombol
+                                                memproses={memproses === 'setujui'}
+                                                disabled={memproses !== null}
+                                                onClick={() =>
+                                                    Kirim('setujui', 'post', `${alamat}/wajah/tinjau`, {
+                                                        Setujui: true,
+                                                    })
+                                                }
+                                            >
+                                                Setujui wajah
+                                            </Tombol>
+                                        ) : null}
                                         <Tombol
                                             varian="sekunder"
                                             disabled={memproses !== null}
