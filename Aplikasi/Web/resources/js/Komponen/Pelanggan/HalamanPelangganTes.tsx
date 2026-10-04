@@ -265,7 +265,7 @@ describe('Halaman pelanggan (F-16a)', () => {
         expect(screen.getByText(/mendapat 25 poin/)).toBeTruthy();
         expect(screen.getByText(/Menukar 100 poin memberi potongan Rp 10\.000/)).toBeTruthy();
         fireEvent.change(screen.getByLabelText('Minimal poin sekali tukar'), { target: { value: '50' } });
-        fireEvent.click(screen.getByRole('checkbox'));
+        fireEvent.click(screen.getByRole('checkbox', { name: /Aktifkan poin loyalti/ }));
         fireEvent.click(screen.getByRole('button', { name: 'Simpan pengaturan loyalti' }));
         expect(tiruanRouter.put).toHaveBeenCalledWith(
             '/kelola/pelanggan/loyalti',

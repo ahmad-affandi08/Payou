@@ -6,9 +6,9 @@ use App\Domain\Organisasi\Enum\PeranTenantBawaan;
 use App\Domain\Organisasi\Model\Outlet;
 use App\Domain\Tenant\Model\Tenant;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia;
 use Tests\Pendukung\Organisasi\BantuanOrganisasi;
+use Tests\Pendukung\Tenant\BantuanDaftarPengaturan;
 use Tests\Pendukung\Tenant\BantuanPendaftaran;
 
 /*
@@ -37,24 +37,11 @@ describe('Indeks pengaturan', function (): void {
     });
 
     it('setiap tautan di daftar pengaturan menunjuk rute yang benar-benar ada', function (): void {
-        // Penjaga: daftar tautan ada di frontend, jadi rute yang diganti nama tidak akan terlihat sampai diklik.
-        $isi = (string) file_get_contents(resource_path('js/Pustaka/DaftarPengaturan.ts'));
-        preg_match_all("/href: '([^']+)'/", $isi, $cocok);
+        // Butir khusus edisi Lisensi (D-35) diperiksa di EdisiLisensiTes, karena rutenya hanya ada di edisi itu.
+        $tautan = BantuanDaftarPengaturan::AmbilTautanEdisi('Saas');
 
-        $jalurTerdaftar = [];
-
-        foreach (Route::getRoutes() as $rute) {
-            if (in_array('GET', $rute->methods(), true)) {
-                $jalurTerdaftar[] = $rute->uri();
-            }
-        }
-
-        $hilang = array_values(array_filter(
-            $cocok[1],
-            fn (string $href): bool => ! in_array(ltrim($href, '/'), $jalurTerdaftar, true),
-        ));
-
-        expect($cocok[1])->not->toBeEmpty()->and($hilang)->toBe([]);
+        expect($tautan)->not->toBeEmpty()
+            ->and(BantuanDaftarPengaturan::CariTautanTanpaRute($tautan))->toBe([]);
     });
 });
 

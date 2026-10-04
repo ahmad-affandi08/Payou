@@ -44,6 +44,7 @@ use Tests\Pendukung\Lisensi\BantuanLisensi;
 use Tests\Pendukung\Organisasi\BantuanOrganisasi;
 use Tests\Pendukung\Pengelola\BantuanPengelola;
 use Tests\Pendukung\Tenant\BantuanAutentikasi;
+use Tests\Pendukung\Tenant\BantuanDaftarPengaturan;
 use Tests\TestCase;
 
 /*
@@ -376,6 +377,13 @@ describe('Edisi Lisensi (D-35)', function (): void {
         $audit = LogAudit::query()->where('IdTenant', $tenant->Id)->where('Peristiwa', 'like', 'integrasi.server.%')->orderBy('Id')->pluck('Peristiwa')->all();
         expect($audit)->toBe(['integrasi.server.simpan', 'integrasi.server.uji', 'integrasi.server.nonaktifkan'])
             ->and(LogAudit::query()->where('Peristiwa', 'integrasi.server.simpan')->sole()->NilaiBaru)->not->toHaveKey('Kredensial');
+    });
+
+    it('setiap tautan daftar pengaturan edisi Lisensi menunjuk rute yang ada (termasuk Email & WhatsApp server)', function (): void {
+        $tautan = BantuanDaftarPengaturan::AmbilTautanEdisi('Lisensi');
+
+        expect($tautan)->toContain('/kelola/pengaturan/integrasi-server')
+            ->and(BantuanDaftarPengaturan::CariTautanTanpaRute($tautan))->toBe([]);
     });
 
     it('integrasi server: hanya Owner; jenis platform lain dan penyedia jenis lain ditolak', function (): void {

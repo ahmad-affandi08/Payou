@@ -43,6 +43,8 @@ export const daftarPengaturan: GrupPengaturan[] = [
                 keterangan: 'Paket yang aktif, batas pemakaian, tagihan, dan bukti pembayaran.',
                 href: '/kelola/langganan',
                 izin: IzinTenant.LanggananKelola,
+                // D-35: edisi Lisensi tidak berlangganan, jadi rutenya tidak ada di sana.
+                edisi: 'Saas',
             },
         ],
     },
