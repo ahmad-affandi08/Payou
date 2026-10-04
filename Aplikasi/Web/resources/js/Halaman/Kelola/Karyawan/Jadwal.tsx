@@ -6,7 +6,7 @@ import Tombol from '@/Komponen/Formulir/Tombol';
 import DaftarGalatServer from '@/Komponen/Katalog/DaftarGalatServer';
 import PesanHanyaLihat from '@/Komponen/Katalog/PesanHanyaLihat';
 import { Button } from '@/Komponen/Ui/button';
-import { Input } from '@/Komponen/Ui/input';
+import PemilihJam, { type PilihanCepatJam } from '@/Komponen/Tanggal/PemilihJam';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 import type { PropsBersamaAplikasi } from '@/Tipe/Aplikasi';
@@ -39,6 +39,33 @@ export function RapikanJam(teks: string): string {
     }
 
     return angka.length === 4 ? `${angka.slice(0, 2)}:${angka.slice(2)}` : teks.trim();
+}
+
+/**
+ * Pilihan cepat jam di panel: jam yang paling sering dipakai di jadwal yang sedang tampil, dilengkapi jam umum,
+ * maksimal enam dan urut waktu. Jadi toko yang biasa buka 07:00 langsung melihat 07:00 di depan.
+ */
+export function SusunPilihanJam(isian: Isian, kolom: 'JamMulai' | 'JamSelesai'): PilihanCepatJam[] {
+    const umum =
+        kolom === 'JamMulai'
+            ? ['07:00', '08:00', '09:00', '10:00', '12:00', '16:00']
+            : ['15:00', '16:00', '17:00', '20:00', '21:00', '22:00'];
+    const hitungan = new Map<string, number>();
+
+    Object.values(isian).forEach((perHari) =>
+        Object.values(perHari).forEach((sel) => {
+            if (CekJam(sel[kolom])) {
+                hitungan.set(sel[kolom], (hitungan.get(sel[kolom]) ?? 0) + 1);
+            }
+        }),
+    );
+
+    const sering = [...hitungan.entries()].sort((a, b) => b[1] - a[1]).map(([jam]) => jam);
+
+    return [...new Set([...sering.slice(0, 4), ...umum])]
+        .slice(0, 6)
+        .sort()
+        .map((jam) => ({ Label: jam, Nilai: jam }));
 }
 
 function BuatIsian(baris: BarisJadwal[]): Isian {
@@ -85,6 +112,8 @@ export function SusunSelBerubah(baris: BarisJadwal[], isian: Isian) {
 export default function HalamanJadwalKerja({ OpsiOutlet, UuidOutlet, Senin, Jadwal, Izin }: PropsJadwalKerja) {
     const { props } = usePage<PropsBersamaAplikasi>();
     const [isian, AturIsian] = useState<Isian>(() => BuatIsian(Jadwal.Baris));
+    const pilihanMulai = SusunPilihanJam(isian, 'JamMulai');
+    const pilihanSelesai = SusunPilihanJam(isian, 'JamSelesai');
     const [memproses, AturMemproses] = useState(false);
     const berubah = SusunSelBerubah(Jadwal.Baris, isian);
     const galatLokal = berubah.some(
@@ -113,8 +142,9 @@ export default function HalamanJadwalKerja({ OpsiOutlet, UuidOutlet, Senin, Jadw
     return (
         <TataLetakAplikasi judul="Jadwal kerja">
             <p className="max-w-3xl text-isi text-teks-sekunder">
-                Isi jam kerja per hari (JJ:MM). Kosongkan untuk libur. Jam selesai lebih kecil dari jam mulai berarti
-                shift lewat tengah malam. Keterlambatan di rekap absensi dihitung dari jadwal ini.
+                Isi jam kerja per hari: ketik (misal 830 → 08:30) atau klik isian untuk memilih. Kosongkan untuk libur.
+                Jam selesai lebih kecil dari jam mulai berarti shift lewat tengah malam. Keterlambatan di rekap absensi
+                dihitung dari jadwal ini.
             </p>
             {!Izin.Kelola ? <PesanHanyaLihat izin="karyawan.kelola" objek="jadwal kerja" /> : null}
             <DaftarGalatServer galat={props.errors} />
@@ -184,26 +214,25 @@ export default function HalamanJadwalKerja({ OpsiOutlet, UuidOutlet, Senin, Jadw
                                             ) : (
                                                 <div className="flex items-center gap-1">
                                                     {(['JamMulai', 'JamSelesai'] as const).map((kolom) => (
-                                                        <Input
+                                                        <PemilihJam
                                                             key={kolom}
-                                                            aria-label={`${b.Nama} ${namaHari[i] ?? ''} ${kolom === 'JamMulai' ? 'mulai' : 'selesai'}`}
-                                                            placeholder={kolom === 'JamMulai' ? '08:00' : '16:00'}
-                                                            inputMode="numeric"
-                                                            maxLength={5}
+                                                            label={`${b.Nama} ${namaHari[i] ?? ''} ${kolom === 'JamMulai' ? 'mulai' : 'selesai'}`}
+                                                            labelTersembunyi
+                                                            ringkas
+                                                            contoh={kolom === 'JamMulai' ? '08:00' : '16:00'}
+                                                            langkahMenit={15}
+                                                            pilihanCepat={
+                                                                kolom === 'JamMulai' ? pilihanMulai : pilihanSelesai
+                                                            }
                                                             disabled={kunci}
-                                                            value={nilai[kolom]}
-                                                            aria-invalid={
+                                                            nilai={nilai[kolom]}
+                                                            galat={
                                                                 nilai[kolom] !== '' && !CekJam(nilai[kolom])
-                                                                    ? true
+                                                                    ? 'Format JJ:MM'
                                                                     : undefined
                                                             }
-                                                            onChange={(e) =>
-                                                                Ubah(b.Uuid, tanggal, kolom, e.target.value)
-                                                            }
-                                                            onBlur={(e) =>
-                                                                Ubah(b.Uuid, tanggal, kolom, RapikanJam(e.target.value))
-                                                            }
-                                                            className="h-11 min-w-0 px-2 text-center font-mono tabular-nums"
+                                                            saatBerubah={(baru) => Ubah(b.Uuid, tanggal, kolom, baru)}
+                                                            className="flex-1 [&_[data-slot=input-group]]:h-11"
                                                         />
                                                     ))}
                                                 </div>

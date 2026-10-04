@@ -71,7 +71,7 @@ describe('Koreksi absensi (F-18, v3.34)', () => {
         Render([]);
         fireEvent.click(screen.getByRole('button', { name: 'Catat absensi terlewat' }));
         const dialog = screen.getByRole('dialog', { name: 'Catat absensi terlewat' });
-        fireEvent.change(within(dialog).getByLabelText(/Jam masuk/), { target: { value: '0800' } });
+        fireEvent.change(within(dialog).getByRole('textbox', { name: /Jam masuk/ }), { target: { value: '0800' } });
         fireEvent.change(within(dialog).getByLabelText(/^Alasan/), { target: { value: 'Lupa absen pagi' } });
         fireEvent.click(within(dialog).getByRole('button', { name: 'Simpan absensi' }));
 
@@ -89,8 +89,8 @@ describe('Koreksi absensi (F-18, v3.34)', () => {
         fireEvent.keyDown(tombolAksi as HTMLElement, { key: 'Enter' });
         fireEvent.click(screen.getByRole('menuitem', { name: 'Koreksi jam' }));
         const dialog = screen.getByRole('dialog', { name: `Koreksi absensi ${Karyawan.Nama}` });
-        expect((within(dialog).getByLabelText(/Jam masuk/) as HTMLInputElement).value).toBe('20:00');
-        fireEvent.change(within(dialog).getByLabelText(/Jam keluar/), { target: { value: '0300' } });
+        expect((within(dialog).getByRole('textbox', { name: /Jam masuk/ }) as HTMLInputElement).value).toBe('20:00');
+        fireEvent.change(within(dialog).getByRole('textbox', { name: /Jam keluar/ }), { target: { value: '0300' } });
         fireEvent.change(within(dialog).getByLabelText(/^Alasan/), { target: { value: 'Kasir lupa absen keluar' } });
         fireEvent.click(within(dialog).getByRole('button', { name: 'Simpan koreksi' }));
 

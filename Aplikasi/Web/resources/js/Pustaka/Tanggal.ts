@@ -75,6 +75,33 @@ export function UraiTeksJam(teks: string): string | undefined {
     return cocok === null ? undefined : `${(cocok[1] ?? '').padStart(2, '0')}:${cocok[2] ?? ''}`;
 }
 
+/**
+ * Ketikan jam yang longgar → `JJ:MM` 24 jam, atau undefined bila tidak bisa dibaca. Titik dua boleh tidak diketik:
+ * `8` → 08:00, `830` → 08:30, `1730` → 17:30, `17.30`/`17,30`/`17:30` → 17:30, `7:5` tidak sah (menit dua digit).
+ */
+export function RapikanTeksJam(teks: string): string | undefined {
+    const bersih = teks.trim().replace(',', '.');
+
+    if (bersih === '') {
+        return undefined;
+    }
+
+    const sah = UraiTeksJam(bersih);
+
+    if (sah !== undefined) {
+        return sah;
+    }
+
+    if (!/^\d{1,4}$/.test(bersih)) {
+        return undefined;
+    }
+
+    const jam = bersih.length <= 2 ? bersih : bersih.slice(0, bersih.length - 2);
+    const menit = bersih.length <= 2 ? '00' : bersih.slice(-2);
+
+    return UraiTeksJam(`${jam}:${menit}`);
+}
+
 /** Tanggal di luar batas `min`/`max` (string `TTTT-BB-HH`, perbandingan leksikal aman untuk format ini). */
 export function CekDiLuarBatas(nilai: string, min?: string, max?: string): boolean {
     return (min !== undefined && min !== '' && nilai < min) || (max !== undefined && max !== '' && nilai > max);

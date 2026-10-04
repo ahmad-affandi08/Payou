@@ -8,6 +8,7 @@ import Tombol from '@/Komponen/Formulir/Tombol';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Komponen/Ui/card';
 import { Field, FieldDescription, FieldLabel, FieldLegend, FieldSet } from '@/Komponen/Ui/field';
 import { Switch } from '@/Komponen/Ui/switch';
+import PemilihJam from '@/Komponen/Tanggal/PemilihJam';
 import type { Kota, Pilihan } from '@/Tipe/Organisasi';
 
 export type IsianOutlet = {
@@ -134,15 +135,14 @@ export default function FormOutlet({ awal, uuid, kodeTerkunci = false, merek, ko
                             galat={formulir.errors.ZonaWaktu}
                             required
                         />
-                        <BidangTeks
+                        <PemilihJam
                             label="Jam tutup buku"
                             nilai={formulir.data.JamTutupBuku}
                             saatBerubah={(nilai) => formulir.setData('JamTutupBuku', nilai)}
                             galat={formulir.errors.JamTutupBuku}
                             keterangan="Transaksi sebelum jam ini masuk tanggal bisnis kemarin. Kafe yang tutup 02.00 memakai 04:00."
-                            inputMode="numeric"
-                            maxLength={5}
-                            kode
+                            contoh="04:00"
+                            langkahMenit={30}
                             required
                         />
                     </div>

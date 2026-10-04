@@ -10,6 +10,7 @@ import PanelKalibrasiWajah from '@/Komponen/Karyawan/PanelKalibrasiWajah';
 import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
 import TabelData from '@/Komponen/TabelData/TabelData';
 import type { DefinisiSaring, KolomTabel } from '@/Komponen/TabelData/Tipe';
+import PemilihJam from '@/Komponen/Tanggal/PemilihJam';
 import PemilihTanggal from '@/Komponen/Tanggal/PemilihTanggal';
 import DialogFormulir from '@/Komponen/Tindakan/DialogFormulir';
 import { DialogFooter } from '@/Komponen/Ui/dialog';
@@ -275,15 +276,13 @@ function FormAbsensi({
     };
 
     const Jam = (kolom: 'JamMasuk' | 'JamKeluar', label: string, wajib: boolean) => (
-        <BidangTeks
+        <PemilihJam
             label={label}
             nilai={formulir.data[kolom]}
-            saatBerubah={(nilai) => formulir.setData(kolom, RapikanJamKetik(nilai))}
+            saatBerubah={(nilai) => formulir.setData(kolom, nilai)}
             galat={formulir.errors[kolom]}
-            keterangan="JJ:MM, jam outlet"
-            inputMode="numeric"
-            maxLength={5}
-            kode
+            keterangan="Jam outlet. Ketik (misal 0830) atau pilih."
+            tombolSekarang
             required={wajib}
         />
     );

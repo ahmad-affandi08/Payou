@@ -14,6 +14,7 @@ import { Button } from '@/Komponen/Ui/button';
 import Tombol from '@/Komponen/Formulir/Tombol';
 import { Card } from '@/Komponen/Ui/card';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
+import PemilihJam, { type PilihanCepatJam } from '@/Komponen/Tanggal/PemilihJam';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 import type { PropsBersamaAplikasi } from '@/Tipe/Aplikasi';
 import type {
@@ -94,6 +95,16 @@ const HapusNolPecahan = (nilai: string | undefined): string => (nilai ?? '').rep
  * lokal outlet), dan batas (kuota total, batas per transaksi untuk beli X gratis Y & bundel). Bagian 3: metode bayar,
  * ulang tahun, transaksi pertama, dan batas per pelanggan. Bagian 4b: pendanaan pemasok (bagian potongan yang diklaim).
  */
+/** Jam promo yang lazim (sarapan, makan siang, happy hour, makan malam). */
+const pilihanJamMulaiPromo: PilihanCepatJam[] = ['06:00', '11:00', '14:00', '17:00', '20:00'].map((jam) => ({
+    Label: jam,
+    Nilai: jam,
+}));
+const pilihanJamSelesaiPromo: PilihanCepatJam[] = ['10:00', '14:00', '17:00', '20:00', '22:00'].map((jam) => ({
+    Label: jam,
+    Nilai: jam,
+}));
+
 export default function HalamanFormulirPromo({
     Promo,
     OpsiOutlet,
@@ -478,19 +489,25 @@ export default function HalamanFormulirPromo({
                             saatBerubah={(nilai) => Ubah({ TanggalSelesai: nilai })}
                             galat={galat.TanggalSelesai ?? galat.SelesaiPada}
                         />
-                        <BidangTeks
+                        <PemilihJam
                             label="Jam mulai"
                             nilai={isian.JamMulai}
                             saatBerubah={(nilai) => Ubah({ JamMulai: nilai })}
-                            keterangan="Format JJ:MM, jam lokal outlet. Kosongkan untuk sepanjang hari."
+                            keterangan="Jam lokal outlet. Kosongkan untuk sepanjang hari."
                             galat={galat.JamMulai}
+                            contoh="14:00"
+                            langkahMenit={15}
+                            pilihanCepat={pilihanJamMulaiPromo}
                         />
-                        <BidangTeks
+                        <PemilihJam
                             label="Jam selesai"
                             nilai={isian.JamSelesai}
                             saatBerubah={(nilai) => Ubah({ JamSelesai: nilai })}
                             keterangan="Tidak termasuk jam ini, misal 17:00 = sampai 16:59."
                             galat={galat.JamSelesai}
+                            contoh="17:00"
+                            langkahMenit={15}
+                            pilihanCepat={pilihanJamSelesaiPromo}
                         />
                     </div>
                     <GrupCentang

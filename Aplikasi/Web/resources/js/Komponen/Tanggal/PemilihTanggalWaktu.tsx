@@ -1,10 +1,8 @@
-import { ClockIcon } from 'lucide-react';
 import { useId, useState } from 'react';
 
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/Komponen/Ui/input-group';
-import { Label } from '@/Komponen/Ui/label';
 import { UraiTeksJam } from '@/Pustaka/Tanggal';
 
+import PemilihJam from './PemilihJam';
 import PemilihTanggal from './PemilihTanggal';
 
 type PropsPemilihTanggalWaktu = {
@@ -29,7 +27,7 @@ function PecahNilai(nilai: string): [string, string] {
 
 /**
  * Tanggal + jam (24 jam) untuk jadwal berlaku, pemeliharaan, dsb. Tanggal memakai `PemilihTanggal`
- * (juga menerima tempelan `2026-11-01T08:00`), jam diketik `jj:mm`. Nilai keluar setara `datetime-local`.
+ * (juga menerima tempelan `2026-11-01T08:00`), jam lewat `PemilihJam` (ketik `jj:mm` atau pilih). Nilai keluar setara `datetime-local`.
  */
 export default function PemilihTanggalWaktu({
     label,
@@ -44,7 +42,6 @@ export default function PemilihTanggalWaktu({
     const [tanggal, jam] = PecahNilai(nilai);
     const [teksJam, AturTeksJam] = useState(jam);
     const [jamTerakhir, AturJamTerakhir] = useState(jam);
-    const [galatJam, AturGalatJam] = useState<string | null>(null);
 
     if (jam !== jamTerakhir) {
         AturJamTerakhir(jam);
@@ -80,39 +77,22 @@ export default function PemilihTanggalWaktu({
                     disabled={disabled}
                     className="[&_input]:min-w-0"
                 />
-                <div className="flex flex-col gap-1">
-                    <Label htmlFor={idJam} className="text-label font-semibold text-teks-utama">
-                        Jam
-                    </Label>
-                    <InputGroup className="h-8 border-garis-input bg-permukaan pointer-coarse:h-11">
-                        <InputGroupInput
-                            id={idJam}
-                            value={teksJam}
-                            inputMode="numeric"
-                            autoComplete="off"
-                            placeholder="jj:mm"
-                            aria-label={`Jam ${label}`}
-                            aria-invalid={galatJam ? true : undefined}
-                            disabled={disabled || tanggal === ''}
-                            onChange={(peristiwa) => {
-                                AturTeksJam(peristiwa.target.value);
-                                const sah = UraiTeksJam(peristiwa.target.value);
-                                if (sah !== undefined) {
-                                    AturGalatJam(null);
-                                    Kirim(tanggal, sah);
-                                }
-                            }}
-                            onBlur={() =>
-                                AturGalatJam(UraiTeksJam(teksJam) === undefined ? 'Jam jj:mm, misal 08:00.' : null)
-                            }
-                            className="text-isi tabular-nums placeholder:text-teks-sekunder/70"
-                        />
-                        <InputGroupAddon align="inline-end">
-                            <ClockIcon aria-hidden="true" className="text-teks-sekunder" />
-                        </InputGroupAddon>
-                    </InputGroup>
-                    {galatJam ? <p className="text-keterangan font-semibold text-bahaya">{galatJam}</p> : null}
-                </div>
+                <PemilihJam
+                    id={idJam}
+                    label="Jam"
+                    labelAria={`Jam ${label}`}
+                    nilai={teksJam}
+                    contoh="jj:mm"
+                    disabled={disabled || tanggal === ''}
+                    ringkas
+                    saatBerubah={(baru) => {
+                        AturTeksJam(baru);
+                        const sah = UraiTeksJam(baru);
+                        if (sah !== undefined) {
+                            Kirim(tanggal, sah);
+                        }
+                    }}
+                />
             </div>
         </div>
     );
