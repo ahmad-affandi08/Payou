@@ -66,6 +66,7 @@ Route::middleware([SiapkanAuditTenant::class, $izin(IzinTenant::PelangganLihat)]
         Route::post('/impor', [ImporPelangganKontroler::class, 'Kirim'])->middleware('throttle:20,1')->name('kelola.pelanggan.impor.kirim');
         Route::get('/impor/templat', [ImporPelangganKontroler::class, 'Templat'])->name('kelola.pelanggan.impor.templat');
         Route::get('/ekspor', [ImporPelangganKontroler::class, 'Ekspor'])->middleware('throttle:10,1')->name('kelola.pelanggan.ekspor');
+        Route::post('/massal', [PelangganKontroler::class, 'Massal'])->name('kelola.pelanggan.massal');
         Route::post('/', [PelangganKontroler::class, 'Simpan'])->name('kelola.pelanggan.simpan');
         Route::put('/{pelanggan}', [PelangganKontroler::class, 'Perbarui'])->where('pelanggan', $ulid)->name('kelola.pelanggan.perbarui');
         Route::post('/{pelanggan}/arsipkan', [PelangganKontroler::class, 'Arsipkan'])->where('pelanggan', $ulid)->name('kelola.pelanggan.arsipkan');

@@ -3,8 +3,9 @@ import { useState } from 'react';
 
 import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
 import PesanHanyaLihat from '@/Komponen/Katalog/PesanHanyaLihat';
+import AksiMassalPelanggan from '@/Komponen/Pelanggan/AksiMassalPelanggan';
 import FormulirPelanggan, { AlamatPelanggan } from '@/Komponen/Pelanggan/FormulirPelanggan';
-import TabelData from '@/Komponen/TabelData/TabelData';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { KolomTabel } from '@/Komponen/TabelData/Tipe';
 import { ItemAksiBaris } from '@/Komponen/Tindakan/MenuAksiBaris';
 import { Button } from '@/Komponen/Ui/button';
@@ -168,6 +169,13 @@ export default function HalamanDaftarPelanggan({ Pelanggan, Izin, OpsiTag, OpsiT
                         : []),
                 ]}
                 labelBaris={(p) => `untuk pelanggan ${p.Nama}`}
+                {...(Izin.Kelola
+                    ? {
+                          aksiMassal: (konteks: KonteksAksiMassal<BarisPelanggan>) => (
+                              <AksiMassalPelanggan konteks={konteks} tier={OpsiTier} />
+                          ),
+                      }
+                    : {})}
                 aksiBaris={(p: BarisPelanggan) => (
                     <ItemAksiBaris
                         aksi={[

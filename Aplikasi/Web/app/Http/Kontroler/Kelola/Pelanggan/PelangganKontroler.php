@@ -13,6 +13,7 @@ use App\Domain\Organisasi\Kueri\TanggalBisnisOutlet;
 use App\Domain\Pelanggan\Aksi\AturTierPelanggan;
 use App\Domain\Pelanggan\Aksi\SesuaikanPoin;
 use App\Domain\Pelanggan\Aksi\SimpanPelanggan;
+use App\Domain\Pelanggan\Aksi\UbahPelangganMassal;
 use App\Domain\Pelanggan\Aksi\UbahStatusPelanggan;
 use App\Domain\Pelanggan\Enum\StatusPelanggan;
 use App\Domain\Pelanggan\Kueri\DaftarPelanggan;
@@ -32,6 +33,7 @@ use App\Domain\Penjualan\Kueri\RiwayatBelanjaPembeliOnline;
 use App\Domain\Tenant\Kueri\ProfilTenant;
 use App\Http\Kontroler\Kelola\DasarKelolaKontroler;
 use App\Http\Permintaan\Kelola\Pelanggan\SimpanPelangganPermintaan;
+use App\Http\Permintaan\Kelola\Pelanggan\UbahPelangganMassalPermintaan;
 use App\Http\Respons\ResponsTabel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -116,6 +118,24 @@ final class PelangganKontroler extends DasarKelolaKontroler
                 : null,
             'Izin' => $izin,
         ]);
+    }
+
+    /** Aksi massal pelanggan terpilih: arsipkan, pulihkan, atau atur tier. */
+    public function Massal(UbahPelangganMassalPermintaan $permintaan, UbahPelangganMassal $ubah): RedirectResponse
+    {
+        /** @var list<string> $uuid */
+        $uuid = array_values((array) $permintaan->validated('Uuid'));
+        $aksi = (string) $permintaan->validated('Aksi');
+        $uuidTier = $permintaan->validated('UuidTier');
+        $hasil = $ubah->Jalankan($aksi, $uuid, $this->Pelaku()->Id, is_string($uuidTier) ? $uuidTier : null, $permintaan->boolean('TierTetap'));
+        $kata = match ($aksi) {
+            'Arsipkan' => 'diarsipkan',
+            'Pulihkan' => 'diaktifkan kembali',
+            default => 'diatur tiernya',
+        };
+        $lewat = $hasil['Dilewati'] > 0 ? " {$hasil['Dilewati']} dilewati karena sudah berstatus itu." : '';
+
+        return back()->with('Kilat', "{$hasil['Diubah']} pelanggan {$kata}.{$lewat}");
     }
 
     /** F-16b: atur tier manual & kunci tier. */
