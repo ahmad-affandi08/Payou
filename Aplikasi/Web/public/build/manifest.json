@@ -532,8 +532,8 @@
       "_PemilihProduk-D1NysaC0.js"
     ]
   },
-  "_FormulirKaryawan-CiwuMVvv.js": {
-    "file": "assets/FormulirKaryawan-CiwuMVvv.js",
+  "_FormulirKaryawan-YXt6Vu4V.js": {
+    "file": "assets/FormulirKaryawan-YXt6Vu4V.js",
     "name": "FormulirKaryawan",
     "imports": [
       "_jsx-runtime-CM6s92_4.js",
@@ -2005,7 +2005,7 @@
     "isDynamicEntry": true
   },
   "resources/js/Aplikasi.tsx": {
-    "file": "assets/Aplikasi-CZSSCo18.js",
+    "file": "assets/Aplikasi-DJO1YFvY.js",
     "name": "Aplikasi",
     "src": "resources/js/Aplikasi.tsx",
     "isEntry": true,
@@ -3578,7 +3578,7 @@
     ]
   },
   "resources/js/Halaman/Kelola/Karyawan/Buat.tsx": {
-    "file": "assets/Buat-D6Oio7NO.js",
+    "file": "assets/Buat-D20v_tzZ.js",
     "name": "Buat",
     "src": "resources/js/Halaman/Kelola/Karyawan/Buat.tsx",
     "isDynamicEntry": true,
@@ -3587,7 +3587,7 @@
       "_TataLetakAplikasi-f4IRsfhS.js",
       "_DaftarGalatServer-DMV0YP3c.js",
       "_KartuFormulir-keyKnaQm.js",
-      "_FormulirKaryawan-CiwuMVvv.js"
+      "_FormulirKaryawan-YXt6Vu4V.js"
     ]
   },
   "resources/js/Halaman/Kelola/Karyawan/BuatAturanKomisi.tsx": {
@@ -3604,7 +3604,7 @@
     ]
   },
   "resources/js/Halaman/Kelola/Karyawan/Daftar.tsx": {
-    "file": "assets/Daftar-CY8fND9y.js",
+    "file": "assets/Daftar-BJ6DwR0Z.js",
     "name": "Daftar",
     "src": "resources/js/Halaman/Kelola/Karyawan/Daftar.tsx",
     "isDynamicEntry": true,
@@ -3623,12 +3623,13 @@
       "_FormatWaktu-bKvj24HB.js",
       "_sheet-BN_Lr2r7.js",
       "_skeleton-B2uzYDpW.js",
+      "_Organisasi-B3yeo597.js",
       "_AksiHalaman-DJ29lISb.js",
       "_PesanHanyaLihat-CIxcGT5j.js",
       "_DialogKonfirmasi-C_JOsK9l.js",
       "_MenuAksiBaris-DAP4VmHi.js",
       "_LabelStatus-CwqbPB22.js",
-      "_FormulirKaryawan-CiwuMVvv.js"
+      "_FormulirKaryawan-YXt6Vu4V.js"
     ]
   },
   "resources/js/Halaman/Kelola/Karyawan/DetailGaji.tsx": {
@@ -5346,7 +5347,7 @@
     ]
   },
   "resources/js/Halaman/Kelola/Pengguna/Daftar.tsx": {
-    "file": "assets/Daftar-C7bz5Nzt.js",
+    "file": "assets/Daftar-s_tn4oIo.js",
     "name": "Daftar",
     "src": "resources/js/Halaman/Kelola/Pengguna/Daftar.tsx",
     "isDynamicEntry": true,
@@ -5371,7 +5372,7 @@
     ]
   },
   "resources/js/Halaman/Kelola/Pengguna/Tambah.tsx": {
-    "file": "assets/Tambah-D6Ed_IGu.js",
+    "file": "assets/Tambah-BJqL1OyD.js",
     "name": "Tambah",
     "src": "resources/js/Halaman/Kelola/Pengguna/Tambah.tsx",
     "isDynamicEntry": true,

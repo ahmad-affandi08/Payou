@@ -150,3 +150,75 @@ describe('D-22 tambah pengguna langsung di tenant', function (): void {
         expect(Pengguna::query()->where('Nama', 'Siti Kasir')->exists())->toBeFalse();
     });
 });
+
+describe('D-46 data karyawan & pengguna saling terhubung', function (): void {
+    it('daftar pengguna menunjukkan tautan karyawan; "Catat sebagai karyawan" menautkan akun tanpa mengisi nama dua kali, sekali saja', function (): void {
+        ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant();
+        $masuk = BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id);
+        $masuk->post('/kelola/pengguna', IsianTambahPenggunaUji($tenant->Id, ['Pin' => '482915', 'JugaKaryawan' => false]))->assertSessionHasNoErrors();
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        $siti = Pengguna::query()->where('Nama', 'Siti Kasir')->sole();
+        expect(Karyawan::query()->where('IdPengguna', $siti->Id)->exists())->toBeFalse();
+
+        $anggota = fn () => collect($this->get('/kelola/pengguna')->assertOk()->inertiaProps('Anggota'))->firstWhere('Uuid', $siti->Uuid);
+        expect($anggota()['UuidKaryawan'])->toBeNull()->and($anggota()['StatusKaryawan'])->toBeNull();
+
+        $this->post("/kelola/pengguna/{$siti->Uuid}/karyawan")->assertSessionHasNoErrors();
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        $karyawan = Karyawan::query()->where('IdPengguna', $siti->Id)->sole();
+        expect($karyawan->Nama)->toBe('Siti Kasir');
+        expect($anggota()['UuidKaryawan'])->toBe($karyawan->Uuid)->and($anggota()['StatusKaryawan'])->toBe('Aktif');
+
+        $this->post("/kelola/pengguna/{$siti->Uuid}/karyawan")->assertSessionHasErrors();
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        expect(Karyawan::query()->where('IdPengguna', $siti->Id)->count())->toBe(1);
+    });
+
+    it('"Catat sebagai karyawan" butuh karyawan.kelola dan hanya untuk anggota tenant ini', function (): void {
+        ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant();
+        BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id)->post('/kelola/pengguna', IsianTambahPenggunaUji($tenant->Id, ['Pin' => '482915', 'JugaKaryawan' => false]))->assertSessionHasNoErrors();
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        $siti = Pengguna::query()->where('Nama', 'Siti Kasir')->sole();
+        $kasir = BantuanOrganisasi::TambahAnggota($tenant->Id, PeranTenantBawaan::Kasir);
+
+        BantuanOrganisasi::Masuk($this, $kasir, $tenant->Id)->post("/kelola/pengguna/{$siti->Uuid}/karyawan")->assertForbidden();
+
+        ['Tenant' => $lain, 'Pemilik' => $pemilikLain] = BantuanOrganisasi::BuatTenant();
+        BantuanOrganisasi::Masuk($this, $pemilikLain, $lain->Id)->post("/kelola/pengguna/{$siti->Uuid}/karyawan")->assertNotFound();
+    });
+
+    it('"Buatkan akun" dari karyawan: formulir terisi, akun baru ditautkan ke karyawan yang sama (bukan karyawan kedua)', function (): void {
+        ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant();
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        $karyawan = Karyawan::query()->create(['Nama' => 'Siti Kasir', 'Jabatan' => 'Barista', 'GajiPokok' => '2500000']);
+        $masuk = BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id);
+
+        $this->get("/kelola/pengguna/buat?karyawan={$karyawan->Uuid}")->assertInertia(fn ($h) => $h->component('Kelola/Pengguna/Tambah')
+            ->where('KaryawanTertaut.Nama', 'Siti Kasir')->where('KaryawanTertaut.Jabatan', 'Barista'));
+
+        $masuk->post('/kelola/pengguna', IsianTambahPenggunaUji($tenant->Id, ['Pin' => '482915', 'UuidKaryawan' => $karyawan->Uuid]))->assertSessionHasNoErrors();
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        $siti = Pengguna::query()->where('Nama', 'Siti Kasir')->sole();
+        expect(Karyawan::query()->count())->toBe(1)
+            ->and($karyawan->refresh()->IdPengguna)->toBe($siti->Id)
+            ->and($karyawan->GajiPokok)->toBe('2500000.00');
+
+        // Karyawan yang sudah punya akun tidak lagi ditawari "Buatkan akun" dan tidak bisa ditautkan dua kali.
+        $this->get("/kelola/pengguna/buat?karyawan={$karyawan->Uuid}")->assertInertia(fn ($h) => $h->where('KaryawanTertaut', null));
+        $masuk->post('/kelola/pengguna', IsianTambahPenggunaUji($tenant->Id, ['Nama' => 'Siti Dua', 'Pin' => '482916', 'UuidKaryawan' => $karyawan->Uuid]))->assertSessionHasErrors('UuidKaryawan');
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        expect(Pengguna::query()->where('Nama', 'Siti Dua')->exists())->toBeFalse();
+    });
+
+    it('karyawan yang tertaut ke akun memakai nama akun, apa pun yang diketik di formulir karyawan', function (): void {
+        ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant();
+        $masuk = BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id);
+        $masuk->post('/kelola/pengguna', IsianTambahPenggunaUji($tenant->Id, ['Pin' => '482915', 'JugaKaryawan' => false]))->assertSessionHasNoErrors();
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        $siti = Pengguna::query()->where('Nama', 'Siti Kasir')->sole();
+
+        $masuk->post('/kelola/karyawan', ['Nama' => 'Nama Lain Sekali', 'UuidPengguna' => $siti->Uuid])->assertSessionHasNoErrors();
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        expect(Karyawan::query()->where('IdPengguna', $siti->Id)->sole()->Nama)->toBe('Siti Kasir');
+    });
+});

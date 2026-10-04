@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
@@ -12,7 +12,9 @@ import { Button } from '@/Komponen/Ui/button';
 import LabelStatus from '@/Komponen/Umpan/LabelStatus';
 import { FormatRupiah } from '@/Pustaka/Format';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
+import type { PropsBersamaAplikasi } from '@/Tipe/Aplikasi';
 import type { BarisKaryawan, PropsDaftarKaryawan } from '@/Tipe/Karyawan';
+import { IzinTenant, PunyaIzinTenant } from '@/Tipe/Organisasi';
 
 function BuatKolom(lihatGaji: boolean): KolomTabel<BarisKaryawan>[] {
     return [
@@ -47,7 +49,10 @@ function BuatKolom(lihatGaji: boolean): KolomTabel<BarisKaryawan>[] {
             header: 'Akun POS',
             enableSorting: false,
             meta: { label: 'Akun POS', prioritas: 'penting' },
-            cell: ({ row }) => row.original.NamaPengguna ?? 'Tanpa akun (absen lewat HP)',
+            cell: ({ row }) =>
+                row.original.NamaPengguna ?? (
+                    <span className="text-teks-sekunder">Belum punya akun (absen lewat HP)</span>
+                ),
         },
         ...(lihatGaji
             ? [
@@ -105,6 +110,8 @@ function BuatKolom(lihatGaji: boolean): KolomTabel<BarisKaryawan>[] {
 export default function HalamanDaftarKaryawan({ Karyawan, OpsiPengguna, OpsiOutlet, Izin }: PropsDaftarKaryawan) {
     const [ubah, AturUbah] = useState<BarisKaryawan | null>(null);
     const [absenHp, AturAbsenHp] = useState<BarisKaryawan | null>(null);
+    const { props } = usePage<PropsBersamaAplikasi>();
+    const bolehBuatAkun = PunyaIzinTenant(props.Akses, IzinTenant.PenggunaUndang);
     const tombol = Izin.Kelola ? (
         <Button asChild>
             <Link href={`${AlamatKaryawan}/buat`}>Tambah karyawan</Link>
@@ -156,6 +163,15 @@ export default function HalamanDaftarKaryawan({ Karyawan, OpsiPengguna, OpsiOutl
                                   aksi={[
                                       { label: 'Ubah karyawan', saatPilih: () => AturUbah(k) },
                                       { label: 'Absen dari HP', saatPilih: () => AturAbsenHp(k) },
+                                      ...(k.UuidPengguna === null && k.Status === 'Aktif' && bolehBuatAkun
+                                          ? [
+                                                {
+                                                    label: 'Buatkan akun',
+                                                    saatPilih: () =>
+                                                        router.visit(`/kelola/pengguna/buat?karyawan=${k.Uuid}`),
+                                                },
+                                            ]
+                                          : []),
                                       k.Status === 'Aktif'
                                           ? {
                                                 label: 'Nonaktifkan karyawan',

@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Kontroler\Kelola;
 
+use App\Domain\Karyawan\Aksi\SimpanKaryawan;
 use App\Domain\Karyawan\Aksi\TambahStaf;
+use App\Domain\Karyawan\Data\DataKaryawan;
+use App\Domain\Karyawan\Kueri\PetaKaryawanPengguna;
+use App\Domain\Karyawan\Model\Karyawan;
 use App\Domain\Organisasi\Aksi\BatalkanUndangan;
 use App\Domain\Organisasi\Aksi\UbahAksesAnggota;
 use App\Domain\Organisasi\Aksi\UbahStatusAnggota;
@@ -27,6 +31,7 @@ use App\Http\Permintaan\Kelola\AksesAnggotaPermintaan;
 use App\Http\Permintaan\Kelola\TambahPenggunaPermintaan;
 use App\Http\Permintaan\Kelola\UndangPenggunaPermintaan;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -37,12 +42,20 @@ use Inertia\Response;
  */
 final class PenggunaKontroler extends DasarKelolaKontroler
 {
-    public function Daftar(DaftarAnggota $daftar, PemakaianBatasOrganisasi $pemakaian, PastikanBatasPaket $batasPaket): Response
+    public function Daftar(DaftarAnggota $daftar, PemakaianBatasOrganisasi $pemakaian, PastikanBatasPaket $batasPaket, PetaKaryawanPengguna $peta): Response
     {
         $idTenant = $this->IdTenant();
+        $anggota = $daftar->AmbilAnggota($idTenant);
+        $idPengguna = Pengguna::query()->whereIn('Uuid', array_column($anggota, 'Uuid'))->pluck('Id', 'Uuid')->all();
+        $karyawan = $peta->Ambil(array_values(array_map('intval', $idPengguna)));
 
         return Inertia::render('Kelola/Pengguna/Daftar', [
-            'Anggota' => $daftar->AmbilAnggota($idTenant),
+            // D-46: tiap anggota menunjukkan apakah akunnya sudah tercatat sebagai karyawan.
+            'Anggota' => array_map(fn (array $a): array => $a + [
+                'UuidKaryawan' => $karyawan[(int) ($idPengguna[$a['Uuid']] ?? 0)]['Uuid'] ?? null,
+                'StatusKaryawan' => $karyawan[(int) ($idPengguna[$a['Uuid']] ?? 0)]['Status'] ?? null,
+            ], $anggota),
+            'BolehCatatKaryawan' => app(AksesPengguna::class)->CekIzin($idTenant, $this->Pelaku()->Id, IzinTenant::KaryawanKelola),
             'Undangan' => $daftar->AmbilUndanganMenunggu($idTenant),
             'Peran' => self::AmbilOpsiPeran(),
             'Outlet' => self::AmbilOpsiOutlet(),
@@ -52,12 +65,17 @@ final class PenggunaKontroler extends DasarKelolaKontroler
     }
 
     /** D-22: halaman "Tambah pengguna" (langsung, tanpa undangan email); kursi paket tetap ditampilkan. */
-    public function Buat(PemakaianBatasOrganisasi $pemakaian, PastikanBatasPaket $batasPaket): Response
+    public function Buat(Request $permintaan, PemakaianBatasOrganisasi $pemakaian, PastikanBatasPaket $batasPaket): Response
     {
         $idTenant = $this->IdTenant();
+        $bolehKaryawan = app(AksesPengguna::class)->CekIzin($idTenant, $this->Pelaku()->Id, IzinTenant::KaryawanKelola);
+        $uuidKaryawan = $bolehKaryawan ? $permintaan->query('karyawan') : null;
+        // D-46: "Buatkan akun" dari daftar karyawan mengisi nama & jabatan dan menautkan akun baru ke karyawan itu.
+        $tertaut = is_string($uuidKaryawan) ? Karyawan::query()->where('Uuid', strtoupper($uuidKaryawan))->whereNull('IdPengguna')->first(['Uuid', 'Nama', 'Jabatan']) : null;
 
         return Inertia::render('Kelola/Pengguna/Tambah', [
-            'BolehCatatKaryawan' => app(AksesPengguna::class)->CekIzin($idTenant, $this->Pelaku()->Id, IzinTenant::KaryawanKelola),
+            'KaryawanTertaut' => $tertaut === null ? null : ['Uuid' => $tertaut->Uuid, 'Nama' => $tertaut->Nama, 'Jabatan' => $tertaut->Jabatan],
+            'BolehCatatKaryawan' => $bolehKaryawan,
             'Peran' => self::AmbilOpsiPeran(),
             'Outlet' => self::AmbilOpsiOutlet(),
             'BatasPengguna' => $batasPaket->AmbilRingkasan($idTenant, 'BatasPengguna', $pemakaian->HitungPengguna($idTenant)),
@@ -70,7 +88,8 @@ final class PenggunaKontroler extends DasarKelolaKontroler
         // Audit #34: "Catat juga sebagai karyawan" hanya untuk pemegang izin karyawan.kelola.
         $jugaKaryawan = $permintaan->boolean('JugaKaryawan')
             && $akses->CekIzin($this->IdTenant(), $this->Pelaku()->Id, IzinTenant::KaryawanKelola);
-        $pengguna = $tambah->Jalankan($this->Pelaku(), $data, $permintaan->AmbilAkses(), $jugaKaryawan, $permintaan->AmbilJabatan());
+        $uuidTertaut = $akses->CekIzin($this->IdTenant(), $this->Pelaku()->Id, IzinTenant::KaryawanKelola) ? $permintaan->AmbilUuidKaryawan() : null;
+        $pengguna = $tambah->Jalankan($this->Pelaku(), $data, $permintaan->AmbilAkses(), $jugaKaryawan, $permintaan->AmbilJabatan(), $uuidTertaut);
         $pesan = $pengguna->CekHanyaKasir()
             ? "{$pengguna->Nama} ditambahkan sebagai karyawan kasir. Ia masuk aplikasi kasir dengan PIN yang Anda buat."
             : "{$pengguna->Nama} ditambahkan. Berikan email & kata sandi awal kepadanya; ia wajib menggantinya saat pertama masuk.";
@@ -88,6 +107,24 @@ final class PenggunaKontroler extends DasarKelolaKontroler
             'Outlet' => self::AmbilOpsiOutlet(),
             'BatasPengguna' => $batasPaket->AmbilRingkasan($idTenant, 'BatasPengguna', $pemakaian->HitungPengguna($idTenant)),
         ]);
+    }
+
+    /** D-46: catat akun yang sudah ada sebagai karyawan (tautan akun ↔ karyawan), tanpa mengisi nama dua kali. */
+    public function CatatSebagaiKaryawan(string $pengguna, SimpanKaryawan $simpan): RedirectResponse
+    {
+        $model = Pengguna::query()->where('Uuid', $pengguna)->firstOrFail();
+        TenantPengguna::query()->where('IdTenant', $this->IdTenant())->where('IdPengguna', $model->Id)->firstOrFail();
+        $simpan->Jalankan(new DataKaryawan(
+            nama: $model->Nama,
+            jabatan: null,
+            levelStaf: null,
+            gajiPokok: null,
+            uuidPengguna: $model->Uuid,
+            uuidOutlet: null,
+            idPengguna: $this->Pelaku()->Id,
+        ));
+
+        return back()->with('Kilat', "{$model->Nama} dicatat sebagai karyawan. Atur jadwal dan gajinya di menu Karyawan.");
     }
 
     public function Undang(UndangPenggunaPermintaan $permintaan, UndangPengguna $undang, RingkasanTenant $ringkasan): RedirectResponse

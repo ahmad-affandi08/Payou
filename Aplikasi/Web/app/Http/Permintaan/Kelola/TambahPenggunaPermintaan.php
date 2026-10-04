@@ -27,6 +27,8 @@ final class TambahPenggunaPermintaan extends AksesAnggotaPermintaan
             // Audit kemudahan pakai #34: sekalian catat sebagai karyawan (jadwal, absensi, gaji).
             'JugaKaryawan' => ['nullable', 'boolean'],
             'Jabatan' => ['nullable', 'string', 'max:80'],
+            // D-46: menautkan akun baru ke karyawan yang sudah ada (tombol "Buatkan akun" di daftar karyawan).
+            'UuidKaryawan' => ['nullable', 'string', 'ulid'],
             ...parent::rules(),
         ];
     }
@@ -50,6 +52,13 @@ final class TambahPenggunaPermintaan extends AksesAnggotaPermintaan
     public function attributes(): array
     {
         return ['Nama' => 'nama', 'NoHp' => 'nomor WhatsApp', 'KataSandi' => 'kata sandi awal'];
+    }
+
+    public function AmbilUuidKaryawan(): ?string
+    {
+        $uuid = trim((string) $this->input('UuidKaryawan', ''));
+
+        return $uuid === '' ? null : strtoupper($uuid);
     }
 
     public function AmbilJabatan(): ?string

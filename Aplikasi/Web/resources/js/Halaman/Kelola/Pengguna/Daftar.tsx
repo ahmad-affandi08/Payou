@@ -40,6 +40,9 @@ type Anggota = {
     UuidOutlet: string[];
     Status: 'Aktif' | 'Nonaktif';
     DinonaktifkanPada: string | null;
+    /** D-46: karyawan yang tertaut ke akun ini (null = belum dicatat sebagai karyawan). */
+    UuidKaryawan: string | null;
+    StatusKaryawan: 'Aktif' | 'Nonaktif' | null;
 };
 
 type Undangan = {
@@ -59,6 +62,7 @@ type PropsDaftar = {
     Outlet: OpsiOutletPengguna[];
     BatasPengguna: Batas;
     UuidSaya: string;
+    BolehCatatKaryawan?: boolean;
 };
 
 type Pilihan = { jenis: 'akses' | 'nonaktifkan'; anggota: Anggota } | null;
@@ -101,6 +105,21 @@ function BuatKolom(namaOutlet: Map<string, string>, uuidSaya: string): KolomTabe
                     ? 'Semua outlet'
                     : anggota.UuidOutlet.map((uuid) => namaOutlet.get(uuid) ?? 'Diarsipkan').join(', ') ||
                       'Belum ditugaskan',
+        },
+        {
+            id: 'Karyawan',
+            accessorFn: (anggota) => anggota.StatusKaryawan ?? 'Bukan karyawan',
+            header: 'Karyawan',
+            enableSorting: false,
+            meta: { label: 'Karyawan', prioritas: 'rendah' },
+            cell: ({ row: { original: anggota } }) =>
+                anggota.UuidKaryawan === null ? (
+                    <span className="text-teks-sekunder">Bukan karyawan</span>
+                ) : (
+                    <Link href="/kelola/karyawan" className="text-brand underline">
+                        {anggota.StatusKaryawan === 'Nonaktif' ? 'Karyawan (nonaktif)' : 'Karyawan'}
+                    </Link>
+                ),
         },
         {
             id: 'Status',
@@ -164,6 +183,7 @@ export default function HalamanDaftarPengguna({
     Outlet,
     BatasPengguna,
     UuidSaya,
+    BolehCatatKaryawan = false,
 }: PropsDaftar) {
     const { props } = usePage<PropsBersamaAplikasi>();
     const akses = props.Akses;
@@ -188,6 +208,12 @@ export default function HalamanDaftarPengguna({
         }
 
         const aksi: AksiBaris[] = [];
+        if (anggota.Status === 'Aktif' && anggota.UuidKaryawan === null && BolehCatatKaryawan) {
+            aksi.push({
+                label: 'Catat sebagai karyawan',
+                saatPilih: () => router.post(`/kelola/pengguna/${anggota.Uuid}/karyawan`, {}, { preserveScroll: true }),
+            });
+        }
         if (anggota.Status === 'Aktif' && bolehUbah) {
             aksi.push({ label: 'Ubah akses', saatPilih: () => AturPilihan({ jenis: 'akses', anggota }) });
         }

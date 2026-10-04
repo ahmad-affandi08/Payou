@@ -141,6 +141,8 @@ describe('Halaman karyawan (F-18)', () => {
             '/kelola/karyawan/buat',
         );
         expect(screen.getAllByText('Rp 3.500.000').length).toBeGreaterThan(0);
+        // D-46: karyawan tanpa akun diberi tahu, bukan dibiarkan kosong.
+        expect(screen.getAllByText('Belum punya akun (absen lewat HP)').length).toBeGreaterThan(0);
         cleanup();
 
         RenderUji(

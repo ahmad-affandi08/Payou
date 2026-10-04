@@ -138,6 +138,8 @@ describe('Kelola/Pengguna: aksi baris & konfirmasi nonaktifkan (F-02, BR-02.1)',
             UuidOutlet: [],
             Status: 'Aktif' as const,
             DinonaktifkanPada: null,
+            UuidKaryawan: null,
+            StatusKaryawan: null,
         },
         {
             Uuid: 'U-2',
@@ -150,6 +152,8 @@ describe('Kelola/Pengguna: aksi baris & konfirmasi nonaktifkan (F-02, BR-02.1)',
             UuidOutlet: ['O-1'],
             Status: 'Aktif' as const,
             DinonaktifkanPada: null,
+            UuidKaryawan: null,
+            StatusKaryawan: null,
         },
     ];
     const props = {
@@ -195,6 +199,36 @@ describe('Kelola/Pengguna: aksi baris & konfirmasi nonaktifkan (F-02, BR-02.1)',
                 data: { Email: 'budi@kopinusantara.id', Peran: 'R-K', SemuaOutlet: false, Outlet: ['O-1'] },
             },
         ]);
+    });
+
+    it('D-46: kolom Karyawan terlihat; "Catat sebagai karyawan" hanya untuk akun tanpa karyawan', () => {
+        AturPropsAplikasi([], true);
+        const dengan = [
+            ...props.Anggota,
+            ...props.Anggota.slice(1).map((a) => ({
+                ...a,
+                Uuid: 'U-3',
+                Nama: 'Sari Dewi',
+                UuidKaryawan: 'K-3',
+                StatusKaryawan: 'Aktif' as const,
+            })),
+        ];
+        RenderDenganKueri(<HalamanDaftarPengguna {...props} Anggota={dengan} BolehCatatKaryawan />);
+
+        expect(screen.getAllByText('Bukan karyawan').length).toBeGreaterThan(0);
+        expect(screen.getAllByRole('link').some((l) => l.getAttribute('href') === '/kelola/karyawan')).toBe(true);
+
+        BukaMenu(screen.getByRole('button', { name: 'Aksi untuk Sari Dewi' }));
+        expect(screen.queryByRole('menuitem', { name: 'Catat sebagai karyawan' })).toBeNull();
+    });
+
+    it('D-46: "Catat sebagai karyawan" mengirim POST ke URL akun', () => {
+        AturPropsAplikasi([], true);
+        RenderDenganKueri(<HalamanDaftarPengguna {...props} BolehCatatKaryawan />);
+
+        BukaMenu(screen.getByRole('button', { name: 'Aksi untuk Budi Santoso' }));
+        fireEvent.click(screen.getByRole('menuitem', { name: 'Catat sebagai karyawan' }));
+        expect(AmbilKiriman()).toEqual([{ metode: 'post', url: '/kelola/pengguna/U-2/karyawan', data: {} }]);
     });
 
     it('tanpa izin ubah/nonaktifkan: tidak ada menu aksi', () => {

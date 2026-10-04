@@ -64,6 +64,8 @@ export function IsiFormulirKaryawan({
     const [isian, AturIsian] = useState<IsianKaryawan>(() => BuatIsian(karyawan));
     const [memproses, AturMemproses] = useState(false);
     const Ubah = (ubah: Partial<IsianKaryawan>) => AturIsian({ ...isian, ...ubah });
+    // D-46: karyawan yang punya akun memakai nama akunnya (satu sumber nama).
+    const akun = opsiPengguna.find((p) => p.Uuid === isian.UuidPengguna);
 
     const Simpan = (peristiwa: FormEvent) => {
         peristiwa.preventDefault();
@@ -85,9 +87,11 @@ export function IsiFormulirKaryawan({
         <form onSubmit={Simpan} className="flex flex-col gap-4" aria-label="Formulir karyawan" noValidate>
             <BidangTeks
                 label="Nama karyawan"
-                nilai={isian.Nama}
+                nilai={akun?.Nama ?? isian.Nama}
                 saatBerubah={(nilai) => Ubah({ Nama: nilai })}
                 galat={galat.Nama}
+                {...(akun ? { keterangan: 'Nama mengikuti akun yang ditautkan. Ubah di Pengguna.' } : {})}
+                disabled={akun !== undefined}
                 maxLength={150}
                 required
             />

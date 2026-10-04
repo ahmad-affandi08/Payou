@@ -60,13 +60,18 @@ export default function HalamanTambahPengguna({
     Outlet,
     BatasPengguna,
     BolehCatatKaryawan = false,
-}: PropsBuatUndangan & { BolehCatatKaryawan?: boolean }) {
+    KaryawanTertaut = null,
+}: PropsBuatUndangan & {
+    BolehCatatKaryawan?: boolean;
+    /** D-46: dari "Buatkan akun" di daftar karyawan; akun baru ditautkan ke karyawan ini. */
+    KaryawanTertaut?: { Uuid: string; Nama: string; Jabatan: string | null } | null;
+}) {
     const { props } = usePage<PropsBersamaAplikasi>();
     const sayaPemilik = props.Akses?.Pemilik ?? false;
     const peranTerlihat = Peran.filter((peran) => sayaPemilik || !peran.Pemilik);
     const formulir = useForm<Isian & { Jenis: Jenis }>({
         Jenis: 'Kasir',
-        Nama: '',
+        Nama: KaryawanTertaut?.Nama ?? '',
         Email: '',
         NoHp: '',
         KataSandi: '',
@@ -75,7 +80,7 @@ export default function HalamanTambahPengguna({
         SemuaOutlet: false,
         Outlet: [],
         JugaKaryawan: true,
-        Jabatan: '',
+        Jabatan: KaryawanTertaut?.Jabatan ?? '',
     });
     const d = formulir.data;
     const peranTerpilih = peranTerlihat.find((baris) => baris.Uuid === d.Peran);
@@ -102,8 +107,9 @@ export default function HalamanTambahPengguna({
             Peran: data.Peran,
             SemuaOutlet: data.SemuaOutlet,
             Outlet: data.Outlet,
-            JugaKaryawan: BolehCatatKaryawan && data.JugaKaryawan,
+            JugaKaryawan: BolehCatatKaryawan && KaryawanTertaut === null && data.JugaKaryawan,
             Jabatan: data.Jabatan,
+            UuidKaryawan: KaryawanTertaut?.Uuid ?? '',
         }));
         formulir.post('/kelola/pengguna', { preserveScroll: true, onError: () => formulir.reset('KataSandi', 'Pin') });
     };
@@ -278,12 +284,17 @@ export default function HalamanTambahPengguna({
                             required
                         />
                     ) : null}
-                    {BolehCatatKaryawan ? (
+                    {KaryawanTertaut !== null ? (
+                        <Pemberitahuan jenis="info" judul="Akun untuk karyawan yang sudah ada">
+                            Akun ini akan ditautkan ke karyawan {KaryawanTertaut.Nama}, jadi jadwal, absensi, komisi,
+                            dan gajinya tetap utuh dan ia tidak dicatat dua kali.
+                        </Pemberitahuan>
+                    ) : BolehCatatKaryawan ? (
                         <>
                             <KotakCentang
-                                label="Catat juga sebagai karyawan (jadwal, absensi, komisi, gaji)"
-                                nilai={d.JugaKaryawan}
-                                saatBerubah={(nilai) => formulir.setData('JugaKaryawan', nilai)}
+                                label="Bukan karyawan (hanya akun akses, misal akuntan luar)"
+                                nilai={!d.JugaKaryawan}
+                                saatBerubah={(nilai) => formulir.setData('JugaKaryawan', !nilai)}
                             />
                             {d.JugaKaryawan ? (
                                 <BidangTeks

@@ -44,6 +44,8 @@ final class SimpanKaryawan
             }
 
             $idPengguna = $cocok[0]['Id'];
+            // D-46: karyawan yang punya akun memakai nama akun (satu sumber nama, tidak diisi dua kali).
+            $nama = mb_substr($cocok[0]['Nama'], 0, 150);
         }
 
         $idOutlet = null;

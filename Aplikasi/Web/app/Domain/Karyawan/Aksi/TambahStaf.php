@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Karyawan\Aksi;
 
+use App\Domain\Bersama\Audit\Layanan\PencatatAudit;
+use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Karyawan\Data\DataKaryawan;
+use App\Domain\Karyawan\Model\Karyawan;
 use App\Domain\Organisasi\Aksi\TambahPengguna;
 use App\Domain\Organisasi\Data\DataAksesAnggota;
 use App\Domain\Organisasi\Data\DataPenggunaBaru;
@@ -21,12 +24,27 @@ final class TambahStaf
     public function __construct(
         private readonly TambahPengguna $tambahPengguna,
         private readonly SimpanKaryawan $simpanKaryawan,
+        private readonly PencatatAudit $audit,
     ) {}
 
-    public function Jalankan(Pengguna $pelaku, DataPenggunaBaru $data, DataAksesAnggota $akses, bool $jugaKaryawan, ?string $jabatan): Pengguna
+    public function Jalankan(Pengguna $pelaku, DataPenggunaBaru $data, DataAksesAnggota $akses, bool $jugaKaryawan, ?string $jabatan, ?string $uuidKaryawanTertaut = null): Pengguna
     {
-        return DB::transaction(function () use ($pelaku, $data, $akses, $jugaKaryawan, $jabatan): Pengguna {
+        return DB::transaction(function () use ($pelaku, $data, $akses, $jugaKaryawan, $jabatan, $uuidKaryawanTertaut): Pengguna {
+            $karyawanAda = $uuidKaryawanTertaut === null ? null : Karyawan::query()->where('Uuid', $uuidKaryawanTertaut)->lockForUpdate()->first();
+
+            if ($uuidKaryawanTertaut !== null && ($karyawanAda === null || $karyawanAda->IdPengguna !== null)) {
+                throw new PelanggaranAturanBisnis('KaryawanTidakBisaDitautkan', 'Karyawan ini sudah punya akun atau tidak ditemukan. Muat ulang halaman.', 'UuidKaryawan');
+            }
+
             $pengguna = $this->tambahPengguna->Jalankan($pelaku, $data, $akses);
+
+            // D-46: akun baru untuk karyawan yang sudah ada = menautkannya, bukan membuat karyawan kedua.
+            if ($karyawanAda !== null) {
+                $karyawanAda->forceFill(['IdPengguna' => $pengguna->Id])->save();
+                $this->audit->Catat('karyawan.ubah', $karyawanAda, ['IdPengguna' => null], ['Akun' => $pengguna->Nama, 'Sumber' => 'TambahStaf'], idPengguna: $pelaku->Id);
+
+                return $pengguna;
+            }
 
             if ($jugaKaryawan) {
                 $this->simpanKaryawan->Jalankan(new DataKaryawan(
