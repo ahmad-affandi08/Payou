@@ -65,7 +65,9 @@ export default function HalamanFormPembayaran({
         Object.fromEntries(
             Faktur.map((f) => [
                 f.Uuid,
-                UuidFakturAwal === null || UuidFakturAwal === f.Uuid ? f.Sisa.replace(/\.00$/, '') : '',
+                UuidFakturAwal === null || UuidFakturAwal.split(',').includes(f.Uuid)
+                    ? f.Sisa.replace(/\.00$/, '')
+                    : '',
             ]),
         ),
     );

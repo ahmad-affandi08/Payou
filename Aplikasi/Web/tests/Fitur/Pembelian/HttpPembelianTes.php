@@ -99,7 +99,12 @@ describe('F-04 HTTP pembelian', function (): void {
         $this->get('/kelola/pembelian/hutang')->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
             ->component('Kelola/Pembelian/Hutang/Daftar')->has('Hutang.Data', 1)->where('Hutang.Ringkasan.Total', '756000.00'));
         $this->get("/kelola/pembelian/pembayaran/buat?pemasok={$pemasok->Uuid}&faktur={$faktur->Uuid}")->assertOk()
-            ->assertInertia(fn (AssertableInertia $h) => $h->component('Kelola/Pembelian/Pembayaran/Form')->has('Faktur', 1));
+            ->assertInertia(fn (AssertableInertia $h) => $h->component('Kelola/Pembelian/Pembayaran/Form')->has('Faktur', 1)->where('UuidFakturAwal', $faktur->Uuid));
+        // Aksi massal "Bayar faktur terpilih": beberapa Uuid dipisah koma lolos; selain Uuid sah dibuang.
+        $this->get("/kelola/pembelian/pembayaran/buat?pemasok={$pemasok->Uuid}&faktur={$faktur->Uuid},bukan-uuid,<script>")->assertOk()
+            ->assertInertia(fn (AssertableInertia $h) => $h->where('UuidFakturAwal', $faktur->Uuid));
+        $this->get("/kelola/pembelian/pembayaran/buat?pemasok={$pemasok->Uuid}&faktur=bukan-uuid")->assertOk()
+            ->assertInertia(fn (AssertableInertia $h) => $h->where('UuidFakturAwal', null));
         $akun = BantuanPembelian::AkunKas();
         $this->post('/kelola/pembelian/pembayaran', [
             'UuidPemasok' => $pemasok->Uuid, 'UuidAkun' => $akun->Uuid, 'Tanggal' => BantuanPembelian::Hari()->format('Y-m-d'),

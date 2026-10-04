@@ -1,10 +1,11 @@
 import { Link, router } from '@inertiajs/react';
 
 import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
+import AksiMassalHutang from '@/Komponen/Pembelian/AksiMassalHutang';
 import { AmbilJenisUmur } from '@/Komponen/Pembelian/AturanPembelian';
 import { AlamatPembelian } from '@/Komponen/Pembelian/BagianDokumenPembelian';
 import { HalamanDaftarPembelian, KolomNomor, KolomPemasok, KolomUang } from '@/Komponen/Pembelian/DaftarPembelian';
-import TabelData from '@/Komponen/TabelData/TabelData';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { DefinisiSaring, HasilTabel, KolomTabel } from '@/Komponen/TabelData/Tipe';
 import { ItemAksiBaris } from '@/Komponen/Tindakan/MenuAksiBaris';
 import { Button } from '@/Komponen/Ui/button';
@@ -135,6 +136,9 @@ export default function HalamanDaftarHutang({ Hutang, OpsiUmur, OpsiPemasok, Izi
                 labelBaris={(f) => `faktur ${f.Nomor}`}
                 {...(Izin.Kelola
                     ? {
+                          aksiMassal: (konteks: KonteksAksiMassal<BarisDaftarFaktur>) => (
+                              <AksiMassalHutang konteks={konteks} />
+                          ),
                           aksiBaris: (f: BarisDaftarFaktur) => (
                               <ItemAksiBaris
                                   aksi={[

@@ -1,5 +1,5 @@
-import { fireEvent, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { RenderUji, tiruanRouter } from '@/Komponen/Katalog/TiruanInertia';
 import AksiMassalPiutang from '@/Komponen/Piutang/AksiMassalPiutang';
@@ -18,6 +18,7 @@ function Konteks(terpilih: { Uuid: string; UuidPelanggan: string | null }[]) {
 
 describe('Aksi massal piutang (pengingat WhatsApp)', () => {
     beforeEach(() => tiruanRouter.post.mockClear());
+    afterEach(() => cleanup());
 
     it('mengirim hanya piutang berpelanggan dan menyebut yang tidak ikut', () => {
         RenderUji(

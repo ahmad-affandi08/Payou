@@ -90,11 +90,23 @@ final class HutangKontroler extends DasarPembelianKontroler
             'OpsiPemasok' => $pemasok->AmbilPilihan(),
             'OpsiAkun' => array_map(fn (array $a): array => ['Uuid' => $a['Uuid'], 'Kode' => $a['Kode'], 'Nama' => $a['Nama']], $akun->AmbilKasBank()),
             'UuidPemasok' => $terpilih?->Uuid,
-            'UuidFakturAwal' => is_string($permintaan->query('faktur')) ? $permintaan->query('faktur') : null,
+            // Satu Uuid, atau beberapa dipisah koma (aksi massal "Bayar faktur terpilih"); selain Uuid sah dibuang.
+            'UuidFakturAwal' => $this->AmbilFakturAwal($permintaan->query('faktur')),
             'Faktur' => $terpilih === null ? [] : $detail->FakturTerbuka($terpilih->Id, $this->IdOutletBoleh()),
             'HariIni' => $this->HariIni(),
             'Lampiran' => PenerimaanBarangKontroler::AturanLampiran(),
         ]);
+    }
+
+    private function AmbilFakturAwal(mixed $nilai): ?string
+    {
+        if (! is_string($nilai) || $nilai === '') {
+            return null;
+        }
+
+        $uuid = array_values(array_filter(explode(',', $nilai), fn (string $u): bool => preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/i', $u) === 1));
+
+        return $uuid === [] ? null : implode(',', array_slice($uuid, 0, 100));
     }
 
     public function Simpan(SimpanPembayaranHutangPermintaan $permintaan, SimpanPembayaranHutang $simpan): RedirectResponse
