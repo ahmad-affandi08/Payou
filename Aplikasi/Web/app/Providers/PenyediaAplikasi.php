@@ -40,8 +40,12 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\DiagnosingHealth;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Routing\CompiledRouteCollection;
 use Illuminate\Routing\Route;
+use Illuminate\Routing\RouteCollection;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
@@ -54,6 +58,15 @@ final class PenyediaAplikasi extends ServiceProvider
 {
     public function register(): void
     {
+        // Rute ter-cache tetap menjalankan `ValidatorHalamanSitus` (lihat `PakaiKoleksiRuteBiasa`); tanpa ini
+        // `php artisan optimize` membuat `/masuk` dashboard tertangkap rute halaman situs.
+        RouteServiceProvider::loadCachedRoutesUsing(function (): void {
+            $this->app->booted(function (): void {
+                require $this->app->getCachedRoutesPath();
+                self::PakaiKoleksiRuteBiasa($this->app->make(Router::class));
+            });
+        });
+
         // "scoped": dibuat ulang untuk setiap request/job sehingga tenant tidak terbawa antar-request.
         $this->app->scoped(KonteksTenant::class);
         $this->app->scoped(PencatatAuditPengelola::class);
@@ -70,6 +83,30 @@ final class PenyediaAplikasi extends ServiceProvider
         // D-35: back-office edisi Lisensi mengatur integrasi server lewat kontrak, bukan domain Pengelola langsung.
         $this->app->bind(PengaturIntegrasiServer::class, PengaturIntegrasiServerLisensi::class);
         $this->app->bind(PenyiapDataBawaan::class, SiapkanDataBawaanLisensi::class);
+    }
+
+    /**
+     * Rute ter-cache dicocokkan matcher Symfony yang hanya memeriksa pola, sehingga validator rute kustom
+     * (`ValidatorHalamanSitus`) terlewati: `/{slugHalaman}` yang terdaftar lebih dulu menangkap `/masuk`, `/daftar`,
+     * dan slug toko online, lalu dashboard dialihkan ke domain pemasaran (404). Rute ter-cache dipindah ke koleksi
+     * rute biasa yang menjalankan semua validator; berkas cache tetap dipakai (tanpa membaca ulang `routes/`).
+     * No-op bila rute tidak ter-cache.
+     */
+    public static function PakaiKoleksiRuteBiasa(Router $router): void
+    {
+        $terkompilasi = $router->getRoutes();
+
+        if (! $terkompilasi instanceof CompiledRouteCollection) {
+            return;
+        }
+
+        $biasa = new RouteCollection;
+
+        foreach ($terkompilasi->getRoutes() as $rute) {
+            $biasa->add($rute);
+        }
+
+        $router->setRoutes($biasa);
     }
 
     public function boot(): void
