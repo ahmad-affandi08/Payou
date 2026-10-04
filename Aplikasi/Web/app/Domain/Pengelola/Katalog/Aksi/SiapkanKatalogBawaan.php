@@ -90,7 +90,7 @@ final class SiapkanKatalogBawaan
     /**
      * @return list<array<string, mixed>>
      */
-    private static function BacaJson(string $path, string $kunci): array
+    public static function BacaJson(string $path, string $kunci): array
     {
         $isi = is_readable($path) ? file_get_contents($path) : false;
         $data = $isi === false ? null : json_decode($isi, true);
@@ -105,7 +105,7 @@ final class SiapkanKatalogBawaan
     /**
      * @param  array<mixed>  $data
      */
-    private static function AmbilTeks(array $data, string $kunci): string
+    public static function AmbilTeks(array $data, string $kunci): string
     {
         if (! is_string($data[$kunci] ?? null)) {
             throw new RuntimeException("Kolom {$kunci} wajib berupa teks di file data katalog.");

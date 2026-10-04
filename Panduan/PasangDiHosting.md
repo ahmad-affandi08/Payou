@@ -93,6 +93,8 @@ php artisan key:generate
 php artisan migrate --force
 php artisan db:seed --force                  # peran, satuan, wilayah, pajak, katalog paket, template sektor
 php artisan panduan-awal:siapkan-bawaan
+php artisan katalog:lengkapi-fitur --kering   # setelah update: lihat fitur katalog yang belum masuk paket
+php artisan katalog:lengkapi-fitur            # terapkan (aditif, aman diulang; mis. persetujuan jarak jauh di paket Bisnis)
 php artisan storage:link                     # bila galat "undefined function exec()": ln -s ../storage/app/public public/storage
 php artisan pengelola:buat-super-admin --nama="Nama Anda" --email="email@anda"   # akun pertama konsol; kata sandi ditanyakan
 ```
