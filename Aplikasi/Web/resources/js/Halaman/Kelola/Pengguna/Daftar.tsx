@@ -6,7 +6,8 @@ import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
 import Tombol from '@/Komponen/Formulir/Tombol';
 import FormAksesPengguna from '@/Komponen/Kelola/FormAksesPengguna';
 import TabPengguna from '@/Komponen/Kelola/TabPengguna';
-import TabelData from '@/Komponen/TabelData/TabelData';
+import AksiMassalPengguna from '@/Komponen/Organisasi/AksiMassalPengguna';
+import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
 import type { KolomTabel } from '@/Komponen/TabelData/Tipe';
 import DialogFormulir from '@/Komponen/Tindakan/DialogFormulir';
 import DialogKonfirmasi from '@/Komponen/Tindakan/DialogKonfirmasi';
@@ -319,6 +320,19 @@ export default function HalamanDaftarPengguna({
                     },
                 ]}
                 labelBaris={(anggota) => `untuk ${anggota.Nama}`}
+                {...(bolehUbah || bolehNonaktifkan
+                    ? {
+                          aksiMassal: (konteks: KonteksAksiMassal<Anggota>) => (
+                              <AksiMassalPengguna
+                                  konteks={konteks}
+                                  peran={peranTerlihat}
+                                  bolehSentuh={BolehSentuh}
+                                  bolehUbah={bolehUbah}
+                                  bolehNonaktifkan={bolehNonaktifkan}
+                              />
+                          ),
+                      }
+                    : {})}
                 aksiBaris={(anggota) => {
                     const aksi = SusunAksi(anggota);
 

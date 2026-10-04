@@ -69,6 +69,7 @@ Route::middleware(SiapkanAuditTenant::class)->group(function () use ($izin): voi
     Route::get('/pengguna/undangan/buat', [PenggunaKontroler::class, 'BuatUndangan'])->middleware($izin(IzinTenant::PenggunaUndang))->name('kelola.pengguna.undangan.formulir');
     Route::post('/pengguna/undangan', [PenggunaKontroler::class, 'Undang'])->middleware($izin(IzinTenant::PenggunaUndang))->name('kelola.pengguna.undangan.buat');
     Route::post('/pengguna/undangan/{undangan}/batalkan', [PenggunaKontroler::class, 'BatalkanUndangan'])->middleware($izin(IzinTenant::PenggunaUndang))->name('kelola.pengguna.undangan.batalkan');
+    Route::post('/pengguna/massal', [PenggunaKontroler::class, 'Massal'])->middleware($izin(IzinTenant::PenggunaLihat))->name('kelola.pengguna.massal');
     Route::post('/pengguna/{pengguna}/karyawan', [PenggunaKontroler::class, 'CatatSebagaiKaryawan'])->middleware($izin(IzinTenant::KaryawanKelola))->name('kelola.pengguna.karyawan');
     Route::put('/pengguna/{pengguna}/akses', [PenggunaKontroler::class, 'UbahAkses'])->middleware($izin(IzinTenant::PenggunaUbah))->name('kelola.pengguna.akses');
     Route::post('/pengguna/{pengguna}/nonaktifkan', [PenggunaKontroler::class, 'Nonaktifkan'])->middleware($izin(IzinTenant::PenggunaNonaktifkan))->name('kelola.pengguna.nonaktifkan');

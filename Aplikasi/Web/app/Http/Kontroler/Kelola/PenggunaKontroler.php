@@ -11,6 +11,7 @@ use App\Domain\Karyawan\Kueri\PetaKaryawanPengguna;
 use App\Domain\Karyawan\Model\Karyawan;
 use App\Domain\Organisasi\Aksi\BatalkanUndangan;
 use App\Domain\Organisasi\Aksi\UbahAksesAnggota;
+use App\Domain\Organisasi\Aksi\UbahAnggotaMassal;
 use App\Domain\Organisasi\Aksi\UbahStatusAnggota;
 use App\Domain\Organisasi\Aksi\UndangPengguna;
 use App\Domain\Organisasi\Enum\IzinTenant;
@@ -32,6 +33,7 @@ use App\Http\Permintaan\Kelola\TambahPenggunaPermintaan;
 use App\Http\Permintaan\Kelola\UndangPenggunaPermintaan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -158,6 +160,30 @@ final class PenggunaKontroler extends DasarKelolaKontroler
         $ubah->Jalankan($this->Pelaku()->Id, $anggota, StatusKeanggotaan::Nonaktif);
 
         return back()->with('Kilat', "{$nama} dinonaktifkan dan langsung keluar dari usaha ini.");
+    }
+
+    /** Aksi massal anggota terpilih: nonaktifkan, aktifkan kembali, atau ganti peran. Izin dicek per aksi. */
+    public function Massal(Request $permintaan, UbahAnggotaMassal $ubah, AksesPengguna $akses): RedirectResponse
+    {
+        $valid = $permintaan->validate([
+            'Aksi' => ['required', 'string', Rule::in(UbahAnggotaMassal::AKSI)],
+            'Uuid' => ['required', 'array', 'min:1', 'max:'.UbahAnggotaMassal::MAKS],
+            'Uuid.*' => ['required', 'ulid'],
+            'UuidPeran' => ['nullable', 'ulid'],
+        ], attributes: ['Uuid' => 'pengguna terpilih', 'UuidPeran' => 'peran']);
+        $izin = $valid['Aksi'] === 'Peran' ? IzinTenant::PenggunaUbah : IzinTenant::PenggunaNonaktifkan;
+        abort_unless($akses->CekIzin($this->IdTenant(), $this->Pelaku()->Id, $izin), 403);
+        /** @var list<string> $uuid */
+        $uuid = array_values($valid['Uuid']);
+        $hasil = $ubah->Jalankan($this->Pelaku()->Id, $valid['Aksi'], $uuid, is_string($valid['UuidPeran'] ?? null) ? $valid['UuidPeran'] : null);
+        $kata = match ($valid['Aksi']) {
+            'Nonaktifkan' => 'dinonaktifkan dan langsung keluar dari usaha ini',
+            'Aktifkan' => 'aktif kembali',
+            default => 'berganti peran',
+        };
+        $lewat = $hasil['Dilewati'] > 0 ? " {$hasil['Dilewati']} dilewati karena sudah begitu." : '';
+
+        return back()->with('Kilat', "{$hasil['Diubah']} pengguna {$kata}.{$lewat}");
     }
 
     public function Aktifkan(string $pengguna, UbahStatusAnggota $ubah): RedirectResponse

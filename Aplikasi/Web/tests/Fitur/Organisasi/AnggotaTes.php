@@ -183,3 +183,59 @@ describe('Nonaktifkan & aktifkan kembali anggota', function (): void {
                 ->where('UuidSaya', $pemilik->Uuid));
     });
 });
+
+describe('Aksi massal anggota', function (): void {
+    it('nonaktifkan dan aktifkan banyak sekaligus, yang sudah berstatus itu dilewati, audit per anggota', function (): void {
+        ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant();
+        $kasir1 = BantuanOrganisasi::TambahAnggota($tenant->Id, PeranTenantBawaan::Kasir);
+        $kasir2 = BantuanOrganisasi::TambahAnggota($tenant->Id, PeranTenantBawaan::Kasir);
+        $masuk = fn () => BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id);
+
+        $masuk()->post("/kelola/pengguna/{$kasir1->Uuid}/nonaktifkan")->assertSessionHasNoErrors();
+        $masuk()->post('/kelola/pengguna/massal', ['Aksi' => 'Nonaktifkan', 'Uuid' => [$kasir1->Uuid, $kasir2->Uuid]])
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('Kilat', '1 pengguna dinonaktifkan dan langsung keluar dari usaha ini. 1 dilewati karena sudah begitu.');
+        expect(AnggotaUji($tenant->Id, $kasir1->Id)->Status)->toBe(StatusKeanggotaan::Nonaktif)
+            ->and(AnggotaUji($tenant->Id, $kasir2->Id)->Status)->toBe(StatusKeanggotaan::Nonaktif);
+
+        $masuk()->post('/kelola/pengguna/massal', ['Aksi' => 'Aktifkan', 'Uuid' => [$kasir1->Uuid, $kasir2->Uuid]])
+            ->assertSessionHas('Kilat', '2 pengguna aktif kembali.');
+        expect(AnggotaUji($tenant->Id, $kasir1->Id)->Status)->toBe(StatusKeanggotaan::Aktif);
+        $this->assertDatabaseHas('LogAudit', ['IdTenant' => $tenant->Id, 'Peristiwa' => 'pengguna.nonaktifkan', 'IdObjek' => AnggotaUji($tenant->Id, $kasir2->Id)->Id]);
+    });
+
+    it('penjaga tetap berlaku: diri sendiri dan Pemilik terakhir menolak seluruhnya, ganti peran mempertahankan outlet', function (): void {
+        ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant();
+        $kasir1 = BantuanOrganisasi::TambahAnggota($tenant->Id, PeranTenantBawaan::Kasir, semuaOutlet: false);
+        $kasir2 = BantuanOrganisasi::TambahAnggota($tenant->Id, PeranTenantBawaan::Kasir);
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        $utama = Outlet::query()->sole();
+        $peranKasir = BantuanOrganisasi::Peran($tenant->Id, PeranTenantBawaan::Kasir);
+        OutletPengguna::query()->create(['IdOutlet' => $utama->Id, 'IdPengguna' => $kasir1->Id, 'IdPeran' => $peranKasir->Id]);
+        $peranManajer = BantuanOrganisasi::Peran($tenant->Id, PeranTenantBawaan::ManajerOutlet);
+        $masuk = fn () => BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id);
+
+        // Menyertakan diri sendiri menolak semua (satu transaksi).
+        $masuk()->post('/kelola/pengguna/massal', ['Aksi' => 'Nonaktifkan', 'Uuid' => [$kasir1->Uuid, $pemilik->Uuid]])->assertSessionHasErrors('Umum');
+        expect(AnggotaUji($tenant->Id, $kasir1->Id)->Status)->toBe(StatusKeanggotaan::Aktif);
+
+        $masuk()->post('/kelola/pengguna/massal', ['Aksi' => 'Peran', 'Uuid' => [$kasir1->Uuid, $kasir2->Uuid], 'UuidPeran' => $peranManajer->Uuid])
+            ->assertSessionHasNoErrors()->assertSessionHas('Kilat', '2 pengguna berganti peran.');
+        expect(AnggotaUji($tenant->Id, $kasir1->Id)->IdPeran)->toBe($peranManajer->Id)->and(AnggotaUji($tenant->Id, $kasir1->Id)->SemuaOutlet)->toBeFalse()
+            ->and(AnggotaUji($tenant->Id, $kasir2->Id)->SemuaOutlet)->toBeTrue();
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        expect(OutletPengguna::query()->where('IdPengguna', $kasir1->Id)->sole()->IdOutlet)->toBe($utama->Id);
+
+        $masuk()->post('/kelola/pengguna/massal', ['Aksi' => 'Peran', 'Uuid' => [$kasir1->Uuid]])->assertSessionHasErrors('UuidPeran');
+        $masuk()->post('/kelola/pengguna/massal', ['Aksi' => 'Peran', 'Uuid' => [$kasir1->Uuid, '01J9ZZZZZZZZZZZZZZZZZZZZZZ'], 'UuidPeran' => $peranKasir->Uuid])->assertSessionHasErrors('Uuid');
+        $masuk()->post('/kelola/pengguna/massal', ['Aksi' => 'Hapus', 'Uuid' => [$kasir1->Uuid]])->assertSessionHasErrors('Aksi');
+    });
+
+    it('kasir tanpa izin pengguna ditolak', function (): void {
+        ['Tenant' => $tenant] = BantuanOrganisasi::BuatTenant();
+        $kasir = BantuanOrganisasi::TambahAnggota($tenant->Id, PeranTenantBawaan::Kasir);
+        $lain = BantuanOrganisasi::TambahAnggota($tenant->Id, PeranTenantBawaan::Kasir);
+
+        BantuanOrganisasi::Masuk($this, $kasir, $tenant->Id)->post('/kelola/pengguna/massal', ['Aksi' => 'Nonaktifkan', 'Uuid' => [$lain->Uuid]])->assertForbidden();
+    });
+});
