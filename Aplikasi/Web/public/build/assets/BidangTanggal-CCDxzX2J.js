@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-CM6s92_4.js";import{t}from"./PemilihTanggal-6Kog7IoX.js";var n=e();function r(e){return(0,n.jsx)(t,{...e})}export{r as t};
