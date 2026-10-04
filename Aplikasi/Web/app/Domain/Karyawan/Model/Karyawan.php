@@ -22,6 +22,9 @@ use Illuminate\Support\Carbon;
  * @property string|null $Jabatan
  * @property string|null $LevelStaf
  * @property string|null $GajiPokok
+ * @property string|null $TarifLemburPerJam F-18 bagian 5: tarif lembur per jam, potongan per menit terlambat, potongan per hari tidak masuk (null = tidak dihitung)
+ * @property string|null $PotonganTerlambatPerMenit
+ * @property string|null $PotonganTidakMasukPerHari
  * @property StatusKaryawan $Status
  * @property string|null $TokenAbsen F-18 bagian 4: tautan absen HP pribadi (terenkripsi; ditampilkan ulang ke pengelola)
  * @property string|null $HashTokenAbsen
@@ -48,6 +51,9 @@ final class Karyawan extends ModelDasar
     {
         return [
             'GajiPokok' => 'decimal:2',
+            'TarifLemburPerJam' => 'decimal:2',
+            'PotonganTerlambatPerMenit' => 'decimal:2',
+            'PotonganTidakMasukPerHari' => 'decimal:2',
             'Status' => StatusKaryawan::class,
             'TokenAbsen' => 'encrypted',
             'TokenAbsenDibuatPada' => 'datetime',

@@ -19,10 +19,13 @@ use App\Domain\Karyawan\Enum\StatusKaryawan;
 use App\Domain\Karyawan\Enum\StatusRekapGaji;
 use App\Domain\Karyawan\Kueri\DaftarKasbon;
 use App\Domain\Karyawan\Kueri\LaporanKomisi;
+use App\Domain\Karyawan\Kueri\RekapKehadiranPeriode;
 use App\Domain\Karyawan\Model\Karyawan;
 use App\Domain\Karyawan\Model\RekapGaji;
 use App\Domain\Karyawan\Model\RekapGajiBaris;
 use App\Domain\Tenant\Kueri\ProfilTenant;
+use Brick\Math\BigDecimal;
+use Brick\Math\RoundingMode;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -37,6 +40,11 @@ use Illuminate\Support\Facades\DB;
  * - **Bayar**: satu jurnal seimbang per outlet utama karyawan: Dr akun beban (bawaan 6-1000 Beban Gaji & Komisi) Σ
  *   kotor, Cr Piutang Karyawan Σ potongan kasbon, Cr Pendapatan Lain Σ potongan lain, Cr kas/bank Σ bersih. Potongan
  *   kasbon dicatat sebagai pelunasan kasbon terlama dulu. Status Dibayar (append-only). Audit `rekap-gaji.bayar`.
+ * - **Lembur & potongan kehadiran (F-18 bagian 5, D-44):** saat draf dibuat, `RekapKehadiranPeriode` menghitung menit
+ *   lembur, menit terlambat, dan hari tidak masuk dari absensi vs jadwal; dikalikan tarif di `Karyawan` (lembur per jam,
+ *   potongan per menit terlambat, potongan per hari tidak masuk; tarif kosong = tidak dihitung). Lembur menambah gaji
+ *   kotor; potongan kehadiran dibatasi sampai gaji kotor dan, seperti potongan lain, dikreditkan ke Pendapatan Lain di
+ *   J-18.2. Semua nilai bisa disesuaikan pengelola selama draf.
  * Komisi yang dibatalkan setelah gaji dibayar (retur bulan berikutnya) tidak dipotong otomatis.
  */
 final class KelolaRekapGaji
@@ -45,6 +53,7 @@ final class KelolaRekapGaji
         private readonly KonteksTenant $konteks,
         private readonly ProfilTenant $profil,
         private readonly LaporanKomisi $komisi,
+        private readonly RekapKehadiranPeriode $kehadiran,
         private readonly DaftarKasbon $kasbon,
         private readonly KelolaKasbon $kelolaKasbon,
         private readonly DaftarAkunPilihan $akun,
@@ -74,29 +83,44 @@ final class KelolaRekapGaji
                 ->where(fn ($k) => $k->where('Status', StatusKaryawan::Aktif->value)->orWhereIn('Id', array_keys($komisi)))
                 ->orderBy('Nama')
                 ->get();
+            $hadir = $this->kehadiran->Hitung($awal->toDateString(), $awal->endOfMonth()->toDateString(), $this->HariIni());
             $sisaKasbon = $this->HitungSisaKasbon(array_values(array_map('intval', $karyawan->pluck('Id')->all())));
             $rekap = RekapGaji::query()->create(['Periode' => $periode, 'Status' => StatusRekapGaji::Draf, 'DibuatOleh' => $idPengguna]);
 
             foreach ($karyawan as $k) {
                 $pokok = Uang::Dari($k->GajiPokok ?? '0');
                 $nilaiKomisi = Uang::Dari($komisi[$k->Id] ?? '0');
+                $h = $hadir[$k->Id] ?? ['TerlambatMenit' => 0, 'LemburMenit' => 0, 'HariTidakMasuk' => 0];
+                $lembur = $k->TarifLemburPerJam === null ? Uang::Nol() : self::HitungPerJam($k->TarifLemburPerJam, $h['LemburMenit']);
 
-                if ($pokok->BernilaiNol() && $nilaiKomisi->BernilaiNol()) {
+                if ($pokok->BernilaiNol() && $nilaiKomisi->BernilaiNol() && $lembur->BernilaiNol()) {
                     continue;
                 }
 
-                $kotor = $pokok->Tambah($nilaiKomisi);
+                $kotor = $pokok->Tambah($nilaiKomisi)->Tambah($lembur);
+                $potTerlambat = $k->PotonganTerlambatPerMenit === null ? Uang::Nol() : Uang::Dari($k->PotonganTerlambatPerMenit)->Kali($h['TerlambatMenit']);
+                $potTidakMasuk = $k->PotonganTidakMasukPerHari === null ? Uang::Nol() : Uang::Dari($k->PotonganTidakMasukPerHari)->Kali($h['HariTidakMasuk']);
+                // Potongan kehadiran tidak boleh membuat gaji minus: terlambat dulu, lalu tidak masuk, sampai sebatas gaji kotor.
+                $potTerlambat = $potTerlambat->Bandingkan($kotor) > 0 ? $kotor : $potTerlambat;
+                $potTidakMasuk = $potTerlambat->Tambah($potTidakMasuk)->Bandingkan($kotor) > 0 ? $kotor->Kurangi($potTerlambat) : $potTidakMasuk;
+                $sisaKotor = $kotor->Kurangi($potTerlambat)->Kurangi($potTidakMasuk);
                 $sisa = $sisaKasbon[$k->Id] ?? Uang::Nol();
-                $potong = $sisa->Bandingkan($kotor) > 0 ? $kotor : $sisa;
+                $potong = $sisa->Bandingkan($sisaKotor) > 0 ? $sisaKotor : $sisa;
                 RekapGajiBaris::query()->create([
                     'IdRekapGaji' => $rekap->Id,
                     'IdKaryawan' => $k->Id,
                     'GajiPokok' => $pokok->KeString(),
                     'Komisi' => $nilaiKomisi->KeString(),
                     'Tambahan' => '0.00',
+                    'LemburMenit' => $h['LemburMenit'],
+                    'Lembur' => $lembur->KeString(),
+                    'TerlambatMenit' => $h['TerlambatMenit'],
+                    'PotonganTerlambat' => $potTerlambat->KeString(),
+                    'HariTidakMasuk' => $h['HariTidakMasuk'],
+                    'PotonganTidakMasuk' => $potTidakMasuk->KeString(),
                     'PotonganKasbon' => $potong->KeString(),
                     'PotonganLain' => '0.00',
-                    'Bersih' => $kotor->Kurangi($potong)->KeString(),
+                    'Bersih' => $sisaKotor->Kurangi($potong)->KeString(),
                 ]);
             }
 
@@ -107,15 +131,15 @@ final class KelolaRekapGaji
         });
     }
 
-    public function UbahBaris(RekapGaji $rekap, string $uuidKaryawan, Uang $tambahan, Uang $potonganKasbon, Uang $potonganLain, ?string $catatan): RekapGajiBaris
+    public function UbahBaris(RekapGaji $rekap, string $uuidKaryawan, Uang $tambahan, Uang $potonganKasbon, Uang $potonganLain, ?string $catatan, ?Uang $lembur = null, ?Uang $potonganTerlambat = null, ?Uang $potonganTidakMasuk = null): RekapGajiBaris
     {
-        foreach (['Tambahan' => $tambahan, 'PotonganKasbon' => $potonganKasbon, 'PotonganLain' => $potonganLain] as $bidang => $nilai) {
-            if ($nilai->BernilaiNegatif()) {
+        foreach (['Tambahan' => $tambahan, 'PotonganKasbon' => $potonganKasbon, 'PotonganLain' => $potonganLain, 'Lembur' => $lembur, 'PotonganTerlambat' => $potonganTerlambat, 'PotonganTidakMasuk' => $potonganTidakMasuk] as $bidang => $nilai) {
+            if ($nilai?->BernilaiNegatif() === true) {
                 throw new PelanggaranAturanBisnis('JumlahTidakValid', 'Jumlah tidak boleh minus.', $bidang);
             }
         }
 
-        return DB::transaction(function () use ($rekap, $uuidKaryawan, $tambahan, $potonganKasbon, $potonganLain, $catatan): RekapGajiBaris {
+        return DB::transaction(function () use ($rekap, $uuidKaryawan, $tambahan, $potonganKasbon, $potonganLain, $catatan, $lembur, $potonganTerlambat, $potonganTidakMasuk): RekapGajiBaris {
             $rekap = $this->KunciDraf($rekap);
             $idKaryawan = Karyawan::query()->where('Uuid', $uuidKaryawan)->value('Id');
             $baris = $idKaryawan === null ? null : RekapGajiBaris::query()->where('IdRekapGaji', $rekap->Id)->where('IdKaryawan', $idKaryawan)->first();
@@ -130,11 +154,15 @@ final class KelolaRekapGaji
                 throw new PelanggaranAturanBisnis('MelebihiSisaKasbon', 'Potongan kasbon melebihi sisa kasbon '.$sisa->FormatRupiah().'.', 'PotonganKasbon');
             }
 
-            $lama = $baris->only(['Tambahan', 'PotonganKasbon', 'PotonganLain', 'Catatan']);
+            $kolomAudit = ['Tambahan', 'Lembur', 'PotonganKasbon', 'PotonganLain', 'PotonganTerlambat', 'PotonganTidakMasuk', 'Catatan'];
+            $lama = $baris->only($kolomAudit);
             $baris->fill([
                 'Tambahan' => $tambahan->KeString(),
+                'Lembur' => ($lembur ?? Uang::Dari($baris->Lembur))->KeString(),
                 'PotonganKasbon' => $potonganKasbon->KeString(),
                 'PotonganLain' => $potonganLain->KeString(),
+                'PotonganTerlambat' => ($potonganTerlambat ?? Uang::Dari($baris->PotonganTerlambat))->KeString(),
+                'PotonganTidakMasuk' => ($potonganTidakMasuk ?? Uang::Dari($baris->PotonganTidakMasuk))->KeString(),
                 'Catatan' => $catatan,
             ]);
             $bersih = $baris->HitungKotor()->Kurangi($baris->HitungPotongan());
@@ -146,7 +174,7 @@ final class KelolaRekapGaji
             $baris->Bersih = $bersih->KeString();
             $baris->save();
             $this->HitungTotal($rekap);
-            $this->audit->Catat('rekap-gaji.ubah', $rekap, nilaiLama: $lama, nilaiBaru: $baris->only(['Tambahan', 'PotonganKasbon', 'PotonganLain', 'Catatan']));
+            $this->audit->Catat('rekap-gaji.ubah', $rekap, nilaiLama: $lama, nilaiBaru: $baris->only($kolomAudit));
 
             return $baris;
         });
@@ -189,7 +217,7 @@ final class KelolaRekapGaji
                 $perOutlet[$kunci] = [
                     'Kotor' => $nilai['Kotor']->Tambah($b->HitungKotor()),
                     'Kasbon' => $nilai['Kasbon']->Tambah(Uang::Dari($b->PotonganKasbon)),
-                    'Lain' => $nilai['Lain']->Tambah(Uang::Dari($b->PotonganLain)),
+                    'Lain' => $nilai['Lain']->Tambah(Uang::Dari($b->PotonganLain))->Tambah(Uang::Dari($b->PotonganTerlambat))->Tambah(Uang::Dari($b->PotonganTidakMasuk)),
                     'Bersih' => $nilai['Bersih']->Tambah(Uang::Dari($b->Bersih)),
                 ];
             }
@@ -200,7 +228,7 @@ final class KelolaRekapGaji
                 $idOutlet = $kunci === 0 ? null : $kunci;
                 $barisJurnal[] = new DataBarisJurnal(peran: null, idAkun: $akunBeban, idOutlet: $idOutlet, debit: $n['Kotor'], kredit: Uang::Nol(), memo: "Gaji {$rekap->Periode}");
                 $barisJurnal[] = DataBarisJurnal::Kredit(PeranAkun::PiutangKaryawan, $n['Kasbon'], $idOutlet, 'Potongan kasbon');
-                $barisJurnal[] = DataBarisJurnal::Kredit(PeranAkun::PendapatanLain, $n['Lain'], $idOutlet, 'Potongan lain gaji');
+                $barisJurnal[] = DataBarisJurnal::Kredit(PeranAkun::PendapatanLain, $n['Lain'], $idOutlet, 'Potongan lain & kehadiran gaji');
                 $barisJurnal[] = new DataBarisJurnal(peran: null, idAkun: $akunKas, idOutlet: $idOutlet, debit: Uang::Nol(), kredit: $n['Bersih'], memo: 'Gaji dibayar');
             }
 
@@ -256,6 +284,12 @@ final class KelolaRekapGaji
                 throw new PelanggaranAturanBisnis('MelebihiSisaKasbon', 'Potongan kasbon melebihi sisa kasbon karyawan. Muat ulang rekap lalu sesuaikan potongan.');
             }
         }
+    }
+
+    /** Tarif per jam × menit ÷ 60, dibulatkan ke sen (HalfUp); satu pembulatan di akhir supaya tidak menumpuk. */
+    private static function HitungPerJam(string $tarifPerJam, int $menit): Uang
+    {
+        return Uang::Dari(BigDecimal::of($tarifPerJam)->multipliedBy($menit)->dividedBy(60, 2, RoundingMode::HalfUp));
     }
 
     private function KunciDraf(RekapGaji $rekap): RekapGaji

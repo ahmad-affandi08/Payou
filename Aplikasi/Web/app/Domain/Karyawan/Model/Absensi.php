@@ -37,6 +37,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $AkurasiKeluarMeter
  * @property int|null $JarakKeluarMeter
  * @property string|null $KemiripanWajahKeluar
+ * @property bool $DiluarJadwal absen POS masuk saat aturan wajib-jadwal aktif tetapi tidak sesuai jadwal (F-18 bagian 5)
  * @property bool|null $QrMasukTerverifikasi kode layar QR outlet ikut dibuktikan saat masuk (null = tidak diminta)
  * @property bool|null $QrKeluarTerverifikasi
  */
@@ -54,7 +55,7 @@ final class Absensi extends ModelDasar
     public const SUMBER_WEB = 'Web';
 
     /** @var array<string, mixed> */
-    protected $attributes = ['Sumber' => self::SUMBER_POS];
+    protected $attributes = ['Sumber' => self::SUMBER_POS, 'DiluarJadwal' => false];
 
     /**
      * @return array<string, string>
@@ -63,6 +64,7 @@ final class Absensi extends ModelDasar
     {
         return [
             'TanggalBisnis' => 'date',
+            'DiluarJadwal' => 'boolean',
             'MasukPada' => 'datetime',
             'KeluarPada' => 'datetime',
             'DikoreksiPada' => 'datetime',

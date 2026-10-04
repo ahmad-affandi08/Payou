@@ -17,6 +17,7 @@ import { DropdownMenuItem } from '@/Komponen/Ui/dropdown-menu';
 import LabelStatus from '@/Komponen/Umpan/LabelStatus';
 import { FormatRupiah } from '@/Pustaka/Format';
 import { FormatTanggal } from '@/Pustaka/FormatWaktu';
+import { JumlahkanDesimal } from '@/Pustaka/HitungDesimal';
 import { TulisTanggal } from '@/Pustaka/Tanggal';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 import type { BarisGajiKaryawan, OpsiAkunGaji, PropsDetailRekapGaji } from '@/Tipe/Karyawan';
@@ -68,6 +69,37 @@ const kolom: KolomTabel<BarisGajiKaryawan>[] = [
         enableSorting: false,
         meta: { label: 'Tambahan', prioritas: 'rendah', angka: true },
         cell: ({ row }) => Rupiah(row.original.Tambahan),
+    },
+    {
+        id: 'Lembur',
+        accessorKey: 'Lembur',
+        header: 'Lembur',
+        enableSorting: false,
+        meta: { label: 'Lembur', prioritas: 'rendah', angka: true },
+        cell: ({ row: { original: b } }) => (
+            <span className="flex flex-col items-end">
+                <span>{Rupiah(b.Lembur)}</span>
+                {b.LemburMenit > 0 ? (
+                    <span className="text-keterangan text-teks-sekunder">{b.LemburMenit} menit</span>
+                ) : null}
+            </span>
+        ),
+    },
+    {
+        id: 'PotonganKehadiran',
+        header: 'Potongan kehadiran',
+        enableSorting: false,
+        meta: { label: 'Potongan terlambat & tidak masuk', prioritas: 'rendah', angka: true },
+        cell: ({ row: { original: b } }) => (
+            <span className="flex flex-col items-end">
+                <span>{Rupiah(JumlahkanDesimal([b.PotonganTerlambat, b.PotonganTidakMasuk]))}</span>
+                {b.TerlambatMenit > 0 || b.HariTidakMasuk > 0 ? (
+                    <span className="text-keterangan text-teks-sekunder">
+                        {b.TerlambatMenit} menit terlambat | {b.HariTidakMasuk} hari tidak masuk
+                    </span>
+                ) : null}
+            </span>
+        ),
     },
     {
         id: 'PotonganKasbon',
@@ -261,6 +293,9 @@ function FormUbahBaris({
 }) {
     const formulir = useForm({
         Tambahan: TanpaDesimalNol(baris.Tambahan),
+        Lembur: TanpaDesimalNol(baris.Lembur),
+        PotonganTerlambat: TanpaDesimalNol(baris.PotonganTerlambat),
+        PotonganTidakMasuk: TanpaDesimalNol(baris.PotonganTidakMasuk),
         PotonganKasbon: TanpaDesimalNol(baris.PotonganKasbon),
         PotonganLain: TanpaDesimalNol(baris.PotonganLain),
         Catatan: baris.Catatan ?? '',
@@ -283,6 +318,27 @@ function FormUbahBaris({
                     nilai={formulir.data.Tambahan}
                     saatBerubah={(nilai) => formulir.setData('Tambahan', nilai)}
                     galat={formulir.errors.Tambahan}
+                    required
+                />
+                <BidangUang
+                    label={`Lembur${baris.LemburMenit > 0 ? ` (${String(baris.LemburMenit)} menit terhitung)` : ''}`}
+                    nilai={formulir.data.Lembur}
+                    saatBerubah={(nilai) => formulir.setData('Lembur', nilai)}
+                    galat={formulir.errors.Lembur}
+                    required
+                />
+                <BidangUang
+                    label={`Potongan terlambat${baris.TerlambatMenit > 0 ? ` (${String(baris.TerlambatMenit)} menit)` : ''}`}
+                    nilai={formulir.data.PotonganTerlambat}
+                    saatBerubah={(nilai) => formulir.setData('PotonganTerlambat', nilai)}
+                    galat={formulir.errors.PotonganTerlambat}
+                    required
+                />
+                <BidangUang
+                    label={`Potongan tidak masuk${baris.HariTidakMasuk > 0 ? ` (${String(baris.HariTidakMasuk)} hari)` : ''}`}
+                    nilai={formulir.data.PotonganTidakMasuk}
+                    saatBerubah={(nilai) => formulir.setData('PotonganTidakMasuk', nilai)}
+                    galat={formulir.errors.PotonganTidakMasuk}
                     required
                 />
                 <BidangUang

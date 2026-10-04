@@ -62,7 +62,10 @@ function Slip({ baris, props }: { baris: BarisGajiKaryawan; props: PropsSlipGaji
                         <BarisNilai label="Gaji pokok" nilai={baris.GajiPokok} />
                         {CekAda(baris.Komisi) ? <BarisNilai label="Komisi" nilai={baris.Komisi} /> : null}
                         {CekAda(baris.Tambahan) ? (
-                            <BarisNilai label="Tambahan (lembur/tunjangan)" nilai={baris.Tambahan} />
+                            <BarisNilai label="Tambahan (tunjangan)" nilai={baris.Tambahan} />
+                        ) : null}
+                        {CekAda(baris.Lembur) ? (
+                            <BarisNilai label={`Lembur (${String(baris.LemburMenit)} menit)`} nilai={baris.Lembur} />
                         ) : null}
                         <div className="flex justify-between gap-3 border-t border-garis pt-1 font-semibold">
                             <dt>Gaji kotor</dt>
@@ -74,6 +77,20 @@ function Slip({ baris, props }: { baris: BarisGajiKaryawan; props: PropsSlipGaji
                     <h2 className="text-label font-semibold text-teks-sekunder">Potongan</h2>
                     <dl className="flex flex-col gap-1">
                         <BarisNilai label="Potongan kasbon" nilai={baris.PotonganKasbon} kurang />
+                        {CekAda(baris.PotonganTerlambat) ? (
+                            <BarisNilai
+                                label={`Terlambat (${String(baris.TerlambatMenit)} menit)`}
+                                nilai={baris.PotonganTerlambat}
+                                kurang
+                            />
+                        ) : null}
+                        {CekAda(baris.PotonganTidakMasuk) ? (
+                            <BarisNilai
+                                label={`Tidak masuk (${String(baris.HariTidakMasuk)} hari)`}
+                                nilai={baris.PotonganTidakMasuk}
+                                kurang
+                            />
+                        ) : null}
                         {CekAda(baris.PotonganLain) ? (
                             <BarisNilai label="Potongan lain" nilai={baris.PotonganLain} kurang />
                         ) : null}

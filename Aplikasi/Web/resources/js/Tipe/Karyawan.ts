@@ -12,6 +12,10 @@ export type BarisKaryawan = {
     LevelStaf: string | null;
     /** Hanya untuk pelihat ber-izin `karyawan.kelola`. */
     GajiPokok: string | null;
+    /** D-44: tarif lembur per jam, potongan per menit terlambat, potongan per hari tidak masuk (hanya `karyawan.kelola`). */
+    TarifLemburPerJam: string | null;
+    PotonganTerlambatPerMenit: string | null;
+    PotonganTidakMasukPerHari: string | null;
     UuidPengguna: string | null;
     NamaPengguna: string | null;
     UuidOutlet: string | null;
@@ -67,7 +71,7 @@ export type PropsJadwalKerja = {
     Izin: { Kelola: boolean };
 };
 
-export type StatusKehadiran = 'TepatWaktu' | 'Terlambat' | 'TanpaJadwal' | 'BelumKeluar';
+export type StatusKehadiran = 'TepatWaktu' | 'Terlambat' | 'PulangCepat' | 'Lembur' | 'TanpaJadwal' | 'BelumKeluar';
 
 export type BarisAbsensi = {
     Uuid: string;
@@ -81,6 +85,10 @@ export type BarisAbsensi = {
     DurasiMenit: number | null;
     Jadwal: string | null;
     TerlambatMenit: number;
+    PulangCepatMenit: number;
+    LemburMenit: number;
+    /** D-44: absen POS (offline) yang masuk saat aturan wajib-jadwal aktif tetapi tidak sesuai jadwal. */
+    DiluarJadwal: boolean;
     Status: StatusKehadiran;
     LabelStatus: string;
     AdaSwafotoMasuk: boolean;
@@ -200,6 +208,13 @@ export type BarisGajiKaryawan = {
     GajiPokok: string;
     Komisi: string;
     Tambahan: string;
+    /** D-44: lembur & potongan kehadiran dari absensi vs jadwal; bisa disesuaikan selama draf. */
+    LemburMenit: number;
+    Lembur: string;
+    TerlambatMenit: number;
+    PotonganTerlambat: string;
+    HariTidakMasuk: number;
+    PotonganTidakMasuk: string;
     Kotor: string;
     PotonganKasbon: string;
     PotonganLain: string;
@@ -269,4 +284,24 @@ export type KalibrasiWajah = {
     TertinggiDitolak: string | null;
     CukupData: boolean;
     Kelompok: { Dari: string; Sampai: string; Diterima: number; Ditolak: number }[];
+};
+
+/** F-18 bagian 5 (D-44): aturan kehadiran tenant — jadwal kerja ↔ absensi ↔ notifikasi WhatsApp. Semua menit bulat. */
+export type AturanKehadiran = {
+    WajibJadwal: boolean;
+    MasukPalingAwalMenit: number;
+    ToleransiTerlambatMenit: number;
+    ToleransiPulangCepatMenit: number;
+    LemburSetelahMenit: number;
+    PengingatShiftAktif: boolean;
+    PengingatShiftMenitSebelum: number;
+    PeringatanPengelolaAktif: boolean;
+    PeringatanPengelolaSetelahMenit: number;
+};
+
+export type PropsAturanKehadiran = {
+    Aturan: AturanKehadiran;
+    /** Pengiriman WhatsApp aktif untuk usaha ini (integrasi P-05 + fitur paket); tanpa itu notifikasi tidak terkirim. */
+    WhatsappAktif: boolean;
+    Izin: { Kelola: boolean };
 };

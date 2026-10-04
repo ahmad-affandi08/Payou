@@ -10,6 +10,7 @@ use App\Domain\Karyawan\Aksi\UbahStatusKaryawan;
 use App\Domain\Karyawan\Enum\StatusKaryawan;
 use App\Domain\Karyawan\Enum\StatusWajahKaryawan;
 use App\Domain\Karyawan\Model\Absensi;
+use App\Domain\Karyawan\Model\AturanKehadiran;
 use App\Domain\Karyawan\Model\JadwalKerja;
 use App\Domain\Karyawan\Model\Karyawan;
 use App\Domain\Karyawan\Model\WajahKaryawan;
@@ -415,4 +416,64 @@ it('kalibrasi wajah: sebaran diterima & ditolak per kelompok 0,05, ringkasan, ha
     $supervisor = BantuanOrganisasi::TambahAnggota($k['Tenant']->Id, PeranTenantBawaan::Supervisor);
     BantuanOrganisasi::Masuk($this, $supervisor, $k['Tenant']->Id);
     $this->getJson('/kelola/karyawan/absensi/kalibrasi-wajah')->assertForbidden();
+});
+
+describe('D-44 jadwal kerja ↔ absensi web', function (): void {
+    it('tanpa aturan WajibJadwal (bawaan) absen tanpa jadwal tetap diterima; dengan aturan ditolak tanpa baris dan tercatat di audit', function (): void {
+        [$k, $karyawan, $alamat] = SiapkanAbsensiWeb($this);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        AturanKehadiran::query()->create(['WajibJadwal' => true]);
+
+        $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertStatus(422)->assertJsonPath('Galat.Kode', 'TidakAdaJadwal');
+
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        expect(Absensi::query()->count())->toBe(0)
+            ->and(LogAudit::query()->where('Peristiwa', 'absensi.web.ditolak-jadwal')->count())->toBe(1);
+
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+
+        AturanKehadiran::query()->update(['WajibJadwal' => false]);
+        $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertOk();
+        expect($karyawan->refresh()->Nama)->toBe('Rina Wulandari');
+    });
+
+    it('jadwal membuka jendela masuk: terlalu awal dan shift sudah berakhir ditolak, di dalam jendela diterima', function (): void {
+        [$k, $karyawan, $alamat] = SiapkanAbsensiWeb($this);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        AturanKehadiran::query()->create(['WajibJadwal' => true, 'MasukPalingAwalMenit' => 60]);
+
+        // Sekarang 08.00. Shift 10.00–18.00 baru dibuka 09.00.
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        JadwalKerja::query()->create(['IdKaryawan' => $karyawan->Id, 'IdOutlet' => $k['Outlet']->Id, 'Tanggal' => '2026-10-05', 'JamMulai' => '10:00', 'JamSelesai' => '18:00']);
+        $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertStatus(422)->assertJsonPath('Galat.Kode', 'TerlaluAwal');
+
+        // Shift 00.00–07.00 sudah berakhir.
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        JadwalKerja::query()->where('IdKaryawan', $karyawan->Id)->update(['JamMulai' => '00:00', 'JamSelesai' => '07:00']);
+        $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertStatus(422)->assertJsonPath('Galat.Kode', 'ShiftSudahBerakhir');
+
+        // Shift 09.00–17.00: jendela buka 08.00 → diterima tepat 08.00.
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        JadwalKerja::query()->where('IdKaryawan', $karyawan->Id)->update(['JamMulai' => '09:00', 'JamSelesai' => '17:00']);
+        $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertOk();
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        expect(Absensi::query()->count())->toBe(1);
+    });
+
+    it('jadwal di outlet lain tidak membolehkan absen di outlet ini; shift malam kemarin tetap sah di pagi hari', function (): void {
+        [$k, $karyawan, $alamat] = SiapkanAbsensiWeb($this);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        AturanKehadiran::query()->create(['WajibJadwal' => true]);
+        $b = BantuanJurnal::BuatOutlet('PSR', 'Cabang Pasar');
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        JadwalKerja::query()->create(['IdKaryawan' => $karyawan->Id, 'IdOutlet' => $b->Id, 'Tanggal' => '2026-10-05', 'JamMulai' => '08:00', 'JamSelesai' => '16:00']);
+
+        $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertStatus(422)->assertJsonPath('Galat.Kode', 'JadwalDiOutletLain');
+
+        // Shift malam 22.00–09.00 yang dimulai kemarin masih berlaku pukul 08.00 di outlet ini.
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        JadwalKerja::query()->create(['IdKaryawan' => $karyawan->Id, 'IdOutlet' => $k['Outlet']->Id, 'Tanggal' => '2026-10-04', 'JamMulai' => '22:00', 'JamSelesai' => '09:00']);
+        $this->postJson("{$alamat}/masuk", KirimanAbsenWebUji())->assertOk();
+    });
 });

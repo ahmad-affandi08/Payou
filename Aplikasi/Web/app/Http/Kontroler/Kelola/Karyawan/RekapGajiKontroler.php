@@ -67,16 +67,22 @@ final class RekapGajiKontroler extends DasarKelolaKontroler
             'Tambahan' => self::ATURAN_UANG,
             'PotonganKasbon' => self::ATURAN_UANG,
             'PotonganLain' => self::ATURAN_UANG,
+            'Lembur' => ['nullable', 'string', 'regex:/^\d{1,16}(\.\d{1,2})?$/'],
+            'PotonganTerlambat' => ['nullable', 'string', 'regex:/^\d{1,16}(\.\d{1,2})?$/'],
+            'PotonganTidakMasuk' => ['nullable', 'string', 'regex:/^\d{1,16}(\.\d{1,2})?$/'],
             'Catatan' => ['nullable', 'string', 'max:255'],
         ], [
             'Tambahan.*' => 'Isi tambahan dalam rupiah, misal 0 atau 150000.',
             'PotonganKasbon.*' => 'Isi potongan kasbon dalam rupiah.',
             'PotonganLain.*' => 'Isi potongan lain dalam rupiah.',
+            'Lembur.*' => 'Isi lembur dalam rupiah.',
+            'PotonganTerlambat.*' => 'Isi potongan terlambat dalam rupiah.',
+            'PotonganTidakMasuk.*' => 'Isi potongan tidak masuk dalam rupiah.',
             'Catatan.*' => 'Catatan paling panjang 255 karakter.',
         ]);
         $catatan = is_string($data['Catatan'] ?? null) && trim($data['Catatan']) !== '' ? trim($data['Catatan']) : null;
         $model = RekapGaji::query()->where('Uuid', $rekap)->firstOrFail();
-        $kelola->UbahBaris($model, $karyawan, Uang::Dari($data['Tambahan']), Uang::Dari($data['PotonganKasbon']), Uang::Dari($data['PotonganLain']), $catatan);
+        $kelola->UbahBaris($model, $karyawan, Uang::Dari($data['Tambahan']), Uang::Dari($data['PotonganKasbon']), Uang::Dari($data['PotonganLain']), $catatan, self::UangAtauNull($data['Lembur'] ?? null), self::UangAtauNull($data['PotonganTerlambat'] ?? null), self::UangAtauNull($data['PotonganTidakMasuk'] ?? null));
 
         return to_route('kelola.karyawan.gaji.detail', ['rekap' => $model->Uuid])->with('Kilat', 'Baris gaji diperbarui.');
     }
@@ -133,11 +139,15 @@ final class RekapGajiKontroler extends DasarKelolaKontroler
     {
         $model = RekapGaji::query()->where('Uuid', $rekap)->firstOrFail();
         $detail = $daftar->AmbilDetail($model);
-        $kunci = ['Nama', 'Jabatan', 'GajiPokok', 'Komisi', 'Tambahan', 'Kotor', 'PotonganKasbon', 'PotonganLain', 'Bersih', 'Catatan'];
+        $kunci = ['Nama', 'Jabatan', 'GajiPokok', 'Komisi', 'Tambahan', 'LemburMenit', 'Lembur', 'Kotor', 'TerlambatMenit', 'PotonganTerlambat', 'HariTidakMasuk', 'PotonganTidakMasuk', 'PotonganKasbon', 'PotonganLain', 'Bersih', 'Catatan'];
         $kolom = [
             new KolomLaporan('Nama'), new KolomLaporan('Jabatan'),
             new KolomLaporan('Gaji pokok', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Komisi', JenisKolom::Uang, jumlahkan: true),
-            new KolomLaporan('Tambahan', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Kotor', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Tambahan', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Lembur (menit)', JenisKolom::Bilangan, jumlahkan: true), new KolomLaporan('Lembur', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Kotor', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Terlambat (menit)', JenisKolom::Bilangan, jumlahkan: true), new KolomLaporan('Potongan terlambat', JenisKolom::Uang, jumlahkan: true),
+            new KolomLaporan('Tidak masuk (hari)', JenisKolom::Bilangan, jumlahkan: true), new KolomLaporan('Potongan tidak masuk', JenisKolom::Uang, jumlahkan: true),
             new KolomLaporan('Potongan kasbon', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Potongan lain', JenisKolom::Uang, jumlahkan: true),
             new KolomLaporan('Bersih', JenisKolom::Uang, jumlahkan: true), new KolomLaporan('Catatan', JenisKolom::Teks, 30),
         ];
@@ -151,5 +161,10 @@ final class RekapGajiKontroler extends DasarKelolaKontroler
             $isi,
             [['Periode', (string) $model->Periode]],
         );
+    }
+
+    private static function UangAtauNull(mixed $nilai): ?Uang
+    {
+        return is_string($nilai) && $nilai !== '' ? Uang::Dari($nilai) : null;
     }
 }

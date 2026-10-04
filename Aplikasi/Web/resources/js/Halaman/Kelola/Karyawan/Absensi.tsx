@@ -38,7 +38,7 @@ export function FormatDurasiMenit(menit: number | null): string {
 function JenisStatus(status: StatusKehadiran): 'sukses' | 'peringatan' | 'bahaya' | 'netral' {
     return status === 'TepatWaktu'
         ? 'sukses'
-        : status === 'Terlambat'
+        : status === 'Terlambat' || status === 'PulangCepat' || status === 'Lembur'
           ? 'peringatan'
           : status === 'BelumKeluar'
             ? 'bahaya'
@@ -125,6 +125,15 @@ const kolom: KolomTabel<BarisAbsensi>[] = [
                 {a.TerlambatMenit > 0 ? (
                     <span className="text-keterangan text-teks-sekunder">Terlambat {a.TerlambatMenit} menit</span>
                 ) : null}
+                {a.PulangCepatMenit > 0 ? (
+                    <span className="text-keterangan text-teks-sekunder">Pulang cepat {a.PulangCepatMenit} menit</span>
+                ) : null}
+                {a.LemburMenit > 0 ? (
+                    <span className="text-keterangan text-teks-sekunder">Lembur {a.LemburMenit} menit</span>
+                ) : null}
+                {a.DiluarJadwal ? (
+                    <span className="text-keterangan text-teks-sekunder">Di luar jadwal (perlu ditinjau)</span>
+                ) : null}
             </span>
         ),
     },
@@ -187,6 +196,12 @@ export default function HalamanAbsensi({ Absensi, OpsiKaryawan, OpsiOutlet, Bole
         {
             id: 'BelumKeluar',
             label: 'Belum absen keluar',
+            jenis: 'pilihan',
+            opsi: [{ nilai: '1', label: 'Ya' }],
+        },
+        {
+            id: 'DiluarJadwal',
+            label: 'Di luar jadwal',
             jenis: 'pilihan',
             opsi: [{ nilai: '1', label: 'Ya' }],
         },

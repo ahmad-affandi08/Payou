@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Organisasi\Enum\IzinTenant;
 use App\Http\Kontroler\Kelola\Karyawan\AbsenHpKaryawanKontroler;
 use App\Http\Kontroler\Kelola\Karyawan\AbsensiKontroler;
+use App\Http\Kontroler\Kelola\Karyawan\AturanKehadiranKontroler;
 use App\Http\Kontroler\Kelola\Karyawan\JadwalKerjaKontroler;
 use App\Http\Kontroler\Kelola\Karyawan\KaryawanKontroler;
 use App\Http\Kontroler\Kelola\Karyawan\KasbonKontroler;
@@ -28,6 +29,8 @@ Route::middleware([SiapkanAuditTenant::class, $izin(IzinTenant::KaryawanLihat)])
     Route::get('/', [KaryawanKontroler::class, 'Daftar'])->name('kelola.karyawan.daftar');
     Route::get('/jadwal', [JadwalKerjaKontroler::class, 'Tampil'])->name('kelola.karyawan.jadwal');
     Route::get('/absensi', [AbsensiKontroler::class, 'Daftar'])->name('kelola.karyawan.absensi.daftar');
+    // F-18 bagian 5 (D-44): aturan kehadiran (jadwal ↔ absensi ↔ notifikasi).
+    Route::get('/aturan-kehadiran', [AturanKehadiranKontroler::class, 'Tampil'])->name('kelola.karyawan.aturan-kehadiran');
     // F-18 bagian 2: aturan & laporan komisi.
     Route::get('/komisi', [KomisiKontroler::class, 'Aturan'])->name('kelola.karyawan.komisi');
     Route::get('/komisi/laporan', [KomisiKontroler::class, 'Laporan'])->name('kelola.karyawan.komisi.laporan');
@@ -42,6 +45,7 @@ Route::middleware([SiapkanAuditTenant::class, $izin(IzinTenant::KaryawanLihat)])
         Route::get('/buat', [KaryawanKontroler::class, 'Buat'])->name('kelola.karyawan.buat');
         // v3.34: koreksi & tambah absensi manual.
         Route::post('/absensi', [AbsensiKontroler::class, 'Tambah'])->name('kelola.karyawan.absensi.tambah');
+        Route::put('/aturan-kehadiran', [AturanKehadiranKontroler::class, 'Simpan'])->name('kelola.karyawan.aturan-kehadiran.simpan');
         // F-18 bagian 4 (D-37, K37): kalibrasi ambang kemiripan wajah absensi web.
         Route::get('/absensi/kalibrasi-wajah', [AbsensiKontroler::class, 'KalibrasiWajah'])->name('kelola.karyawan.absensi.kalibrasi-wajah');
         Route::put('/absensi/{absensi}', [AbsensiKontroler::class, 'Koreksi'])->where('absensi', $ulid)->name('kelola.karyawan.absensi.koreksi');

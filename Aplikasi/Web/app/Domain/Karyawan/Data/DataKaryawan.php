@@ -17,5 +17,8 @@ final readonly class DataKaryawan
         public ?string $uuidPengguna,
         public ?string $uuidOutlet,
         public int $idPengguna,
+        public ?Uang $tarifLemburPerJam = null,
+        public ?Uang $potonganTerlambatPerMenit = null,
+        public ?Uang $potonganTidakMasukPerHari = null,
     ) {}
 }

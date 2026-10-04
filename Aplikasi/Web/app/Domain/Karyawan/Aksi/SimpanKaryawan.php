@@ -61,6 +61,9 @@ final class SimpanKaryawan
             'Jabatan' => self::Bersihkan($data->jabatan, 80),
             'LevelStaf' => self::Bersihkan($data->levelStaf, 40),
             'GajiPokok' => $data->gajiPokok?->KeString(),
+            'TarifLemburPerJam' => $data->tarifLemburPerJam?->KeString(),
+            'PotonganTerlambatPerMenit' => $data->potonganTerlambatPerMenit?->KeString(),
+            'PotonganTidakMasukPerHari' => $data->potonganTidakMasukPerHari?->KeString(),
             'IdPengguna' => $idPengguna,
             'IdOutlet' => $idOutlet,
         ];
@@ -89,14 +92,16 @@ final class SimpanKaryawan
     }
 
     /**
-     * Gaji pokok tidak ditulis ke log audit (data pribadi karyawan); hanya tanda terisi.
+     * Gaji pokok dan tarif lembur/potongan kehadiran tidak ditulis ke log audit (data pribadi karyawan); hanya tanda terisi.
      *
      * @param  array<string, mixed>  $nilai
      * @return array<string, mixed>
      */
     private static function UntukAudit(array $nilai): array
     {
-        $nilai['GajiPokok'] = ($nilai['GajiPokok'] ?? null) === null ? null : 'diisi';
+        foreach (['GajiPokok', 'TarifLemburPerJam', 'PotonganTerlambatPerMenit', 'PotonganTidakMasukPerHari'] as $kunci) {
+            $nilai[$kunci] = ($nilai[$kunci] ?? null) === null ? null : 'diisi';
+        }
 
         return $nilai;
     }

@@ -3,13 +3,12 @@
 declare(strict_types=1);
 
 /*
- * F-18 karyawan: disk privat swafoto absensi, batas ukuran swafoto (JPEG hasil kompres perangkat), dan toleransi
- * terlambat terhadap jam mulai jadwal.
+ * F-18 karyawan: disk privat swafoto absensi dan batas ukuran swafoto (JPEG hasil kompres perangkat). Toleransi
+ * terlambat/pulang cepat dan ambang lembur kini aturan tenant (`AturanKehadiran`, F-18 bagian 5), bukan config.
  */
 return [
     'DiskSwafoto' => 'local',
     'UkuranMaksimalSwafotoKb' => 300,
-    'ToleransiTerlambatMenit' => 5,
 
     // F-18 bagian 4 (D-37) absensi web. Ambang kemiripan kosinus sidik wajah (0–1) sebelum dianggap orang yang sama;
     // dicatat per absen (`KemiripanWajahMasuk/Keluar`) supaya bisa dikalibrasi dengan data nyata.

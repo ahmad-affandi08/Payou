@@ -21,6 +21,9 @@ final class SimpanKaryawanPermintaan extends FormRequest
             'Jabatan' => ['nullable', 'string', 'max:80'],
             'LevelStaf' => ['nullable', 'string', 'max:40'],
             'GajiPokok' => ['nullable', 'string', 'regex:/^\d{1,16}(\.\d{1,2})?$/'],
+            'TarifLemburPerJam' => ['nullable', 'string', 'regex:/^\d{1,16}(\.\d{1,2})?$/'],
+            'PotonganTerlambatPerMenit' => ['nullable', 'string', 'regex:/^\d{1,16}(\.\d{1,2})?$/'],
+            'PotonganTidakMasukPerHari' => ['nullable', 'string', 'regex:/^\d{1,16}(\.\d{1,2})?$/'],
             'UuidPengguna' => ['nullable', 'string', 'ulid'],
             'UuidOutlet' => ['nullable', 'string', 'ulid'],
         ];
@@ -31,7 +34,14 @@ final class SimpanKaryawanPermintaan extends FormRequest
      */
     public function messages(): array
     {
-        return ['GajiPokok.regex' => 'Gaji pokok harus angka dengan pemisah desimal titik (maks. 2 desimal).'];
+        $angka = 'harus angka dengan pemisah desimal titik (maks. 2 desimal).';
+
+        return [
+            'GajiPokok.regex' => "Gaji pokok {$angka}",
+            'TarifLemburPerJam.regex' => "Tarif lembur {$angka}",
+            'PotonganTerlambatPerMenit.regex' => "Potongan terlambat {$angka}",
+            'PotonganTidakMasukPerHari.regex' => "Potongan tidak masuk {$angka}",
+        ];
     }
 
     /**
@@ -39,13 +49,14 @@ final class SimpanKaryawanPermintaan extends FormRequest
      */
     public function attributes(): array
     {
-        return ['Nama' => 'nama', 'Jabatan' => 'jabatan', 'LevelStaf' => 'level staf', 'GajiPokok' => 'gaji pokok', 'UuidPengguna' => 'akun', 'UuidOutlet' => 'outlet'];
+        return ['Nama' => 'nama', 'Jabatan' => 'jabatan', 'LevelStaf' => 'level staf', 'GajiPokok' => 'gaji pokok', 'TarifLemburPerJam' => 'tarif lembur', 'PotonganTerlambatPerMenit' => 'potongan terlambat', 'PotonganTidakMasukPerHari' => 'potongan tidak masuk', 'UuidPengguna' => 'akun', 'UuidOutlet' => 'outlet'];
     }
 
     public function AmbilData(int $idPengguna): DataKaryawan
     {
         $teks = fn (string $kunci): ?string => is_string($this->validated($kunci)) && $this->validated($kunci) !== '' ? (string) $this->validated($kunci) : null;
         $gaji = $teks('GajiPokok');
+        $uang = fn (string $kunci): ?Uang => ($nilai = $teks($kunci)) === null ? null : Uang::Dari($nilai);
 
         return new DataKaryawan(
             nama: (string) $this->validated('Nama'),
@@ -55,6 +66,9 @@ final class SimpanKaryawanPermintaan extends FormRequest
             uuidPengguna: $teks('UuidPengguna'),
             uuidOutlet: $teks('UuidOutlet'),
             idPengguna: $idPengguna,
+            tarifLemburPerJam: $uang('TarifLemburPerJam'),
+            potonganTerlambatPerMenit: $uang('PotonganTerlambatPerMenit'),
+            potonganTidakMasukPerHari: $uang('PotonganTidakMasukPerHari'),
         );
     }
 }

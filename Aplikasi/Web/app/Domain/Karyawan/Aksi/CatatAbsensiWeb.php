@@ -10,6 +10,7 @@ use App\Domain\Karyawan\Data\DataAbsensiWeb;
 use App\Domain\Karyawan\Enum\StatusKaryawan;
 use App\Domain\Karyawan\Enum\StatusWajahKaryawan;
 use App\Domain\Karyawan\Layanan\PencocokWajah;
+use App\Domain\Karyawan\Layanan\PenegakJadwalAbsen;
 use App\Domain\Karyawan\Layanan\PengukurJarak;
 use App\Domain\Karyawan\Layanan\PenyimpanSwafoto;
 use App\Domain\Karyawan\Model\Absensi;
@@ -34,7 +35,9 @@ use Throwable;
  *    outlet. Keluar: outlet absensi masuknya.
  * 3. Outlet yang mewajibkan QR: kode 6 digit dari layar QR outlet (berganti tiap 30 detik) harus berlaku; bukti bahwa
  *    karyawan melihat layar di outlet, bukan hanya mengirim koordinat.
- * 4. Wajah: kemiripan sidik wajah saat ini dengan sidik terdaftar ≥ `AmbangKemiripanWajah`. Swafoto disimpan sebagai
+ * 4. Jadwal (D-44): bila aturan tenant `WajibJadwal` aktif, masuk hanya sah dalam jendela jadwal di outlet yang sama
+ *    (`PenegakJadwalAbsen`); ditolak dengan `TidakAdaJadwal`/`TerlaluAwal`/`ShiftSudahBerakhir`/`JadwalDiOutletLain`.
+ * 5. Wajah: kemiripan sidik wajah saat ini dengan sidik terdaftar ≥ `AmbangKemiripanWajah`. Swafoto disimpan sebagai
  *    bukti. Wajah tidak cocok dicatat di log audit (tanpa sidiknya) sebagai jejak percobaan.
  *
  * Idempoten per Uuid: masuk dengan Uuid yang sudah tercatat atau keluar untuk absensi yang sudah ditutup mengembalikan
@@ -49,6 +52,7 @@ final class CatatAbsensiWeb
         private readonly PenyimpanSwafoto $swafoto,
         private readonly TanggalBisnisOutlet $tanggalBisnis,
         private readonly PencatatAudit $audit,
+        private readonly PenegakJadwalAbsen $jadwal,
     ) {}
 
     public function Masuk(Karyawan $karyawan, DataAbsensiWeb $data): Absensi
@@ -66,6 +70,15 @@ final class CatatAbsensiWeb
 
         $sekarang = CarbonImmutable::now();
         [$outlet, $jarak] = $this->PilihOutlet($karyawan, $data, $this->AmbilIdOutletBoleh($karyawan, $sekarang));
+        // D-44: jadwal diperiksa sebelum wajah/swafoto diproses, supaya absen yang pasti ditolak tidak membuang kerja.
+        $langgar = $this->jadwal->Periksa($karyawan->Id, $outlet['Id'], $sekarang);
+
+        if ($langgar !== null) {
+            $this->audit->Catat('absensi.web.ditolak-jadwal', $karyawan, null, ['Kode' => $langgar['Kode'], 'IdOutlet' => $outlet['Id']], $karyawan->IdTenant);
+
+            throw new PelanggaranAturanBisnis($langgar['Kode'], $langgar['Pesan'], 'Jadwal');
+        }
+
         $qr = $this->PeriksaQr($karyawan, $outlet, $data, $sekarang);
         $kemiripan = $this->CocokkanWajah($karyawan, $data);
         $path = $this->swafoto->Simpan($karyawan->IdTenant, $data->swafoto);

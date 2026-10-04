@@ -184,6 +184,13 @@ export const daftarPengaturan: GrupPengaturan[] = [
                 izin: IzinTenant.KaryawanLihat,
                 fitur: 'karyawan.komisi',
             },
+            {
+                label: 'Aturan kehadiran',
+                keterangan:
+                    'Wajib berjadwal saat absen, toleransi terlambat & pulang cepat, ambang lembur, serta pengingat shift dan peringatan ke pengelola lewat WhatsApp.',
+                href: '/kelola/karyawan/aturan-kehadiran',
+                izin: IzinTenant.KaryawanLihat,
+            },
         ],
     },
     {

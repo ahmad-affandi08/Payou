@@ -16,6 +16,9 @@ type IsianKaryawan = {
     Jabatan: string;
     LevelStaf: string;
     GajiPokok: string;
+    TarifLemburPerJam: string;
+    PotonganTerlambatPerMenit: string;
+    PotonganTidakMasukPerHari: string;
     UuidPengguna: string;
     UuidOutlet: string;
 };
@@ -26,6 +29,9 @@ function BuatIsian(k: BarisKaryawan | null): IsianKaryawan {
         Jabatan: k?.Jabatan ?? '',
         LevelStaf: k?.LevelStaf ?? '',
         GajiPokok: (k?.GajiPokok ?? '').replace(/\.00$/, ''),
+        TarifLemburPerJam: (k?.TarifLemburPerJam ?? '').replace(/\.00$/, ''),
+        PotonganTerlambatPerMenit: (k?.PotonganTerlambatPerMenit ?? '').replace(/\.00$/, ''),
+        PotonganTidakMasukPerHari: (k?.PotonganTidakMasukPerHari ?? '').replace(/\.00$/, ''),
         UuidPengguna: k?.UuidPengguna ?? '',
         UuidOutlet: k?.UuidOutlet ?? '',
     };
@@ -106,6 +112,27 @@ export function IsiFormulirKaryawan({
                 nilai={isian.GajiPokok}
                 saatBerubah={(nilai) => Ubah({ GajiPokok: nilai })}
                 galat={galat.GajiPokok}
+            />
+            <BidangUang
+                label="Tarif lembur per jam (opsional)"
+                nilai={isian.TarifLemburPerJam}
+                saatBerubah={(nilai) => Ubah({ TarifLemburPerJam: nilai })}
+                galat={galat.TarifLemburPerJam}
+                keterangan="Dipakai rekap gaji untuk lembur yang tercatat dari absensi. Kosong = lembur tidak dibayar otomatis."
+            />
+            <BidangUang
+                label="Potongan per menit terlambat (opsional)"
+                nilai={isian.PotonganTerlambatPerMenit}
+                saatBerubah={(nilai) => Ubah({ PotonganTerlambatPerMenit: nilai })}
+                galat={galat.PotonganTerlambatPerMenit}
+                keterangan="Kosong = keterlambatan tidak memotong gaji."
+            />
+            <BidangUang
+                label="Potongan per hari tidak masuk (opsional)"
+                nilai={isian.PotonganTidakMasukPerHari}
+                saatBerubah={(nilai) => Ubah({ PotonganTidakMasukPerHari: nilai })}
+                galat={galat.PotonganTidakMasukPerHari}
+                keterangan="Untuk hari berjadwal tanpa absensi. Kosong = tidak memotong gaji."
             />
             <BidangPilihan
                 label="Akun untuk absen di POS (opsional)"

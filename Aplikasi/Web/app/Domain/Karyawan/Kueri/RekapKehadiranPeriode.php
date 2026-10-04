@@ -1,0 +1,77 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Karyawan\Kueri;
+
+use App\Domain\Karyawan\Layanan\PenilaiKehadiran;
+use App\Domain\Karyawan\Model\Absensi;
+use App\Domain\Karyawan\Model\JadwalKerja;
+use App\Domain\Organisasi\Kueri\ZonaWaktuOutlet;
+use Carbon\CarbonImmutable;
+
+/**
+ * Rekap kehadiran per karyawan untuk satu rentang tanggal bisnis, dasar lembur dan potongan di rekap gaji (F-18 bagian 5,
+ * D-44). Hanya jadwal yang dihitung (absen tanpa jadwal tidak menghasilkan lembur/terlambat):
+ *
+ * - `TerlambatMenit`: jumlah menit terlambat (melewati toleransi) pada hari berjadwal.
+ * - `LemburMenit`: jumlah menit lembur (keluar melewati ambang lembur) pada hari yang sudah absen keluar.
+ * - `HariTidakMasuk`: hari berjadwal **sebelum hari ini** tanpa satu pun absensi. Hari ini tidak dihitung (shift belum
+ *   tentu selesai).
+ */
+final class RekapKehadiranPeriode
+{
+    public function __construct(
+        private readonly AturanKehadiranTenant $aturan,
+        private readonly PenilaiKehadiran $penilai,
+        private readonly ZonaWaktuOutlet $zona,
+    ) {}
+
+    /**
+     * @return array<int, array{TerlambatMenit: int, LemburMenit: int, HariTidakMasuk: int}> Id karyawan → rekap
+     */
+    public function Hitung(string $dari, string $sampai, CarbonImmutable $hariIni): array
+    {
+        $aturan = $this->aturan->Ambil();
+        $jadwal = JadwalKerja::query()->whereBetween('Tanggal', [$dari, $sampai])->get();
+        $absensi = Absensi::query()->whereBetween('TanggalBisnis', [$dari, $sampai])->orderBy('MasukPada')->get();
+        $pertama = [];
+
+        foreach ($absensi as $a) {
+            $pertama[$a->IdKaryawan.'|'.$a->TanggalBisnis->toDateString()] ??= $a;
+        }
+
+        $selisih = $this->zona->AmbilSelisihDetik(array_values(array_unique(array_map('intval', $absensi->pluck('IdOutlet')->all()))));
+        $hasil = [];
+
+        foreach ($jadwal as $j) {
+            $tanggal = $j->Tanggal->toDateString();
+            $hasil[$j->IdKaryawan] ??= ['TerlambatMenit' => 0, 'LemburMenit' => 0, 'HariTidakMasuk' => 0];
+            $a = $pertama[$j->IdKaryawan.'|'.$tanggal] ?? null;
+
+            if ($a === null) {
+                if ($tanggal < $hariIni->toDateString()) {
+                    $hasil[$j->IdKaryawan]['HariTidakMasuk']++;
+                }
+
+                continue;
+            }
+
+            $detik = $selisih[$a->IdOutlet] ?? 25200;
+            $nilai = $this->penilai->Nilai(
+                $tanggal,
+                $j->JamMulai,
+                $j->JamSelesai,
+                CarbonImmutable::instance($a->MasukPada)->utc()->addSeconds($detik),
+                $a->KeluarPada === null ? null : CarbonImmutable::instance($a->KeluarPada)->utc()->addSeconds($detik),
+                $aturan['ToleransiTerlambatMenit'],
+                $aturan['ToleransiPulangCepatMenit'],
+                $aturan['LemburSetelahMenit'],
+            );
+            $hasil[$j->IdKaryawan]['TerlambatMenit'] += $nilai['TerlambatMenit'];
+            $hasil[$j->IdKaryawan]['LemburMenit'] += $nilai['LemburMenit'];
+        }
+
+        return $hasil;
+    }
+}

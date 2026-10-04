@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Bersama\Audit\Model\LogAudit;
 use App\Domain\Karyawan\Enum\StatusKaryawan;
 use App\Domain\Karyawan\Model\Absensi;
+use App\Domain\Karyawan\Model\AturanKehadiran;
 use App\Domain\Karyawan\Model\JadwalKerja;
 use App\Domain\Karyawan\Model\Karyawan;
 use App\Domain\Organisasi\Enum\PeranTenantBawaan;
@@ -230,5 +231,49 @@ describe('F-18 absensi dari POS', function (): void {
             ItemAbsensi('Absensi.Masuk', ['UuidPengguna' => $k['Supervisor']->Uuid, 'MasukPada' => JamHariIni(8, 0), 'Swafoto' => SwafotoUji()]),
         ]))->toBe([['Ditolak', 'KaryawanNonaktif']]);
         expect(Storage::disk('local')->allFiles())->toBe([]);
+    });
+});
+
+describe('D-44 absen POS vs jadwal', function (): void {
+    it('dengan WajibJadwal absen POS tetap diterima (kasir bisa offline) tetapi tanpa jadwal ditandai Di luar jadwal dan muncul di Kotak Tindakan', function (): void {
+        $k = SiapkanKaryawan($this);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        AturanKehadiran::query()->create(['WajibJadwal' => true]);
+        $uuid = BantuanKasir::Uuid();
+        $masuk = ItemAbsensi('Absensi.Masuk', ['UuidPengguna' => $k['Kasir']->Uuid, 'MasukPada' => JamHariIni(8, 0)], $uuid);
+
+        expect(BantuanKasir::KirimRingkas($this, $k['Token'], [$masuk]))->toBe([['Diterima', null]]);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        expect(Absensi::query()->where('Uuid', $uuid)->sole()->DiluarJadwal)->toBeTrue();
+
+        BantuanOrganisasi::Masuk($this, $k['Pemilik'], $k['Tenant']->Id);
+        $butir = null;
+        $this->get('/kelola/tindakan')->assertOk()->assertInertia(function (AssertableInertia $h) use (&$butir) {
+            $butir = collect($h->toArray()['props']['Butir'])->firstWhere('Kunci', 'karyawan.absen-diluar-jadwal');
+        });
+        expect($butir)->not->toBeNull()->and($butir['Jumlah'])->toBe(1);
+        $daftar = $this->getJson('/kelola/karyawan/absensi?saring[DiluarJadwal]=1')->assertOk();
+        expect($daftar->json('Meta.Total'))->toBe(1)->and($daftar->json('Data.0.DiluarJadwal'))->toBeTrue();
+    });
+
+    it('sesuai jadwal tidak ditandai; tanpa aturan WajibJadwal tidak pernah ditandai', function (): void {
+        $k = SiapkanKaryawan($this);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        $hariIni = CarbonImmutable::now('Asia/Jakarta')->toDateString();
+        $uuidA = BantuanKasir::Uuid();
+        $uuidB = BantuanKasir::Uuid();
+
+        // Tanpa aturan: tidak ditandai walau tanpa jadwal.
+        expect(BantuanKasir::KirimRingkas($this, $k['Token'], [ItemAbsensi('Absensi.Masuk', ['UuidPengguna' => $k['Kasir']->Uuid, 'MasukPada' => JamHariIni(8, 0)], $uuidA)]))->toBe([['Diterima', null]]);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        expect(Absensi::query()->where('Uuid', $uuidA)->sole()->DiluarJadwal)->toBeFalse();
+
+        $karyawan = Karyawan::query()->sole();
+        Absensi::query()->delete();
+        AturanKehadiran::query()->create(['WajibJadwal' => true]);
+        JadwalKerja::query()->create(['IdKaryawan' => $karyawan->Id, 'IdOutlet' => $k['Outlet']->Id, 'Tanggal' => $hariIni, 'JamMulai' => '07:00', 'JamSelesai' => '23:00']);
+        expect(BantuanKasir::KirimRingkas($this, $k['Token'], [ItemAbsensi('Absensi.Masuk', ['UuidPengguna' => $k['Kasir']->Uuid, 'MasukPada' => JamHariIni(8, 0)], $uuidB)]))->toBe([['Diterima', null]]);
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        expect(Absensi::query()->where('Uuid', $uuidB)->sole()->DiluarJadwal)->toBeFalse();
     });
 });

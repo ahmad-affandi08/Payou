@@ -8,6 +8,7 @@ use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Bersama\Sinkron\Enum\StatusItemSinkron;
 use App\Domain\Karyawan\Data\DataAbsensiPos;
 use App\Domain\Karyawan\Enum\StatusKaryawan;
+use App\Domain\Karyawan\Layanan\PenegakJadwalAbsen;
 use App\Domain\Karyawan\Layanan\PenentuKaryawanPengguna;
 use App\Domain\Karyawan\Layanan\PenyimpanSwafoto;
 use App\Domain\Karyawan\Model\Absensi;
@@ -21,7 +22,8 @@ use Throwable;
  * Absen masuk dari aplikasi kasir (item outbox `Absensi.Masuk`, F-18), berlaku offline. Idempoten per Uuid (sudah ada =
  * `Duplikat`). Pelaku = pengguna yang lolos PIN di perangkat dan anggota outlet perangkat; karyawannya dibuat otomatis
  * bila belum ada; karyawan nonaktif ditolak. Tanggal bisnis dari waktu masuk menurut jam tutup buku outlet. Swafoto
- * disimpan di disk privat (dibersihkan bila gagal/duplikat).
+ * disimpan di disk privat (dibersihkan bila gagal/duplikat). Dengan aturan `WajibJadwal` (D-44) absen yang tidak sesuai
+ * jadwal tetap diterima tetapi ditandai `DiluarJadwal` (bukti kehadiran fisik; perangkat bisa offline).
  */
 final class CatatAbsensiMasukPos
 {
@@ -30,6 +32,7 @@ final class CatatAbsensiMasukPos
         private readonly PenentuKaryawanPengguna $penentu,
         private readonly PenyimpanSwafoto $swafoto,
         private readonly TanggalBisnisOutlet $tanggalBisnis,
+        private readonly PenegakJadwalAbsen $jadwal,
     ) {}
 
     /**
@@ -64,6 +67,10 @@ final class CatatAbsensiMasukPos
                     throw new PelanggaranAturanBisnis('KaryawanNonaktif', "{$karyawan->Nama} sudah nonaktif sebagai karyawan.", 'UuidPengguna');
                 }
 
+                // D-44: absen POS bisa dilakukan offline, jadi tidak ditolak di server; yang tidak sesuai jadwal ditandai
+                // untuk ditinjau pengelola (rekap absensi + Kotak Tindakan).
+                $diluar = $this->jadwal->Periksa($karyawan->Id, $data->idOutlet, $data->waktu) !== null;
+
                 Absensi::query()->create([
                     'Uuid' => $data->uuid,
                     'IdKaryawan' => $karyawan->Id,
@@ -72,6 +79,7 @@ final class CatatAbsensiMasukPos
                     'TanggalBisnis' => $this->tanggalBisnis->Hitung($data->idOutlet, $data->waktu)->toDateString(),
                     'MasukPada' => $data->waktu->utc(),
                     'PathSwafotoMasuk' => $path,
+                    'DiluarJadwal' => $diluar,
                 ]);
 
                 return StatusItemSinkron::Diterima;
