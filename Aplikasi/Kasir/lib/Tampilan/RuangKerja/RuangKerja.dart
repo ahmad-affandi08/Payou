@@ -728,7 +728,12 @@ class _RuangKerjaState extends ConsumerState<RuangKerja> {
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
                 destinations: [
                   for (final i in item)
-                    NavigationDestination(icon: Icon(i.ikon), selectedIcon: Icon(i.ikonAktif), label: i.label),
+                    NavigationDestination(
+                      icon: Icon(i.ikon),
+                      selectedIcon: Icon(i.ikonAktif),
+                      label: i.labelRingkas ?? i.label,
+                      tooltip: i.label,
+                    ),
                 ],
               ),
             ),

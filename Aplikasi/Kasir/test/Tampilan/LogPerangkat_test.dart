@@ -48,7 +48,7 @@ void main() {
       await Tunggu(tester);
       expect(find.byType(RuangKerja), findsOneWidget);
 
-      await tester.tap(find.text('Pengaturan').last);
+      await tester.tap(NavPengaturan().last);
       await Tunggu(tester);
       final kirim = find.text('Kirim laporan sekarang');
       await tester.scrollUntilVisible(kirim, 300, scrollable: find.byType(Scrollable).first);

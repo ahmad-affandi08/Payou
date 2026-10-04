@@ -44,7 +44,7 @@ void main() {
         await Tunggu(tester);
       }
 
-      await tester.tap(find.text('Pengaturan').last);
+      await tester.tap(NavPengaturan().last);
       await Tunggu(tester);
       await tester.scrollUntilVisible(
         find.byKey(const ValueKey('ModeLatihan')),

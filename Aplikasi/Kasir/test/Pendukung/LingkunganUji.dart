@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
+import 'package:flutter/widgets.dart' show Text;
+import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:kasir/Data/BasisData/BasisDataKasir.dart';
@@ -45,6 +47,9 @@ import 'package:klien_api/KlienApi.dart';
 
 import 'KatalogUji.dart';
 import 'PrinterTiruan.dart';
+
+/// Item navigasi Pengaturan di lebar mana pun: "Pengaturan" di rel (≥ 600dp), "Atur" di bilah bawah HP.
+Finder NavPengaturan() => find.byWidgetPredicate((w) => w is Text && (w.data == 'Pengaturan' || w.data == 'Atur'));
 
 /// Vektor PIN bersama PHP & Dart: staf uji memakai PIN, garam, dan verifier terbungkus dari sini sehingga verifikasi
 /// offline berjalan tanpa server.

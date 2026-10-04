@@ -113,7 +113,7 @@ void main() {
         expect(find.text(label), findsNothing, reason: '$label tidak ada di mode Salesman');
       }
       expect(find.text('Sinkron'), findsOneWidget);
-      expect(find.text('Pengaturan'), findsOneWidget);
+      expect(NavPengaturan(), findsOneWidget);
 
       // Pelanggan diunduh otomatis lalu tampil dari cache: tier, piutang lewat jatuh tempo berteks, kunjungan terakhir.
       expect(find.text('Toko Kelontong Makmur Jaya Abadi Sentosa'), findsOneWidget);

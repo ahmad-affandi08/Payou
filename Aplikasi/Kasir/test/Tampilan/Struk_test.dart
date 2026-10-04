@@ -79,7 +79,7 @@ void main() {
       tester,
     ) async {
       final u = await Masuk(tester, ukuran);
-      await Ketuk(tester, find.text('Pengaturan').last);
+      await Ketuk(tester, NavPengaturan().last);
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Atur printer'));
 
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
@@ -177,7 +177,7 @@ void main() {
         PrinterDitemukan(jenis: JenisTransport.BluetoothKlasik, alamat: '66:22:11:AA:BB:CC', nama: 'RPP02N'),
         PrinterDitemukan(jenis: JenisTransport.BluetoothKlasik, alamat: '00:11:22:33:44:55', nama: 'MTP-II'),
       ];
-      await Ketuk(tester, find.text('Pengaturan').last);
+      await Ketuk(tester, NavPengaturan().last);
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Atur printer'));
       await Ketuk(tester, find.text('Bluetooth'));
       expect(find.widgetWithText(TextField, 'Alamat IP printer'), findsNothing);
@@ -214,7 +214,7 @@ void main() {
         u.pemindai.hasil[JenisTransport.BluetoothKlasik] = const [
           PrinterDitemukan(jenis: JenisTransport.BluetoothKlasik, alamat: '66:22:11:AA:BB:DD', nama: 'Printer Dapur'),
         ];
-        await Ketuk(tester, find.text('Pengaturan').last);
+        await Ketuk(tester, NavPengaturan().last);
         await GulirKe(tester, find.text('Bar'));
         expect(find.text('Tidak dicetak (memakai layar dapur atau perangkat lain)'), findsNWidgets(2));
 
@@ -251,7 +251,7 @@ void main() {
     tester,
   ) async {
     final u = await Masuk(tester, const Size(1280, 900));
-    await Ketuk(tester, find.text('Pengaturan').last);
+    await Ketuk(tester, NavPengaturan().last);
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Atur printer'));
     await Ketuk(tester, find.text('Bluetooth LE'));
 
@@ -285,7 +285,7 @@ void main() {
       tester,
     ) async {
       final u = await Masuk(tester, ukuran, printer: const ProfilPrinter(alamat: '192.168.1.50'));
-      await Ketuk(tester, find.text('Pengaturan').last);
+      await Ketuk(tester, NavPengaturan().last);
       // Bagian uji perangkat berada di bawah printer struk: gulir turun (daftar Pengaturan dibangun lazy).
       await tester.scrollUntilVisible(find.text('Mulai uji perangkat'), 200, scrollable: find.byType(Scrollable).first);
       await tester.pump();

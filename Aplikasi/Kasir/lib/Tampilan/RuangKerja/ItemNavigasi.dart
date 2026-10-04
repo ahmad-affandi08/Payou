@@ -20,6 +20,7 @@ class ItemNavigasi {
     this.izin = const [],
     this.modul,
     this.bolehDilepas = false,
+    this.labelRingkas,
   });
 
   final TujuanRuangKerja tujuan;
@@ -31,6 +32,9 @@ class ItemNavigasi {
 
   /// Item tambahan yang dilepas dulu saat rel melebihi [batasItem] (mis. Salesman bagi pemilik restoran bermode meja).
   final bool bolehDilepas;
+
+  /// Label di bilah navigasi bawah HP bila [label] tidak muat satu baris di enam tab selebar 360dp (mis. "Atur").
+  final String? labelRingkas;
 
   static const int batasItem = 8;
 
@@ -99,6 +103,7 @@ class ItemNavigasi {
     ItemNavigasi(
       tujuan: TujuanRuangKerja.Pengaturan,
       label: 'Pengaturan',
+      labelRingkas: 'Atur',
       ikon: Icons.settings_outlined,
       ikonAktif: Icons.settings,
     ),
@@ -135,6 +140,7 @@ class ItemNavigasi {
     ItemNavigasi(
       tujuan: TujuanRuangKerja.Pengaturan,
       label: 'Pengaturan',
+      labelRingkas: 'Atur',
       ikon: Icons.settings_outlined,
       ikonAktif: Icons.settings,
     ),
@@ -165,6 +171,7 @@ class ItemNavigasi {
     ItemNavigasi(
       tujuan: TujuanRuangKerja.Pengaturan,
       label: 'Pengaturan',
+      labelRingkas: 'Atur',
       ikon: Icons.settings_outlined,
       ikonAktif: Icons.settings,
     ),

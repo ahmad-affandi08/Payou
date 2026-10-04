@@ -75,7 +75,7 @@ void main() {
       expect(find.byType(NavigationRail), ukuran.width >= 600 ? findsOneWidget : findsNothing);
       expect(find.byType(NavigationBar), ukuran.width >= 600 ? findsNothing : findsOneWidget);
       expect(find.text('Katalog belum ada di perangkat ini.'), findsOneWidget);
-      for (final label in ['Jual', 'Riwayat', 'Kas', 'Shift', 'Sinkron', 'Pengaturan']) {
+      for (final label in ['Jual', 'Riwayat', 'Kas', 'Shift', 'Sinkron', lega ? 'Pengaturan' : 'Atur']) {
         expect(find.text(label), findsOneWidget, reason: 'Item navigasi $label');
       }
 

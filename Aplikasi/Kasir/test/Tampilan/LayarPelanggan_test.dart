@@ -86,7 +86,7 @@ void main() {
 
   testWidgets('Pengaturan: pilih layar kedua, tampilkan contoh, matikan (360 dp)', (tester) async {
     final u = await Masuk(tester, const Size(360, 740), mode: ModeLayarPelanggan.mati);
-    await Ketuk(tester, find.text('Pengaturan').last);
+    await Ketuk(tester, NavPengaturan().last);
     await tester.scrollUntilVisible(
       find.widgetWithText(ChoiceChip, 'Layar kedua / HDMI'),
       300,
