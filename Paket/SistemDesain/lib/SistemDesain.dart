@@ -15,6 +15,7 @@ export 'Komponen/LogoMerek.dart';
 export 'Komponen/PanelTugas.dart';
 export 'Komponen/PapanAngka.dart';
 export 'Komponen/SorotanAngka.dart';
+export 'Komponen/TandaMuat.dart';
 export 'Komponen/TeksKode.dart';
 export 'Komponen/TeksUang.dart';
 export 'Komponen/UbinProduk.dart';

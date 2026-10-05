@@ -17,7 +17,7 @@ class KeadaanData<T> extends StatelessWidget {
     final warna = TokenWarna.AmbilDari(context);
     return nilai.when(
       skipLoadingOnRefresh: true,
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: TandaMuat(ukuran: 56)),
       error: (galat, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(TokenJarak.jarak24),

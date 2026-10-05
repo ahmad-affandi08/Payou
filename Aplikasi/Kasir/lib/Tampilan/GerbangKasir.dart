@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:sistem_desain/SistemDesain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../Aplikasi/Penyedia.dart';
@@ -95,7 +96,7 @@ class _GerbangKasirState extends ConsumerState<GerbangKasir> with WidgetsBinding
       return const LayarKds();
     }
     return switch (sesi.tahap) {
-      TahapSesi.Memuat => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      TahapSesi.Memuat => const Scaffold(body: Center(child: TandaMuat(ukuran: 72))),
       TahapSesi.BelumAktif => LayarAktivasi(pesan: sesi.pesan),
       TahapSesi.PilihKasir => const LayarPilihKasir(),
       TahapSesi.Masuk when jenis == 'Pelayan' => RuangKerja(shift: null, kasir: sesi.kasir!, kunci: sesi.kunci),
@@ -109,7 +110,7 @@ class _GerbangKasirState extends ConsumerState<GerbangKasir> with WidgetsBinding
         ref
             .watch(penyediaShiftAktif)
             .when(
-              loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+              loading: () => const Scaffold(body: Center(child: TandaMuat(ukuran: 72))),
               error: (galat, _) => Scaffold(body: Center(child: Text('Data shift tidak bisa dibaca: $galat'))),
               data: (shift) {
                 if (shift != null) {

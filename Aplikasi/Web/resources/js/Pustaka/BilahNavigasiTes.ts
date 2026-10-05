@@ -1,0 +1,82 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+type Pendengar = (peristiwa: { detail: { visit: { prefetch?: boolean } } }) => void;
+const pendengar = new Map<string, Pendengar>();
+const Picu = (nama: string, peristiwa: ReturnType<typeof Kunjungan>) => pendengar.get(nama)?.(peristiwa);
+
+vi.mock('@inertiajs/react', () => ({
+    router: {
+        on: (nama: string, fungsi: Pendengar) => {
+            pendengar.set(nama, fungsi);
+            return () => {
+                pendengar.delete(nama);
+            };
+        },
+    },
+}));
+
+import { JEDA_MUNCUL_MS, PasangBilahNavigasi, TAMPIL_MINIMAL_MS } from '@/Pustaka/BilahNavigasi';
+
+const Kunjungan = (prefetch = false) => ({ detail: { visit: { prefetch } } });
+const Bilah = () => document.querySelector<HTMLElement>('.bilah-navigasi');
+
+describe('BilahNavigasi (D-58)', () => {
+    let Lepas: () => void;
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        Lepas = PasangBilahNavigasi();
+    });
+
+    afterEach(() => {
+        Lepas();
+        vi.useRealTimers();
+    });
+
+    it('tidak muncul untuk kunjungan yang selesai sebelum jeda', () => {
+        Picu('start', Kunjungan());
+        vi.advanceTimersByTime(JEDA_MUNCUL_MS - 50);
+        Picu('finish', Kunjungan());
+        vi.advanceTimersByTime(2000);
+
+        expect(Bilah()?.dataset.keadaan).toBeUndefined();
+    });
+
+    it('muncul setelah jeda, tampil minimal 400 ms, lalu selesai', () => {
+        Picu('start', Kunjungan());
+        vi.advanceTimersByTime(JEDA_MUNCUL_MS);
+        expect(Bilah()?.dataset.keadaan).toBe('jalan');
+
+        Picu('finish', Kunjungan());
+        expect(Bilah()?.dataset.keadaan).toBe('jalan');
+
+        vi.advanceTimersByTime(TAMPIL_MINIMAL_MS);
+        expect(Bilah()?.dataset.keadaan).toBe('selesai');
+    });
+
+    it('prefetch di latar tidak memunculkan bilah', () => {
+        Picu('start', Kunjungan(true));
+        vi.advanceTimersByTime(1000);
+
+        expect(Bilah()?.dataset.keadaan).toBeUndefined();
+    });
+
+    it('dua kunjungan beruntun: bilah selesai setelah yang terakhir', () => {
+        Picu('start', Kunjungan());
+        Picu('start', Kunjungan());
+        vi.advanceTimersByTime(JEDA_MUNCUL_MS);
+        Picu('finish', Kunjungan());
+        vi.advanceTimersByTime(TAMPIL_MINIMAL_MS + 50);
+        expect(Bilah()?.dataset.keadaan).toBe('jalan');
+
+        Picu('finish', Kunjungan());
+        vi.advanceTimersByTime(TAMPIL_MINIMAL_MS);
+        expect(Bilah()?.dataset.keadaan).toBe('selesai');
+    });
+
+    it('pelepas membuang elemen bilah', () => {
+        Lepas();
+        expect(Bilah()).toBeNull();
+        Lepas = PasangBilahNavigasi();
+    });
+});

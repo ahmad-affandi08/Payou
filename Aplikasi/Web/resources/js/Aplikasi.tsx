@@ -1,4 +1,6 @@
 import './Gaya/Dasbor.css';
+import { PasangBilahNavigasi } from '@/Pustaka/BilahNavigasi';
+import { TutupLayarMuat } from '@/Pustaka/LayarMuat';
 
 import { createInertiaApp } from '@inertiajs/react';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -30,6 +32,8 @@ void createInertiaApp({
     title: (judul) => (judul ? `${judul} | ${NamaAplikasi}` : NamaAplikasi),
     resolve: MuatHalaman,
     setup({ el, App, props }) {
+        PasangBilahNavigasi();
+        TutupLayarMuat();
         createRoot(el).render(
             <StrictMode>
                 <QueryClientProvider client={klienKueri}>
@@ -38,5 +42,5 @@ void createInertiaApp({
             </StrictMode>,
         );
     },
-    progress: { color: 'var(--color-brand)' },
+    progress: false,
 });

@@ -1,0 +1,193 @@
+/*
+ * Bahasa gerak "memuat" PAYOU (D-58): tanda muat bercincin, bilah navigasi tipis, layar muat awal, dan kerangka berkilau.
+ * Hanya merujuk token warna (var(--color-...)); nilai warna tetap milik Aplikasi.css. Pengguna yang mematikan animasi
+ * di perangkatnya melihat versi diam (blok `prefers-reduced-motion` di bawah).
+ */
+
+/* Tanda muat: logo P di lingkaran putih, dikelilingi cincin warna token tanpa jarak. Ukuran lewat --u. */
+.tanda-muat {
+    --u: 64px;
+    position: relative;
+    width: var(--u);
+    height: var(--u);
+    flex-shrink: 0;
+    border-radius: 9999px;
+    animation: tanda-napas 1.8s ease-in-out infinite;
+}
+.tanda-muat::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: conic-gradient(
+        var(--color-brand),
+        var(--color-info),
+        var(--color-sukses),
+        var(--color-aksen),
+        var(--color-brand-gelap),
+        var(--color-brand)
+    );
+    animation: tanda-putar 2.4s linear infinite;
+}
+.tanda-muat__isi {
+    position: absolute;
+    inset: calc(var(--u) * 0.1);
+    display: grid;
+    place-items: center;
+    border-radius: 9999px;
+    background: var(--color-permukaan);
+}
+.tanda-muat__isi img {
+    height: 56%;
+    width: auto;
+    display: block;
+}
+@keyframes tanda-napas {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+@keyframes tanda-putar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Bilah navigasi: 3px di tepi atas, merayap sampai 92% lalu penuh dan memudar. */
+.bilah-navigasi {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 9998;
+    height: 3px;
+    background: var(--color-brand);
+    transform-origin: left;
+    transform: scaleX(0);
+    opacity: 0;
+    pointer-events: none;
+}
+.bilah-navigasi[data-keadaan='jalan'] {
+    opacity: 1;
+    animation: bilah-isi 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.bilah-navigasi[data-keadaan='selesai'] {
+    transform: scaleX(1);
+    opacity: 0;
+    transition: opacity 0.35s 0.05s;
+}
+@keyframes bilah-isi {
+    0% {
+        transform: scaleX(0);
+    }
+    30% {
+        transform: scaleX(0.55);
+    }
+    70% {
+        transform: scaleX(0.8);
+    }
+    100% {
+        transform: scaleX(0.92);
+    }
+}
+
+/* Layar muat awal: markup statis dari blade, dicabut oleh Pustaka/LayarMuat saat React terpasang. */
+.layar-muat {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    background: var(--color-latar);
+    transition: opacity 0.3s;
+    /* Jaring pengaman: bila skrip gagal dimuat, layar tidak menutup halaman selamanya. */
+    animation: layar-lenyap 0.3s 15s forwards;
+}
+.layar-muat[data-selesai] {
+    opacity: 0;
+    pointer-events: none;
+}
+.layar-muat__inti {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+.layar-muat__kata {
+    display: grid;
+    color: var(--color-teks-sekunder);
+    font-size: var(--text-isi);
+    text-align: center;
+}
+.layar-muat__kata > span {
+    grid-area: 1 / 1;
+}
+.layar-muat__kata > span:last-child {
+    opacity: 0;
+    animation: kata-muncul 0.4s 3.2s forwards;
+}
+.layar-muat__kata > span:first-child {
+    animation: kata-hilang 0.4s 3.2s forwards;
+}
+@keyframes kata-muncul {
+    to {
+        opacity: 1;
+    }
+}
+@keyframes kata-hilang {
+    to {
+        opacity: 0;
+    }
+}
+@keyframes layar-lenyap {
+    to {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+/*
+ * Kerangka (Skeleton): kilau pelan menggantikan denyut bawaan shadcn. Di luar `@layer` supaya mengalahkan
+ * utilitas `animate-pulse` dan `bg-accent` pada komponen Komponen/Ui/skeleton.
+ */
+[data-slot='skeleton'] {
+    animation: kerangka-kilau 1.5s linear infinite;
+    background-image: linear-gradient(
+        90deg,
+        var(--color-permukaan-sorot) 0%,
+        var(--color-permukaan-redup) 50%,
+        var(--color-permukaan-sorot) 100%
+    );
+    background-color: var(--color-permukaan-sorot);
+    background-size: 220% 100%;
+}
+@keyframes kerangka-kilau {
+    0% {
+        background-position: 120% 0;
+    }
+    100% {
+        background-position: -120% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tanda-muat,
+    .tanda-muat::before,
+    [data-slot='skeleton'] {
+        animation: none;
+    }
+    [data-slot='skeleton'] {
+        background-image: none;
+    }
+    .bilah-navigasi[data-keadaan='jalan'] {
+        animation: none;
+        transform: scaleX(0.7);
+    }
+    .layar-muat__kata > span:first-child,
+    .layar-muat__kata > span:last-child {
+        animation: none;
+    }
+}
