@@ -27,7 +27,13 @@ void main() {
     await Tunggu(tester, const Duration(seconds: 1));
 
     expect(find.text('Siapa yang bertugas?'), findsOneWidget);
+    // Daftar kasir dari data awal ada di dropdown "Nama kasir".
+    await tester.tap(find.byKey(const ValueKey('PilihKasir')));
+    await tester.pumpAndSettle();
     expect(find.text('Rina Wulandari'), findsOneWidget);
+    expect(find.text('Budi Santoso'), findsOneWidget);
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
     expect(find.text('Kopi Senja Solo Baru | POS-001'), findsOneWidget);
     await Lepas(tester, u);
   });

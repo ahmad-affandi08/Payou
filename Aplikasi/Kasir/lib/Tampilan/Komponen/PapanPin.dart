@@ -15,6 +15,7 @@ class PapanPin extends StatefulWidget {
     this.pesanGalat,
     this.aktif = true,
     this.petunjuk,
+    this.simpulFokus,
   });
 
   final Future<void> Function(String pin) saatSelesai;
@@ -24,6 +25,9 @@ class PapanPin extends StatefulWidget {
   /// False = papan terkunci (mis. nama kasir belum dipilih); tombol nonaktif dan [petunjuk] tampil di bawah titik.
   final bool aktif;
   final String? petunjuk;
+
+  /// Simpul fokus papan: induk memintanya setelah memilih kasir supaya keyboard fisik langsung mengisi PIN.
+  final FocusNode? simpulFokus;
 
   @override
   State<PapanPin> createState() => _PapanPinState();
@@ -106,6 +110,7 @@ class _PapanPinState extends State<PapanPin> {
     );
 
     return Focus(
+      focusNode: widget.simpulFokus,
       autofocus: true,
       onKeyEvent: _SaatTombol,
       child: Column(

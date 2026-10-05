@@ -82,7 +82,7 @@ void main() {
   }
 
   Future<void> Masuk(WidgetTester tester, String nama, int indeksPin) async {
-    await tester.tap(find.text(nama));
+    await PilihKasir(tester, nama);
     await tester.pump();
     await KetikPin(tester, KasusPin(indeksPin)['Pin']! as String);
     await Tunggu(tester, const Duration(milliseconds: 600));

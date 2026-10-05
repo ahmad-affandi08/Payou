@@ -20,8 +20,15 @@ class LayarPilihKasir extends ConsumerStatefulWidget {
 
 class _LayarPilihKasirState extends ConsumerState<LayarPilihKasir> {
   StafLokal? _dipilih;
+  final FocusNode _fokusPin = FocusNode(debugLabel: 'PapanPin');
   bool _sibuk = false;
   String? _galat;
+
+  @override
+  void dispose() {
+    _fokusPin.dispose();
+    super.dispose();
+  }
 
   Future<void> _Masuk(String pin) async {
     final staf = _dipilih;
@@ -146,10 +153,14 @@ class _LayarPilihKasirState extends ConsumerState<LayarPilihKasir> {
                         ],
                         onChanged: _sibuk
                             ? null
-                            : (nilai) => setState(() {
-                                _dipilih = nilai;
-                                _galat = null;
-                              }),
+                            : (nilai) {
+                                setState(() {
+                                  _dipilih = nilai;
+                                  _galat = null;
+                                });
+                                // Setelah memilih nama, fokus pindah ke papan PIN agar keyboard fisik langsung bisa dipakai.
+                                WidgetsBinding.instance.addPostFrameCallback((_) => _fokusPin.requestFocus());
+                              },
                       ),
                       const SizedBox(height: TokenJarak.jarak16),
                       Text('PIN', style: teks.labelLarge, textAlign: TextAlign.center),
@@ -159,6 +170,7 @@ class _LayarPilihKasirState extends ConsumerState<LayarPilihKasir> {
                         key: ValueKey('Pin${terpilih?.uuid}'),
                         aktif: terpilih != null,
                         petunjuk: terpilih == null ? 'Pilih nama dulu' : null,
+                        simpulFokus: _fokusPin,
                         saatSelesai: _Masuk,
                         sibuk: _sibuk,
                         pesanGalat: _galat,

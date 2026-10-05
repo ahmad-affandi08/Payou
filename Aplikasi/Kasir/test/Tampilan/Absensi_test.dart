@@ -38,6 +38,7 @@ void main() {
   Finder DiAbsensi(Finder f) => find.descendant(of: find.byType(LayarAbsensi), matching: f);
 
   Future<void> Absen(WidgetTester tester, String nama, int kasusPin) async {
+    await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Absen masuk/keluar'));
     await tester.tap(find.widgetWithText(OutlinedButton, 'Absen masuk/keluar'));
     await Tunggu(tester);
     expect(find.byType(LayarAbsensi), findsOneWidget);

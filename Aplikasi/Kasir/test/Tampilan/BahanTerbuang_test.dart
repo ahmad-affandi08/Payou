@@ -33,7 +33,7 @@ void main() {
     };
     await PasangAplikasi(tester, u, ukuran: ukuran);
     await Tunggu(tester, const Duration(milliseconds: 600));
-    await tester.tap(find.text(nama));
+    await PilihKasir(tester, nama);
     await tester.pump();
     await KetikPin(tester, KasusPin(pin)['Pin']! as String);
     await Tunggu(tester);
