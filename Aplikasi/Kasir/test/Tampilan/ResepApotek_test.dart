@@ -56,7 +56,7 @@ void main() {
     await tester.tap(cari);
     await tester.enterText(cari, kata);
     await Tunggu(tester);
-    await PilihKasir(tester, nama);
+    await tester.tap(find.text(nama).first);
     await Tunggu(tester);
   }
 

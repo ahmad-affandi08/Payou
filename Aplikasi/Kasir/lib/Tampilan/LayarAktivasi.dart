@@ -5,7 +5,7 @@ import 'package:sistem_desain/SistemDesain.dart';
 import '../Aplikasi/Penyedia.dart';
 import '../Domain/GalatKasir.dart';
 import '../Domain/Perangkat/IsiAktivasi.dart';
-import 'Komponen/BingkaiMasuk.dart';
+import 'Komponen/BingkaiLogin.dart';
 
 /// F-02 langkah 5: tukar kode aktivasi dari back-office (menu Perangkat) menjadi token perangkat. Butuh internet.
 class LayarAktivasi extends ConsumerStatefulWidget {
@@ -91,15 +91,17 @@ class _LayarAktivasiState extends ConsumerState<LayarAktivasi> {
     final teks = Theme.of(context).textTheme;
     // Windows & perangkat tanpa kamera: isian manual saja (mobile_scanner tidak mendukung Windows).
     final adaPemindai = ref.watch(penyediaPemindaiQr).CekTersedia();
-    return BingkaiMasuk(
-      judul: 'Aktifkan perangkat kasir',
-      keterangan: adaPemindai
-          ? 'Buka back-office, menu Perangkat, lalu buat kode aktivasi untuk perangkat ini. Pindai QR-nya atau ketik kodenya.'
-          : 'Buka back-office, menu Perangkat, lalu buat kode aktivasi untuk perangkat ini.',
-      catatan: 'Aktivasi butuh internet satu kali. Setelah aktif, kasir bisa berjualan tanpa internet.',
+    final keterangan = adaPemindai
+        ? 'Buka back-office, menu Perangkat, lalu buat kode aktivasi untuk perangkat ini. Pindai QR-nya atau ketik kodenya.'
+        : 'Buka back-office, menu Perangkat, lalu buat kode aktivasi untuk perangkat ini.';
+    return BingkaiLogin(
       isi: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Text('Aktifkan perangkat kasir', style: teks.headlineMedium),
+          const SizedBox(height: TokenJarak.jarak8),
+          Text(keterangan, style: teks.bodyMedium?.copyWith(color: warna.teksSekunder)),
+          const SizedBox(height: TokenJarak.jarak24),
           if (widget.pesan case final String pesan) ...[
             _Peringatan(pesan: pesan),
             const SizedBox(height: TokenJarak.jarak16),
@@ -163,6 +165,12 @@ class _LayarAktivasiState extends ConsumerState<LayarAktivasi> {
               onPressed: _sibuk ? null : _Aktifkan,
               child: Text(_sibuk ? 'Mengaktifkan…' : 'Aktifkan perangkat'),
             ),
+          ),
+          const SizedBox(height: TokenJarak.jarak16),
+          Text(
+            'Aktivasi butuh internet satu kali. Setelah aktif, kasir bisa berjualan tanpa internet.',
+            textAlign: TextAlign.center,
+            style: teks.bodySmall,
           ),
         ],
       ),
