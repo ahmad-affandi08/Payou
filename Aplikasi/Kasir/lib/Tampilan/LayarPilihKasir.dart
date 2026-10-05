@@ -6,7 +6,7 @@ import '../Aplikasi/Penyedia.dart';
 import '../Domain/GalatKasir.dart';
 import '../Domain/Sesi/StafLokal.dart';
 import 'Komponen/AvatarKasir.dart';
-import 'Komponen/BingkaiMasuk.dart';
+import 'Komponen/BingkaiLogin.dart';
 import 'Komponen/PapanPin.dart';
 import 'LayarAbsensi.dart';
 
@@ -80,116 +80,93 @@ class _LayarPilihKasirState extends ConsumerState<LayarPilihKasir> {
   Widget build(BuildContext context) {
     final teks = Theme.of(context).textTheme;
     final warna = TokenWarna.AmbilDari(context);
+    final staf = ref.watch(penyediaStaf);
     final terpilih = _dipilih;
 
-    if (terpilih != null) {
-      return BingkaiMasuk(
-        judul: 'PIN ${terpilih.nama}',
-        keterangan: 'Masukkan PIN untuk mulai bertugas.',
-        lebarIsi: 380,
-        aksi: [
-          TextButton(
-            onPressed: _sibuk ? null : () => setState(() => _dipilih = null),
-            child: const Text('Ganti kasir'),
-          ),
-        ],
-        isi: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AvatarKasir(nama: terpilih.nama, ukuran: 72),
-            const SizedBox(height: TokenJarak.jarak16),
-            PapanPin(saatSelesai: _Masuk, sibuk: _sibuk, pesanGalat: _galat),
-          ],
-        ),
-      );
-    }
-
-    final staf = ref.watch(penyediaStaf);
-    return BingkaiMasuk(
-      judul: 'Siapa yang bertugas?',
-      keterangan: 'Pilih nama Anda, lalu masukkan PIN. Shift dibuka setelah Anda masuk.',
-      lebarIsi: 560,
+    return BingkaiLogin(
       aksi: [
         TextButton(
-          onPressed: () => ref.read(penyediaSesi.notifier).SegarkanData(),
+          onPressed: _sibuk ? null : () => ref.read(penyediaSesi.notifier).SegarkanData(),
           child: const Text('Perbarui data kasir'),
         ),
         // F-18: absen masuk/keluar staf tanpa membuka sesi kasir.
         OutlinedButton.icon(
-          onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LayarAbsensi())),
+          onPressed: _sibuk
+              ? null
+              : () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LayarAbsensi())),
           icon: const Icon(Icons.badge_outlined),
           label: const Text('Absen masuk/keluar'),
         ),
       ],
-      isi: staf.when(
-        loading: () => const Center(
-          child: Padding(padding: EdgeInsets.all(TokenJarak.jarak24), child: CircularProgressIndicator()),
-        ),
-        error: (galat, _) =>
-            Text('Data kasir tidak bisa dimuat: $galat', style: teks.bodyMedium?.copyWith(color: warna.bahaya)),
-        data: (daftar) => daftar.isEmpty
-            ? Text(
-                'Belum ada kasir untuk outlet ini. Tambahkan pengguna di back-office, lalu ketuk "Perbarui data kasir".',
-                style: teks.bodyLarge,
-              )
-            : LayoutBuilder(
-                builder: (konteks, ruang) {
-                  // Dua kolom sama lebar bila muat (≥ 420dp), selain itu satu kolom penuh.
-                  final lebarKartu = ruang.maxWidth >= 420 ? (ruang.maxWidth - TokenJarak.jarak12) / 2 : ruang.maxWidth;
-                  return Wrap(
-                    spacing: TokenJarak.jarak12,
-                    runSpacing: TokenJarak.jarak12,
+      isi: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Masuk ke kasir', style: teks.headlineMedium),
+          const SizedBox(height: TokenJarak.jarak8),
+          Text(
+            'Pilih nama Anda, lalu masukkan PIN. Shift dibuka setelah Anda masuk.',
+            style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
+          ),
+          const SizedBox(height: TokenJarak.jarak24),
+          staf.when(
+            loading: () => const Center(child: TandaMuat(ukuran: 48)),
+            error: (galat, _) =>
+                Text('Data kasir tidak bisa dimuat: $galat', style: teks.bodyMedium?.copyWith(color: warna.bahaya)),
+            data: (daftar) => daftar.isEmpty
+                ? Text(
+                    'Belum ada kasir untuk outlet ini. Tambahkan pengguna di back-office, lalu ketuk "Perbarui data kasir".',
+                    style: teks.bodyLarge,
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (final s in daftar)
-                        SizedBox(
-                          width: lebarKartu,
-                          child: Material(
-                            color: warna.permukaan,
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(color: warna.garis),
-                              borderRadius: BorderRadius.circular(TokenJarak.radiusPanel + 4),
-                            ),
-                            child: InkWell(
-                              customBorder: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(TokenJarak.radiusPanel + 4),
+                      DropdownButtonFormField<StafLokal>(
+                        key: const ValueKey('PilihKasir'),
+                        // Selalu cocokkan dengan objek di daftar terbaru (data bisa dimuat ulang saat layar terbuka).
+                        initialValue: daftar.where((s) => s.uuid == terpilih?.uuid).firstOrNull,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Nama kasir',
+                          prefixIcon: Icon(Icons.person_outline),
+                        ),
+                        hint: const Text('Siapa yang bertugas?'),
+                        items: [
+                          for (final s in daftar)
+                            DropdownMenuItem<StafLokal>(
+                              value: s,
+                              child: Row(
+                                children: [
+                                  AvatarKasir(nama: s.nama, ukuran: 28),
+                                  const SizedBox(width: TokenJarak.jarak12),
+                                  Flexible(child: Text(s.nama, overflow: TextOverflow.ellipsis)),
+                                ],
                               ),
-                              onTap: () => setState(() {
-                                _dipilih = s;
+                            ),
+                        ],
+                        onChanged: _sibuk
+                            ? null
+                            : (nilai) => setState(() {
+                                _dipilih = nilai;
                                 _galat = null;
                               }),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: TokenJarak.jarak12,
-                                  vertical: TokenJarak.jarak16,
-                                ),
-                                child: Row(
-                                  children: [
-                                    AvatarKasir(nama: s.nama),
-                                    const SizedBox(width: TokenJarak.jarak12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            s.nama,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: teks.titleMedium,
-                                          ),
-                                          Text(s.pemilik ? 'Pemilik' : 'Kasir', style: teks.bodySmall),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                      ),
+                      const SizedBox(height: TokenJarak.jarak16),
+                      Text('PIN', style: teks.labelLarge, textAlign: TextAlign.center),
+                      const SizedBox(height: TokenJarak.jarak4),
+                      PapanPin(
+                        // Kunci per kasir: PIN yang sedang diketik hilang saat kasir diganti.
+                        key: ValueKey('Pin${terpilih?.uuid}'),
+                        aktif: terpilih != null,
+                        petunjuk: terpilih == null ? 'Pilih nama dulu' : null,
+                        saatSelesai: _Masuk,
+                        sibuk: _sibuk,
+                        pesanGalat: _galat,
+                      ),
                     ],
-                  );
-                },
-              ),
+                  ),
+          ),
+        ],
       ),
     );
   }

@@ -63,7 +63,7 @@ void main() {
     });
     u.server.penangan = penangan ?? (_) async => throw http.ClientException('offline');
     await PasangAplikasi(tester, u, ukuran: ukuran);
-    await tester.tap(find.text('Rina Wulandari'));
+    await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
     expect(find.byType(RuangKerja), findsOneWidget);

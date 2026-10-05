@@ -99,6 +99,14 @@ Future<void> Lepas(WidgetTester tester, LingkunganUji u) async {
 }
 
 /// Ketuk PIN 6 digit di `PapanPin`.
+/// Memilih kasir di dropdown "Nama kasir" layar login (D-60): buka daftar, lalu ketuk nama di daftar terbuka.
+Future<void> PilihKasir(WidgetTester tester, String nama) async {
+  await tester.tap(find.byKey(const ValueKey('PilihKasir')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(nama).last);
+  await tester.pumpAndSettle();
+}
+
 Future<void> KetikPin(WidgetTester tester, String pin) async {
   for (final angka in pin.split('')) {
     await tester.tap(find.widgetWithText(OutlinedButton, angka).last);

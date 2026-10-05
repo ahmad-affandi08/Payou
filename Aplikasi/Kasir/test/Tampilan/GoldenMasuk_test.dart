@@ -8,7 +8,8 @@ import '../Pendukung/LingkunganUji.dart';
 import '../Pendukung/MuatFont.dart';
 import '../Pendukung/PasangAplikasi.dart';
 
-/// Golden alur masuk kasir (D-59): pilih kasir → PIN → halaman penjualan dengan modal Buka shift. Ada karena layar
+/// Golden alur masuk kasir (D-59, D-60): login dua kolom (pilih nama di dropdown, PIN, keypad) → halaman penjualan
+/// dengan modal Buka shift. Ada karena layar
 /// pertama kasir dulu hanya diperiksa teksnya, bukan tampilannya.
 void main() {
   for (final (nama, ukuran) in [('Lebar', const Size(1280, 800)), ('Ponsel', const Size(390, 844))]) {
@@ -25,7 +26,7 @@ void main() {
       await Tunggu(tester);
       await expectLater(find.byType(MaterialApp), matchesGoldenFile('Golden/Masuk${nama}1Pilih.png'));
 
-      await tester.tap(find.text('Rina Wulandari'));
+      await PilihKasir(tester, 'Rina Wulandari');
       await tester.pump();
       await Tunggu(tester);
       await expectLater(find.byType(MaterialApp), matchesGoldenFile('Golden/Masuk${nama}2Pin.png'));

@@ -68,7 +68,7 @@ void main() {
       throw http.ClientException('offline');
     };
     await PasangAplikasi(tester, u);
-    await tester.tap(find.text('Rina Wulandari'));
+    await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
     await tester.enterText(find.byType(TextField), '500000');
@@ -119,7 +119,8 @@ void main() {
     await tester.tap(find.text('Minta persetujuan jarak jauh'));
     await Tunggu(tester, const Duration(seconds: 8));
     expect(find.text('Ditolak Pak Harto: Galon masih ada stok di gudang'), findsOneWidget);
-    expect(find.text('PIN Budi Santoso'), findsOneWidget);
+    expect(find.byKey(const ValueKey('PilihKasir')), findsOneWidget);
+    expect(find.text('Budi Santoso'), findsOneWidget);
 
     await PilihPenyetuju(tester, 'Budi Santoso');
     await tester.pump();

@@ -44,7 +44,7 @@ void main() {
       });
       u.server.penangan = (_) async => throw http.ClientException('offline');
       await PasangAplikasi(tester, u, ukuran: const Size(1280, 900));
-      await tester.tap(find.text('Rina Wulandari'));
+      await PilihKasir(tester, 'Rina Wulandari');
       await Tunggu(tester);
 
       final pin = KasusPin(0)['Pin']! as String;

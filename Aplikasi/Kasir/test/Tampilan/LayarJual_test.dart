@@ -73,7 +73,7 @@ void main() {
     u.server.penangan = PenanganServer(dataAwal: dataAwal, katalog: katalog, produkHabis: produkHabis);
     await PasangAplikasi(tester, u, ukuran: ukuran);
     await Tunggu(tester, const Duration(milliseconds: 600));
-    await tester.tap(find.text('Rina Wulandari'));
+    await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
     await Tunggu(tester);
@@ -389,7 +389,8 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'Diskon (%)'), '20');
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan perubahan'));
     // Hanya Budi yang berhak menyetujui diskon: papan PIN-nya langsung tampil tanpa memilih nama.
-    expect(find.text('PIN Budi Santoso'), findsOneWidget);
+    expect(find.byKey(const ValueKey('PilihKasir')), findsOneWidget);
+    expect(find.text('Budi Santoso'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Budi Santoso'), findsNothing);
     await KetikPin(tester, KasusPin(1)['Pin']! as String);
     await Tunggu(tester);
@@ -560,7 +561,7 @@ void main() {
     u.server.penangan = PenanganServer();
     await PasangAplikasi(tester, u, ukuran: ukuranTablet);
     await Tunggu(tester, const Duration(milliseconds: 600));
-    await tester.tap(find.text('Rina Wulandari'));
+    await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
     await Tunggu(tester);

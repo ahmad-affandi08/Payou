@@ -16,7 +16,7 @@ void main() {
   Future<void> Masuk(WidgetTester tester, LingkunganUji u) async {
     await PasangAplikasi(tester, u);
     await Tunggu(tester, const Duration(milliseconds: 600));
-    await tester.tap(find.text('Rina Wulandari'));
+    await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
     await Tunggu(tester);

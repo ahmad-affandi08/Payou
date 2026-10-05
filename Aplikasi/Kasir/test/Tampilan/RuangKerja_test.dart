@@ -43,7 +43,7 @@ void main() {
     });
     u.server.penangan = (_) async => throw http.ClientException('offline');
     await PasangAplikasi(tester, u, ukuran: ukuran, penjagaLayar: penjagaLayar);
-    await tester.tap(find.text('Rina Wulandari'));
+    await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
     expect(find.byType(RuangKerja), findsOneWidget);
@@ -290,7 +290,8 @@ void main() {
     expect(find.text('Siapa yang bertugas?'), findsOneWidget);
     await tester.tap(find.widgetWithText(OutlinedButton, 'Budi Santoso'));
     await tester.pump();
-    expect(find.text('PIN Budi Santoso'), findsOneWidget);
+    expect(find.byKey(const ValueKey('PilihKasir')), findsOneWidget);
+    expect(find.text('Budi Santoso'), findsOneWidget);
     await KetikPin(tester, KasusPin(1)['Pin']! as String);
 
     expect(find.byType(LayarKunci), findsNothing);

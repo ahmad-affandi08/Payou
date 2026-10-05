@@ -61,7 +61,7 @@ void main() {
     };
     await PasangAplikasi(tester, u, ukuran: ukuran, pemindaiQr: pemindaiQr);
     await Tunggu(tester, const Duration(milliseconds: 600));
-    await tester.tap(find.text('Budi Santoso'));
+    await PilihKasir(tester, 'Budi Santoso');
     await tester.pump();
     await KetikPin(tester, KasusPin(1)['Pin']! as String);
     await Tunggu(tester);

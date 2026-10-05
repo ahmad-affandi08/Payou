@@ -8,11 +8,22 @@ import 'package:sistem_desain/SistemDesain.dart';
 /// `saatSelesai`, tidak pernah disimpan atau dicatat. Keyboard fisik (Windows, tablet berkeyboard) juga bisa dipakai:
 /// angka baris atas & numpad mengisi, Backspace menghapus satu angka (audit kemudahan pakai #9).
 class PapanPin extends StatefulWidget {
-  const PapanPin({super.key, required this.saatSelesai, this.sibuk = false, this.pesanGalat});
+  const PapanPin({
+    super.key,
+    required this.saatSelesai,
+    this.sibuk = false,
+    this.pesanGalat,
+    this.aktif = true,
+    this.petunjuk,
+  });
 
   final Future<void> Function(String pin) saatSelesai;
   final bool sibuk;
   final String? pesanGalat;
+
+  /// False = papan terkunci (mis. nama kasir belum dipilih); tombol nonaktif dan [petunjuk] tampil di bawah titik.
+  final bool aktif;
+  final String? petunjuk;
 
   @override
   State<PapanPin> createState() => _PapanPinState();
@@ -22,7 +33,7 @@ class _PapanPinState extends State<PapanPin> {
   String _pin = '';
 
   Future<void> _Tekan(String angka) async {
-    if (widget.sibuk || _pin.length >= 6) {
+    if (widget.sibuk || !widget.aktif || _pin.length >= 6) {
       return;
     }
     setState(() => _pin += angka);
@@ -86,7 +97,7 @@ class _PapanPinState extends State<PapanPin> {
             side: BorderSide(color: warna.garis),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
-          onPressed: widget.sibuk ? null : aksi,
+          onPressed: widget.sibuk || !widget.aktif ? null : aksi,
           child: ikon != null
               ? Icon(ikon, size: 28)
               : Text(label, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w600)),
@@ -126,7 +137,9 @@ class _PapanPinState extends State<PapanPin> {
               child: widget.sibuk
                   ? const Text('Memeriksa PIN…')
                   : widget.pesanGalat == null
-                  ? null
+                  ? (widget.petunjuk == null
+                        ? null
+                        : Text(widget.petunjuk!, style: TextStyle(color: warna.teksSekunder)))
                   : Text(
                       widget.pesanGalat!,
                       textAlign: TextAlign.center,

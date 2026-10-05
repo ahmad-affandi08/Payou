@@ -100,7 +100,7 @@ void main() {
           {'Uuid': '01K5KRY0000000000000000001', 'Nama': 'Rina Wulandari', 'Jabatan': 'Kasir'},
         ],
       );
-      await tester.tap(find.text('Rina Wulandari'));
+      await PilihKasir(tester, 'Rina Wulandari');
       await tester.pump();
       await KetikPin(tester, KasusPin(0)['Pin']! as String);
       await Tunggu(tester);

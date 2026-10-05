@@ -40,7 +40,7 @@ void main() {
     u.server.penangan = (_) async => throw http.ClientException('offline');
     await PasangAplikasi(tester, u);
 
-    await tester.tap(find.text('Rina Wulandari'));
+    await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, '111111');
     expect(find.textContaining('PIN salah. Sisa 4 percobaan'), findsOneWidget);
@@ -95,7 +95,7 @@ void main() {
       });
     };
     await PasangAplikasi(tester, u);
-    await tester.tap(find.text('Rina Wulandari'));
+    await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
     await tester.enterText(find.byType(TextField), '500000');
