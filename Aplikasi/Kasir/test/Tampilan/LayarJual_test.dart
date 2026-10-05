@@ -389,8 +389,7 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'Diskon (%)'), '20');
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan perubahan'));
     // Hanya Budi yang berhak menyetujui diskon: papan PIN-nya langsung tampil tanpa memilih nama.
-    expect(find.byKey(const ValueKey('PilihKasir')), findsOneWidget);
-    expect(find.text('Budi Santoso'), findsOneWidget);
+    expect(find.text('PIN Budi Santoso'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Budi Santoso'), findsNothing);
     await KetikPin(tester, KasusPin(1)['Pin']! as String);
     await Tunggu(tester);

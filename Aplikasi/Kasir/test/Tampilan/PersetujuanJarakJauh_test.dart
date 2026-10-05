@@ -119,8 +119,7 @@ void main() {
     await tester.tap(find.text('Minta persetujuan jarak jauh'));
     await Tunggu(tester, const Duration(seconds: 8));
     expect(find.text('Ditolak Pak Harto: Galon masih ada stok di gudang'), findsOneWidget);
-    expect(find.byKey(const ValueKey('PilihKasir')), findsOneWidget);
-    expect(find.text('Budi Santoso'), findsOneWidget);
+    expect(find.text('PIN Budi Santoso'), findsOneWidget);
 
     await PilihPenyetuju(tester, 'Budi Santoso');
     await tester.pump();

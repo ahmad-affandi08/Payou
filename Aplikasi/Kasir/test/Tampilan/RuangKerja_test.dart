@@ -290,8 +290,7 @@ void main() {
     expect(find.text('Siapa yang bertugas?'), findsOneWidget);
     await tester.tap(find.widgetWithText(OutlinedButton, 'Budi Santoso'));
     await tester.pump();
-    expect(find.byKey(const ValueKey('PilihKasir')), findsOneWidget);
-    expect(find.text('Budi Santoso'), findsOneWidget);
+    expect(find.text('PIN Budi Santoso'), findsOneWidget);
     await KetikPin(tester, KasusPin(1)['Pin']! as String);
 
     expect(find.byType(LayarKunci), findsNothing);
