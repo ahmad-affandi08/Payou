@@ -15,7 +15,6 @@ class LayarPerangkat extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final teks = Theme.of(context).textTheme;
     final warna = TokenWarna.AmbilDari(context);
     final sekarang = ref.read(penyediaJam)();
     return RefreshIndicator(
@@ -27,32 +26,51 @@ class LayarPerangkat extends ConsumerWidget {
           padding: const EdgeInsets.all(TokenJarak.jarak16),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            if (daftar.isEmpty) Text('Belum ada perangkat POS.', style: teks.bodyMedium),
-            for (final p in daftar)
-              Builder(
-                builder: (context) {
-                  final diam =
-                      p.status == 'Aktif' &&
-                      (p.terakhirAktifPada == null || sekarang.difference(p.terakhirAktifPada!) > batasDiam);
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      diam ? Icons.cloud_off_outlined : Icons.point_of_sale_outlined,
-                      color: diam ? warna.peringatan : warna.teksSekunder,
-                    ),
-                    title: Text('${p.nama} (${p.kode})'),
-                    subtitle: Text(
-                      [
-                        '${p.jenis} | ${p.outlet}',
-                        if (p.status != 'Aktif') p.status,
-                        if (p.terakhirAktifPada != null)
-                          'aktif ${FormatTampilan.TanggalJam(p.terakhirAktifPada!)}${diam ? ' (lama tidak tersambung)' : ''}',
-                        if (p.outboxTertunda > 0) '${p.outboxTertunda} data belum terkirim',
-                        if (p.versiAplikasi != null) 'versi ${p.versiAplikasi}',
-                      ].join(' | '),
-                    ),
-                  );
-                },
+            if (daftar.isEmpty)
+              const KotakPanel(
+                anak: KeadaanKosong(
+                  ikon: Icons.point_of_sale_outlined,
+                  judul: 'Belum ada perangkat POS.',
+                  keterangan: 'Perangkat kasir yang sudah diaktifkan muncul di sini beserta status sambungannya.',
+                ),
+              )
+            else
+              KotakPanel(
+                rapat: true,
+                anak: Column(
+                  children: [
+                    for (final (i, p) in daftar.indexed) ...[
+                      if (i > 0) Divider(height: 1, color: warna.garis),
+                      Builder(
+                        builder: (context) {
+                          final diam =
+                              p.status == 'Aktif' &&
+                              (p.terakhirAktifPada == null || sekarang.difference(p.terakhirAktifPada!) > batasDiam);
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: diam ? warna.peringatan.withValues(alpha: 0.12) : warna.latar,
+                              child: Icon(
+                                diam ? Icons.cloud_off_outlined : Icons.point_of_sale_outlined,
+                                color: diam ? warna.peringatan : warna.teksSekunder,
+                              ),
+                            ),
+                            title: Text('${p.nama} (${p.kode})'),
+                            subtitle: Text(
+                              [
+                                '${p.jenis} | ${p.outlet}',
+                                if (p.status != 'Aktif') p.status,
+                                if (p.terakhirAktifPada != null)
+                                  'aktif ${FormatTampilan.TanggalJam(p.terakhirAktifPada!)}${diam ? ' (lama tidak tersambung)' : ''}',
+                                if (p.outboxTertunda > 0) '${p.outboxTertunda} data belum terkirim',
+                                if (p.versiAplikasi != null) 'versi ${p.versiAplikasi}',
+                              ].join(' | '),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ],
+                ),
               ),
           ],
         ),

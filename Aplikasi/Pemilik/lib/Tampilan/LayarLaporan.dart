@@ -14,6 +14,7 @@ class LayarLaporan extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teks = Theme.of(context).textTheme;
+    final warna = TokenWarna.AmbilDari(context);
     final laporan = ref.watch(penyediaLaporan);
     final kelompok = ref.watch(penyediaKelompokLaporan);
     final outlet = ref.watch(penyediaDasbor).value?.outlet ?? const [];
@@ -40,24 +41,44 @@ class LayarLaporan extends ConsumerWidget {
           nilai: laporan,
           saatCobaLagi: () => ref.invalidate(penyediaLaporan),
           isi: (l) => l.baris.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(TokenJarak.jarak24),
-                  child: Text('Belum ada penjualan pada tanggal ini.', style: teks.bodyMedium),
+              ? const KotakPanel(
+                  anak: KeadaanKosong(
+                    ikon: Icons.bar_chart_outlined,
+                    judul: 'Belum ada penjualan pada tanggal ini.',
+                    keterangan: 'Ringkasan penjualan per produk, kategori, kasir, jam, dan kanal muncul di sini.',
+                  ),
                 )
               : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (final b in l.baris)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(kelompok == 'Jam' ? 'Jam ${b.nama}' : b.nama),
-                        subtitle: b.jumlah == null ? null : Text('Jumlah ${b.jumlah}'),
-                        trailing: Text(FormatTampilan.Rupiah(b.omzet), style: teks.titleSmall),
+                    KotakPanel(
+                      rapat: true,
+                      anak: Column(
+                        children: [
+                          for (final (i, b) in l.baris.indexed) ...[
+                            if (i > 0) Divider(height: 1, color: warna.garis),
+                            ListTile(
+                              title: Text(kelompok == 'Jam' ? 'Jam ${b.nama}' : b.nama),
+                              subtitle: b.jumlah == null ? null : Text('Jumlah ${b.jumlah}'),
+                              trailing: Text(FormatTampilan.Rupiah(b.omzet), style: teks.titleSmall),
+                            ),
+                          ],
+                        ],
                       ),
-                    const Divider(),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text('Total', style: teks.titleSmall),
-                      trailing: Text(FormatTampilan.Rupiah(l.totalOmzet), style: teks.titleMedium),
+                    ),
+                    const SizedBox(height: TokenJarak.jarak12),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: warna.brandGelap,
+                        borderRadius: BorderRadius.circular(TokenJarak.radiusPanel),
+                      ),
+                      child: ListTile(
+                        title: Text('Total', style: teks.titleSmall?.copyWith(color: warna.permukaan)),
+                        trailing: Text(
+                          FormatTampilan.Rupiah(l.totalOmzet),
+                          style: teks.titleMedium?.copyWith(color: warna.permukaan, fontWeight: FontWeight.w700),
+                        ),
+                      ),
                     ),
                   ],
                 ),

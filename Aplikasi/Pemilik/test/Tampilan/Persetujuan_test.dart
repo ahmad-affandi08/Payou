@@ -151,6 +151,8 @@ void main() {
     await tester.tap(find.text('Persetujuan'));
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Setujui'));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Setujui'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Ya, setujui'));

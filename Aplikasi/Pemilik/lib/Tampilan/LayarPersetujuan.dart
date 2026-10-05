@@ -17,7 +17,6 @@ class LayarPersetujuan extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final teks = Theme.of(context).textTheme;
     return RefreshIndicator(
       onRefresh: () => ref.refresh(penyediaPersetujuan.future),
       child: KeadaanData(
@@ -28,12 +27,12 @@ class LayarPersetujuan extends ConsumerWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
             if (daftar.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: TokenJarak.jarak24),
-                child: Text(
-                  'Tidak ada permintaan persetujuan. Permintaan dari kasir muncul di sini dan dicek otomatis tiap '
-                  '15 detik saat aplikasi terbuka.',
-                  style: teks.bodyMedium,
+              const KotakPanel(
+                anak: KeadaanKosong(
+                  ikon: Icons.approval_outlined,
+                  judul: 'Tidak ada permintaan persetujuan.',
+                  keterangan:
+                      'Permintaan dari kasir muncul di sini dan dicek otomatis tiap 15 detik saat aplikasi terbuka.',
                 ),
               ),
             for (final p in daftar) _KartuPersetujuan(permintaan: p),
@@ -132,6 +131,11 @@ class _KartuPersetujuanState extends ConsumerState<_KartuPersetujuan> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                CircleAvatar(
+                  backgroundColor: warna.peringatan.withValues(alpha: 0.12),
+                  child: Icon(Icons.approval_outlined, color: warna.peringatan),
+                ),
+                const SizedBox(width: TokenJarak.jarak12),
                 Expanded(child: Text(p.judul, style: teks.titleMedium)),
                 if (p.nilai != null) Text(FormatTampilan.Rupiah(p.nilai!), style: teks.titleMedium),
               ],
@@ -152,22 +156,37 @@ class _KartuPersetujuanState extends ConsumerState<_KartuPersetujuan> {
                 style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
               ),
             const SizedBox(height: TokenJarak.jarak8),
-            for (final r in p.rincian)
-              Padding(
-                padding: const EdgeInsets.only(bottom: TokenJarak.jarak4),
-                child: Text.rich(
-                  TextSpan(
+            if (p.rincian.isNotEmpty)
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: warna.latar,
+                  borderRadius: BorderRadius.circular(TokenJarak.radiusPanel),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(TokenJarak.jarak12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TextSpan(
-                        text: '${r.label}: ',
-                        style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
-                      ),
-                      TextSpan(text: r.nilai, style: teks.bodyMedium),
+                      for (final r in p.rincian)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '${r.label}: ',
+                                  style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
+                                ),
+                                TextSpan(text: r.nilai, style: teks.bodyMedium),
+                              ],
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ),
-            const SizedBox(height: TokenJarak.jarak8),
+            const SizedBox(height: TokenJarak.jarak12),
             Row(
               children: [
                 Expanded(
