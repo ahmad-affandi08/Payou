@@ -17,6 +17,7 @@ enum JenisIntegrasi: string
     case Whatsapp = 'Whatsapp';
     case Push = 'Push';
     case GerbangBilling = 'GerbangBilling';
+    case LoginSosial = 'LoginSosial';
 
     /**
      * Jenis yang dikonfigurasi di tingkat platform. v2.06: gerbang pembayaran diatur tiap tenant (akun merchant
@@ -40,6 +41,7 @@ enum JenisIntegrasi: string
             self::Whatsapp => PenyediaIntegrasi::MetaCloud,
             self::Push => PenyediaIntegrasi::Fcm,
             self::GerbangBilling => PenyediaIntegrasi::MidtransBilling,
+            self::LoginSosial => PenyediaIntegrasi::Google,
         };
     }
 
@@ -61,6 +63,7 @@ enum JenisIntegrasi: string
             self::Whatsapp => 'WhatsApp',
             self::Push => 'Push notification (aplikasi Pemilik & POS)',
             self::GerbangBilling => 'Gerbang pembayaran tagihan langganan',
+            self::LoginSosial => 'Masuk dengan Google',
         };
     }
 }

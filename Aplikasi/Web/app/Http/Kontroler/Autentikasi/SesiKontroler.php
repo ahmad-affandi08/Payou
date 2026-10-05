@@ -6,6 +6,7 @@ namespace App\Http\Kontroler\Autentikasi;
 
 use App\Domain\Bersama\Audit\Layanan\PencatatAudit;
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
+use App\Domain\Integrasi\MasukGoogle\KonfigurasiGoogle;
 use App\Domain\Organisasi\Aksi\VerifikasiDuaFaktorPengguna;
 use App\Domain\Organisasi\Kueri\KeanggotaanPengguna;
 use App\Domain\Organisasi\Model\Pengguna;
@@ -37,9 +38,9 @@ final class SesiKontroler extends Kontroler
     /** BR-00.8: percobaan kode 2FA per masuk tertunda, dengan jeda 5 menit. */
     public const BATAS_PERCOBAAN_DUA_FAKTOR = 5;
 
-    public function TampilkanMasuk(): Response
+    public function TampilkanMasuk(KonfigurasiGoogle $google): Response
     {
-        return Inertia::render('Autentikasi/Masuk');
+        return Inertia::render('Autentikasi/Masuk', ['MasukGoogle' => $google->CekAktif()]);
     }
 
     public function Masuk(MasukPermintaan $permintaan, KeanggotaanPengguna $keanggotaan): RedirectResponse

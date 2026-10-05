@@ -6,6 +6,7 @@ namespace App\Http\Kontroler\Autentikasi;
 
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Integrasi\Layanan\PemeriksaCaptcha;
+use App\Domain\Integrasi\MasukGoogle\KonfigurasiGoogle;
 use App\Domain\Organisasi\Aksi\KirimVerifikasiEmail;
 use App\Domain\Tenant\Aksi\CatatAtribusiMitra;
 use App\Domain\Tenant\Aksi\DaftarkanTenant;
@@ -15,7 +16,6 @@ use App\Domain\Tenant\Model\Paket;
 use App\Http\Kontroler\Kontroler;
 use App\Http\Perantara\IdentifikasiTenantSesi;
 use App\Http\Permintaan\Autentikasi\DaftarPermintaan;
-use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,6 +53,7 @@ final class PendaftaranKontroler extends Kontroler
             'Paket' => $daftarPaket,
             // BR-00.6: kode yang tidak tersedia (salah ketik, negosiasi) jatuh ke paket bawaan, bukan paket pertama.
             'PaketTerpilih' => in_array($diminta, $kodeTersedia, true) ? $diminta : (string) config('tenant.KodePaketTrialBawaan'),
+            'MasukGoogle' => app(KonfigurasiGoogle::class)->CekAktif(),
             'KunciSitusCaptcha' => $captcha->CekAktif() ? (string) config('integrasi.Turnstile.KunciSitus') : null,
         ]);
     }
@@ -78,7 +79,7 @@ final class PendaftaranKontroler extends Kontroler
 
         // D-24: pendaftaran baru wajib menyelesaikan panduan awal dulu.
         $hasil = $daftarkan->Jalankan($permintaan->AmbilData(), wajibPanduanAwal: true);
-        $this->CatatMitra($permintaan, $hasil['Tenant']->Id);
+        (new PencatatMitraPendaftaran)->Catat($permintaan, $hasil['Tenant']->Id);
 
         Auth::guard('web')->login($hasil['Pengguna']);
         $permintaan->session()->regenerate();
@@ -98,23 +99,5 @@ final class PendaftaranKontroler extends Kontroler
         return redirect()->route('kelola.panduan-awal')->with('Kilat', $terkirim
             ? "Selamat datang di {$hasil['Tenant']->Nama}! Cek email Anda untuk verifikasi."
             : "Selamat datang di {$hasil['Tenant']->Nama}! Email verifikasi belum berhasil dikirim; kirim ulang dari banner di atas.");
-    }
-
-    /** P-12: tenant baru diatribusikan ke mitra dari cookie tautan; cookie lalu dihapus. Gagal tidak menggagalkan pendaftaran. */
-    private function CatatMitra(Request $permintaan, int $idTenant): void
-    {
-        $nilai = $permintaan->cookie(self::COOKIE_MITRA);
-
-        if (! is_string($nilai) || preg_match('/^([A-Z0-9-]{3,20})\|(\d{1,12})$/', $nilai, $cocok) !== 1) {
-            return;
-        }
-
-        Cookie::queue(Cookie::forget(self::COOKIE_MITRA));
-
-        try {
-            app(CatatAtribusiMitra::class)->Jalankan($idTenant, $cocok[1], CarbonImmutable::createFromTimestamp((int) $cocok[2]));
-        } catch (Throwable $galat) {
-            Log::error('Atribusi mitra gagal dicatat.', ['Pesan' => $galat->getMessage()]);
-        }
     }
 }

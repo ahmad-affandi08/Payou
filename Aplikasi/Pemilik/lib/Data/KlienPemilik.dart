@@ -496,6 +496,18 @@ class KlienPemilik {
     }, pakaiToken: false),
   );
 
+  /// D-57: Client ID web Google untuk `serverClientId`; `null` bila toko belum mengaktifkan Masuk dengan Google.
+  Future<String?> AmbilClientIdGoogle() async {
+    final json = await _Kirim('GET', 'masuk/google/konfigurasi', null, pakaiToken: false);
+    return json['Aktif'] == true ? UraiJson.AmbilTeks(json['ClientId']) : null;
+  }
+
+  /// D-57: masuk dengan token ID Google; menggantikan 2FA (jawaban tidak pernah berupa tantangan).
+  Future<HasilMasukPemilik> MasukGoogle({required String idToken, required String namaPerangkat}) async =>
+      HasilMasukPemilik.DariJson(
+        await _Kirim('POST', 'masuk/google', {'IdToken': idToken, 'NamaPerangkat': namaPerangkat}, pakaiToken: false),
+      );
+
   Future<void> Keluar() => _Kirim('POST', 'keluar', null);
 
   Future<HasilMasukPemilik> AmbilProfil() async => HasilMasukPemilik.DariJson(await _Kirim('GET', 'profil', null));

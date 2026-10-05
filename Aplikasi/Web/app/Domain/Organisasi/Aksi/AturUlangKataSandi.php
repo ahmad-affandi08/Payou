@@ -43,6 +43,7 @@ final class AturUlangKataSandi
                     $pengguna->forceFill([
                         'KataSandi' => $kataSandi,
                         'TokenIngat' => Str::random(60),
+                        'KataSandiOtomatis' => false,
                         'EmailDiverifikasiPada' => $pengguna->EmailDiverifikasiPada ?? now(),
                     ])->save();
                     // OWN-01 (PRD §16): token Aplikasi Owner ikut dicabut saat kata sandi diganti.

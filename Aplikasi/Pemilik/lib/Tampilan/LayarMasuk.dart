@@ -64,6 +64,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
     final teks = Theme.of(context).textTheme;
     final warna = TokenWarna.AmbilDari(context);
     final duaFaktor = sesi.tahap == TahapSesi.DuaFaktor;
+    final clientIdGoogle = ref.watch(penyediaClientIdGoogle).asData?.value;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -155,6 +156,24 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                         child: Text(sesi.sibuk ? 'Memproses…' : (duaFaktor ? 'Verifikasi' : 'Masuk')),
                       ),
                     ),
+                    if (!duaFaktor && clientIdGoogle != null) ...[
+                      const SizedBox(height: TokenJarak.jarak12),
+                      SizedBox(
+                        height: TokenJarak.targetSentuh,
+                        child: OutlinedButton.icon(
+                          key: const ValueKey('MasukGoogle'),
+                          onPressed: sesi.sibuk ? null : () => unawaited(notifier.MasukGoogle(clientIdGoogle)),
+                          icon: Image.asset('assets/Google.png', width: 20, height: 20, excludeFromSemantics: true),
+                          label: const Text('Masuk dengan Google'),
+                        ),
+                      ),
+                      const SizedBox(height: TokenJarak.jarak8),
+                      Text(
+                        'Akun Google menggantikan kode verifikasi dua langkah.',
+                        textAlign: TextAlign.center,
+                        style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
+                      ),
+                    ],
                   ],
                 ),
               ),

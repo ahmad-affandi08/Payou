@@ -114,7 +114,7 @@ final class BagikanDataInertia extends Middleware
             'PengingatDuaFaktor' => function () use ($pengguna): bool {
                 $idTenant = app(KonteksTenant::class)->Ambil();
 
-                if (! $pengguna instanceof Pengguna || $idTenant === null || $pengguna->CekDuaFaktorAktif()) {
+                if (! $pengguna instanceof Pengguna || $idTenant === null || $pengguna->CekDuaFaktorAktif() || session(SesiAutentikasiTenant::MASUK_GOOGLE) === true) {
                     return false;
                 }
 

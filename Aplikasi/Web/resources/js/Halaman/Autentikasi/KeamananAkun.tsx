@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
 import Tombol from '@/Komponen/Formulir/Tombol';
+import TombolGoogle from '@/Komponen/Formulir/TombolGoogle';
 import { Button } from '@/Komponen/Ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Komponen/Ui/card';
 import { Separator } from '@/Komponen/Ui/separator';
@@ -11,13 +12,20 @@ import { FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
 import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 
 type PropsKeamananAkun = {
+    Google: {
+        Tersedia: boolean;
+        Tertaut: boolean;
+        TertautPada: string | null;
+        KataSandiOtomatis: boolean;
+        MasukDenganGoogle: boolean;
+    };
     DuaFaktor: { Aktif: boolean; AktifPada: string | null; SisaKodePemulihan: number; Wajib: boolean };
     Aktivasi: { QrSvg: string; Rahasia: string } | null;
     KodePemulihanBaru: string[] | null;
 };
 
 /** Keamanan akun: aktifkan atau nonaktifkan verifikasi dua langkah (§20.2, BR-00.8). */
-export default function HalamanKeamananAkun({ DuaFaktor, Aktivasi, KodePemulihanBaru }: PropsKeamananAkun) {
+export default function HalamanKeamananAkun({ DuaFaktor, Aktivasi, KodePemulihanBaru, Google }: PropsKeamananAkun) {
     return (
         <TataLetakAplikasi judul="Keamanan akun">
             {/* D-22: ganti kata sandi sendiri. Sebelumnya halamannya hanya muncul saat dipaksa, jadi tidak ada
@@ -41,6 +49,8 @@ export default function HalamanKeamananAkun({ DuaFaktor, Aktivasi, KodePemulihan
                     </Button>
                 </CardContent>
             </Card>
+            {/* D-57: akun Google yang ditautkan masuk tanpa kode; Masuk dengan Google menggantikan verifikasi dua langkah. */}
+            {Google.Tersedia || Google.Tertaut ? <PanelGoogle google={Google} /> : null}
             <Card className="max-w-xl gap-4 rounded-panel py-6 shadow-none">
                 <CardHeader className="gap-1 px-6">
                     <CardTitle className="text-subjudul font-bold text-teks-utama">
@@ -90,6 +100,63 @@ export default function HalamanKeamananAkun({ DuaFaktor, Aktivasi, KodePemulihan
                 </CardContent>
             </Card>
         </TataLetakAplikasi>
+    );
+}
+
+function PanelGoogle({ google }: { google: PropsKeamananAkun['Google'] }) {
+    const formulir = useForm({});
+
+    return (
+        <Card className="max-w-xl gap-3 rounded-panel py-6 shadow-none">
+            <CardHeader className="gap-1 px-6">
+                <CardTitle className="text-subjudul font-bold text-teks-utama">
+                    <h2>Masuk dengan Google</h2>
+                </CardTitle>
+                <CardDescription className="text-isi text-teks-sekunder">
+                    Akun Google yang ditautkan bisa dipakai masuk tanpa kata sandi dan tanpa kode verifikasi dua
+                    langkah.
+                </CardDescription>
+                <p className="text-label font-semibold text-teks-utama">
+                    Status:{' '}
+                    {google.Tertaut
+                        ? `Tertaut${google.TertautPada ? ` sejak ${FormatTanggalWaktu(google.TertautPada)}` : ''}`
+                        : 'Belum ditautkan'}
+                </p>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3 px-6">
+                {google.Tertaut ? (
+                    <>
+                        {google.KataSandiOtomatis ? (
+                            <Pemberitahuan jenis="info" judul="Kata sandi belum diatur">
+                                Akun ini dibuat lewat Google, jadi belum punya kata sandi. Atur kata sandi dulu supaya
+                                Anda tetap bisa masuk bila ingin melepas Google.
+                            </Pemberitahuan>
+                        ) : null}
+                        <div className="flex flex-wrap gap-2">
+                            {google.KataSandiOtomatis ? (
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="h-8 pointer-coarse:h-11 border-garis-input text-label font-semibold"
+                                >
+                                    <Link href="/ganti-kata-sandi">Atur kata sandi</Link>
+                                </Button>
+                            ) : (
+                                <Tombol
+                                    varian="bahaya"
+                                    memproses={formulir.processing}
+                                    onClick={() => formulir.delete('/kelola/keamanan/google')}
+                                >
+                                    Lepas tautan Google
+                                </Tombol>
+                            )}
+                        </div>
+                    </>
+                ) : (
+                    <TombolGoogle href="/masuk/google?tujuan=tautkan">Tautkan akun Google</TombolGoogle>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 

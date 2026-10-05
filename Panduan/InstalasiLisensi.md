@@ -70,6 +70,7 @@ lalu tekan **Uji & aktifkan**. Lewat perintah server juga bisa (misal sebelum Ow
 php artisan lisensi:atur-integrasi Email         # SMTP hosting, Gmail, Brevo, Mailgun, …
 php artisan lisensi:atur-integrasi Whatsapp      # WhatsApp Cloud API resmi, Fonnte, Wablas, …
 php artisan lisensi:atur-integrasi Penyimpanan   # opsional: S3/R2 untuk foto produk & bukti
+php artisan lisensi:atur-integrasi LoginSosial   # opsional: Masuk dengan Google (lihat Panduan/LoginGoogle.md)
 ```
 
 Perintah menanyakan penyedia, pengaturan, dan kredensial (tersembunyi), menyimpannya terenkripsi, menguji koneksi,

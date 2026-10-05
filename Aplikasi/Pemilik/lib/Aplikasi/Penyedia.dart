@@ -6,6 +6,7 @@ import 'package:klien_api/KlienApi.dart';
 
 import '../Data/KlienPemilik.dart';
 import '../Data/NotifikasiPush.dart';
+import '../Data/PenyediaMasukGoogle.dart';
 import '../Data/PenyimpanSesi.dart';
 import 'Lingkungan.dart';
 
@@ -15,6 +16,7 @@ final penyediaLingkungan = Provider<Lingkungan>((ref) => Lingkungan.Dev);
 final penyediaKlienHttp = Provider<http.Client>((ref) => http.Client());
 final penyediaPenyimpanSesi = Provider<PenyimpanSesi>((ref) => PenyimpanSesiAman());
 final penyediaJam = Provider<DateTime Function()>((ref) => DateTime.now);
+final penyediaMasukGoogle = Provider<PenyediaMasukGoogle>((ref) => const PenyediaMasukGoogleTidakAda());
 final penyediaNotifikasiPush = Provider<NotifikasiPush>((ref) => const NotifikasiPushTidakAda());
 
 /// D-35: alamat server toko sendiri yang tersimpan saat aplikasi dibuka (diisi `Persiapan` dari secure storage).
@@ -43,6 +45,20 @@ final penyediaKlien = Provider<KlienPemilik>((ref) {
     ambilTenant: () => sesi.Baca(PenyimpanSesi.kunciTenant),
     klien: ref.watch(penyediaKlienHttp),
   );
+});
+
+/// D-57: Client ID Google bila server mengaktifkan Masuk dengan Google; gagal/offline = tombol tidak tampil.
+final penyediaClientIdGoogle = FutureProvider.autoDispose<String?>((ref) async {
+  // `read`, bukan `watch`: alamat server toko sendiri baru tersimpan saat masuk, dan itu tidak boleh memicu ambil ulang.
+  final klien = ref.read(penyediaKlien);
+  if (klien.alamatDasar.host.endsWith('.invalid')) {
+    return null;
+  }
+  try {
+    return await klien.AmbilClientIdGoogle();
+  } on Object {
+    return null;
+  }
 });
 
 enum TahapSesi { Memuat, Keluar, DuaFaktor, PilihTenant, Masuk }
@@ -144,6 +160,29 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
       state = state.Salin(sibuk: false, pesan: () => galat.pesan);
     } on GalatJaringan catch (galat) {
       state = state.Salin(sibuk: false, pesan: () => galat.pesan);
+    }
+  }
+
+  /// D-57: masuk dengan akun Google (menggantikan 2FA). Dialog dibatalkan = diam saja.
+  Future<void> MasukGoogle(String clientId) async {
+    state = state.Salin(sibuk: true, pesan: () => null);
+    try {
+      final idToken = await ref.read(penyediaMasukGoogle).AmbilTokenId(clientIdServer: clientId);
+      if (idToken == null || idToken.isEmpty) {
+        state = state.Salin(sibuk: false);
+        return;
+      }
+      final hasil = await ref.read(penyediaKlien).MasukGoogle(idToken: idToken, namaPerangkat: namaPerangkat);
+      await _Terapkan(hasil);
+    } on GalatApi catch (galat) {
+      state = state.Salin(sibuk: false, pesan: () => galat.pesan);
+    } on GalatJaringan catch (galat) {
+      state = state.Salin(sibuk: false, pesan: () => galat.pesan);
+    } on Object {
+      state = state.Salin(
+        sibuk: false,
+        pesan: () => 'Masuk dengan Google gagal. Coba lagi atau pakai email dan kata sandi.',
+      );
     }
   }
 

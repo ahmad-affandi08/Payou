@@ -16,16 +16,16 @@ use App\Domain\Pengelola\Integrasi\Enum\PenyediaIntegrasi;
 use Illuminate\Console\Command;
 
 /**
- * D-35 edisi Lisensi: mengatur penyedia email, WhatsApp, atau penyimpanan berkas di server pembeli tanpa konsol.
+ * D-35 edisi Lisensi: mengatur penyedia email, WhatsApp, penyimpanan berkas, atau Masuk dengan Google di server pembeli tanpa konsol.
  * Memakai Aksi P-05 yang sama dengan konsol (kredensial terenkripsi, petunjuk 4 karakter, uji koneksi wajib berhasil
  * sebelum aktif, BR-P05.1/BR-P05.4). Kredensial diminta tersembunyi dan tidak pernah dicetak.
  */
 final class AturIntegrasiLisensiPerintah extends Command
 {
-    /** Jenis yang dipakai dashboard toko; CAPTCHA, push, dan billing milik PAYOU SaaS. */
-    private const JENIS = ['Email' => JenisIntegrasi::Email, 'Whatsapp' => JenisIntegrasi::Whatsapp, 'Penyimpanan' => JenisIntegrasi::Penyimpanan];
+    /** Jenis yang dipakai dashboard toko; CAPTCHA, push, dan billing milik PAYOU SaaS; Masuk dengan Google ikut (D-57). */
+    private const JENIS = ['Email' => JenisIntegrasi::Email, 'Whatsapp' => JenisIntegrasi::Whatsapp, 'Penyimpanan' => JenisIntegrasi::Penyimpanan, 'LoginSosial' => JenisIntegrasi::LoginSosial];
 
-    protected $signature = 'lisensi:atur-integrasi {jenis? : Email, Whatsapp, atau Penyimpanan}';
+    protected $signature = 'lisensi:atur-integrasi {jenis? : Email, Whatsapp, Penyimpanan, atau LoginSosial}';
 
     protected $description = 'Mengatur penyedia email/WhatsApp/penyimpanan di edisi Lisensi lalu menguji & mengaktifkannya (D-35).';
 

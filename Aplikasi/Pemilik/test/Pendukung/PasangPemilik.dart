@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -30,6 +31,7 @@ Future<void> PasangPemilik(
   required PenyimpanSesiMemori sesi,
   Size ukuran = const Size(360, 740),
   Lingkungan lingkungan = Lingkungan.Produksi,
+  List<Override> tambahan = const [],
 }) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = ukuran;
@@ -43,6 +45,7 @@ Future<void> PasangPemilik(
         penyediaJam.overrideWithValue(() => DateTime(2026, 9, 26, 15)),
         // Tanpa pemantau berkala di test (timer tidak boleh tertinggal); muat ulang lewat tab/tarik.
         penyediaSelangPantauPersetujuan.overrideWithValue(null),
+        ...tambahan,
       ],
       child: AplikasiPemilik(lingkungan: lingkungan),
     ),

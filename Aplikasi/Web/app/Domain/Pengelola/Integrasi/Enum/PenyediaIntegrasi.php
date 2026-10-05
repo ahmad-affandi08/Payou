@@ -7,6 +7,7 @@ namespace App\Domain\Pengelola\Integrasi\Enum;
 use App\Domain\Integrasi\Enum\PenyediaGerbang;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiFcm;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiGerbangPembayaran;
+use App\Domain\Pengelola\Integrasi\Penguji\PengujiGoogle;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiKoneksi;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiKoneksiPenyedia;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiMidtransBilling;
@@ -57,6 +58,7 @@ enum PenyediaIntegrasi: string
     case Watzap = 'Watzap';
     case Fcm = 'Fcm';
     case MidtransBilling = 'MidtransBilling';
+    case Google = 'Google';
 
     private const MODE = ['Kunci' => 'Mode', 'Label' => 'Mode', 'Jenis' => 'Pilihan', 'Wajib' => true, 'Opsi' => ['Sandbox', 'Produksi'], 'Bawaan' => 'Sandbox', 'Keterangan' => 'Sandbox untuk uji coba tanpa uang sungguhan.'];
 
@@ -69,6 +71,7 @@ enum PenyediaIntegrasi: string
             self::MetaCloud, self::Fonnte, self::Wablas, self::StarSender, self::Watzap => JenisIntegrasi::Whatsapp,
             self::Fcm => JenisIntegrasi::Push,
             self::MidtransBilling => JenisIntegrasi::GerbangBilling,
+            self::Google => JenisIntegrasi::LoginSosial,
             default => JenisIntegrasi::Email,
         };
     }
@@ -104,6 +107,10 @@ enum PenyediaIntegrasi: string
         }
 
         return match ($this) {
+            self::Google => [
+                ['Kunci' => 'ClientId', 'Label' => 'Client ID (aplikasi web)', 'Wajib' => true, 'Jenis' => 'Teks', 'Keterangan' => 'OAuth client jenis "Web application" dari Google Cloud Console › APIs & Services › Credentials. Tambahkan Authorized redirect URI: https://<domain dashboard>/masuk/google/panggilan-balik.'],
+                ['Kunci' => 'ClientIdTambahan', 'Label' => 'Client ID tambahan (Android/iOS)', 'Wajib' => false, 'Jenis' => 'Teks', 'Keterangan' => 'Opsional. Client ID Android/iOS Aplikasi Owner, dipisah koma, agar token dari aplikasi diterima. Tanpa isian ini aplikasi memakai Client ID web di atas.'],
+            ],
             self::Turnstile => [
                 ['Kunci' => 'KunciSitus', 'Label' => 'Kunci situs (site key)', 'Jenis' => 'Teks', 'Wajib' => true, 'Keterangan' => 'Kunci publik yang dipasang di halaman registrasi'],
             ],
@@ -160,6 +167,7 @@ enum PenyediaIntegrasi: string
 
         return match ($this) {
             self::Turnstile => [['Kunci' => 'KunciRahasia', 'Label' => 'Kunci rahasia (secret key)', 'Wajib' => true]],
+            self::Google => [['Kunci' => 'ClientSecret', 'Label' => 'Client secret', 'Wajib' => true]],
             self::S3 => [
                 ['Kunci' => 'IdKunciAkses', 'Label' => 'ID kunci akses (access key ID)', 'Wajib' => true],
                 ['Kunci' => 'KunciAksesRahasia', 'Label' => 'Kunci akses rahasia (secret access key)', 'Wajib' => true],
@@ -191,6 +199,7 @@ enum PenyediaIntegrasi: string
             JenisIntegrasi::Whatsapp => PengujiWhatsapp::class,
             JenisIntegrasi::Push => PengujiFcm::class,
             JenisIntegrasi::GerbangBilling => PengujiMidtransBilling::class,
+            JenisIntegrasi::LoginSosial => PengujiGoogle::class,
         };
     }
 
@@ -222,6 +231,7 @@ enum PenyediaIntegrasi: string
             self::Watzap => 'Watzap (tidak resmi)',
             self::Fcm => 'Firebase Cloud Messaging',
             self::MidtransBilling => 'Midtrans (tagihan langganan)',
+            self::Google => 'Google (Masuk dengan Google)',
         };
     }
 
@@ -246,6 +256,7 @@ enum PenyediaIntegrasi: string
             self::Midtrans, self::Xendit, self::Tripay, self::Duitku, self::Ipaymu, self::Doku => $this->AmbilPenyediaGerbang()?->AmbilKeterangan() ?? '',
             self::MetaCloud => 'Resmi dan aman dari pemblokiran. Di luar 24 jam percakapan wajib memakai templat yang disetujui Meta (berbayar per percakapan).',
             self::MidtransBilling => 'Akun Midtrans milik PAYOU untuk menagih tenant — berbeda dari gerbang QRIS milik toko (D-19), yang akunnya milik tenant masing-masing.',
+            self::Google => 'Pemilik toko daftar dan masuk dengan akun Google. Masuk dengan Google menggantikan verifikasi dua langkah (2FA). Panduan lengkap: Panduan/LoginGoogle.md.',
             self::Fcm => 'Satu proyek Firebase melayani Android & iOS sekaligus; sertifikat APNs diunggah di Firebase, bukan di sini. Isi berkas akun layanan dari Setelan proyek → Akun layanan → Buat kunci baru.',
             self::Fonnte, self::Wablas, self::StarSender, self::Watzap => 'Tidak resmi (WhatsApp Web): murah dan mudah, tetapi nomor bisa diblokir WhatsApp bila mengirim massal. Pakai nomor khusus, bukan nomor utama usaha.',
             default => '',

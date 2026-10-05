@@ -11,5 +11,7 @@ final readonly class DataPemilikBaru
         public string $email,
         public string $noHp,
         public string $kataSandi,
+        /** D-57: pendaftaran lewat Google; email dianggap terverifikasi dan kata sandi acak buatan sistem. */
+        public ?string $googleSub = null,
     ) {}
 }

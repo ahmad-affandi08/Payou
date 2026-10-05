@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property int $IdPengguna
  * @property string $Nama
  * @property string $Kemampuan
+ * @property bool $MasukGoogle diterbitkan lewat Masuk dengan Google, menggantikan 2FA (D-57)
  * @property string $HashToken
  * @property string|null $Ip
  * @property string|null $AgenPengguna
@@ -39,6 +40,7 @@ final class TokenAksesPengguna extends ModelDasar
 
     /** @var array<string, mixed> */
     protected $attributes = [
+        'MasukGoogle' => false,
         'Ip' => null,
         'AgenPengguna' => null,
         'TerakhirDipakaiPada' => null,
@@ -72,6 +74,7 @@ final class TokenAksesPengguna extends ModelDasar
             'TerakhirDipakaiPada' => 'datetime',
             'KedaluwarsaPada' => 'datetime',
             'DicabutPada' => 'datetime',
+            'MasukGoogle' => 'boolean',
         ];
     }
 }

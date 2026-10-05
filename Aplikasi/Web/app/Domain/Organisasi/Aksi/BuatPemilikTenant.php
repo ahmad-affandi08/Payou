@@ -14,6 +14,8 @@ use App\Domain\Organisasi\Model\TenantPengguna;
  * transaksi pendaftaran. Email & nomor WhatsApp unik per pengguna; email belum terverifikasi (BR-00.5).
  * Identitas yang sudah dipakai ditolak lewat `IdentitasSudahTerdaftar` tanpa membuka mana yang cocok (§25 no. 18).
  *
+ * Pendaftaran lewat Google (D-57, `DataPemilikBaru::googleSub`): email sudah dibuktikan Google, kata sandi acak.
+ *
  * `emailTerverifikasi` (D-35 edisi Lisensi): email diketik sendiri oleh pemasang server pembeli, dianggap terverifikasi
  * seperti email yang diisi admin (D-22); server baru belum tentu sudah punya pengirim email.
  */
@@ -40,7 +42,10 @@ final class BuatPemilikTenant
             'Email' => $data->email,
             'NoHp' => $data->noHp,
             'KataSandi' => $data->kataSandi,
-            'EmailDiverifikasiPada' => $emailTerverifikasi ? now() : null,
+            'EmailDiverifikasiPada' => $emailTerverifikasi || $data->googleSub !== null ? now() : null,
+            'GoogleSub' => $data->googleSub,
+            'GoogleDitautkanPada' => $data->googleSub !== null ? now() : null,
+            'KataSandiOtomatis' => $data->googleSub !== null,
         ]);
 
         TenantPengguna::query()->create(['IdTenant' => $idTenant, 'IdPengguna' => $pengguna->Id, 'Pemilik' => true]);

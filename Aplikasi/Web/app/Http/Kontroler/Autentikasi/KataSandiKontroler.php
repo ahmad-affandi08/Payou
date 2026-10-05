@@ -21,7 +21,9 @@ final class KataSandiKontroler extends Kontroler
 {
     public function Tampilkan(Request $permintaan): Response
     {
-        return Inertia::render('Autentikasi/GantiKataSandi', ['Wajib' => $this->Pengguna($permintaan)->WajibGantiKataSandi]);
+        $pengguna = $this->Pengguna($permintaan);
+
+        return Inertia::render('Autentikasi/GantiKataSandi', ['Wajib' => $pengguna->WajibGantiKataSandi, 'TanpaKataSandiLama' => $pengguna->KataSandiOtomatis]);
     }
 
     public function Simpan(GantiKataSandiPermintaan $permintaan, GantiKataSandiPengguna $ganti): RedirectResponse

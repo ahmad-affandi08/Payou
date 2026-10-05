@@ -113,7 +113,7 @@ Kedua aplikasi butuh akun, jadi pilih "Semua atau sebagian fungsi dibatasi" dan 
 
 - **PAYOU POS**: buat perangkat kasir di tenant demo, tulis kode aktivasi + PIN kasir demo di instruksi.
   Kode aktivasi sekali pakai, jadi buat yang baru setiap kali kirim ulang ke peninjauan.
-- **PAYOU Owner**: email + kata sandi pemilik tenant demo, 2FA dimatikan untuk akun ini.
+- **PAYOU Owner**: email + kata sandi pemilik tenant demo, 2FA dimatikan untuk akun ini. Peninjau memakai email + kata sandi; tombol "Masuk dengan Google" (D-57) boleh tetap ada tetapi jangan jadi satu-satunya jalan masuk, dan cantumkan di instruksi bahwa masuk Google bersifat opsional (panduan: `Panduan/LoginGoogle.md`).
 
 Kredensial hanya diisi di Play Console, **tidak** di repo atau dokumen ini.
 

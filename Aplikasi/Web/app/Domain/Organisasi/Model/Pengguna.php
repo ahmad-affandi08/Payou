@@ -26,6 +26,9 @@ use Illuminate\Support\Carbon;
  * @property string $Uuid
  * @property string $Nama
  * @property string|null $Email null = karyawan hanya kasir (masuk aplikasi kasir dengan PIN, D-22)
+ * @property string|null $GoogleSub pengenal tetap akun Google yang ditautkan (D-57)
+ * @property Carbon|null $GoogleDitautkanPada
+ * @property bool $KataSandiOtomatis kata sandi acak buatan sistem; Google belum boleh dilepas (D-57)
  * @property string|null $NoHp
  * @property string $KataSandi
  * @property bool $WajibGantiKataSandi kata sandi awal dibuat admin (D-22), wajib diganti saat pertama masuk
@@ -60,6 +63,9 @@ final class Pengguna extends ModelDasar implements KontrakDapatDiautentikasi, Ko
         'KodePemulihan2fa' => null,
         'DuaFaktorAktifPada' => null,
         'WajibGantiKataSandi' => false,
+        'GoogleSub' => null,
+        'GoogleDitautkanPada' => null,
+        'KataSandiOtomatis' => false,
     ];
 
     public function getAuthPasswordName(): string
@@ -88,6 +94,12 @@ final class Pengguna extends ModelDasar implements KontrakDapatDiautentikasi, Ko
         return $this->Email === null;
     }
 
+    /** D-57: akun ini sudah ditautkan ke akun Google. */
+    public function CekGoogleTertaut(): bool
+    {
+        return $this->GoogleSub !== null;
+    }
+
     /** 2FA TOTP akun tenant (§20.2): aktif bila rahasia sudah dikonfirmasi dengan kode pertama. */
     public function CekDuaFaktorAktif(): bool
     {
@@ -106,6 +118,8 @@ final class Pengguna extends ModelDasar implements KontrakDapatDiautentikasi, Ko
             'DuaFaktorAktifPada' => 'datetime',
             'EmailDiverifikasiPada' => 'datetime',
             'WajibGantiKataSandi' => 'boolean',
+            'KataSandiOtomatis' => 'boolean',
+            'GoogleDitautkanPada' => 'datetime',
         ];
     }
 }

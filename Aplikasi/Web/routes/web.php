@@ -12,6 +12,7 @@ use App\Domain\Situs\Model\ArtikelSitus;
 use App\Http\Kontroler\Autentikasi\KataSandiKontroler;
 use App\Http\Kontroler\Autentikasi\KeamananAkunKontroler;
 use App\Http\Kontroler\Autentikasi\LupaKataSandiKontroler;
+use App\Http\Kontroler\Autentikasi\MasukGoogleKontroler;
 use App\Http\Kontroler\Autentikasi\PendaftaranKontroler;
 use App\Http\Kontroler\Autentikasi\PersetujuanLegalKontroler;
 use App\Http\Kontroler\Autentikasi\SesiKontroler;
@@ -130,12 +131,20 @@ Route::middleware([TolakDomainPengelola::class, ArahkanDomainAplikasi::class, Ba
         ->middleware('throttle:60,1')
         ->name('publik.kompatibilitas-perangkat');
 
+    // D-57 Masuk dengan Google. Di luar grup `guest`: tujuan "tautkan" dipakai pengguna yang sudah masuk (Keamanan akun).
+    Route::get('/masuk/google', [MasukGoogleKontroler::class, 'Mulai'])->middleware('throttle:20,1')->name('masuk.google');
+    Route::get('/masuk/google/panggilan-balik', [MasukGoogleKontroler::class, 'PanggilanBalik'])->middleware('throttle:30,1')->name('masuk.google.panggilan-balik');
+
     // F-00 Registrasi & autentikasi tenant.
     Route::middleware('guest:web')->group(function () use ($saas): void {
         if ($saas) {
             Route::get('/daftar', [PendaftaranKontroler::class, 'Tampilkan'])->name('daftar');
             Route::post('/daftar', [PendaftaranKontroler::class, 'Daftar'])->middleware('throttle:pendaftaran')->name('daftar.kirim');
+            // D-57: lengkapi data usaha setelah Google membuktikan email (tanpa kata sandi dan CAPTCHA).
+            Route::get('/daftar/google', [MasukGoogleKontroler::class, 'TampilkanLengkapi'])->name('daftar.google');
+            Route::post('/daftar/google', [MasukGoogleKontroler::class, 'Lengkapi'])->middleware('throttle:pendaftaran')->name('daftar.google.kirim');
         }
+
         Route::get('/masuk', [SesiKontroler::class, 'TampilkanMasuk'])->name('masuk');
         Route::post('/masuk', [SesiKontroler::class, 'Masuk'])->name('masuk.kirim');
 
@@ -203,6 +212,8 @@ Route::middleware([TolakDomainPengelola::class, ArahkanDomainAplikasi::class, Ba
                 Route::get('/keamanan', [KeamananAkunKontroler::class, 'Tampilkan'])->name('kelola.keamanan');
                 Route::post('/keamanan/dua-faktor', [KeamananAkunKontroler::class, 'AktifkanDuaFaktor'])->name('kelola.keamanan.dua-faktor.aktifkan');
                 Route::delete('/keamanan/dua-faktor', [KeamananAkunKontroler::class, 'NonaktifkanDuaFaktor'])->name('kelola.keamanan.dua-faktor.nonaktifkan');
+                // D-57: lepas tautan akun Google (menautkan lewat /masuk/google?tujuan=tautkan).
+                Route::delete('/keamanan/google', [KeamananAkunKontroler::class, 'LepasGoogle'])->middleware('throttle:10,1')->name('kelola.keamanan.google.lepas');
                 Route::get('/persetujuan-legal', [PersetujuanLegalKontroler::class, 'Tampilkan'])->name('kelola.persetujuan-legal');
                 Route::post('/persetujuan-legal', [PersetujuanLegalKontroler::class, 'Setujui'])->name('kelola.persetujuan-legal.setujui');
 

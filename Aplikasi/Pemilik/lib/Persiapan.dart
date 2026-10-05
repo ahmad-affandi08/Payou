@@ -7,6 +7,7 @@ import 'Aplikasi/AplikasiPemilik.dart';
 import 'Aplikasi/Lingkungan.dart';
 import 'Aplikasi/Penyedia.dart';
 import 'Data/NotifikasiPush.dart';
+import 'Data/PenyediaMasukGoogle.dart';
 import 'Data/PenyimpanSesi.dart';
 
 /// Inisialisasi bersama semua flavor lalu menjalankan aplikasi (PRD §17.2.1).
@@ -21,6 +22,7 @@ Future<void> JalankanAplikasi(Lingkungan lingkungan) async {
       overrides: [
         penyediaLingkungan.overrideWithValue(lingkungan),
         penyediaNotifikasiPush.overrideWithValue(push),
+        penyediaMasukGoogle.overrideWithValue(PenyediaMasukGooglePlugin()),
         penyediaAlamatServerAwal.overrideWithValue(alamatServer),
       ],
       child: AplikasiPemilik(lingkungan: lingkungan),

@@ -41,7 +41,8 @@ final class IdentifikasiTenantPemilik
         }
 
         // D-38: selama trial kewajiban 2FA ditunda, sama dengan back-office.
-        if (! $pengguna->CekDuaFaktorAktif() && $this->wajibDuaFaktor->CekWajib($pengguna->Id, $idTenant) && ! $this->wajibDuaFaktor->CekDitunda($idTenant)) {
+        // D-57: token dari Masuk dengan Google menggantikan 2FA.
+        if (! $pengguna->CekDuaFaktorAktif() && ! AutentikasiPemilik::AmbilToken($request)->MasukGoogle && $this->wajibDuaFaktor->CekWajib($pengguna->Id, $idTenant) && ! $this->wajibDuaFaktor->CekDitunda($idTenant)) {
             return GalatApi::Buat('DuaFaktorWajib', 'Paket langganan usaha ini mewajibkan verifikasi dua langkah untuk peran Anda. Aktifkan dulu di menu Keamanan akun back-office.', 403);
         }
 

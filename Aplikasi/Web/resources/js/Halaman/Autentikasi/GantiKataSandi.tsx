@@ -6,7 +6,13 @@ import Tombol from '@/Komponen/Formulir/Tombol';
 import TataLetakAutentikasi from '@/TataLetak/TataLetakAutentikasi';
 
 /** D-22: ganti kata sandi (wajib setelah kata sandi awal dibuat admin usaha). Perangkat lain otomatis keluar. */
-export default function HalamanGantiKataSandi({ Wajib }: { Wajib: boolean }) {
+export default function HalamanGantiKataSandi({
+    Wajib,
+    TanpaKataSandiLama = false,
+}: {
+    Wajib: boolean;
+    TanpaKataSandiLama?: boolean;
+}) {
     const formulir = useForm({ KataSandiLama: '', KataSandi: '', KonfirmasiKataSandi: '' });
 
     const Kirim = (peristiwa: FormEvent) => {
@@ -18,22 +24,26 @@ export default function HalamanGantiKataSandi({ Wajib }: { Wajib: boolean }) {
         <TataLetakAutentikasi
             judul="Ganti kata sandi"
             keterangan={
-                Wajib
-                    ? 'Kata sandi Anda dibuat oleh admin usaha. Ganti dengan kata sandi yang hanya Anda ketahui sebelum melanjutkan.'
-                    : 'Setelah disimpan, perangkat lain yang masuk dengan akun ini akan keluar otomatis.'
+                TanpaKataSandiLama
+                    ? 'Akun Anda masuk dengan Google. Atur kata sandi supaya Anda juga bisa masuk dengan email dan kata sandi.'
+                    : Wajib
+                      ? 'Kata sandi Anda dibuat oleh admin usaha. Ganti dengan kata sandi yang hanya Anda ketahui sebelum melanjutkan.'
+                      : 'Setelah disimpan, perangkat lain yang masuk dengan akun ini akan keluar otomatis.'
             }
         >
             <form onSubmit={Kirim} className="flex flex-col gap-4" noValidate>
-                <BidangTeks
-                    label={Wajib ? 'Kata sandi awal' : 'Kata sandi saat ini'}
-                    jenis="password"
-                    autoComplete="current-password"
-                    nilai={formulir.data.KataSandiLama}
-                    saatBerubah={(nilai) => formulir.setData('KataSandiLama', nilai)}
-                    galat={formulir.errors.KataSandiLama}
-                    autoFocus
-                    required
-                />
+                {TanpaKataSandiLama ? null : (
+                    <BidangTeks
+                        label={Wajib ? 'Kata sandi awal' : 'Kata sandi saat ini'}
+                        jenis="password"
+                        autoComplete="current-password"
+                        nilai={formulir.data.KataSandiLama}
+                        saatBerubah={(nilai) => formulir.setData('KataSandiLama', nilai)}
+                        galat={formulir.errors.KataSandiLama}
+                        autoFocus
+                        required
+                    />
+                )}
                 <BidangTeks
                     label="Kata sandi baru"
                     jenis="password"

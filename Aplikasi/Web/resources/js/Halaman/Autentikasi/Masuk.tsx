@@ -3,12 +3,13 @@ import type { FormEvent } from 'react';
 
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
 import KotakCentang from '@/Komponen/Formulir/KotakCentang';
+import TombolGoogle, { PemisahAtau } from '@/Komponen/Formulir/TombolGoogle';
 import Tombol from '@/Komponen/Formulir/Tombol';
 import TataLetakAutentikasi from '@/TataLetak/TataLetakAutentikasi';
 import type { PropsBersamaAplikasi } from '@/Tipe/Aplikasi';
 
-/** Masuk back-office tenant. */
-export default function HalamanMasuk() {
+/** Masuk back-office tenant. Masuk dengan Google (D-57) menggantikan verifikasi dua langkah. */
+export default function HalamanMasuk({ MasukGoogle = false }: { MasukGoogle?: boolean }) {
     const { props } = usePage<PropsBersamaAplikasi>();
     const formulir = useForm({ Email: '', KataSandi: '', Ingat: false });
 
@@ -49,6 +50,12 @@ export default function HalamanMasuk() {
                 <Tombol type="submit" memproses={formulir.processing}>
                     Masuk
                 </Tombol>
+                {MasukGoogle ? (
+                    <>
+                        <PemisahAtau />
+                        <TombolGoogle href="/masuk/google">Masuk dengan Google</TombolGoogle>
+                    </>
+                ) : null}
                 {/* D-35: edisi Lisensi tanpa pendaftaran publik; akun dibuat Owner dari menu Pengguna. */}
                 {props.Edisi === 'Lisensi' ? null : (
                     <p className="text-keterangan text-teks-sekunder">

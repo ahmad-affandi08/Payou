@@ -19,7 +19,8 @@ final class GantiKataSandiPengguna
 
     public function Jalankan(Pengguna $pengguna, string $kataSandiLama, string $kataSandiBaru, ?int $idTenant, ?string $ip, ?string $agenPengguna): void
     {
-        if (! Hash::check($kataSandiLama, $pengguna->KataSandi)) {
+        // D-57: kata sandi buatan sistem (akun Google) tidak mungkin diketahui pengguna, jadi tidak diminta.
+        if (! $pengguna->KataSandiOtomatis && ! Hash::check($kataSandiLama, $pengguna->KataSandi)) {
             throw new PelanggaranAturanBisnis('KataSandiLamaSalah', 'Kata sandi saat ini salah.', 'KataSandiLama');
         }
 
@@ -28,7 +29,7 @@ final class GantiKataSandiPengguna
         }
 
         $wajib = $pengguna->WajibGantiKataSandi;
-        $pengguna->forceFill(['KataSandi' => $kataSandiBaru, 'WajibGantiKataSandi' => false])->save();
+        $pengguna->forceFill(['KataSandi' => $kataSandiBaru, 'WajibGantiKataSandi' => false, 'KataSandiOtomatis' => false])->save();
 
         $this->audit->CatatSesi('pengguna.ganti-kata-sandi', $idTenant, $pengguna->Id, $ip, $agenPengguna, ['Wajib' => $wajib]);
     }

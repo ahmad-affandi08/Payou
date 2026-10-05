@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Permintaan\Autentikasi;
 
+use App\Domain\Organisasi\Model\Pengguna;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -18,7 +20,8 @@ final class GantiKataSandiPermintaan extends FormRequest
     public function rules(): array
     {
         return [
-            'KataSandiLama' => ['required', 'string', 'max:100'],
+            // D-57: akun yang kata sandinya dibuat sistem (pendaftaran Google) tidak punya kata sandi lama untuk diketik.
+            'KataSandiLama' => [Rule::requiredIf(fn (): bool => ! ($this->user() instanceof Pengguna && $this->user()->KataSandiOtomatis)), 'nullable', 'string', 'max:100'],
             'KataSandi' => ['required', 'string', Password::min(8)->letters()->numbers(), 'max:100'],
             'KonfirmasiKataSandi' => ['required', 'same:KataSandi'],
         ];

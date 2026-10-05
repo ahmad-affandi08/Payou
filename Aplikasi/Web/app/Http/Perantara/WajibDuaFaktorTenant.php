@@ -37,6 +37,8 @@ final class WajibDuaFaktorTenant
             || ! $pengguna instanceof Pengguna
             || $idTenant === null
             || $pengguna->CekDuaFaktorAktif()
+            // D-57: Masuk dengan Google menggantikan 2FA.
+            || $request->session()->get(SesiAutentikasiTenant::MASUK_GOOGLE) === true
             || ! $this->penentu->CekWajib($pengguna->Id, $idTenant)
             || $this->penentu->CekDitunda($idTenant)) {
             return $next($request);

@@ -4,6 +4,7 @@ import { useId, useState, type FormEvent } from 'react';
 import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
 import Tombol from '@/Komponen/Formulir/Tombol';
+import TombolGoogle, { PemisahAtau } from '@/Komponen/Formulir/TombolGoogle';
 import WidgetCaptcha from '@/Komponen/Formulir/WidgetCaptcha';
 import { Checkbox } from '@/Komponen/Ui/checkbox';
 import { Label } from '@/Komponen/Ui/label';
@@ -15,10 +16,17 @@ type PropsDaftar = {
     Paket: { Kode: string; Nama: string; MasaTrialHari: number }[];
     PaketTerpilih: string;
     KunciSitusCaptcha: string | null;
+    MasukGoogle?: boolean;
 };
 
 /** Registrasi tenant (F-00 langkah 1). */
-export default function HalamanDaftar({ Dibuka, Paket, PaketTerpilih, KunciSitusCaptcha }: PropsDaftar) {
+export default function HalamanDaftar({
+    Dibuka,
+    Paket,
+    PaketTerpilih,
+    KunciSitusCaptcha,
+    MasukGoogle = false,
+}: PropsDaftar) {
     const formulir = useForm({
         Nama: '',
         Email: '',
@@ -57,6 +65,14 @@ export default function HalamanDaftar({ Dibuka, Paket, PaketTerpilih, KunciSitus
 
     return (
         <TataLetakAutentikasi judul="Daftar gratis" keterangan="Mulai masa trial tanpa kartu kredit." lebar="sedang">
+            {MasukGoogle ? (
+                <div className="mb-4 flex flex-col gap-3">
+                    <TombolGoogle href={`/masuk/google?tujuan=daftar&paket=${encodeURIComponent(formulir.data.Paket)}`}>
+                        Daftar dengan Google
+                    </TombolGoogle>
+                    <PemisahAtau />
+                </div>
+            ) : null}
             <form onSubmit={Kirim} className="grid gap-4 sm:grid-cols-2" noValidate>
                 <BidangTeks
                     label="Nama Anda"

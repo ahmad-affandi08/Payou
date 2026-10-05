@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Kontroler\Autentikasi;
 
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
+use App\Domain\Integrasi\MasukGoogle\KonfigurasiGoogle;
 use App\Domain\Organisasi\Aksi\AktifkanDuaFaktorPengguna;
+use App\Domain\Organisasi\Aksi\MasukDenganGoogle;
 use App\Domain\Organisasi\Aksi\NonaktifkanDuaFaktorPengguna;
 use App\Domain\Organisasi\Layanan\DuaFaktorPengguna;
 use App\Domain\Organisasi\Layanan\PenentuWajibDuaFaktor;
@@ -29,7 +31,10 @@ final class KeamananAkunKontroler extends Kontroler
 {
     private const MAKS_PERCOBAAN = 5;
 
-    public function __construct(private readonly PenentuWajibDuaFaktor $penentuWajib) {}
+    public function __construct(
+        private readonly PenentuWajibDuaFaktor $penentuWajib,
+        private readonly KonfigurasiGoogle $konfigurasiGoogle,
+    ) {}
 
     public function Tampilkan(Request $permintaan, DuaFaktorPengguna $duaFaktor): Response
     {
@@ -58,7 +63,15 @@ final class KeamananAkunKontroler extends Kontroler
                 'Aktif' => $pengguna->CekDuaFaktorAktif(),
                 'AktifPada' => $pengguna->DuaFaktorAktifPada?->toIso8601String(),
                 'SisaKodePemulihan' => count($pengguna->KodePemulihan2fa ?? []),
-                'Wajib' => $this->CekWajib($pengguna),
+                // D-57: sesi Masuk dengan Google sudah menggantikan 2FA, jadi kewajiban paket tidak mendesak lagi.
+                'Wajib' => $this->CekWajib($pengguna) && $permintaan->session()->get(SesiAutentikasiTenant::MASUK_GOOGLE) !== true,
+            ],
+            'Google' => [
+                'Tersedia' => $this->konfigurasiGoogle->CekAktif(),
+                'Tertaut' => $pengguna->CekGoogleTertaut(),
+                'TertautPada' => $pengguna->GoogleDitautkanPada?->toIso8601String(),
+                'KataSandiOtomatis' => $pengguna->KataSandiOtomatis,
+                'MasukDenganGoogle' => $permintaan->session()->get(SesiAutentikasiTenant::MASUK_GOOGLE) === true,
             ],
             'Aktivasi' => $aktivasi,
             'KodePemulihanBaru' => is_array($kodeBaru) ? array_values($kodeBaru) : null,
@@ -92,6 +105,15 @@ final class KeamananAkunKontroler extends Kontroler
         $nonaktifkan->Jalankan($pengguna, $permintaan->string('KataSandi')->toString());
 
         return redirect()->route('kelola.keamanan')->with('Kilat', 'Verifikasi dua langkah dinonaktifkan.');
+    }
+
+    public function LepasGoogle(Request $permintaan, MasukDenganGoogle $masuk): RedirectResponse
+    {
+        $pengguna = $this->PenggunaMasuk($permintaan);
+        $masuk->Lepas($pengguna);
+        $permintaan->session()->forget(SesiAutentikasiTenant::MASUK_GOOGLE);
+
+        return redirect()->route('kelola.keamanan')->with('Kilat', 'Tautan akun Google dilepas. Masuk berikutnya memakai email dan kata sandi.');
     }
 
     private function PenggunaMasuk(Request $permintaan): Pengguna

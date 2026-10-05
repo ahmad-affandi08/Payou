@@ -438,5 +438,15 @@
         "Metode": "GET",
         "Jalur": "api/pemilik/v1/insight",
         "Nama": "pemilik.insight"
+    },
+    "GET api/pemilik/v1/masuk/google/konfigurasi": {
+        "Metode": "GET",
+        "Jalur": "api/pemilik/v1/masuk/google/konfigurasi",
+        "Nama": "pemilik.masuk.google.konfigurasi"
+    },
+    "POST api/pemilik/v1/masuk/google": {
+        "Metode": "POST",
+        "Jalur": "api/pemilik/v1/masuk/google",
+        "Nama": "pemilik.masuk.google"
     }
 }

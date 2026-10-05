@@ -42,3 +42,5 @@
 
 
 **Lingkup Fase 0 (PGL-05):** Email (SMTP), CAPTCHA (Cloudflare Turnstile, BR-00.4), penyimpanan objek (S3-compatible). Konfigurasi dengan lingkungan yang sama dengan server (Staging untuk server non-produksi) diterapkan ke aplikasi saat berjalan. WhatsApp BSP, Sentry/uptime, dan daftar gateway tenant ditambahkan bersama flow pemakainya; **FCM sudah masuk sejak v2.69** (jenis `Push`, penyedia `Fcm`) bersama OWN-03, dan **gateway billing sejak v2.70** (jenis `GerbangBilling`, penyedia `MidtransBilling`) bersama P-08.
+
+**Masuk dengan Google (D-57, v4.70):** jenis integrasi `LoginSosial` dengan penyedia `Google` (Client ID web, Client ID tambahan untuk aplikasi Android/iOS, Client Secret terenkripsi; uji koneksi menukar kode palsu dan menganggap `invalid_grant` sebagai kredensial sah). Tidak ada penyedia cadangan; bila nonaktif, tombol Google tidak tampil di web dan Aplikasi Owner. Panduan: `Panduan/LoginGoogle.md`.

@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Kontroler\Pemilik\V1;
 
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
+use App\Domain\Integrasi\MasukGoogle\KonfigurasiGoogle;
+use App\Domain\Integrasi\MasukGoogle\PemverifikasiTokenGoogle;
+use App\Domain\Integrasi\MasukGoogle\TokenGoogleTidakSah;
 use App\Domain\Organisasi\Aksi\CabutTokenPengguna;
 use App\Domain\Organisasi\Aksi\DaftarkanPerangkatPengguna;
+use App\Domain\Organisasi\Aksi\MasukDenganGoogle;
 use App\Domain\Organisasi\Aksi\TerbitkanTokenPengguna;
 use App\Domain\Organisasi\Aksi\VerifikasiDuaFaktorPengguna;
 use App\Domain\Organisasi\Kueri\KeanggotaanPengguna;
@@ -17,6 +21,7 @@ use App\Http\Kontroler\Autentikasi\SesiKontroler;
 use App\Http\Kontroler\Kontroler;
 use App\Http\Perantara\AutentikasiPemilik;
 use App\Http\Permintaan\Pemilik\V1\MasukDuaFaktorPermintaan;
+use App\Http\Permintaan\Pemilik\V1\MasukGooglePermintaan;
 use App\Http\Permintaan\Pemilik\V1\MasukPermintaan;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Http\JsonResponse;
@@ -112,6 +117,51 @@ final class AutentikasiKontroler extends Kontroler
         return $this->SelesaikanMasuk($permintaan, $pengguna);
     }
 
+    /** D-57: aplikasi menanyakan apakah tombol Google ditampilkan, dan Client ID web yang dipakai sebagai `serverClientId`. */
+    public function KonfigurasiGoogle(KonfigurasiGoogle $konfigurasi): JsonResponse
+    {
+        $aktif = $konfigurasi->CekAktif();
+
+        return response()->json(['Aktif' => $aktif, 'ClientId' => $aktif ? $konfigurasi->ClientId() : null]);
+    }
+
+    /**
+     * D-57: masuk dengan token ID Google yang didapat aplikasi (google_sign_in). Menggantikan 2FA. Akun harus sudah ada
+     * (pendaftaran lewat Google hanya di web, karena butuh data usaha dan persetujuan S&K).
+     */
+    public function MasukGoogle(MasukGooglePermintaan $permintaan, PemverifikasiTokenGoogle $pemverifikasi, MasukDenganGoogle $masuk): JsonResponse
+    {
+        $kunciIp = 'pemilik-masuk-google-ip:'.$permintaan->ip();
+
+        if (RateLimiter::tooManyAttempts($kunciIp, SesiKontroler::BATAS_PERCOBAAN_MASUK_PER_IP)) {
+            $detik = RateLimiter::availableIn($kunciIp);
+
+            throw new PelanggaranAturanBisnis('TerlaluBanyakPercobaan', "Terlalu banyak percobaan. Coba lagi dalam {$detik} detik.", 'IdToken', 429, ['Detik' => $detik]);
+        }
+
+        try {
+            $identitas = $pemverifikasi->Verifikasi($permintaan->string('IdToken')->toString());
+        } catch (TokenGoogleTidakSah) {
+            RateLimiter::hit($kunciIp, 60);
+
+            throw new PelanggaranAturanBisnis('GoogleTidakSah', 'Akun Google tidak bisa diverifikasi. Coba masuk lagi.', 'IdToken', 401);
+        }
+
+        $pengguna = $masuk->Jalankan($identitas);
+
+        if (! $pengguna instanceof Pengguna) {
+            throw new PelanggaranAturanBisnis('AkunGoogleBelumTerdaftar', 'Akun Google ini belum terdaftar. Daftar dulu di dashboard web PAYOU, lalu masuk lagi di sini.', 'IdToken', 404);
+        }
+
+        RateLimiter::clear($kunciIp);
+
+        if ($pengguna->WajibGantiKataSandi) {
+            throw new PelanggaranAturanBisnis('WajibGantiKataSandi', 'Ganti kata sandi awal dari admin usaha Anda di dashboard web, lalu masuk lagi.', 'IdToken', 403);
+        }
+
+        return $this->SelesaikanMasuk($permintaan, $pengguna, masukGoogle: true);
+    }
+
     public function Keluar(Request $permintaan, CabutTokenPengguna $cabut, DaftarkanPerangkatPengguna $perangkat): Response
     {
         $token = AutentikasiPemilik::AmbilToken($permintaan);
@@ -143,9 +193,9 @@ final class AutentikasiKontroler extends Kontroler
         }
     }
 
-    private function SelesaikanMasuk(Request $permintaan, Pengguna $pengguna): JsonResponse
+    private function SelesaikanMasuk(Request $permintaan, Pengguna $pengguna, bool $masukGoogle = false): JsonResponse
     {
-        $token = $this->terbitkan->Jalankan($pengguna, $permintaan->string('NamaPerangkat')->toString(), $permintaan->ip(), $permintaan->userAgent());
+        $token = $this->terbitkan->Jalankan($pengguna, $permintaan->string('NamaPerangkat')->toString(), $permintaan->ip(), $permintaan->userAgent(), masukGoogle: $masukGoogle);
 
         return response()->json(['Token' => $token, ...$this->profil->Ambil($pengguna)]);
     }
