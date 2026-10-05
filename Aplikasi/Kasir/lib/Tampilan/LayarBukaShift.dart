@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inti/Inti.dart';
 import 'package:sistem_desain/SistemDesain.dart';
@@ -10,7 +11,8 @@ import '../Data/BasisData/BasisDataKasir.dart';
 import '../Domain/GalatKasir.dart';
 import '../Domain/Sesi/StafLokal.dart';
 import '../Domain/Shift/LayananShift.dart';
-import 'Komponen/BingkaiMasuk.dart';
+import 'Komponen/AvatarKasir.dart';
+import 'Komponen/LatarRuangKerja.dart';
 import 'Komponen/FormatWaktu.dart';
 import 'Komponen/MasukanUang.dart';
 import 'LembarMutasiKas.dart';
@@ -126,47 +128,144 @@ class _LayarBukaShiftState extends ConsumerState<LayarBukaShift> {
     }
   }
 
+  static const List<int> _nominalCepat = [100000, 200000, 300000, 500000];
+
   @override
   Widget build(BuildContext context) {
-    return BingkaiMasuk(
-      judul: 'Buka shift | ${widget.kasir.nama}',
-      keterangan: 'Hitung uang di laci sebelum mulai berjualan.',
-      catatan: 'Shift tetap bisa dibuka tanpa internet dan akan terkirim otomatis saat online.',
-      lebarIsi: 520,
-      aksi: [TextButton(onPressed: () => ref.read(penyediaSesi.notifier).Keluar(), child: const Text('Ganti kasir'))],
-      isi: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          MasukanUang(pengendali: _kasAwal, label: 'Modal awal (kas awal)', autofocus: true, galat: _galat),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            value: _hitungPecahan,
-            onChanged: (nilai) => setState(() => _hitungPecahan = nilai),
-            title: const Text('Hitung per pecahan'),
-            subtitle: const Text('Opsional. Jumlahnya otomatis mengisi modal awal.'),
-          ),
-          if (_hitungPecahan) HitungPecahan(nominal: daftarPecahanRupiah, jumlah: _pecahan, saatBerubah: _UbahPecahan),
-          const SizedBox(height: TokenJarak.jarak24),
-          SizedBox(
-            height: 56,
-            child: FilledButton(
-              onPressed: _sibuk ? null : _Buka,
-              child: Text(_sibuk ? 'Membuka shift…' : 'Buka shift'),
-            ),
-          ),
-          if (_shiftTerakhir case final shift?) ...[
-            const SizedBox(height: TokenJarak.jarak16),
-            OutlinedButton.icon(
-              key: const ValueKey('BukaUlangShift'),
-              onPressed: _sibuk ? null : () => _BukaUlang(shift),
-              icon: const Icon(Icons.lock_open_outlined),
-              label: Text(
-                'Buka ulang shift ${shift.NamaKasir} '
-                '(ditutup ${FormatWaktu.FormatJam(shift.DitutupPada!.toLocal())})',
+    final warna = TokenWarna.AmbilDari(context);
+    final teks = Theme.of(context).textTheme;
+    // Latar = Ruang Kerja yang belum aktif; modal Buka shift menutupnya sampai shift dibuka. Begitu shift tersimpan,
+    // gerbang mengganti layar ini dengan Ruang Kerja sungguhan (halaman penjualan).
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(statusBarColor: warna.brandGelap),
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Positioned.fill(child: LatarRuangKerja(namaKasir: widget.kasir.nama)),
+            Positioned.fill(child: ColoredBox(color: warna.teksUtama.withValues(alpha: 0.55))),
+            SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(TokenJarak.jarak16),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: Semantics(
+                      scopesRoute: true,
+                      explicitChildNodes: true,
+                      label: 'Buka shift',
+                      child: Material(
+                        color: warna.permukaan,
+                        borderRadius: BorderRadius.circular(16),
+                        clipBehavior: Clip.antiAlias,
+                        child: Padding(
+                          padding: const EdgeInsets.all(TokenJarak.jarak24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  AvatarKasir(nama: widget.kasir.nama, ukuran: 52),
+                                  const SizedBox(width: TokenJarak.jarak12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Buka shift | ${widget.kasir.nama}', style: teks.titleLarge),
+                                        const SizedBox(height: TokenJarak.jarak4),
+                                        Text(
+                                          'Hitung uang di laci sebelum mulai berjualan.',
+                                          style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: TokenJarak.jarak24),
+                              MasukanUang(
+                                pengendali: _kasAwal,
+                                label: 'Modal awal (kas awal)',
+                                autofocus: true,
+                                galat: _galat,
+                              ),
+                              const SizedBox(height: TokenJarak.jarak12),
+                              Wrap(
+                                spacing: TokenJarak.jarak8,
+                                runSpacing: TokenJarak.jarak8,
+                                children: [
+                                  for (final nominal in _nominalCepat)
+                                    ActionChip(
+                                      key: ValueKey('ModalCepat$nominal'),
+                                      label: Text('Rp ${MasukanUang.FormatTeks(Uang.DariBulat(nominal))}'),
+                                      onPressed: _sibuk
+                                          ? null
+                                          : () => setState(() {
+                                              MasukanUang.Isi(_kasAwal, Uang.DariBulat(nominal));
+                                              _hitungPecahan = false;
+                                            }),
+                                    ),
+                                ],
+                              ),
+                              SwitchListTile(
+                                contentPadding: EdgeInsets.zero,
+                                value: _hitungPecahan,
+                                onChanged: (nilai) => setState(() => _hitungPecahan = nilai),
+                                title: const Text('Hitung per pecahan'),
+                                subtitle: const Text('Opsional. Jumlahnya otomatis mengisi modal awal.'),
+                              ),
+                              if (_hitungPecahan)
+                                HitungPecahan(
+                                  nominal: daftarPecahanRupiah,
+                                  jumlah: _pecahan,
+                                  saatBerubah: _UbahPecahan,
+                                ),
+                              const SizedBox(height: TokenJarak.jarak16),
+                              SizedBox(
+                                height: 56,
+                                child: FilledButton(
+                                  onPressed: _sibuk ? null : _Buka,
+                                  child: Text(_sibuk ? 'Membuka shift…' : 'Buka shift'),
+                                ),
+                              ),
+                              if (_shiftTerakhir case final shift?) ...[
+                                const SizedBox(height: TokenJarak.jarak12),
+                                OutlinedButton.icon(
+                                  key: const ValueKey('BukaUlangShift'),
+                                  onPressed: _sibuk ? null : () => _BukaUlang(shift),
+                                  icon: const Icon(Icons.lock_open_outlined),
+                                  label: Text(
+                                    'Buka ulang shift ${shift.NamaKasir} '
+                                    '(ditutup ${FormatWaktu.FormatJam(shift.DitutupPada!.toLocal())})',
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: TokenJarak.jarak8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextButton(
+                                    onPressed: _sibuk ? null : () => ref.read(penyediaSesi.notifier).Keluar(),
+                                    child: const Text('Ganti kasir'),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                'Shift tetap bisa dibuka tanpa internet dan akan terkirim otomatis saat online.',
+                                textAlign: TextAlign.center,
+                                style: teks.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }

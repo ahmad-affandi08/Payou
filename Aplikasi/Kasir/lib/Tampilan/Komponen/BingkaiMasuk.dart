@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistem_desain/SistemDesain.dart';
 
 import '../../Aplikasi/Penyedia.dart';
+import '../RuangKerja/JamRuangKerja.dart';
 
 /// Bingkai layar sebelum ruang kerja terbuka: aktivasi perangkat (F-02 langkah 5), pilih kasir dan buka shift
 /// (F-06 langkah 1 & 2).
@@ -54,6 +55,7 @@ class BingkaiMasuk extends ConsumerWidget {
     final warna = TokenWarna.AmbilDari(context);
     final lega = MediaQuery.sizeOf(context).width >= lebarLega;
     final identitas = ref.watch(penyediaIdentitas).value;
+    final sekarang = ref.read(penyediaJam)();
     final perangkat = identitas == null
         ? ''
         : [identitas.outlet, identitas.perangkat].where((b) => b.isNotEmpty).join(' | ');
@@ -68,14 +70,14 @@ class BingkaiMasuk extends ConsumerWidget {
                 children: [
                   SizedBox(
                     width: lebarPanelMerek,
-                    child: _PanelMerek(perangkat: perangkat, tegak: true),
+                    child: _PanelMerek(perangkat: perangkat, tegak: true, sekarang: sekarang),
                   ),
                   Expanded(child: _Kartu(context, warna)),
                 ],
               )
             : Column(
                 children: [
-                  _PanelMerek(perangkat: perangkat, tegak: false),
+                  _PanelMerek(perangkat: perangkat, tegak: false, sekarang: sekarang),
                   Expanded(child: _Kartu(context, warna)),
                 ],
               ),
@@ -155,10 +157,39 @@ class BingkaiMasuk extends ConsumerWidget {
 
 /// Panel merek: kolom penuh di layar lega, kepala pendek di layar sempit.
 class _PanelMerek extends StatelessWidget {
-  const _PanelMerek({required this.perangkat, required this.tegak});
+  const _PanelMerek({required this.perangkat, required this.tegak, required this.sekarang});
 
   final String perangkat;
   final bool tegak;
+  final DateTime sekarang;
+
+  static const List<String> _hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+  static const List<String> _bulan = [
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
+  ];
+
+  /// Sapaan menurut jam perangkat: pagi 04-10, siang 11-14, sore 15-17, selain itu malam.
+  static String Sapaan(DateTime waktu) {
+    final jam = waktu.hour;
+    if (jam >= 4 && jam < 11) return 'Selamat pagi';
+    if (jam >= 11 && jam < 15) return 'Selamat siang';
+    if (jam >= 15 && jam < 18) return 'Selamat sore';
+    return 'Selamat malam';
+  }
+
+  static String Tanggal(DateTime waktu) =>
+      '${_hari[waktu.weekday - 1]}, ${waktu.day} ${_bulan[waktu.month - 1]} ${waktu.year}';
 
   /// Janji yang paling sering ditanyakan kasir sebelum mulai (PRD §17.2.6, BR-06.3): semuanya benar apa adanya.
   static const List<(IconData, String)> _janji = [
@@ -185,19 +216,52 @@ class _PanelMerek extends StatelessWidget {
                   children: [
                     const LogoMerek.lengkapPutih(tinggi: 40),
                     if (perangkat.isNotEmpty) ...[
-                      const SizedBox(height: TokenJarak.jarak12),
-                      Text(perangkat, style: gayaPerangkat),
+                      const SizedBox(height: TokenJarak.jarak16),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: warna.permukaan.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: TokenJarak.jarak12, vertical: 6),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.storefront_outlined, size: TokenJarak.ikonKecil, color: warna.permukaan),
+                              const SizedBox(width: TokenJarak.jarak8),
+                              Flexible(
+                                child: Text(perangkat, style: gayaPerangkat, overflow: TextOverflow.ellipsis),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
-                    // Janji diletakkan di tengah ruang sisa, bukan menempel di kaki panel: di layar tinggi
-                    // (mis. iPad tegak) jaraknya jadi tidak menganga.
+                    const Spacer(),
+                    // Sapaan, jam, dan tanggal: hal pertama yang dilihat kasir saat membuka perangkat.
+                    Text(Sapaan(sekarang), style: teks.headlineSmall?.copyWith(color: warna.permukaan)),
+                    const SizedBox(height: TokenJarak.jarak4),
+                    JamRuangKerja(
+                      gaya: teks.displayMedium?.copyWith(color: warna.permukaan, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: TokenJarak.jarak4),
+                    Text(Tanggal(sekarang), style: gayaPerangkat),
                     const Spacer(),
                     for (final (ikon, kalimat) in _PanelMerek._janji)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: TokenJarak.jarak16),
+                        padding: const EdgeInsets.only(bottom: TokenJarak.jarak12),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(ikon, size: TokenJarak.ikonSedang, color: warna.permukaan),
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: warna.permukaan.withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Icon(ikon, size: TokenJarak.ikonSedang, color: warna.permukaan),
+                              ),
+                            ),
                             const SizedBox(width: TokenJarak.jarak12),
                             Expanded(
                               child: Text(kalimat, style: teks.bodyMedium?.copyWith(color: warna.permukaan)),
@@ -205,7 +269,6 @@ class _PanelMerek extends StatelessWidget {
                           ],
                         ),
                       ),
-                    const Spacer(),
                   ],
                 )
               : Row(

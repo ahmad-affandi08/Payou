@@ -72,7 +72,7 @@ class _PapanPinState extends State<PapanPin> {
   @override
   Widget build(BuildContext context) {
     final warna = TokenWarna.AmbilDari(context);
-    Widget Tombol(String label, VoidCallback? aksi, {String? semantik}) => SizedBox(
+    Widget Tombol(String label, VoidCallback? aksi, {String? semantik, IconData? ikon}) => SizedBox(
       width: 88,
       height: 64,
       child: Semantics(
@@ -80,8 +80,16 @@ class _PapanPinState extends State<PapanPin> {
         button: true,
         excludeSemantics: semantik != null,
         child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            backgroundColor: warna.latar,
+            foregroundColor: warna.teksUtama,
+            side: BorderSide(color: warna.garis),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
           onPressed: widget.sibuk ? null : aksi,
-          child: Text(label, style: const TextStyle(fontSize: 24)),
+          child: ikon != null
+              ? Icon(ikon, size: 28)
+              : Text(label, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w600)),
         ),
       ),
     );
@@ -98,14 +106,15 @@ class _PapanPinState extends State<PapanPin> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (var i = 0; i < 6; i++)
-                  Container(
-                    margin: const EdgeInsets.all(6),
-                    width: 16,
-                    height: 16,
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 120),
+                    margin: const EdgeInsets.all(7),
+                    width: 18,
+                    height: 18,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: i < _pin.length ? warna.brand : null,
-                      border: Border.all(color: warna.garisInput, width: 2),
+                      color: i < _pin.length ? warna.brand : warna.latar,
+                      border: Border.all(color: i < _pin.length ? warna.brand : warna.garisInput, width: 2),
                     ),
                   ),
               ],
@@ -150,7 +159,7 @@ class _PapanPinState extends State<PapanPin> {
               Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Tombol('0', () => _Tekan('0'))),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Tombol('⌫', _Hapus, semantik: 'Hapus satu angka'),
+                child: Tombol('', _Hapus, semantik: 'Hapus satu angka', ikon: Icons.backspace_outlined),
               ),
             ],
           ),

@@ -5,6 +5,7 @@ import 'package:sistem_desain/SistemDesain.dart';
 import '../Aplikasi/Penyedia.dart';
 import '../Domain/GalatKasir.dart';
 import '../Domain/Sesi/StafLokal.dart';
+import 'Komponen/AvatarKasir.dart';
 import 'Komponen/BingkaiMasuk.dart';
 import 'Komponen/PapanPin.dart';
 import 'LayarAbsensi.dart';
@@ -92,15 +93,22 @@ class _LayarPilihKasirState extends ConsumerState<LayarPilihKasir> {
             child: const Text('Ganti kasir'),
           ),
         ],
-        isi: PapanPin(saatSelesai: _Masuk, sibuk: _sibuk, pesanGalat: _galat),
+        isi: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AvatarKasir(nama: terpilih.nama, ukuran: 72),
+            const SizedBox(height: TokenJarak.jarak16),
+            PapanPin(saatSelesai: _Masuk, sibuk: _sibuk, pesanGalat: _galat),
+          ],
+        ),
       );
     }
 
     final staf = ref.watch(penyediaStaf);
     return BingkaiMasuk(
       judul: 'Siapa yang bertugas?',
-      keterangan: 'Pilih nama Anda, lalu masukkan PIN.',
-      lebarIsi: 480,
+      keterangan: 'Pilih nama Anda, lalu masukkan PIN. Shift dibuka setelah Anda masuk.',
+      lebarIsi: 560,
       aksi: [
         TextButton(
           onPressed: () => ref.read(penyediaSesi.notifier).SegarkanData(),
@@ -124,23 +132,63 @@ class _LayarPilihKasirState extends ConsumerState<LayarPilihKasir> {
                 'Belum ada kasir untuk outlet ini. Tambahkan pengguna di back-office, lalu ketuk "Perbarui data kasir".',
                 style: teks.bodyLarge,
               )
-            : Wrap(
-                spacing: TokenJarak.jarak12,
-                runSpacing: TokenJarak.jarak12,
-                children: [
-                  for (final s in daftar)
-                    SizedBox(
-                      width: 200,
-                      height: 64,
-                      child: OutlinedButton(
-                        onPressed: () => setState(() {
-                          _dipilih = s;
-                          _galat = null;
-                        }),
-                        child: Text(s.nama, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
-                      ),
-                    ),
-                ],
+            : LayoutBuilder(
+                builder: (konteks, ruang) {
+                  // Dua kolom sama lebar bila muat (≥ 420dp), selain itu satu kolom penuh.
+                  final lebarKartu = ruang.maxWidth >= 420 ? (ruang.maxWidth - TokenJarak.jarak12) / 2 : ruang.maxWidth;
+                  return Wrap(
+                    spacing: TokenJarak.jarak12,
+                    runSpacing: TokenJarak.jarak12,
+                    children: [
+                      for (final s in daftar)
+                        SizedBox(
+                          width: lebarKartu,
+                          child: Material(
+                            color: warna.permukaan,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(color: warna.garis),
+                              borderRadius: BorderRadius.circular(TokenJarak.radiusPanel + 4),
+                            ),
+                            child: InkWell(
+                              customBorder: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(TokenJarak.radiusPanel + 4),
+                              ),
+                              onTap: () => setState(() {
+                                _dipilih = s;
+                                _galat = null;
+                              }),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: TokenJarak.jarak12,
+                                  vertical: TokenJarak.jarak16,
+                                ),
+                                child: Row(
+                                  children: [
+                                    AvatarKasir(nama: s.nama),
+                                    const SizedBox(width: TokenJarak.jarak12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            s.nama,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: teks.titleMedium,
+                                          ),
+                                          Text(s.pemilik ? 'Pemilik' : 'Kasir', style: teks.bodySmall),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
       ),
     );
