@@ -138,7 +138,14 @@ class _Katalog extends StatelessWidget {
               children: [
                 Icon(Icons.search, color: warna.teksSekunder),
                 const SizedBox(width: TokenJarak.jarak8),
-                Text('Cari produk atau pindai barcode', style: TextStyle(color: warna.teksSekunder)),
+                Expanded(
+                  child: Text(
+                    'Cari produk atau pindai barcode',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: warna.teksSekunder),
+                  ),
+                ),
               ],
             ),
           ),
