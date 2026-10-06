@@ -30,6 +30,7 @@ void main() {
     Size ukuran = ukuranDesktop,
     PenjagaLayarTiruan? penjagaLayar,
     Map<String, String> pengaturan = const {},
+    bool relAwalDiciutkan = false,
   }) async {
     final u = LingkunganUji.Buat();
     await tester.runAsync(() async {
@@ -42,7 +43,13 @@ void main() {
       await u.shift.BukaShift(kasir: await u.Staf('Rina Wulandari'), kasAwal: Uang.DariBulat(500000));
     });
     u.server.penangan = (_) async => throw http.ClientException('offline');
-    await PasangAplikasi(tester, u, ukuran: ukuran, penjagaLayar: penjagaLayar);
+    await PasangAplikasi(
+      tester,
+      u,
+      ukuran: ukuran,
+      penjagaLayar: penjagaLayar,
+      relAwalDiciutkan: relAwalDiciutkan,
+    );
     await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
@@ -139,7 +146,8 @@ void main() {
       if (ukuran.width >= 600) {
         final temaRel = NavigationRailTheme.of(tester.element(find.byType(NavigationRail)));
         expect(temaRel.backgroundColor, warna.brandGelap, reason: 'Rel memakai warna merek di lebar $nama.');
-        expect(temaRel.selectedIconTheme?.color, warna.permukaan);
+        expect(temaRel.selectedIconTheme?.color, warna.brandGelap);
+        expect(temaRel.indicatorColor, warna.aksen, reason: 'Item aktif berupa pil apricot (D-66).');
         expect(
           temaRel.unselectedIconTheme?.color,
           warna.permukaan.withValues(alpha: TemaNavigasiRuangKerja.opasitasPasif),
@@ -162,20 +170,21 @@ void main() {
     });
   }
 
-  testWidgets('rel navigasi bisa diciutkan menjadi ikon saja', (tester) async {
-    final u = await MasukRuangKerja(tester);
+  testWidgets('rel navigasi mulai tertutup (ikon saja) dan bisa dilebarkan lalu diciutkan lagi', (tester) async {
+    final u = await MasukRuangKerja(tester, relAwalDiciutkan: true);
     var rel = tester.widget<NavigationRail>(find.byType(NavigationRail));
-    expect(rel.extended, isTrue);
+    expect(rel.extended, isFalse, reason: 'Bawaan: menu samping tertutup.');
+    expect(rel.labelType, NavigationRailLabelType.none);
+
+    await tester.tap(find.byTooltip('Lebarkan menu'));
+    await Tunggu(tester);
+    expect(tester.widget<NavigationRail>(find.byType(NavigationRail)).extended, isTrue);
 
     await tester.tap(find.byTooltip('Ciutkan menu'));
     await Tunggu(tester);
     rel = tester.widget<NavigationRail>(find.byType(NavigationRail));
     expect(rel.extended, isFalse);
     expect(rel.labelType, NavigationRailLabelType.none);
-
-    await tester.tap(find.byTooltip('Lebarkan menu'));
-    await Tunggu(tester);
-    expect(tester.widget<NavigationRail>(find.byType(NavigationRail)).extended, isTrue);
     await Lepas(tester, u);
   });
 

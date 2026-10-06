@@ -36,6 +36,8 @@ Future<void> PasangAplikasi(
   UmpanBalikPindai? umpanBalikPindai,
   LogLokal? logLokal,
   PenentuLokasi penentuLokasi = const PenentuLokasiTidakAda(),
+  // D-66: bawaan aplikasi = rel tertutup; test layar memakai rel terbuka agar label menu bisa diketuk.
+  bool relAwalDiciutkan = false,
 }) async {
   // Ukuran logis juga untuk MediaQuery (tata letak ruang kerja memakai lebar layar), bukan hanya permukaan render.
   tester.view.devicePixelRatio = 1;
@@ -46,6 +48,7 @@ Future<void> PasangAplikasi(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        penyediaRelAwalDiciutkan.overrideWithValue(relAwalDiciutkan),
         penyediaBasisData.overrideWithValue(u.db),
         penyediaRahasia.overrideWithValue(u.rahasia),
         penyediaKlienHttp.overrideWithValue(u.server.BuatKlien()),

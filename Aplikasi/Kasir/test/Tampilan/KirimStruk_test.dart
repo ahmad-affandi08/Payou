@@ -85,6 +85,9 @@ void main() {
     await Ketuk(find.widgetWithText(ChoiceChip, 'Tunai'));
     await Ketuk(find.widgetWithText(FilledButton, 'Uang pas'));
     expect(find.text('Pembayaran berhasil'), findsOneWidget);
+    // D-66: layar berhasil berlatar warna primer merek.
+    final latarBerhasil = tester.widget<DecoratedBox>(find.byKey(const ValueKey('LayarBerhasilBayar')));
+    expect((latarBerhasil.decoration as BoxDecoration).color, TokenWarna.bawaan.brand);
     await Ketuk(find.widgetWithText(OutlinedButton, 'Kirim struk'));
     expect(find.byType(DialogKirimStruk), findsOneWidget);
     return u;

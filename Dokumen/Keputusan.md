@@ -68,6 +68,7 @@
 | D-63 | Dari pemilik produk (06/10/2026): "pengaturan situs bisa dibuat seperti WordPress, saya ingin gampang digunakan". Halaman situs disunting lewat penyunting visual berpratinjau langsung (blok diseret, simpan otomatis, urungkan) tanpa mengubah model data blok; keselamatan pratinjau dijaga CSP `frame-ancestors` + `postMessage` berasal-terperiksa. Dikerjakan bertahap: (1) penyunting, (2) revisi/jadwal/duplikat/templat, (3) menu, teks kaya, tampilan. |
 | D-64 | Dari pemilik produk (06/10/2026): "loadingnya kok ada di atas layar, saya ingin semuanya di tengah". Semua tanda muat (layar muat awal dan penanda navigasi) berada di tengah layar. |
 | D-65 | Dari pemilik produk (06/10/2026): saat memuat harus ada "bayangan" (tirai) menutupi seluruh layar dengan tanda muat di tengah. Penanda navigasi memakai tirai layar penuh. |
+| D-66 | Dari pemilik produk (06/10/2026): sidebar & header aplikasi kasir lebih modern, sidebar default tertutup, dan halaman berhasil bayar berwarna primary dan modern. |
 | D-19 | Dari pemilik produk (v2.06): gerbang pembayaran QRIS dinamis memakai **akun merchant milik tiap toko** sehingga dana pelanggan langsung masuk ke rekening toko; platform hanya mengatur penyedia yang boleh dipilih (katalog) tanpa pernah melihat kredensial toko. Opsi sub-merchant menyusul. |
 
 

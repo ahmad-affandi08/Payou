@@ -1281,7 +1281,8 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
   }
 }
 
-/// Layar selesai setelah pembayaran tersimpan: kembalian besar, nomor, dan transaksi baru.
+/// Layar selesai setelah pembayaran tersimpan (D-66): latar warna primer merek dengan tanda centang besar, nomor,
+/// kembalian, rincian bayar, dan aksi struk di kartu putih. Dibuat besar & kontras supaya terbaca dari jarak berdiri.
 class TampilanSelesai extends StatelessWidget {
   const TampilanSelesai({super.key, required this.hasil, required this.saatTransaksiBaru});
 
@@ -1292,93 +1293,181 @@ class TampilanSelesai extends StatelessWidget {
   Widget build(BuildContext context) {
     final teks = Theme.of(context).textTheme;
     final warna = TokenWarna.AmbilDari(context);
+    final putih = warna.permukaan;
+    final putihRedup = putih.withValues(alpha: 0.78);
+    final gayaPutih = teks.bodyMedium?.copyWith(color: putih);
     return Padding(
-      padding: const EdgeInsets.all(TokenJarak.jarak24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Halaman hasil: tanda berhasil dibuat besar & ditengahkan supaya terbaca sekilas dari jarak berdiri.
-          Icon(
-            hasil.latihan ? Icons.school_outlined : Icons.check_circle_outline,
-            color: hasil.latihan ? warna.peringatan : warna.sukses,
-            size: 56,
-          ),
-          const SizedBox(height: TokenJarak.jarak8),
-          Text(
-            hasil.latihan ? 'Latihan selesai' : 'Pembayaran berhasil',
-            style: teks.headlineSmall,
-            textAlign: TextAlign.center,
-          ),
-          if (hasil.latihan)
-            Text(
-              'Mode latihan: transaksi ini tidak disimpan, tidak dikirim, dan tidak dicetak.',
-              style: teks.bodyMedium?.copyWith(color: warna.peringatan),
-              textAlign: TextAlign.center,
-            ),
-          const SizedBox(height: TokenJarak.jarak4),
-          Center(
-            child: TeksKode(hasil.nomor, gaya: teks.bodyMedium?.copyWith(color: warna.teksSekunder)),
-          ),
-          // v3.52 (§9.2): nomor panggil besar supaya kasir bisa menyebutkannya ke pembeli.
-          if (hasil.nomorAntrian case final antrian?) ...[
-            const SizedBox(height: TokenJarak.jarak16),
-            Semantics(
-              label: 'Nomor antrian $antrian${hasil.namaPemesan == null ? '' : ', ${hasil.namaPemesan}'}',
-              excludeSemantics: true,
-              child: Column(
+      padding: const EdgeInsets.all(TokenJarak.jarak16),
+      child: DecoratedBox(
+        key: const ValueKey('LayarBerhasilBayar'),
+        decoration: BoxDecoration(color: warna.brand, borderRadius: BorderRadius.circular(TokenJarak.radiusPanel)),
+        child: Padding(
+          padding: const EdgeInsets.all(TokenJarak.jarak24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Tanda berhasil: lingkaran putih berhalo, centang warna primer.
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: putih.withValues(alpha: 0.16)),
+                  child: Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: putih),
+                    child: Icon(
+                      hasil.latihan ? Icons.school_outlined : Icons.check_rounded,
+                      color: hasil.latihan ? warna.peringatan : warna.brand,
+                      size: 44,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: TokenJarak.jarak16),
+              Text(
+                hasil.latihan ? 'Latihan selesai' : 'Pembayaran berhasil',
+                style: teks.headlineSmall?.copyWith(color: putih, fontWeight: FontWeight.w700),
+                textAlign: TextAlign.center,
+              ),
+              if (hasil.latihan)
+                Padding(
+                  padding: const EdgeInsets.only(top: TokenJarak.jarak4),
+                  child: Text(
+                    'Mode latihan: transaksi ini tidak disimpan, tidak dikirim, dan tidak dicetak.',
+                    style: teks.bodyMedium?.copyWith(color: warna.aksen),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              const SizedBox(height: TokenJarak.jarak8),
+              Center(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: putih.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: TokenJarak.jarak12, vertical: 4),
+                    child: TeksKode(hasil.nomor, gaya: teks.bodyMedium?.copyWith(color: putih)),
+                  ),
+                ),
+              ),
+              // v3.52 (§9.2): nomor panggil besar supaya kasir bisa menyebutkannya ke pembeli.
+              if (hasil.nomorAntrian case final antrian?) ...[
+                const SizedBox(height: TokenJarak.jarak16),
+                Semantics(
+                  label: 'Nomor antrian $antrian${hasil.namaPemesan == null ? '' : ', ${hasil.namaPemesan}'}',
+                  excludeSemantics: true,
+                  child: Column(
+                    children: [
+                      Text(
+                        'Nomor antrian',
+                        style: teks.titleMedium?.copyWith(color: putihRedup),
+                        textAlign: TextAlign.center,
+                      ),
+                      TeksKode(antrian, gaya: teks.displaySmall?.copyWith(color: warna.aksen)),
+                      if (hasil.namaPemesan case final nama?)
+                        Text(nama, style: teks.titleMedium?.copyWith(color: putih)),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: TokenJarak.jarak24),
+              Text('Kembalian', style: teks.titleMedium?.copyWith(color: putihRedup), textAlign: TextAlign.center),
+              Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: TeksUang(
+                    hasil.kembalian,
+                    rataKanan: false,
+                    gaya: teks.displaySmall?.copyWith(color: putih, fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ),
+              // K-11: selisih tukar barang (barang pengganti lebih murah) dikembalikan tunai lewat refund retur.
+              if (hasil.kembalianTukar case final selisih? when !selisih.BernilaiNol()) ...[
+                const SizedBox(height: TokenJarak.jarak8),
+                Text(
+                  'Kembalikan selisih tukar',
+                  style: teks.titleMedium?.copyWith(color: putihRedup),
+                  textAlign: TextAlign.center,
+                ),
+                Center(child: TeksUang(selisih, rataKanan: false, gaya: teks.headlineSmall?.copyWith(color: putih))),
+              ],
+              if (hasil.nomorReturTukar case final nomorRetur?)
+                Text(
+                  'Retur tukar barang $nomorRetur',
+                  style: teks.bodySmall?.copyWith(color: putihRedup),
+                  textAlign: TextAlign.center,
+                ),
+              const SizedBox(height: TokenJarak.jarak16),
+              Divider(color: putih.withValues(alpha: 0.2), height: 1),
+              const SizedBox(height: TokenJarak.jarak12),
+              Row(
                 children: [
-                  Text('Nomor antrian', style: teks.titleMedium, textAlign: TextAlign.center),
-                  TeksKode(antrian, gaya: teks.displaySmall?.copyWith(color: warna.brand)),
-                  if (hasil.namaPemesan case final nama?) Text(nama, style: teks.titleMedium),
+                  Expanded(child: Text('Total', style: gayaPutih)),
+                  TeksUang(
+                    hasil.totalAkhir,
+                    gaya: teks.bodyMedium?.copyWith(color: putih, fontWeight: FontWeight.w700),
+                  ),
                 ],
               ),
-            ),
-          ],
-          const SizedBox(height: TokenJarak.jarak24),
-          Text('Kembalian', style: teks.titleMedium),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: TeksUang(hasil.kembalian, rataKanan: false, gaya: teks.displaySmall),
-          ),
-          // K-11: selisih tukar barang (barang pengganti lebih murah) dikembalikan tunai lewat refund retur.
-          if (hasil.kembalianTukar case final selisih? when !selisih.BernilaiNol()) ...[
-            const SizedBox(height: TokenJarak.jarak8),
-            Text('Kembalikan selisih tukar', style: teks.titleMedium),
-            TeksUang(selisih, rataKanan: false, gaya: teks.headlineSmall),
-          ],
-          if (hasil.nomorReturTukar case final nomorRetur?)
-            Text('Retur tukar barang $nomorRetur', style: teks.bodySmall),
-          const SizedBox(height: TokenJarak.jarak16),
-          Row(
-            children: [
-              Expanded(child: Text('Total', style: teks.bodyMedium)),
-              TeksUang(hasil.totalAkhir),
+              for (final p in hasil.pembayaran)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(p.metode.Nama, style: teks.bodyMedium?.copyWith(color: putihRedup))),
+                      TeksUang(p.jumlah, gaya: teks.bodyMedium?.copyWith(color: putihRedup)),
+                    ],
+                  ),
+                ),
+              if (!hasil.latihan) ...[
+                const SizedBox(height: TokenJarak.jarak16),
+                // Aksi struk memakai gaya terang bawaan, jadi ditaruh di kartu putih di atas latar primer.
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: putih,
+                    borderRadius: BorderRadius.circular(TokenJarak.radiusKontrol),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(TokenJarak.jarak12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        BagianCetakStruk(
+                          uuidPenjualan: hasil.uuid,
+                          namaPelanggan: hasil.namaPelanggan,
+                          labelPoin: hasil.labelPoin,
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TombolKirimStruk(uuidPenjualan: hasil.uuid),
+                        ),
+                        BagianTiketDapur(uuidPenjualan: hasil.uuid, namaPelanggan: hasil.namaPelanggan),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: TokenJarak.jarak24),
+              SizedBox(
+                height: 56,
+                child: FilledButton(
+                  autofocus: true,
+                  onPressed: saatTransaksiBaru,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: putih,
+                    foregroundColor: warna.brand,
+                    shape: const StadiumBorder(),
+                    textStyle: teks.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  child: const Text('Transaksi baru'),
+                ),
+              ),
             ],
           ),
-          for (final p in hasil.pembayaran)
-            Row(
-              children: [
-                Expanded(child: Text(p.metode.Nama, style: teks.bodyMedium)),
-                TeksUang(p.jumlah),
-              ],
-            ),
-          const SizedBox(height: TokenJarak.jarak8),
-          if (!hasil.latihan) ...[
-            BagianCetakStruk(uuidPenjualan: hasil.uuid, namaPelanggan: hasil.namaPelanggan, labelPoin: hasil.labelPoin),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TombolKirimStruk(uuidPenjualan: hasil.uuid),
-            ),
-            BagianTiketDapur(uuidPenjualan: hasil.uuid, namaPelanggan: hasil.namaPelanggan),
-          ],
-          const SizedBox(height: TokenJarak.jarak24),
-          SizedBox(
-            height: 56,
-            child: FilledButton(autofocus: true, onPressed: saatTransaksiBaru, child: const Text('Transaksi baru')),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:sistem_desain/SistemDesain.dart';
 
 import '../../Aplikasi/Penyedia.dart';
 import '../../Domain/Sesi/StafLokal.dart';
+import '../Komponen/AvatarKasir.dart';
 import 'JamRuangKerja.dart';
 
 /// Bilah atas ruang kerja (PRD §17.2.7): logo Payoung di tengah, outlet | perangkat di kiri, lalu identitas kasir,
@@ -17,7 +18,7 @@ import 'JamRuangKerja.dart';
 class BilahAtasRuangKerja extends ConsumerWidget {
   const BilahAtasRuangKerja({super.key, required this.kasir, required this.saatGantiKasir, required this.saatKunci});
 
-  static const double tinggi = 56;
+  static const double tinggi = 60;
 
   /// Di bawah lebar ini (HP) bilahnya diringkas: ikon merek saja, kasir tanpa nama (nama ada di petunjuknya dan di
   /// layar Shift), dan tanpa jam — jam sistem sudah berada persis di atasnya. Tanpa peringkasan ini tidak ada ruang
@@ -31,6 +32,35 @@ class BilahAtasRuangKerja extends ConsumerWidget {
   final VoidCallback saatGantiKasir;
   final VoidCallback saatKunci;
 
+  /// Pil tonal di atas latar merek gelap (D-66): putih 12% dengan sudut membulat penuh.
+  static ButtonStyle _GayaPil(TokenWarna warna) => TextButton.styleFrom(
+    foregroundColor: warna.permukaan,
+    backgroundColor: warna.permukaan.withValues(alpha: 0.12),
+    shape: const StadiumBorder(),
+    padding: const EdgeInsets.symmetric(horizontal: TokenJarak.jarak12),
+    minimumSize: const Size(0, 40),
+  );
+
+  /// Avatar inisial kasir: apricot dengan huruf merek gelap, terbaca di atas bilah gelap.
+  static Widget _Avatar(TokenWarna warna, String nama, double ukuran) => ExcludeSemantics(
+    child: Container(
+      width: ukuran,
+      height: ukuran,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: warna.aksen),
+      child: Text(
+        AvatarKasir.Inisial(nama),
+        style: TextStyle(
+          fontFamily: fontUtama,
+          package: paketFont,
+          fontSize: ukuran * 0.4,
+          fontWeight: FontWeight.w700,
+          color: warna.brandGelap,
+        ),
+      ),
+    ),
+  );
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final warna = TokenWarna.AmbilDari(context);
@@ -40,8 +70,8 @@ class BilahAtasRuangKerja extends ConsumerWidget {
     final lokasi = identitas == null
         ? ''
         : [identitas.outlet, identitas.perangkat].where((b) => b.isNotEmpty).join(' | ');
-    final gayaBilah = teks.labelLarge?.copyWith(color: warna.permukaan);
-    final gayaTombol = TextButton.styleFrom(foregroundColor: warna.permukaan);
+    final gayaBilah = teks.labelLarge?.copyWith(color: warna.permukaan, fontWeight: FontWeight.w600);
+    final gayaPil = _GayaPil(warna);
 
     // Ikon status bar dibuat terang karena bilah ini gelap; `SafeArea` di dalam `Material` supaya warna merek ikut
     // mengisi area status bar, bukan menyisakan garis putih di puncak layar.
@@ -51,84 +81,130 @@ class BilahAtasRuangKerja extends ConsumerWidget {
         color: warna.brandGelap,
         child: SafeArea(
           bottom: false,
-          child: SizedBox(
-            height: tinggi,
-            child: Row(
-              children: [
-                // Kiri dan kanan sama-sama `Expanded` dengan flex sama, jadi logo di tengah tetap berada di tengah
-                // layar walau nama outlet panjang dan lebar tombol di kanan berubah-ubah.
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: TokenJarak.jarak16),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(
-                        lokasi,
-                        style: gayaBilah,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: false,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: warna.permukaan.withValues(alpha: 0.08), width: TokenJarak.tebalGaris),
+              ),
+            ),
+            child: SizedBox(
+              height: tinggi,
+              child: Row(
+                children: [
+                  // Kiri dan kanan sama-sama `Expanded` dengan flex sama, jadi logo di tengah tetap berada di tengah
+                  // layar walau nama outlet panjang dan lebar tombol di kanan berubah-ubah.
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: TokenJarak.jarak16),
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (lega) ...[
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: warna.permukaan.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(TokenJarak.radiusKontrol),
+                                ),
+                                child: Icon(
+                                  Icons.storefront_outlined,
+                                  size: TokenJarak.ikonSedang,
+                                  color: warna.permukaan,
+                                ),
+                              ),
+                              const SizedBox(width: TokenJarak.jarak12),
+                            ],
+                            Flexible(
+                              child: Text(
+                                lokasi,
+                                style: gayaBilah,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: false,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: TokenJarak.jarak12),
-                  child: lega ? const LogoMerek.lengkapPutih(tinggi: 28) : const LogoMerek.ikonPutih(tinggi: 28),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: TokenJarak.jarak8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: Tooltip(
-                            message: 'Ganti kasir',
-                            child: lega
-                                ? ConstrainedBox(
-                                    constraints: const BoxConstraints(maxWidth: lebarMaksKasir),
-                                    child: TextButton.icon(
-                                      onPressed: saatGantiKasir,
-                                      style: gayaTombol,
-                                      icon: const Icon(Icons.person_outline, size: TokenJarak.ikonSedang),
-                                      label: Text(
-                                        kasir.nama,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: false,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: TokenJarak.jarak12),
+                    child: lega ? const LogoMerek.lengkapPutih(tinggi: 30) : const LogoMerek.ikonPutih(tinggi: 30),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: TokenJarak.jarak12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Flexible(
+                            child: Tooltip(
+                              message: 'Ganti kasir',
+                              child: lega
+                                  ? ConstrainedBox(
+                                      constraints: const BoxConstraints(maxWidth: lebarMaksKasir),
+                                      child: TextButton(
+                                        onPressed: saatGantiKasir,
+                                        style: gayaPil.copyWith(
+                                          padding: const WidgetStatePropertyAll(
+                                            EdgeInsets.only(left: 4, right: TokenJarak.jarak12),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            _Avatar(warna, kasir.nama, 32),
+                                            const SizedBox(width: TokenJarak.jarak8),
+                                            Flexible(
+                                              child: Text(
+                                                kasir.nama,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                softWrap: false,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  : InkResponse(
+                                      onTap: saatGantiKasir,
+                                      radius: 24,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(TokenJarak.jarak8),
+                                        child: _Avatar(warna, kasir.nama, 32),
                                       ),
                                     ),
-                                  )
-                                : IconButton(
-                                    onPressed: saatGantiKasir,
-                                    color: warna.permukaan,
-                                    icon: const Icon(Icons.person_outline),
-                                  ),
+                            ),
                           ),
-                        ),
-                        if (lega) ...[
-                          const SizedBox(width: TokenJarak.jarak8),
-                          JamRuangKerja(gaya: gayaBilah),
-                          const SizedBox(width: TokenJarak.jarak4),
-                          TextButton.icon(
-                            onPressed: saatKunci,
-                            style: gayaTombol,
-                            icon: const Icon(Icons.lock_outline, size: TokenJarak.ikonSedang),
-                            label: const Text('Kunci'),
-                          ),
-                        ] else
-                          IconButton(
-                            tooltip: 'Kunci',
-                            onPressed: saatKunci,
-                            color: warna.permukaan,
-                            icon: const Icon(Icons.lock_outline),
-                          ),
-                      ],
+                          if (lega) ...[
+                            const SizedBox(width: TokenJarak.jarak12),
+                            JamRuangKerja(gaya: gayaBilah),
+                            const SizedBox(width: TokenJarak.jarak12),
+                            TextButton.icon(
+                              onPressed: saatKunci,
+                              style: gayaPil,
+                              icon: const Icon(Icons.lock_outline, size: TokenJarak.ikonSedang),
+                              label: const Text('Kunci'),
+                            ),
+                          ] else
+                            IconButton(
+                              tooltip: 'Kunci',
+                              onPressed: saatKunci,
+                              color: warna.permukaan,
+                              style: IconButton.styleFrom(backgroundColor: warna.permukaan.withValues(alpha: 0.12)),
+                              icon: const Icon(Icons.lock_outline),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

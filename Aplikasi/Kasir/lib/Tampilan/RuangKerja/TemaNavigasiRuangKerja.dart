@@ -11,43 +11,52 @@ abstract final class TemaNavigasiRuangKerja {
   /// (lolos WCAG AA), tetapi cukup redup sehingga item aktif tetap yang paling menonjol.
   static const double opasitasPasif = 0.75;
 
-  /// Opasitas penanda item aktif: putih tipis di atas merek. Ikon putih di atasnya berkontras ±6,6:1.
-  static const double opasitasPenanda = 0.18;
+  /// Penanda item aktif (D-66): pil berwarna aksen apricot di atas latar merek gelap, dengan ikon & label merek
+  /// gelap di dalamnya. Apricot terhadap `brandGelap` berkontras ±7:1, jadi item aktif langsung terbaca tanpa
+  /// harus membandingkan tingkat putih.
 
-  /// Bentuk penanda item aktif, sama dengan radius kontrol lain di aplikasi.
-  static final RoundedRectangleBorder _bentukPenanda = RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(TokenJarak.radiusKontrol),
-  );
+  /// Bentuk pil penanda item aktif (sudut membulat penuh).
+  static const StadiumBorder _bentukPenanda = StadiumBorder();
 
-  static TextStyle _GayaLabel(TokenWarna warna, TextTheme teks, {required bool aktif}) =>
+  /// [labelDalamPenanda]: label berada di dalam pil (rel diperluas) sehingga memakai warna gelap; selain itu
+  /// (label di bawah ikon) label tetap putih di atas latar merek.
+  static TextStyle _GayaLabel(
+    TokenWarna warna,
+    TextTheme teks, {
+    required bool aktif,
+    bool labelDalamPenanda = false,
+  }) =>
       (teks.labelMedium ?? const TextStyle()).copyWith(
-        color: aktif ? warna.permukaan : warna.permukaan.withValues(alpha: opasitasPasif),
-        fontWeight: aktif ? FontWeight.w600 : FontWeight.w500,
+        color: aktif
+            ? (labelDalamPenanda ? warna.brandGelap : warna.permukaan)
+            : warna.permukaan.withValues(alpha: opasitasPasif),
+        fontWeight: aktif ? FontWeight.w700 : FontWeight.w500,
       );
 
   static IconThemeData _GayaIkon(TokenWarna warna, {required bool aktif}) => IconThemeData(
-    color: aktif ? warna.permukaan : warna.permukaan.withValues(alpha: opasitasPasif),
+    color: aktif ? warna.brandGelap : warna.permukaan.withValues(alpha: opasitasPasif),
     size: TokenJarak.ikonBesar,
   );
 
-  /// Tema rel navigasi kiri (tablet & desktop).
-  static NavigationRailThemeData BuatTemaRel(TokenWarna warna, TextTheme teks) => NavigationRailThemeData(
-    backgroundColor: warna.brandGelap,
-    elevation: 0,
-    indicatorColor: warna.permukaan.withValues(alpha: opasitasPenanda),
-    indicatorShape: _bentukPenanda,
-    useIndicator: true,
-    selectedIconTheme: _GayaIkon(warna, aktif: true),
-    unselectedIconTheme: _GayaIkon(warna, aktif: false),
-    selectedLabelTextStyle: _GayaLabel(warna, teks, aktif: true),
-    unselectedLabelTextStyle: _GayaLabel(warna, teks, aktif: false),
-  );
+  /// Tema rel navigasi kiri (tablet & desktop). [diperluas]: label di dalam pil penanda.
+  static NavigationRailThemeData BuatTemaRel(TokenWarna warna, TextTheme teks, {bool diperluas = false}) =>
+      NavigationRailThemeData(
+        backgroundColor: warna.brandGelap,
+        elevation: 0,
+        indicatorColor: warna.aksen,
+        indicatorShape: _bentukPenanda,
+        useIndicator: true,
+        selectedIconTheme: _GayaIkon(warna, aktif: true),
+        unselectedIconTheme: _GayaIkon(warna, aktif: false),
+        selectedLabelTextStyle: _GayaLabel(warna, teks, aktif: true, labelDalamPenanda: diperluas),
+        unselectedLabelTextStyle: _GayaLabel(warna, teks, aktif: false),
+      );
 
   /// Tema bilah navigasi bawah (HP).
   static NavigationBarThemeData BuatTemaBilah(TokenWarna warna, TextTheme teks) => NavigationBarThemeData(
     backgroundColor: warna.brandGelap,
     elevation: 0,
-    indicatorColor: warna.permukaan.withValues(alpha: opasitasPenanda),
+    indicatorColor: warna.aksen,
     indicatorShape: _bentukPenanda,
     iconTheme: WidgetStateProperty.resolveWith(
       (keadaan) => _GayaIkon(warna, aktif: keadaan.contains(WidgetState.selected)),

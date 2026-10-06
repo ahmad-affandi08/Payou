@@ -119,7 +119,8 @@ class _RuangKerjaState extends ConsumerState<RuangKerja> {
     }
   }
 
-  bool _relDiciutkan = false;
+  /// D-66: rel navigasi tertutup (ikon saja) sampai kasir melebarkannya, supaya area kerja lega.
+  late bool _relDiciutkan = ref.read(penyediaRelAwalDiciutkan);
 
   /// Jenis mutasi kas yang formulirnya sedang terbuka di panel tugas (null = tertutup).
   String? _jenisKas;
@@ -481,25 +482,34 @@ class _RuangKerjaState extends ConsumerState<RuangKerja> {
     final lebarPenuh = lebar >= RuangKerja.lebarPanelSamping;
     final diperluas = !_relDiciutkan && lebarPenuh;
     return NavigationRailTheme(
-      data: TemaNavigasiRuangKerja.BuatTemaRel(warna, Theme.of(context).textTheme),
+      data: TemaNavigasiRuangKerja.BuatTemaRel(warna, Theme.of(context).textTheme, diperluas: diperluas),
       child: NavigationRail(
         extended: diperluas,
-        minExtendedWidth: 208,
+        minWidth: 72,
+        minExtendedWidth: 216,
+        groupAlignment: -1,
         labelType: _relDiciutkan || diperluas ? NavigationRailLabelType.none : NavigationRailLabelType.all,
         selectedIndex: indeks,
         onDestinationSelected: (i) => _Buka(item[i].tujuan),
         leading: Padding(
-          padding: const EdgeInsets.only(bottom: TokenJarak.jarak8),
+          padding: const EdgeInsets.only(top: TokenJarak.jarak8, bottom: TokenJarak.jarak16),
           child: IconButton(
             tooltip: _relDiciutkan ? 'Lebarkan menu' : 'Ciutkan menu',
             onPressed: () => setState(() => _relDiciutkan = !_relDiciutkan),
             color: warna.permukaan,
+            style: IconButton.styleFrom(backgroundColor: warna.permukaan.withValues(alpha: 0.1)),
             icon: Icon(_relDiciutkan ? Icons.menu : Icons.menu_open),
           ),
         ),
         destinations: [
           for (final i in item)
-            NavigationRailDestination(icon: Icon(i.ikon), selectedIcon: Icon(i.ikonAktif), label: Text(i.label)),
+            NavigationRailDestination(
+              // Tooltip: saat rel tertutup hanya ikon yang terlihat, nama menu muncul saat ditahan/disorot.
+              icon: Tooltip(message: i.label, child: Icon(i.ikon)),
+              selectedIcon: Tooltip(message: i.label, child: Icon(i.ikonAktif)),
+              label: Text(i.label),
+              padding: const EdgeInsets.symmetric(vertical: 2),
+            ),
         ],
       ),
     );

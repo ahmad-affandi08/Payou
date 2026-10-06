@@ -100,6 +100,10 @@ class ModeLatihan extends Notifier<bool> {
 
 final penyediaModeLatihan = NotifierProvider<ModeLatihan, bool>(ModeLatihan.new);
 
+/// D-66: rel navigasi Ruang Kerja mulai tertutup (ikon saja). Test lain meng-override ke `false` supaya label menu
+/// tetap terlihat tanpa mengetuk tombol lebarkan dulu; test khusus rel memeriksa bawaan ini.
+final penyediaRelAwalDiciutkan = Provider<bool>((ref) => true);
+
 /// Audit kemudahan pakai #25 (D-38): persetujuan PIN supervisor untuk diskon & tempo berlaku sementara
 /// ([berlaku]) bagi kasir yang sama, supaya transaksi beruntun tidak meminta PIN berulang. Void, retur, kas keluar,
 /// buka laci, shift, dan obat keras **tidak** memakai ini (tetap PIN setiap kali). Hanya di memori; hilang saat aplikasi
