@@ -20,7 +20,8 @@ Jenis data yang dapat diproses, bergantung fitur yang dipakai:
 - riwayat transaksi, poin, deposit, piutang, dan preferensi,
 - tanggal lahir bila Pengendali mengisinya,
 - identitas pajak seperti NPWP atau NIK, disimpan terenkripsi,
-- data kehadiran karyawan, termasuk lokasi, swafoto, dan data wajah bila fitur absensi diaktifkan.
+- data kehadiran karyawan, termasuk lokasi, swafoto, dan data wajah bila fitur absensi diaktifkan,
+- nomor WhatsApp pelanggan dan riwayat pesan yang dikirim lewat fitur struk digital, pengingat, dan kampanye.
 
 # 3. Kewajiban Pemroses
 
@@ -31,7 +32,8 @@ Payoung akan:
 - menjaga kerahasiaan dan memastikan orang yang mengakses data terikat kewajiban kerahasiaan,
 - menerapkan langkah keamanan di bagian 5,
 - membantu Pengendali menanggapi permintaan subjek data dan memenuhi kewajibannya menurut UU PDP,
-- tidak menjual data Pengendali.
+- tidak menjual data Pengendali,
+- memastikan data satu Pengendali tidak dapat diakses Pengendali lain.
 
 # 4. Kewajiban Pengendali
 
@@ -41,7 +43,8 @@ Pengendali menyatakan dan bertanggung jawab bahwa:
 - karyawan sudah diberi tahu dan menyetujui sebelum data wajah, lokasi, dan swafoto mereka dipakai untuk absensi,
 - data yang dimasukkan akurat dan relevan,
 - akses staf dibatasi sesuai kebutuhan dan dicabut saat tidak diperlukan,
-- instruksi yang diberikan kepada Payoung tidak melanggar hukum.
+- instruksi yang diberikan kepada Payoung tidak melanggar hukum,
+- pesan promosi lewat fitur kampanye hanya dikirim kepada pelanggan yang telah menyetujuinya.
 
 # 5. Keamanan
 
@@ -51,6 +54,8 @@ Payoung menerapkan langkah teknis dan organisasi yang wajar, antara lain:
 - enkripsi saat data dikirim dan enkripsi data sensitif tertentu,
 - verifikasi dua langkah untuk akun pemilik dan persetujuan atasan untuk tindakan berisiko,
 - pencatatan aktivitas penting,
+- basis data aplikasi kasir yang terenkripsi di perangkat dan pencabutan akses perangkat yang hilang,
+- pencadangan berkala serta pemulihan data,
 - pembaruan keamanan berkala.
 
 # 6. Sub-pemroses
@@ -80,6 +85,8 @@ Bila Payoung mengetahui kegagalan pelindungan data pribadi yang memengaruhi data
 - Selama langganan, Pengendali dapat mengekspor data lewat fitur ekspor.
 - Setelah langganan berakhir, data tersedia untuk diambil selama masa tenggang yang diumumkan.
 - Sesudahnya Payoung menghapus atau menganonimkan data Pengendali, kecuali bila hukum mewajibkan penyimpanan lebih lama, dan hanya untuk tujuan itu.
+
+Pada edisi Payoung Mandiri, data berada di server Pengendali. Bagian 6, 7, dan 9 tidak berlaku, dan Pengendali sendiri bertanggung jawab atas keamanan serta pencadangan servernya.
 
 # 10. Audit dan bukti kepatuhan
 

@@ -12,6 +12,8 @@ use App\Domain\Tenant\Model\DokumenLegal;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;
 use Tests\Pendukung\Pengelola\BantuanPengelola;
+use Tests\Pendukung\Pengelola\BantuanTenantPengelola;
+use Tests\Pendukung\Tenant\BantuanPendaftaran;
 use Tests\TestCase;
 
 function MasukSebagaiLegal(TestCase $tes, ?PenggunaPengelola $pengguna = null): TestCase
@@ -254,6 +256,59 @@ describe('Draf dokumen legal bawaan (P-06)', function (): void {
         expect(DokumenLegal::query()->where('Jenis', JenisDokumenLegal::KebijakanPrivasi->value)->count())->toBe(1)
             ->and(DokumenLegal::query()->where('Jenis', JenisDokumenLegal::KebijakanPrivasi->value)->value('Isi'))->toBe('Isi lama.')
             ->and(DokumenLegal::query()->count())->toBe(3);
+    });
+});
+
+describe('Draf pembaruan dokumen legal (P-06)', function (): void {
+    it('membuat draf versi berikutnya bila isi terbit berbeda dari naskah, tanpa menyentuh versi terbit', function (): void {
+        foreach (JenisDokumenLegal::AmbilWajibRegistrasi() as $jenis) {
+            DokumenLegal::query()->create([
+                'Jenis' => $jenis, 'Versi' => 1, 'Status' => StatusDokumenLegal::Terbit, 'Judul' => $jenis->AmbilLabel(),
+                'Isi' => '# Naskah lama PAYOU', 'Materiil' => true, 'BerlakuMulai' => '2026-01-01',
+            ]);
+        }
+
+        $this->artisan('legal:siapkan-pembaruan')->assertSuccessful();
+
+        foreach (JenisDokumenLegal::AmbilWajibRegistrasi() as $jenis) {
+            $versi1 = DokumenLegal::query()->where('Jenis', $jenis->value)->where('Versi', 1)->sole();
+            $draf = DokumenLegal::query()->where('Jenis', $jenis->value)->where('Versi', 2)->sole();
+
+            expect($versi1->Status)->toBe(StatusDokumenLegal::Terbit)->and($versi1->Isi)->toBe('# Naskah lama PAYOU')
+                ->and($draf->Status)->toBe(StatusDokumenLegal::Draf)
+                ->and($draf->Isi)->not->toContain('PAYOU')->and($draf->Isi)->toContain('# 1.')
+                // Belum ada pengguna yang menyetujui versi 1: tidak ada yang terdampak, jadi tidak materiil.
+                ->and($draf->Materiil)->toBeFalse();
+        }
+
+        // Idempoten: draf sudah ada.
+        $this->artisan('legal:siapkan-pembaruan')->assertSuccessful();
+        expect(DokumenLegal::query()->count())->toBe(6);
+    });
+
+    it('tidak membuat apa pun bila isi terbit sudah sama dengan naskah', function (): void {
+        foreach (JenisDokumenLegal::AmbilWajibRegistrasi() as $jenis) {
+            DokumenLegal::query()->create([
+                'Jenis' => $jenis, 'Versi' => 1, 'Status' => StatusDokumenLegal::Terbit, 'Judul' => $jenis->AmbilLabel(),
+                'Isi' => trim((string) file_get_contents(base_path("database/data/legal/{$jenis->value}.md"))),
+                'Materiil' => true, 'BerlakuMulai' => '2026-01-01',
+            ]);
+        }
+
+        $this->artisan('legal:siapkan-pembaruan')->assertSuccessful();
+
+        expect(DokumenLegal::query()->count())->toBe(3);
+    });
+
+    it('perubahan menjadi materiil dan berlaku 30 hari lagi bila sudah ada pengguna yang menyetujui versi lama', function (): void {
+        BantuanPendaftaran::SiapkanPrasyarat();
+        BantuanTenantPengelola::BuatTenant();
+
+        $this->artisan('legal:siapkan-pembaruan')->assertSuccessful();
+
+        $draf = DokumenLegal::query()->where('Jenis', JenisDokumenLegal::SyaratKetentuan->value)->where('Versi', 2)->sole();
+        expect($draf->Materiil)->toBeTrue()
+            ->and($draf->BerlakuMulai->toDateString())->toBe(now('Asia/Jakarta')->addDays(30)->toDateString());
     });
 });
 

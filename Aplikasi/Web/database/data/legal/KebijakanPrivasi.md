@@ -13,13 +13,15 @@ Peran Kami berbeda tergantung datanya:
 
 - nama, email, nomor WhatsApp, dan kata sandi (disimpan dalam bentuk terenkripsi satu arah),
 - nama usaha, alamat outlet, dan identitas pajak usaha seperti NPWP bila Anda isi,
-- peran dan izin staf yang Anda tambahkan.
+- peran dan izin staf yang Anda tambahkan,
+- bila Anda masuk dengan Google: nama, email, dan penanda akun Google. Kami tidak menerima kata sandi Google Anda.
 
 ## 2.2 Data pemakaian
 
 - catatan aktivitas penting, seperti masuk, perubahan data, pembatalan transaksi, dan persetujuan,
 - informasi perangkat dan aplikasi, seperti jenis perangkat, versi aplikasi, dan alamat IP,
-- laporan galat yang disaring agar tidak memuat data pribadi.
+- laporan galat yang disaring agar tidak memuat data pribadi,
+- token perangkat untuk mengirim notifikasi ke aplikasi Pemilik, bila Anda mengizinkannya.
 
 ## 2.3 Data pembayaran
 
@@ -62,6 +64,8 @@ Kami membagikan data seperlunya kepada:
 
 Pihak yang memproses data atas nama Kami terikat perjanjian untuk menjaga keamanan dan kerahasiaan data.
 
+Untuk edisi Payoung Mandiri, data usaha disimpan di server milik Anda dan tidak dikirim ke Kami. Kami hanya menerima data yang Anda kirim sendiri, misalnya saat meminta dukungan.
+
 # 5. Penyimpanan di luar negeri
 
 Sebagian penyedia layanan dapat memproses data di luar Indonesia. Dalam hal itu Kami memastikan pelindungan yang setara sesuai UU PDP dan peraturan turunannya.
@@ -84,7 +88,7 @@ Kami menerapkan langkah teknis dan organisasi yang wajar, antara lain:
 - pencatatan aktivitas penting dan pemantauan keamanan,
 - basis data aplikasi kasir yang terenkripsi di perangkat.
 
-Tidak ada sistem yang sepenuhnya aman. Bila terjadi kegagalan pelindungan data pribadi yang berdampak pada Anda, Kami memberi tahu Anda dan pihak berwenang sesuai ketentuan UU PDP.
+Tidak ada sistem yang sepenuhnya aman. Bila terjadi kegagalan pelindungan data pribadi yang berdampak pada Anda, Kami memberi tahu Anda dan lembaga yang berwenang secara tertulis dalam batas waktu yang ditetapkan UU PDP (paling lambat 3 x 24 jam sejak kegagalan diketahui), disertai data yang terungkap, waktu dan cara terungkapnya, serta langkah penanganan dan pemulihannya.
 
 # 8. Hak Anda
 
@@ -112,6 +116,6 @@ Payoung ditujukan untuk pelaku usaha dewasa. Kami tidak sengaja mengumpulkan dat
 
 Kebijakan ini dapat diperbarui. Perubahan yang berpengaruh besar diumumkan lewat aplikasi dan email, dan versi serta tanggal berlaku tertera di bagian atas halaman ini.
 
-# 12. Kontak
+# 12. Kontak dan pengaduan
 
-Untuk pertanyaan atau permintaan terkait data pribadi, hubungi Kami lewat formulir kontak di situs payoung.id atau fitur bantuan di dalam aplikasi, dan sebutkan bahwa pesan Anda terkait pelindungan data pribadi.
+Untuk pertanyaan, permintaan, atau pengaduan terkait data pribadi, hubungi Kami lewat formulir kontak di situs payoung.id atau fitur bantuan di dalam aplikasi, dan sebutkan bahwa pesan Anda terkait pelindungan data pribadi. Bila Anda merasa pengaduan Anda belum ditanggapi dengan baik, Anda berhak mengadukannya kepada lembaga pelindungan data pribadi yang berwenang di Indonesia.
