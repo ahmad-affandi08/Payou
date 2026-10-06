@@ -9,7 +9,7 @@ export const TAMPIL_MINIMAL_MS = 400;
 export const BATAS_TAMPIL_MS = 20000;
 
 /**
- * Tanda muat logo payung bercincin (sama dengan `TandaMuat`) melayang di tengah atas saat pindah halaman Inertia;
+ * Tanda muat logo payung bercincin (sama dengan `TandaMuat`) melayang di tengah layar saat pindah halaman Inertia;
  * menggantikan progress bawaan Inertia (`progress: false`) dan bilah garis (dibuang di D-62).
  * Mengembalikan fungsi pelepas. Aman dipanggil sekali per entry point.
  */

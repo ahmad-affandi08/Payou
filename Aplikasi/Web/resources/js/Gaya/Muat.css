@@ -57,14 +57,14 @@
     }
 }
 
-/* Penanda navigasi (D-62): tanda muat kecil melayang di tengah atas saat pindah halaman, tanpa garis. */
+/* Penanda navigasi (D-62, D-64): tanda muat melayang di tengah layar saat pindah halaman, tanpa garis. */
 .penanda-navigasi {
     position: fixed;
-    top: 14px;
+    top: 50%;
     left: 50%;
     z-index: 9998;
-    translate: -50% 0;
-    padding: 5px;
+    translate: -50% -50%;
+    padding: 6px;
     border-radius: 9999px;
     background: var(--color-permukaan);
     box-shadow: 0 2px 10px var(--color-bayangan);
