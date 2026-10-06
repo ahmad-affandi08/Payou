@@ -106,7 +106,7 @@ final class DataAwalKasir
                 // v3.55 (aditif, §9.3): barcode timbangan EAN-13 `AA PPPPP NNNNN C` (berat gram atau harga Rupiah).
                 'BarcodeTimbangan' => $this->barcodeTimbangan->Ambil(),
             ],
-            'Struk' => $this->AmbilStruk($perangkat, $profil->pkp ?? false, $outlet?->namaMerek),
+            'Struk' => $this->AmbilStruk($perangkat, $profil->pkp ?? false, $outlet?->namaMerek, $outlet?->idMerek),
             'Outlet' => $outlet === null ? null : [
                 'Uuid' => $outlet->uuidOutlet,
                 'Kode' => $outlet->kodeOutlet,
@@ -167,17 +167,17 @@ final class DataAwalKasir
     /**
      * @return array<string, mixed>
      */
-    private function AmbilStruk(Perangkat $perangkat, bool $pkp, ?string $namaMerek): array
+    private function AmbilStruk(Perangkat $perangkat, bool $pkp, ?string $namaMerek, ?int $idMerek): array
     {
         $tenant = $this->profilTenant->Ambil($perangkat->IdTenant);
-        $struk = $this->pengaturanStruk->Ambil($perangkat->IdTenant);
+        $struk = $this->pengaturanStruk->Ambil($perangkat->IdTenant, $idMerek);
 
         return [
             ...$struk->KeLarik(),
             // Nama merek outlet (bukan nama akun/pemilik): satu akun bisa punya beberapa merek dengan struk berbeda.
             'NamaUsaha' => $namaMerek ?? $tenant['Nama'],
             'Npwp' => $pkp ? $tenant['Npwp'] : null,
-            'AdaLogo' => $this->pengaturanStruk->AmbilPathLogo($perangkat->IdTenant) !== null,
+            'AdaLogo' => $this->pengaturanStruk->AmbilPathLogo($perangkat->IdTenant, $idMerek) !== null,
             'TandaAir' => ! $this->fitur->CekAktif($perangkat->IdTenant, 'struk.tanpa-watermark'),
             // POS-11: awalan tautan struk digital; aplikasi menambah Uuid penjualan. Null = struk digital dimatikan.
             'AwalanStrukDigital' => $struk->tampilkanStrukDigital ? KodeStrukDigital::AmbilAwalan($perangkat->IdTenant) : null,

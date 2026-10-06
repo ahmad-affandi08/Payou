@@ -7,6 +7,7 @@ namespace App\Domain\Penjualan\Aksi;
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Integrasi\Whatsapp\PembuatPengirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
+use App\Domain\Organisasi\Kueri\OutletPenjualan;
 use App\Domain\Penjualan\Enum\JenisPesanKeluar;
 use App\Domain\Penjualan\Enum\KanalPesanKeluar;
 use App\Domain\Penjualan\Enum\StatusPesanKeluar;
@@ -38,6 +39,7 @@ final class AntrekanKirimStrukDigital
         private readonly PengaturanStrukTenant $pengaturanStruk,
         private readonly PemeriksaFiturTenant $fitur,
         private readonly PembuatPengirimWhatsapp $whatsapp,
+        private readonly OutletPenjualan $outletPenjualan,
     ) {}
 
     /**
@@ -60,7 +62,7 @@ final class AntrekanKirimStrukDigital
             throw new PelanggaranAturanBisnis('PenjualanBelumTersinkron', 'Penjualan belum tersinkron ke server. Sinkronkan dulu, lalu kirim ulang struk.', 'Umum', 404);
         }
 
-        if (! $this->pengaturanStruk->Ambil($idTenant)->tampilkanStrukDigital) {
+        if (! $this->pengaturanStruk->Ambil($idTenant, $this->outletPenjualan->Ambil($idOutlet, $idPerangkat)?->idMerek)->tampilkanStrukDigital) {
             throw new PelanggaranAturanBisnis('StrukDigitalNonaktif', 'Struk digital dimatikan di pengaturan struk.', 'Umum', 409);
         }
 

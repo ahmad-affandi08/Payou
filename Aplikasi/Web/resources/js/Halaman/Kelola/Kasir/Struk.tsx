@@ -1,6 +1,8 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useState, type FormEvent } from 'react';
 
+import BidangGambar from '@/Komponen/Formulir/BidangGambar';
+import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
 import BidangTeksPanjang from '@/Komponen/Formulir/BidangTeksPanjang';
 import KotakCentang from '@/Komponen/Formulir/KotakCentang';
@@ -93,24 +95,53 @@ function DaftarSaklar({
  * Pengaturan struk (PLT-06, PRD v1.79): satu pengaturan untuk semua outlet, dengan pratinjau kertas thermal 58/80 mm.
  * Berlaku di aplikasi kasir setelah data perangkat diperbarui. Nama usaha, NPWP, dan logo diubah di profil usaha.
  */
-export default function HalamanPengaturanStruk({ Pengaturan, Profil }: PropsPengaturanStruk) {
+function IsiPengaturanStruk({
+    Pengaturan,
+    Profil,
+    Merek = [],
+    UuidMerek = null,
+    LogoMerekKhusus = false,
+}: PropsPengaturanStruk) {
     const { props } = usePage<PropsBersamaAplikasi>();
     const galat = props.errors;
     const [isian, AturIsian] = useState(() => KeIsian(Pengaturan));
     const [lebar, AturLebar] = useState<LebarKertas>('58');
     const [memproses, AturMemproses] = useState(false);
+    const [logoBaru, AturLogoBaru] = useState<File | null>(null);
+    const [hapusLogo, AturHapusLogo] = useState(false);
+    const adaMerek = Merek.length > 1 && UuidMerek !== null;
     const pengaturan = KePengaturan(isian);
-    const berubah = JSON.stringify(pengaturan) !== JSON.stringify(KePengaturan(KeIsian(Pengaturan)));
+    const berubah =
+        JSON.stringify(pengaturan) !== JSON.stringify(KePengaturan(KeIsian(Pengaturan))) ||
+        logoBaru !== null ||
+        hapusLogo;
     const Ubah = <K extends keyof IsianStruk>(kunci: K, nilai: IsianStruk[K]) =>
         AturIsian((lama) => ({ ...lama, [kunci]: nilai }));
 
     const Simpan = (peristiwa: FormEvent) => {
         peristiwa.preventDefault();
-        router.put(alamat, pengaturan, {
+        const pilihan = {
             preserveScroll: true,
             onStart: () => AturMemproses(true),
             onFinish: () => AturMemproses(false),
-        });
+            onSuccess: () => {
+                AturLogoBaru(null);
+                AturHapusLogo(false);
+            },
+        };
+
+        if (!adaMerek) {
+            router.put(alamat, pengaturan, pilihan);
+
+            return;
+        }
+
+        // D-70: dengan merek terpilih, logo ikut terkirim sebagai berkas (POST + _method=put).
+        router.post(
+            alamat,
+            { ...pengaturan, _method: 'put', UuidMerek, Logo: logoBaru, HapusLogo: hapusLogo ? 1 : 0 },
+            { ...pilihan, forceFormData: true },
+        );
     };
 
     return (
@@ -134,6 +165,40 @@ export default function HalamanPengaturanStruk({ Pengaturan, Profil }: PropsPeng
                     className="flex min-w-0 flex-col gap-4"
                     noValidate
                 >
+                    {adaMerek ? (
+                        <Panel
+                            judul="Merek"
+                            idJudul="judul-merek-struk"
+                            keterangan="Saklar tampil dan logo di bawah berlaku untuk merek yang dipilih. Isian teks (nama, kepala, catatan kaki, penutup) dipakai bersama."
+                        >
+                            <BidangPilihan
+                                label="Atur struk untuk merek"
+                                nilai={UuidMerek}
+                                opsi={Merek.map((m) => ({ Nilai: m.Uuid, Label: m.Nama }))}
+                                saatBerubah={(uuid) => router.get(alamat, { Merek: uuid })}
+                            />
+                            <BidangGambar
+                                label="Logo struk merek ini"
+                                berkas={logoBaru}
+                                saatBerubah={(berkas) => {
+                                    AturLogoBaru(berkas);
+                                    AturHapusLogo(false);
+                                }}
+                                tautanSaatIni={hapusLogo ? null : (Profil.TautanLogo ?? null)}
+                                {...(LogoMerekKhusus
+                                    ? { saatHapusSaatIni: () => AturHapusLogo(true), labelHapus: 'Pakai logo usaha' }
+                                    : {})}
+                                ukuranMaksimalKb={1024}
+                                ekstensi={['png', 'jpg', 'jpeg', 'webp']}
+                                keterangan={
+                                    LogoMerekKhusus
+                                        ? 'Logo khusus merek ini.'
+                                        : 'Belum ada logo khusus; memakai logo usaha. Unggah untuk menggantinya.'
+                                }
+                                galat={galat.Logo}
+                            />
+                        </Panel>
+                    ) : null}
                     <Panel
                         judul="Kepala struk"
                         idJudul="judul-kepala-struk"
@@ -239,4 +304,9 @@ export default function HalamanPengaturanStruk({ Pengaturan, Profil }: PropsPeng
             </div>
         </TataLetakAplikasi>
     );
+}
+
+/** Berganti merek memuat ulang isian dari server, jadi isian lokal dibuat baru per merek (D-70). */
+export default function HalamanPengaturanStruk(props: PropsPengaturanStruk) {
+    return <IsiPengaturanStruk key={props.UuidMerek ?? 'tenant'} {...props} />;
 }

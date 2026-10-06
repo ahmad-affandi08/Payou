@@ -25,6 +25,10 @@ final class UbahPengaturanStrukPermintaan extends FormRequest
             ...array_fill_keys(self::SAKLAR, ['required', 'boolean']),
             // POS-11 (ditambah setelah v1.79): boleh tidak dikirim, bawaan hidup.
             'TampilkanStrukDigital' => ['sometimes', 'boolean'],
+            // D-70: saklar & logo khusus satu merek (kosong = pengaturan tenant). Logo: gambar, maks 1 MB.
+            'UuidMerek' => ['nullable', 'string', 'max:40'],
+            'Logo' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp', 'max:1024'],
+            'HapusLogo' => ['sometimes', 'boolean'],
             'NamaDicetak' => ['nullable', 'string', "max:{$baris}"],
             // Batas 3 baris diperiksa setelah baris kosong dibuang (Aksi); di sini hanya batas wajar masukan.
             'TeksKepala' => ['present', 'array', 'max:10'],

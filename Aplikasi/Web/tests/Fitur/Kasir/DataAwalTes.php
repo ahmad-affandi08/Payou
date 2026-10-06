@@ -12,9 +12,11 @@ use App\Domain\Organisasi\Model\Merek;
 use App\Domain\Organisasi\Model\Outlet;
 use App\Domain\Organisasi\Model\OutletPengguna;
 use App\Domain\Organisasi\Model\Perangkat;
+use App\Domain\Tenant\Kueri\PengaturanStrukTenant;
 use App\Domain\Tenant\Model\Langganan;
 use App\Domain\Tenant\Model\Paket;
 use App\Domain\Tenant\Model\Tenant;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
 use Tests\Pendukung\Akuntansi\BantuanJurnal;
@@ -221,6 +223,44 @@ describe('Struk memakai nama merek outlet', function (): void {
         $struk = $this->withToken($k['Token'])->getJson('/api/pos/v1/data-awal')->assertOk()->json('Struk');
 
         expect($struk['NamaUsaha'])->toBe('Brewland');
+    });
+});
+
+describe('Pengaturan struk per merek (D-70)', function (): void {
+    it('saklar & logo disimpan khusus merek: merek lain dan tenant tidak berubah, teks isian tetap bersama', function (): void {
+        $k = BantuanKasir::Siapkan($this, 'Budi Santoso');
+        Storage::fake((string) config('tenant.DiskLogo'));
+        $merekA = Merek::query()->whereKey(Outlet::query()->whereKey($k['Outlet']->Id)->value('IdMerek'))->firstOrFail();
+        $merekB = Merek::query()->create(['Nama' => 'Brewland']);
+        BantuanPersediaan::MasukSebagai($this, $k['Tenant']->Id, PeranTenantBawaan::Admin);
+
+        $this->put('/kelola/kasir/struk', [
+            'UuidMerek' => $merekA->Uuid,
+            'TampilkanLogo' => true, 'TampilkanAlamat' => true, 'TampilkanTelepon' => true, 'TampilkanNpwp' => true,
+            'TampilkanKasir' => false, 'TampilkanPelanggan' => true, 'TampilkanHemat' => true,
+            'NamaDicetak' => null, 'TeksKepala' => ['@bersama'], 'CatatanKaki' => null, 'TeksPenutup' => null,
+            'Logo' => UploadedFile::fake()->image('logo-a.png', 100, 100),
+        ])->assertRedirect();
+
+        $struk = $this->withToken($k['Token'])->getJson('/api/pos/v1/data-awal')->assertOk()->json('Struk');
+        expect($struk['TampilkanKasir'])->toBeFalse()
+            ->and($struk['AdaLogo'])->toBeTrue()
+            ->and($struk['TeksKepala'])->toBe(['@bersama']);
+        $this->withToken($k['Token'])->get('/api/pos/v1/logo-struk')->assertOk();
+
+        $pengaturan = app(PengaturanStrukTenant::class);
+        expect($pengaturan->Ambil($k['Tenant']->Id)->tampilkanKasir)->toBeTrue()
+            ->and($pengaturan->Ambil($k['Tenant']->Id, (int) $merekB->Id)->tampilkanKasir)->toBeTrue()
+            ->and($pengaturan->AmbilPathLogo($k['Tenant']->Id, (int) $merekB->Id))->toBeNull()
+            ->and($pengaturan->Ambil($k['Tenant']->Id, (int) $merekB->Id)->teksKepala)->toBe(['@bersama']);
+
+        $this->put('/kelola/kasir/struk', [
+            'UuidMerek' => $merekA->Uuid, 'HapusLogo' => 1,
+            'TampilkanLogo' => true, 'TampilkanAlamat' => true, 'TampilkanTelepon' => true, 'TampilkanNpwp' => true,
+            'TampilkanKasir' => false, 'TampilkanPelanggan' => true, 'TampilkanHemat' => true,
+            'NamaDicetak' => null, 'TeksKepala' => ['@bersama'], 'CatatanKaki' => null, 'TeksPenutup' => null,
+        ])->assertRedirect();
+        expect($pengaturan->AmbilPathLogoMerek($k['Tenant']->Id, (int) $merekA->Id))->toBeNull();
     });
 });
 

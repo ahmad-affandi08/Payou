@@ -47,6 +47,7 @@ Route::middleware(SiapkanAuditTenant::class)->group(function () use ($izin, $uli
 
     // PLT-06 / POS-11 (PRD v1.79): pengaturan struk satu untuk semua outlet.
     Route::get('/kasir/struk', [PengaturanStrukKontroler::class, 'Tampilkan'])->middleware($outlet)->name('kelola.kasir.struk');
+    Route::get('/kasir/struk/logo', [PengaturanStrukKontroler::class, 'UnduhLogo'])->middleware($outlet)->name('kelola.kasir.struk.logo');
     Route::put('/kasir/struk', [PengaturanStrukKontroler::class, 'Simpan'])->middleware($outlet)->name('kelola.kasir.struk.simpan');
 
     // F-08 / P-05 v2.06: gerbang pembayaran QRIS dinamis milik tenant (akun merchant sendiri).

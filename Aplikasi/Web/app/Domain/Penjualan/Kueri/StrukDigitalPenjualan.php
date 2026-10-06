@@ -45,8 +45,9 @@ final class StrukDigitalPenjualan
      */
     public function Ambil(int $idTenant, string $uuid): ?array
     {
-        $struk = $this->pengaturan->Ambil($idTenant);
         $p = Penjualan::query()->where('Uuid', $uuid)->first();
+        $outlet = $p === null ? null : $this->outlet->Ambil($p->IdOutlet, $p->IdPerangkat);
+        $struk = $this->pengaturan->Ambil($idTenant, $outlet?->idMerek);
         $laundry = $p === null ? null : $this->laundry->AmbilUntukPenjualan($p->Id);
 
         if ($p === null || (! $struk->tampilkanStrukDigital && $laundry === null)) {
@@ -54,7 +55,6 @@ final class StrukDigitalPenjualan
         }
 
         $tenant = $this->profil->Ambil($idTenant);
-        $outlet = $this->outlet->Ambil($p->IdOutlet, $p->IdPerangkat);
         $pkp = $this->pajakOutlet->Ambil($p->IdOutlet)->pkp ?? false;
         $totalRetur = null;
 
@@ -63,7 +63,7 @@ final class StrukDigitalPenjualan
         }
 
         return [
-            'NamaUsaha' => $struk->namaDicetak ?? $outlet?->namaMerek ?? $tenant['Nama'],
+            'NamaUsaha' => $struk->namaDicetak ?? $outlet->namaMerek ?? $tenant['Nama'],
             'TeksKepala' => $struk->teksKepala,
             'NamaOutlet' => $outlet?->namaOutlet,
             'Alamat' => $struk->tampilkanAlamat ? $outlet?->alamat : null,

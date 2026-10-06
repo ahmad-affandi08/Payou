@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Kontroler\Pos\V1;
 
+use App\Domain\Organisasi\Kueri\OutletPenjualan;
 use App\Domain\Tenant\Kueri\PengaturanStrukTenant;
 use App\Domain\Tenant\Layanan\PenyimpanLogoTenant;
 use App\Http\Kontroler\Kontroler;
@@ -17,9 +18,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 final class LogoStrukKontroler extends Kontroler
 {
-    public function Unduh(Request $permintaan, PengaturanStrukTenant $pengaturan, PenyimpanLogoTenant $penyimpan): StreamedResponse
+    public function Unduh(Request $permintaan, PengaturanStrukTenant $pengaturan, PenyimpanLogoTenant $penyimpan, OutletPenjualan $outlet): StreamedResponse
     {
-        $path = $pengaturan->AmbilPathLogo(AutentikasiPerangkat::AmbilPerangkat($permintaan)->IdTenant);
+        $perangkat = AutentikasiPerangkat::AmbilPerangkat($permintaan);
+        $path = $pengaturan->AmbilPathLogo($perangkat->IdTenant, $outlet->Ambil($perangkat->IdOutlet, $perangkat->Id)?->idMerek);
         abort_if($path === null, 404);
 
         return $penyimpan->Unduh($path);

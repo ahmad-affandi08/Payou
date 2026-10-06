@@ -42,6 +42,7 @@ final class OutletPenjualan
             kodePerangkat: $perangkat->Kode,
             idGudangToko: $this->AmbilIdGudangToko($idOutlet),
             namaMerek: Merek::query()->whereKey($outlet->IdMerek)->value('Nama'),
+            idMerek: (int) $outlet->IdMerek,
         );
     }
 
