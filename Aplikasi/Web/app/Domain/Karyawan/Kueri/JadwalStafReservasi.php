@@ -21,7 +21,7 @@ final class JadwalStafReservasi
     {
         $jadwal = JadwalKerja::query()
             ->where('IdOutlet', $idOutlet)
-            ->whereDate('Tanggal', $tanggal)
+            ->where('Tanggal', $tanggal)
             ->get(['IdKaryawan', 'JamMulai', 'JamSelesai'])
             ->keyBy('IdKaryawan');
 

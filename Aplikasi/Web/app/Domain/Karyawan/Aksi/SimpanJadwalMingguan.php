@@ -62,7 +62,7 @@ final class SimpanJadwalMingguan
             foreach ($data->sel as $i => $sel) {
                 /** @var Karyawan $k */
                 $k = $karyawan->get($sel['UuidKaryawan']);
-                $ada = JadwalKerja::query()->where('IdKaryawan', $k->Id)->whereDate('Tanggal', $sel['Tanggal'])->lockForUpdate()->first();
+                $ada = JadwalKerja::query()->where('IdKaryawan', $k->Id)->where('Tanggal', $sel['Tanggal'])->lockForUpdate()->first();
 
                 if ($sel['JamMulai'] === null || $sel['JamSelesai'] === null) {
                     if ($ada !== null && $ada->IdOutlet === $data->idOutlet) {

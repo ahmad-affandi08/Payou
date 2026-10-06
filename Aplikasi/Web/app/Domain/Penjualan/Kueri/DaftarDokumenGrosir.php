@@ -200,8 +200,8 @@ final class DaftarDokumenGrosir
             ->when($idOutletBoleh !== null, fn ($q) => $q->whereIn('IdOutlet', $idOutletBoleh ?? []))
             ->when($status !== [], fn ($q) => $q->whereIn('Status', $status))
             ->when($idPelanggan !== null, fn ($q) => $q->where('IdPelanggan', $idPelanggan))
-            ->when($dari !== null, fn ($q) => $q->whereDate('Tanggal', '>=', (string) $dari))
-            ->when($sampai !== null, fn ($q) => $q->whereDate('Tanggal', '<=', (string) $sampai))
+            ->when($dari !== null, fn ($q) => $q->where('Tanggal', '>=', (string) $dari))
+            ->when($sampai !== null, fn ($q) => $q->where('Tanggal', '<=', (string) $sampai))
             ->when($p->cari !== '', fn ($q) => $q->where(fn ($dalam) => $dalam
                 ->where('Nomor', 'like', $pola)
                 ->when($kolomCari !== null, fn ($atau) => $atau->orWhere((string) $kolomCari, 'like', $pola))));

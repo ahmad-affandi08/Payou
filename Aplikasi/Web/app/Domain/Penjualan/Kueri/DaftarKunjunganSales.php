@@ -94,8 +94,8 @@ final class DaftarKunjunganSales
             ->when($idOutletBoleh !== null, fn ($q) => $q->whereIn('IdOutlet', $idOutletBoleh ?? []))
             ->when($uuidSalesman !== [], fn ($q) => $q->whereIn('IdPengguna', $idSalesman === [] ? [0] : $idSalesman))
             ->when($hasil !== [], fn ($q) => $q->whereIn('Hasil', $hasil))
-            ->when($dari !== null, fn ($q) => $q->whereDate('Tanggal', '>=', (string) $dari))
-            ->when($sampai !== null, fn ($q) => $q->whereDate('Tanggal', '<=', (string) $sampai))
+            ->when($dari !== null, fn ($q) => $q->where('Tanggal', '>=', (string) $dari))
+            ->when($sampai !== null, fn ($q) => $q->where('Tanggal', '<=', (string) $sampai))
             ->when($idPelanggan !== null, fn ($q) => $q->whereIn('IdPelanggan', $idPelanggan === [] ? [0] : $idPelanggan));
     }
 

@@ -22,8 +22,8 @@ final class ShiftBelumDitutup
     {
         return Shift::query()
             ->whereIn('Status', [StatusShift::Terbuka->value, StatusShift::Menutup->value, StatusShift::DibukaUlang->value])
-            ->whereDate('TanggalBisnis', '<=', $sampaiTanggal->toDateString())
-            ->when($dariTanggal !== null, fn ($k) => $k->whereDate('TanggalBisnis', '>=', $dariTanggal?->toDateString()))
+            ->where('TanggalBisnis', '<=', $sampaiTanggal->toDateString())
+            ->when($dariTanggal !== null, fn ($k) => $k->where('TanggalBisnis', '>=', $dariTanggal?->toDateString()))
             ->when($idOutlet !== null, fn ($k) => $k->where('IdOutlet', $idOutlet))
             ->count();
     }

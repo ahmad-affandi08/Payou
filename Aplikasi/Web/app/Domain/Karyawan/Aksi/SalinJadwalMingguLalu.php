@@ -33,7 +33,7 @@ final class SalinJadwalMingguLalu
             foreach ($lalu as $j) {
                 $tanggal = CarbonImmutable::parse($j->Tanggal->toDateString())->addDays(7)->toDateString();
 
-                if (JadwalKerja::query()->where('IdKaryawan', $j->IdKaryawan)->whereDate('Tanggal', $tanggal)->exists()) {
+                if (JadwalKerja::query()->where('IdKaryawan', $j->IdKaryawan)->where('Tanggal', $tanggal)->exists()) {
                     continue;
                 }
 

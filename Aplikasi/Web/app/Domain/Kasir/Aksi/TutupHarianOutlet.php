@@ -61,7 +61,7 @@ final class TutupHarianOutlet
         }
 
         return DB::transaction(function () use ($idOutlet, $tanggal, $idPengguna, $label, $hasil, $otomatis): TutupHarian {
-            if (TutupHarian::query()->where('IdOutlet', $idOutlet)->whereDate('TanggalBisnis', $tanggal->toDateString())->lockForUpdate()->exists()) {
+            if (TutupHarian::query()->where('IdOutlet', $idOutlet)->where('TanggalBisnis', $tanggal->toDateString())->lockForUpdate()->exists()) {
                 throw new PelanggaranAturanBisnis('HariSudahDitutup', "Tanggal {$label} di outlet ini sudah ditutup.", 'TanggalBisnis');
             }
 

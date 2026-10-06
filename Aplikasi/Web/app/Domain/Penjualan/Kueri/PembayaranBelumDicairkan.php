@@ -115,7 +115,7 @@ final class PembayaranBelumDicairkan
         $idPenjualan = Penjualan::query()
             ->where('IdOutlet', $idOutlet)
             ->where('Status', '!=', StatusPenjualan::Void->value)
-            ->when($batasTanggal !== null, fn ($q) => $q->whereDate('TanggalBisnis', '<=', $batasTanggal))
+            ->when($batasTanggal !== null, fn ($q) => $q->where('TanggalBisnis', '<=', $batasTanggal))
             ->select('Id');
 
         $pembayaran = PenjualanPembayaran::query()
@@ -211,7 +211,7 @@ final class PembayaranBelumDicairkan
             $sampai = $hariIni->subDays($batasHari);
             $idPenjualan = Penjualan::query()
                 ->where('Status', '!=', StatusPenjualan::Void->value)
-                ->whereDate('TanggalBisnis', '<=', $sampai->toDateString())
+                ->where('TanggalBisnis', '<=', $sampai->toDateString())
                 ->when($idOutletBoleh !== null, fn ($q) => $q->whereIn('IdOutlet', $idOutletBoleh ?? []))
                 ->select('Id');
 

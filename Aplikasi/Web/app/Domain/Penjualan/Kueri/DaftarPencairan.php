@@ -154,8 +154,8 @@ final class DaftarPencairan
             ->when($idOutletBoleh !== null, fn ($q) => $q->whereIn('IdOutlet', $idOutletBoleh ?? []))
             ->when($status !== [], fn ($q) => $q->whereIn('Status', $status))
             ->when($idMetode !== null, fn ($q) => $q->where('IdMetodePembayaran', $idMetode))
-            ->when($dari !== null, fn ($q) => $q->whereDate('Tanggal', '>=', (string) $dari))
-            ->when($sampai !== null, fn ($q) => $q->whereDate('Tanggal', '<=', (string) $sampai))
+            ->when($dari !== null, fn ($q) => $q->where('Tanggal', '>=', (string) $dari))
+            ->when($sampai !== null, fn ($q) => $q->where('Tanggal', '<=', (string) $sampai))
             ->when($p->cari !== '', fn ($q) => $q->where(fn ($dalam) => $dalam
                 ->where('Nomor', 'like', $pola)
                 ->orWhere('Referensi', 'like', $pola)));

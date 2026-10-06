@@ -40,7 +40,7 @@ final class TutupHarianOtomatis
 
             $adaShift = Shift::query()
                 ->where('IdOutlet', $id)
-                ->whereDate('TanggalBisnis', $hari['TanggalBisnis'])
+                ->where('TanggalBisnis', $hari['TanggalBisnis'])
                 ->where('Status', StatusShift::Tertutup->value)
                 ->exists();
 

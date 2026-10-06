@@ -241,7 +241,7 @@ final class TerimaReturTanpaStrukPos
         $hariIni = Uang::Dari((string) ReturPenjualan::query()
             ->where('IdOutlet', $outlet->idOutlet)
             ->where('TanpaStruk', true)
-            ->whereDate('TanggalBisnis', $tanggalBisnis->toDateString())
+            ->where('TanggalBisnis', $tanggalBisnis->toDateString())
             ->lockForUpdate()
             ->sum('TotalRefund'))->Tambah($total);
 

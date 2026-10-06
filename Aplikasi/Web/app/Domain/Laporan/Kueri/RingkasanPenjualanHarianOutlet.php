@@ -20,7 +20,7 @@ final class RingkasanPenjualanHarianOutlet
     {
         $baris = RingkasanPenjualanHarian::query()
             ->where('IdOutlet', $idOutlet)
-            ->whereDate('TanggalBisnis', $tanggal->toDateString())
+            ->where('TanggalBisnis', $tanggal->toDateString())
             ->first(['JumlahTransaksi', 'Bersih']);
 
         return ['JumlahTransaksi' => $baris->JumlahTransaksi ?? 0, 'Bersih' => $baris->Bersih ?? '0.00'];

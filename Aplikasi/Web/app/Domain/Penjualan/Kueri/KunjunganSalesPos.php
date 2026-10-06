@@ -44,7 +44,7 @@ final class KunjunganSalesPos
     {
         $daftar = KunjunganSales::query()
             ->where('IdPengguna', $idPengguna)
-            ->whereDate('Tanggal', $tanggal->format('Y-m-d'))
+            ->where('Tanggal', $tanggal->format('Y-m-d'))
             ->orderBy('MasukPada')
             ->orderBy('Id')
             ->get();
