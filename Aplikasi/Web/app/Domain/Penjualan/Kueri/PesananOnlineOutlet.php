@@ -42,14 +42,30 @@ final class PesananOnlineOutlet
      */
     public function AmbilRingkas(int $idOutlet, ?CarbonImmutable $sejak): array
     {
-        $dasar = fn () => PesananOnline::query()->where('IdOutlet', $idOutlet);
+        // Satu kueri (dulu tiga COUNT terpisah) karena endpoint ini dipolling tiap 10 detik oleh setiap kasir.
+        // Pesanan bayar di muka baru "masuk" saat dibayar; yang lain saat dibuat.
+        $menunggu = StatusPesananOnline::MenungguKonfirmasi->value;
+        $baru = $sejak === null
+            ? '0'
+            : 'SUM(CASE WHEN `Status` = ? AND (`DibuatPada` > ? OR `DibayarPada` > ?) THEN 1 ELSE 0 END)';
+        $ikatBaru = $sejak === null ? [] : [$menunggu, $sejak, $sejak];
+
+        $hitung = PesananOnline::query()
+            ->where('IdOutlet', $idOutlet)
+            ->whereIn('Status', [$menunggu, StatusPesananOnline::Siap->value])
+            ->selectRaw(
+                'SUM(CASE WHEN `Status` = ? THEN 1 ELSE 0 END) AS Menunggu, '
+                .'SUM(CASE WHEN `Status` = ? AND `IdPenjualan` IS NULL THEN 1 ELSE 0 END) AS PerluDitagih, '
+                ."{$baru} AS Baru",
+                [$menunggu, StatusPesananOnline::Siap->value, ...$ikatBaru],
+            )
+            ->toBase()
+            ->first();
 
         return [
-            'Menunggu' => $dasar()->where('Status', StatusPesananOnline::MenungguKonfirmasi->value)->count(),
-            'PerluDitagih' => $dasar()->where('Status', StatusPesananOnline::Siap->value)->whereNull('IdPenjualan')->count(),
-            // Pesanan bayar di muka baru "masuk" saat dibayar; yang lain saat dibuat.
-            'Baru' => $sejak === null ? 0 : $dasar()->where('Status', StatusPesananOnline::MenungguKonfirmasi->value)
-                ->where(fn ($k) => $k->where('DibuatPada', '>', $sejak)->orWhere('DibayarPada', '>', $sejak))->count(),
+            'Menunggu' => (int) ($hitung->Menunggu ?? 0),
+            'PerluDitagih' => (int) ($hitung->PerluDitagih ?? 0),
+            'Baru' => (int) ($hitung->Baru ?? 0),
             'WaktuServer' => CarbonImmutable::now()->toIso8601ZuluString(),
         ];
     }

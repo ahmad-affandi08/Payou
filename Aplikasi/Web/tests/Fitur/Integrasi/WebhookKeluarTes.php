@@ -18,7 +18,9 @@ use App\Domain\Organisasi\Enum\PeranTenantBawaan;
 use App\Domain\Pelanggan\Model\Pelanggan;
 use App\Domain\Pelanggan\Model\PembayaranPiutang;
 use App\Domain\Pelanggan\Model\Piutang;
+use App\Domain\Pengelola\Tenant\Layanan\KonteksPengelola;
 use App\Domain\Pengelola\TimInternal\Enum\PeranPengelolaBawaan;
+use App\Domain\Pengelola\TimInternal\Model\LogAuditPengelola;
 use App\Domain\Penjualan\Model\PenjualanDetail;
 use App\Domain\Penjualan\Peristiwa\PenjualanDiterima;
 use App\Domain\Persediaan\Aksi\AjukanPenyesuaianStok;
@@ -161,6 +163,14 @@ it('gagal dicoba ulang 1m, 5m, 30m, 2j, 12j lewat perintah terjadwal lalu Gagal;
         ->and($kiriman->KodeRespons)->toBe(503)
         ->and($kiriman->CuplikanRespons)->toBe('Layanan sedang pemeliharaan')
         ->and($kiriman->BerikutnyaPada?->equalTo(now()->addMinute()))->toBeTrue();
+
+    // Audit kinerja skala besar: penyapu hanya memilih tenant yang punya kiriman jatuh tempo, tanpa baris audit akses
+    // lintas tenant (penyapu berjalan tiap menit; hasilnya hanya pengenal tenant).
+    $auditSebelum = LogAuditPengelola::query()->count();
+    $pengelola = app(KonteksPengelola::class);
+    expect($pengelola->IdTenantDenganPekerjaan(KirimanWebhook::class, fn ($q) => $q->where('Status', StatusKirimanWebhook::Menunggu->value)->where('BerikutnyaPada', '<=', now()->addMinutes(2))))->toBe([$k['Tenant']->Id])
+        ->and($pengelola->IdTenantDenganPekerjaan(KirimanWebhook::class, fn ($q) => $q->where('Status', StatusKirimanWebhook::Menunggu->value)->where('BerikutnyaPada', '<=', now()->subDay())))->toBe([])
+        ->and(LogAuditPengelola::query()->count())->toBe($auditSebelum);
 
     // Sebelum jatuh tempo, perintah tidak mengirim apa pun.
     $this->artisan('integrasi:kirim-webhook')->assertSuccessful();

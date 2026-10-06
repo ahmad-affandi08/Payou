@@ -16,14 +16,14 @@ export type PropsAntrianKios = {
 
 /**
  * F-17 bagian 4: layar antrian untuk monitor/TV di outlet. Dua kolom: nomor yang sedang disiapkan dan yang siap
- * diambil. Memuat ulang datanya tiap 4 detik; tidak ada yang bisa disentuh.
+ * diambil. Memuat ulang datanya tiap 6 detik (server membagi hasilnya 3 detik per outlet); tidak ada yang bisa disentuh.
  */
 export default function HalamanAntrianKios({ Aktif, Slug, Token, Toko, Antrian }: PropsAntrianKios) {
     const kueri = useQuery({
         queryKey: KunciKueri.Kios.Antrian(Token),
         queryFn: ({ signal }) => KirimJsonKios<DataAntrian>(`/${Slug}/kios/${Token}/antrian/data`, undefined, signal),
         initialData: Antrian,
-        refetchInterval: 4000,
+        refetchInterval: 6000,
         retry: true,
         enabled: Aktif,
     });

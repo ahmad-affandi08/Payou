@@ -6,7 +6,9 @@ namespace App\Console\Perintah;
 
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Integrasi\ApiPublik\Aksi\ProsesKirimanWebhookJatuhTempo;
-use App\Domain\Organisasi\Kueri\KeanggotaanPengguna;
+use App\Domain\Integrasi\ApiPublik\Enum\StatusKirimanWebhook;
+use App\Domain\Integrasi\ApiPublik\Model\KirimanWebhook;
+use App\Domain\Pengelola\Tenant\Layanan\KonteksPengelola;
 use Illuminate\Console\Command;
 
 /**
@@ -19,13 +21,20 @@ final class KirimWebhookPerintah extends Command
 
     protected $description = 'Mengantrekan kiriman webhook keluar yang jatuh tempo coba ulang (X7).';
 
-    public function handle(KeanggotaanPengguna $keanggotaan, KonteksTenant $konteks, ProsesKirimanWebhookJatuhTempo $proses): int
+    public function handle(KonteksPengelola $pengelola, KonteksTenant $konteks, ProsesKirimanWebhookJatuhTempo $proses): int
     {
         $sebelumnya = $konteks->Ambil();
         $diantrekan = 0;
 
         try {
-            foreach ($keanggotaan->AmbilSemuaIdTenant() as $idTenant) {
+            // Hanya tenant yang punya kiriman jatuh tempo (audit kinerja skala besar: dulu semua tenant dikunjungi tiap menit).
+            // Jatuh tempo dikirim, dan tenant dengan log selesai yang melewati retensi tetap dikunjungi untuk dipangkas.
+            $tenant = array_unique([
+                ...$pengelola->IdTenantDenganPekerjaan(KirimanWebhook::class, fn ($q) => $q->where('Status', StatusKirimanWebhook::Menunggu->value)->where('BerikutnyaPada', '<=', now())),
+                ...$pengelola->IdTenantDenganPekerjaan(KirimanWebhook::class, fn ($q) => $q->whereIn('Status', [StatusKirimanWebhook::Terkirim->value, StatusKirimanWebhook::Gagal->value])->where('DibuatPada', '<', now()->subDays(ProsesKirimanWebhookJatuhTempo::HARI_RETENSI))),
+            ]);
+
+            foreach ($tenant as $idTenant) {
                 $konteks->Atur($idTenant);
                 $diantrekan += $proses->Jalankan($idTenant);
             }

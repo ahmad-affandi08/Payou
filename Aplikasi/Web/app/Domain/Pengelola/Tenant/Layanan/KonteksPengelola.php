@@ -104,6 +104,28 @@ final class KonteksPengelola
     }
 
     /**
+     * Daftar `IdTenant` yang punya pekerjaan tertunda untuk penyapu terjadwal (webhook, kedaluwarsa, rekonsiliasi, dsb.).
+     *
+     * Sengaja **tanpa baris audit** `tenant.data.akses`: penyapu berjalan tiap menit dan hasilnya hanya pengenal tenant
+     * (bukan data usaha), jadi audit per kali jalan hanya menggelembungkan log. Akses ke datanya tetap lewat scope tenant
+     * biasa setelah penyapu memilih tenant (`KonteksTenant::Atur`). Tanpa ini penyapu harus mengunjungi semua tenant,
+     * yaitu puluhan ribu kueri per menit pada skala besar.
+     *
+     * @template TModel of Model
+     *
+     * @param  class-string<TModel>  $kelasModel
+     * @param  Closure(Builder<TModel>): mixed  $saring  menyempitkan kueri ke baris yang butuh dikerjakan
+     * @return list<int>
+     */
+    public function IdTenantDenganPekerjaan(string $kelasModel, Closure $saring, int $batas = 5000): array
+    {
+        $kueri = $kelasModel::query()->withoutGlobalScope(LingkupTenant::class);
+        $saring($kueri);
+
+        return array_values(array_map('intval', $kueri->toBase()->distinct()->orderBy('IdTenant')->limit($batas)->pluck('IdTenant')->all()));
+    }
+
+    /**
      * Kueri model `MilikTenant` tanpa scope tenant. Hanya di dalam `JalankanLintasTenant` tanpa `$idTenant`.
      *
      * @template TModel of Model

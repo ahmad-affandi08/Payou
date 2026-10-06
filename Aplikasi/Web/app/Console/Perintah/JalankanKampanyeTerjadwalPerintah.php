@@ -6,10 +6,10 @@ namespace App\Console\Perintah;
 
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Bersama\Tenant\KonteksTenant;
-use App\Domain\Organisasi\Kueri\KeanggotaanPengguna;
 use App\Domain\Pelanggan\Aksi\JalankanKampanyePesan;
 use App\Domain\Pelanggan\Enum\StatusKampanye;
 use App\Domain\Pelanggan\Model\KampanyePesan;
+use App\Domain\Pengelola\Tenant\Layanan\KonteksPengelola;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -26,14 +26,15 @@ final class JalankanKampanyeTerjadwalPerintah extends Command
 
     protected $description = 'Memulai kampanye pesan pelanggan yang jadwal kirimnya sudah tiba (CRM-07).';
 
-    public function handle(KeanggotaanPengguna $keanggotaan, KonteksTenant $konteks, JalankanKampanyePesan $jalankan): int
+    public function handle(KonteksPengelola $pengelola, KonteksTenant $konteks, JalankanKampanyePesan $jalankan): int
     {
         $sebelumnya = $konteks->Ambil();
         $mulai = 0;
         $galat = 0;
 
         try {
-            foreach ($keanggotaan->AmbilSemuaIdTenant() as $idTenant) {
+            // Hanya tenant yang punya kampanye dijadwalkan yang sudah tiba waktunya (audit kinerja skala besar).
+            foreach ($pengelola->IdTenantDenganPekerjaan(KampanyePesan::class, fn ($q) => $q->where('Status', StatusKampanye::Dijadwalkan->value)->where('DijadwalkanPada', '<=', now())) as $idTenant) {
                 $konteks->Atur($idTenant);
 
                 foreach (KampanyePesan::query()->where('Status', StatusKampanye::Dijadwalkan->value)->where('DijadwalkanPada', '<=', now())->orderBy('DijadwalkanPada')->get() as $kampanye) {

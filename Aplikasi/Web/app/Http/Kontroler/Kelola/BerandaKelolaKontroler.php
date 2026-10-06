@@ -11,6 +11,7 @@ use App\Domain\Organisasi\Enum\IzinTenant;
 use App\Domain\Organisasi\Kueri\AksesPengguna;
 use App\Domain\Organisasi\Kueri\KonteksTindakanPengguna;
 use App\Domain\Organisasi\Kueri\TanggalBisnisOutlet;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,9 +30,16 @@ final class BerandaKelolaKontroler extends DasarKelolaKontroler
 
         return Inertia::render('Kelola/Beranda', [
             // D-23 C: ringkasan Kotak Tindakan (D-24: termasuk checklist persiapan toko yang dulu di Beranda) (tanpa rincian; rincian & tandai di /kelola/tindakan).
-            'Tindakan' => array_map(
-                fn (DataButirTindakan $b): array => [...$b->KeLarik(false), 'Rincian' => []],
-                $kotak->Ambil($konteks->Buat($idTenant, $idPengguna, $tanggal->Hitung(null))),
+            // Audit kinerja skala besar: Kotak Tindakan menjalankan puluhan COUNT, dan Beranda dibuka paling sering. Ringkasan
+            // disimpan 60 detik per tenant & pengguna (izin dan cakupan outlet berbeda per pengguna); halaman
+            // `/kelola/tindakan` tetap membaca langsung supaya "tandai sudah dicek" terlihat seketika.
+            'Tindakan' => Cache::remember(
+                "tindakan:beranda:{$idTenant}:{$idPengguna}",
+                60,
+                fn (): array => array_map(
+                    fn (DataButirTindakan $b): array => [...$b->KeLarik(false), 'Rincian' => []],
+                    $kotak->Ambil($konteks->Buat($idTenant, $idPengguna, $tanggal->Hitung(null))),
+                ),
             ),
             'Dasbor' => $akses->CekIzin($idTenant, $idPengguna, IzinTenant::LaporanPenjualanLihat)
                 ? $dasbor->Ambil($tanggal->Hitung(null), $this->IdOutletBoleh(), $akses->CekIzin($idTenant, $idPengguna, IzinTenant::PersediaanLihat))

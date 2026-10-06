@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Console\Perintah;
 
 use App\Domain\Bersama\Tenant\KonteksTenant;
-use App\Domain\Organisasi\Kueri\KeanggotaanPengguna;
+use App\Domain\Pengelola\Tenant\Layanan\KonteksPengelola;
+use App\Domain\Penjualan\Aksi\CekStatusTagihanQrisPos;
 use App\Domain\Penjualan\Aksi\RekonsiliasiTagihanQris;
+use App\Domain\Penjualan\Enum\StatusTagihanQris;
+use App\Domain\Penjualan\Model\TagihanQris;
 use Illuminate\Console\Command;
 
 /**
@@ -19,13 +22,16 @@ final class RekonsiliasiTagihanQrisPerintah extends Command
 
     protected $description = 'Merekonsiliasi tagihan QRIS dinamis berstatus TidakPasti dengan gerbang pembayaran (audit P0 F-02).';
 
-    public function handle(KeanggotaanPengguna $keanggotaan, KonteksTenant $konteks, RekonsiliasiTagihanQris $rekonsiliasi): int
+    public function handle(KonteksPengelola $pengelola, KonteksTenant $konteks, RekonsiliasiTagihanQris $rekonsiliasi): int
     {
         $sebelumnya = $konteks->Ambil();
         $berubah = 0;
 
         try {
-            foreach ($keanggotaan->AmbilSemuaIdTenant() as $idTenant) {
+            // Hanya tenant yang punya tagihan tidak pasti atau menunggu yang sudah lewat batas (audit kinerja skala besar).
+            $batas = now()->subMinutes(CekStatusTagihanQrisPos::MENIT_TENGGANG);
+
+            foreach ($pengelola->IdTenantDenganPekerjaan(TagihanQris::class, fn ($q) => $q->where(fn ($w) => $w->where('Status', StatusTagihanQris::TidakPasti->value)->orWhere(fn ($m) => $m->where('Status', StatusTagihanQris::Menunggu->value)->where('KedaluwarsaPada', '<', $batas)))) as $idTenant) {
                 $konteks->Atur($idTenant);
                 $berubah += $rekonsiliasi->Jalankan();
             }

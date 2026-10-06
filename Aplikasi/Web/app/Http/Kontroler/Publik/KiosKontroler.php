@@ -29,6 +29,7 @@ use App\Http\Permintaan\Publik\KiosPermintaan;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -183,7 +184,13 @@ final class KiosKontroler extends Kontroler
 
     public function DataAntrian(string $slugTenant, string $tokenKios): JsonResponse
     {
-        return $this->DalamTenant($slugTenant, fn (): JsonResponse => response()->json($this->AmbilAntrian($this->penentu->WajibAktif($tokenKios))));
+        // Layar antrian dibiarkan menyala sepanjang hari dan semuanya menanyakan data yang sama: hasil dibagi 3 detik per
+        // outlet, jadi beban basis data sama untuk satu layar maupun sepuluh layar di outlet yang sama.
+        return $this->DalamTenant($slugTenant, function () use ($tokenKios): JsonResponse {
+            $konteks = $this->penentu->WajibAktif($tokenKios);
+
+            return response()->json(Cache::remember("kios:antrian:{$konteks->idOutlet}", 3, fn (): array => $this->AmbilAntrian($konteks)));
+        });
     }
 
     /**

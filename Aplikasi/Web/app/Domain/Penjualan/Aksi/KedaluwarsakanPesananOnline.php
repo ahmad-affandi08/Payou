@@ -128,7 +128,7 @@ final class KedaluwarsakanPesananOnline
     }
 
     /** Status yang bisa hangus → menit menunggu (null = `PengaturanTokoOnline.MenitKedaluwarsa`). */
-    private const BATAS = [
+    public const BATAS = [
         'MenungguPembayaran' => BuatTagihanQrisPesananOnline::MENIT_BERLAKU + self::MENIT_TENGGANG_BAYAR,
         'MenungguKonfirmasi' => null,
     ];
