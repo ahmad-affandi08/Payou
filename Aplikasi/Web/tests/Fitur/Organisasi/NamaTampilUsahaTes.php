@@ -9,6 +9,9 @@ use App\Domain\Organisasi\Model\Outlet;
 use Illuminate\Support\Str;
 use Tests\Pendukung\Kasir\BantuanKasir;
 use Tests\Pendukung\Organisasi\BantuanOrganisasi;
+use Tests\Pendukung\Tenant\BantuanPendaftaran;
+
+beforeEach(fn () => BantuanPendaftaran::SiapkanPrasyarat());
 
 describe('Nama untuk pelanggan = nama outlet (D-77)', function (): void {
     it('satu outlet: nama outlet, bukan nama akun pemilik, baik per outlet maupun per tenant', function (): void {
