@@ -8,6 +8,7 @@ use App\Domain\Organisasi\Aksi\AturPinSendiri;
 use App\Domain\Organisasi\Aksi\CabutPerangkat;
 use App\Domain\Organisasi\Enum\PeranTenantBawaan;
 use App\Domain\Organisasi\Layanan\VerifierPinOffline;
+use App\Domain\Organisasi\Model\Merek;
 use App\Domain\Organisasi\Model\Outlet;
 use App\Domain\Organisasi\Model\OutletPengguna;
 use App\Domain\Organisasi\Model\Perangkat;
@@ -209,6 +210,17 @@ describe('F-06 PIN kasir offline & data awal (GET /api/pos/v1/data-awal)', funct
             'TandaAir' => false,
             'AwalanStrukDigital' => url('/s/'.base_convert((string) $k['Tenant']->Id, 10, 36).'.'),
         ]);
+    });
+});
+
+describe('Struk memakai nama merek outlet', function (): void {
+    it('NamaUsaha di struk = nama merek outlet perangkat, bukan nama akun pemilik', function (): void {
+        $k = BantuanKasir::Siapkan($this, 'Budi Santoso');
+        Merek::query()->where('IdTenant', $k['Tenant']->Id)->update(['Nama' => 'Brewland']);
+
+        $struk = $this->withToken($k['Token'])->getJson('/api/pos/v1/data-awal')->assertOk()->json('Struk');
+
+        expect($struk['NamaUsaha'])->toBe('Brewland');
     });
 });
 

@@ -25,5 +25,7 @@ final readonly class DataOutletPenjualan
         public string $uuidPerangkat,
         public string $kodePerangkat,
         public ?int $idGudangToko,
+        /** Nama merek outlet: nama usaha yang tampil di struk bila pengaturan struk tidak menimpanya. */
+        public ?string $namaMerek = null,
     ) {}
 }

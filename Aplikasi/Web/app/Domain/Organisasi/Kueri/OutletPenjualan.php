@@ -8,6 +8,7 @@ use App\Domain\Organisasi\Data\DataOutletPenjualan;
 use App\Domain\Organisasi\Enum\JenisGudang;
 use App\Domain\Organisasi\Enum\StatusOrganisasi;
 use App\Domain\Organisasi\Model\Gudang;
+use App\Domain\Organisasi\Model\Merek;
 use App\Domain\Organisasi\Model\Outlet;
 use App\Domain\Organisasi\Model\Perangkat;
 
@@ -40,6 +41,7 @@ final class OutletPenjualan
             uuidPerangkat: $perangkat->Uuid,
             kodePerangkat: $perangkat->Kode,
             idGudangToko: $this->AmbilIdGudangToko($idOutlet),
+            namaMerek: Merek::query()->whereKey($outlet->IdMerek)->value('Nama'),
         );
     }
 

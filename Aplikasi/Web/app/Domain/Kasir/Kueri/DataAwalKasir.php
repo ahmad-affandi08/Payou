@@ -106,7 +106,7 @@ final class DataAwalKasir
                 // v3.55 (aditif, §9.3): barcode timbangan EAN-13 `AA PPPPP NNNNN C` (berat gram atau harga Rupiah).
                 'BarcodeTimbangan' => $this->barcodeTimbangan->Ambil(),
             ],
-            'Struk' => $this->AmbilStruk($perangkat, $profil->pkp ?? false),
+            'Struk' => $this->AmbilStruk($perangkat, $profil->pkp ?? false, $outlet?->namaMerek),
             'Outlet' => $outlet === null ? null : [
                 'Uuid' => $outlet->uuidOutlet,
                 'Kode' => $outlet->kodeOutlet,
@@ -167,14 +167,15 @@ final class DataAwalKasir
     /**
      * @return array<string, mixed>
      */
-    private function AmbilStruk(Perangkat $perangkat, bool $pkp): array
+    private function AmbilStruk(Perangkat $perangkat, bool $pkp, ?string $namaMerek): array
     {
         $tenant = $this->profilTenant->Ambil($perangkat->IdTenant);
         $struk = $this->pengaturanStruk->Ambil($perangkat->IdTenant);
 
         return [
             ...$struk->KeLarik(),
-            'NamaUsaha' => $tenant['Nama'],
+            // Nama merek outlet (bukan nama akun/pemilik): satu akun bisa punya beberapa merek dengan struk berbeda.
+            'NamaUsaha' => $namaMerek ?? $tenant['Nama'],
             'Npwp' => $pkp ? $tenant['Npwp'] : null,
             'AdaLogo' => $this->pengaturanStruk->AmbilPathLogo($perangkat->IdTenant) !== null,
             'TandaAir' => ! $this->fitur->CekAktif($perangkat->IdTenant, 'struk.tanpa-watermark'),

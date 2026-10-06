@@ -154,7 +154,7 @@ export default function HalamanPengaturanStruk({ Pengaturan, Profil }: PropsPeng
                             label="Nama di struk"
                             nilai={isian.NamaDicetak}
                             saatBerubah={(teks) => Ubah('NamaDicetak', teks)}
-                            keterangan={`Kosongkan untuk memakai nama usaha: ${Profil.NamaUsaha}.`}
+                            keterangan={`Kosongkan agar tiap outlet memakai nama mereknya sendiri (bawaan: ${Profil.NamaUsaha}). Isi hanya bila semua outlet memakai satu nama.`}
                             maxLength={PANJANG_BARIS}
                             galat={galat.NamaDicetak}
                         />

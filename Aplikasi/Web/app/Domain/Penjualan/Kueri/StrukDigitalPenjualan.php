@@ -63,7 +63,7 @@ final class StrukDigitalPenjualan
         }
 
         return [
-            'NamaUsaha' => $struk->namaDicetak ?? $tenant['Nama'],
+            'NamaUsaha' => $struk->namaDicetak ?? $outlet?->namaMerek ?? $tenant['Nama'],
             'TeksKepala' => $struk->teksKepala,
             'NamaOutlet' => $outlet?->namaOutlet,
             'Alamat' => $struk->tampilkanAlamat ? $outlet?->alamat : null,
