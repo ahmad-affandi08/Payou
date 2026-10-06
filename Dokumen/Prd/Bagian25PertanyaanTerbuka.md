@@ -101,6 +101,7 @@
 | D-64 | Dari pemilik produk (06/10/2026): "loadingnya kok ada di atas layar, saya ingin semuanya di tengah". Semua tanda muat (layar muat awal dan penanda navigasi) berada di tengah layar. |
 | D-65 | Dari pemilik produk (06/10/2026): saat memuat harus ada "bayangan" (tirai) menutupi seluruh layar dengan tanda muat di tengah. Penanda navigasi memakai tirai layar penuh. |
 | D-66 | Dari pemilik produk (06/10/2026): sidebar & header aplikasi kasir lebih modern, sidebar default tertutup, dan halaman berhasil bayar berwarna primary dan modern. |
+| D-67 | Dari pemilik produk (06/10/2026): pengaturan printer harus satu halaman dan tidak membedakan printer struk kasir, dapur, dan bar, meniru Majoo. Printer diatur dalam satu daftar dengan kegunaan yang dicentang per printer. |
 | D-19 | Dari pemilik produk (v2.06): gerbang pembayaran QRIS dinamis memakai **akun merchant milik tiap toko** sehingga dana pelanggan langsung masuk ke rekening toko; platform hanya mengatur penyedia yang boleh dipilih (katalog) tanpa pernah melihat kredensial toko. Opsi sub-merchant menyusul. |
 
 

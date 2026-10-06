@@ -57,7 +57,7 @@ class _BagianUjiPerangkatState extends ConsumerState<BagianUjiPerangkat> {
     final profil = ref.read(penyediaPrinter).profil;
     if (profil == null) {
       setState(() {
-        _pesan = 'Atur printer struk dulu di bagian Printer struk, atau pilih "Tidak ada printer".';
+        _pesan = 'Atur printer dulu di bagian Printer (centang Cetak struk kasir), atau pilih "Tidak ada printer".';
         _pesanGalat = true;
       });
       return;

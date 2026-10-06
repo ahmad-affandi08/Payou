@@ -208,32 +208,34 @@ void main() {
 
   for (final ukuran in const [Size(1280, 900), Size(360, 740)]) {
     testWidgets(
-      'v1.89 printer dapur per stasiun lewat Bluetooth: cari, pilih, simpan; stasiun lain pakai printer struk ($ukuran)',
+      'D-67 satu daftar printer: printer Bluetooth untuk tiket Dapur saja, printer struk tetap ($ukuran)',
       (tester) async {
-        final u = await Masuk(tester, ukuran, meja: true);
+        final u = await Masuk(tester, ukuran, meja: true, printer: const ProfilPrinter(alamat: '192.168.1.50'));
         u.pemindai.hasil[JenisTransport.BluetoothKlasik] = const [
           PrinterDitemukan(jenis: JenisTransport.BluetoothKlasik, alamat: '66:22:11:AA:BB:DD', nama: 'Printer Dapur'),
         ];
         await Ketuk(tester, NavPengaturan().last);
-        await GulirKe(tester, find.text('Bar'));
-        expect(find.text('Tidak dicetak (memakai layar dapur atau perangkat lain)'), findsNWidgets(2));
+        await GulirKe(tester, find.widgetWithText(OutlinedButton, 'Tambah printer'));
+        // Satu daftar: printer struk yang sudah ada tampil dengan lencana kegunaannya.
+        expect(find.text('Struk kasir'), findsOneWidget);
+        expect(find.text('Printer struk'), findsNothing, reason: 'Tidak ada lagi bagian terpisah untuk struk/dapur.');
 
-        await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Pakai printer struk').first);
-        expect(find.text('Printer struk perangkat ini'), findsOneWidget);
-
-        await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Atur printer sendiri').last);
+        await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Tambah printer'));
+        // Printer kedua: struk sudah dipakai printer lain, jadi kegunaan struk mati; pilih stasiun Dapur.
+        expect(tester.widget<SwitchListTile>(find.byKey(const ValueKey('KegunaanStruk'))).value, isFalse);
+        await Ketuk(tester, find.widgetWithText(FilterChip, 'Dapur'));
         await Ketuk(tester, find.text('Bluetooth'));
         await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cari printer'));
-        expect(find.text('Printer terpilih: Printer Dapur'), findsNothing);
         await Ketuk(tester, find.text('Printer Dapur'));
-        // Stasiun Bar juga punya tombol Cetak uji (printer struk); editor Dapur ada di bawahnya.
-        await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cetak uji').last);
-        expect(u.printer.AmbilTeks(), contains('TIKET DAPUR'));
-        await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer dapur'));
+        await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cetak uji'));
+        expect(u.printer.AmbilTeks(), contains('CETAK UJI'));
+        await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
+        await GulirKe(tester, find.text('Printer Bluetooth Printer Dapur | 80 mm'));
         expect(find.text('Printer Bluetooth Printer Dapur | 80 mm'), findsOneWidget);
+        expect(find.text('Tiket Dapur'), findsOneWidget);
 
         final tersimpan = await tester.runAsync(() => PrinterDapur.MuatSemua(u.repositori));
-        expect(tersimpan!['01K5STAS1VN000000000BAR001']?.samaDenganStruk, isTrue);
+        expect(tersimpan!.containsKey('01K5STAS1VN000000000BAR001'), isFalse);
         expect(
           (
             tersimpan['01K5STAS1VN000000000DAPUR1']?.profil?.jenis,
@@ -241,11 +243,26 @@ void main() {
           ),
           (JenisTransport.BluetoothKlasik, '66:22:11:AA:BB:DD'),
         );
+        final struk = await tester.runAsync(() => ProfilPrinter.Muat(u.repositori));
+        expect(struk?.alamat, '192.168.1.50');
         expect(tester.takeException(), isNull);
         await Lepas(tester, u);
       },
     );
   }
+
+  testWidgets('D-67 printer harus punya kegunaan: tanpa struk dan tanpa stasiun tidak bisa disimpan', (tester) async {
+    final u = await Masuk(tester, const Size(1280, 900), meja: true);
+    await Ketuk(tester, NavPengaturan().last);
+    await Ketuk(tester, find.widgetWithText(FilledButton, 'Atur printer'));
+    await tester.enterText(find.widgetWithText(TextField, 'Alamat IP printer'), '192.168.1.60');
+    // Printer pertama: struk menyala otomatis; matikan lalu simpan.
+    await Ketuk(tester, find.byKey(const ValueKey('KegunaanStruk')));
+    await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
+    expect(find.textContaining('Pilih kegunaan printer'), findsOneWidget);
+    expect(await tester.runAsync(() => ProfilPrinter.Muat(u.repositori)), isNull);
+    await Lepas(tester, u);
+  });
 
   testWidgets('Bluetooth LE: izin ditolak → pesan; tidak ada printer → petunjuk; bayar mencetak lewat BLE', (
     tester,

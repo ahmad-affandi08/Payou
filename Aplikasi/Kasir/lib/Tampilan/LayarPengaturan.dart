@@ -11,8 +11,7 @@ import 'BagianLogPerangkat.dart';
 import 'LembarMutasiKas.dart';
 import 'RuangKerja/IsiAreaKerja.dart';
 import 'Struk/BagianLayarPelanggan.dart';
-import 'Struk/BagianPrinterDapur.dart';
-import 'Struk/BagianPrinterStruk.dart';
+import 'Struk/BagianPrinter.dart';
 import 'Struk/BagianUjiPerangkat.dart';
 
 /// Pengaturan perangkat kasir (PRD §17.2.7): printer struk (v1.79), printer dapur per stasiun (v1.87), ukuran tampilan, posisi keranjang, kunci otomatis,
@@ -106,15 +105,11 @@ class _LayarPengaturanState extends ConsumerState<LayarPengaturan> {
       kolomGanda: true,
       anak: [
         Bagian(
-          'Printer struk',
-          'Printer thermal LAN/Wi-Fi, Bluetooth, USB, atau printer bawaan mesin kasir (Sunmi, iMin). '
+          'Printer',
+          'Semua printer perangkat ini ada di satu daftar. Centang kegunaan tiap printer: struk kasir, tiket '
+              'dapur, atau tiket bar. Sambungan: LAN/Wi-Fi, Bluetooth, USB, atau printer bawaan mesin kasir (Sunmi, iMin). '
               'Isi kepala & kaki struk diatur di back-office.',
-          const BagianPrinterStruk(),
-        ),
-        Bagian(
-          'Printer dapur',
-          'Tiket dapur dicetak per stasiun saat pesanan meja dikirim ke dapur. Stasiun tanpa printer memakai layar dapur.',
-          const BagianPrinterDapur(),
+          const BagianPrinter(),
         ),
         Bagian(
           'Ukuran tampilan',
