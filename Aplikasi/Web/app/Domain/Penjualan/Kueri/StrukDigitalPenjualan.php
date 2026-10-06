@@ -12,6 +12,7 @@ use App\Domain\Pelanggan\Kueri\IdentitasPelanggan;
 use App\Domain\Pelanggan\Kueri\RiwayatPoin;
 use App\Domain\Pemenuhan\Kueri\StatusLaundryPublik;
 use App\Domain\Penjualan\Enum\StatusPenjualan;
+use App\Domain\Penjualan\Layanan\NomorStruk;
 use App\Domain\Penjualan\Model\Penjualan;
 use App\Domain\Penjualan\Model\PenjualanDetail;
 use App\Domain\Penjualan\Model\PenjualanPajak;
@@ -68,7 +69,7 @@ final class StrukDigitalPenjualan
             'NamaOutlet' => $outlet?->namaOutlet,
             'Alamat' => $struk->tampilkanAlamat ? $outlet?->alamat : null,
             'Npwp' => $struk->tampilkanNpwp && $pkp ? $tenant['Npwp'] : null,
-            'Nomor' => $p->Nomor,
+            'Nomor' => NomorStruk::Pendekkan($p->Nomor),
             'Waktu' => $p->DibuatOfflinePada->toIso8601String(),
             'NamaKasir' => $struk->tampilkanKasir ? ($this->anggota->AmbilNama([$p->IdPengguna])[$p->IdPengguna]['Nama'] ?? null) : null,
             'NamaPelanggan' => $struk->tampilkanPelanggan ? ($this->pelanggan->AmbilRingkas($p->IdPelanggan)['Nama'] ?? null) : null,

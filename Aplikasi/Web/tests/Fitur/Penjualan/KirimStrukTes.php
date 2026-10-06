@@ -8,6 +8,7 @@ use App\Domain\Penjualan\Enum\JenisPesanKeluar;
 use App\Domain\Penjualan\Enum\KanalPesanKeluar;
 use App\Domain\Penjualan\Enum\StatusPesanKeluar;
 use App\Domain\Penjualan\Layanan\KodeStrukDigital;
+use App\Domain\Penjualan\Layanan\NomorStruk;
 use App\Domain\Penjualan\Model\Penjualan;
 use App\Domain\Penjualan\Model\PesanKeluar;
 use App\Domain\Penjualan\Surel\StrukBelanjaDigital;
@@ -214,7 +215,7 @@ describe('K3 kirim struk digital dari POS', function (): void {
             $teks = (string) view($surel->textView, $surel->buildViewData())->render();
 
             return $surel->hasTo('bu.ratna@contoh.co.id') && $surel->hasFrom('struk@payoung.id', 'Toko Kelontong Berkah Solo')
-                && $surel->nomor === $p->Nomor && $surel->total === 'Rp 77.000'
+                && $surel->nomor === NomorStruk::Pendekkan($p->Nomor) && $surel->total === 'Rp 77.000'
                 && str_contains($html, $url) && str_contains($teks, $url)
                 && str_contains($html, 'Minyak Goreng Sawit Bening Kemasan Pouch 2 Liter')
                 && str_contains($html, 'Rp 77.000')

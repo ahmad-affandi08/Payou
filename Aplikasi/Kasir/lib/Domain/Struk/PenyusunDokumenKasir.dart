@@ -12,6 +12,7 @@ import '../Pelanggan/LayananDeposit.dart';
 import '../Penjualan/LayananPreOrder.dart';
 import '../Shift/LayananTutupShift.dart';
 import 'IdentitasStruk.dart';
+import 'NomorStruk.dart';
 import 'PenyusunStrukPenjualan.dart';
 
 /// Dokumen cetak kasir selain struk penjualan (cetak struk bagian 3b): bukti void, nota retur, dan laporan shift X/Z;
@@ -34,7 +35,7 @@ abstract final class PenyusunDokumenKasir {
       const BarisGaris(),
       const BarisTeks('BUKTI VOID', rata: RataStruk.Tengah, tebal: true),
       if (cetakUlang) const BarisTeks('CETAK ULANG', rata: RataStruk.Tengah, tebal: true),
-      BarisTeks(penjualan.Nomor),
+      BarisTeks(PendekkanNomorStruk(penjualan.Nomor)),
       BarisDuaKolom(tanggal, jam),
       BarisTeks('Kasir: ${dokumen.NamaPengguna}'),
       BarisTeks('Disetujui: ${dokumen.NamaPenyetuju}'),
@@ -63,7 +64,7 @@ abstract final class PenyusunDokumenKasir {
       const BarisGaris(),
       const BarisTeks('NOTA RETUR', rata: RataStruk.Tengah, tebal: true),
       if (cetakUlang) const BarisTeks('CETAK ULANG', rata: RataStruk.Tengah, tebal: true),
-      BarisTeks(retur.Nomor),
+      BarisTeks(PendekkanNomorStruk(retur.Nomor)),
       BarisTeks(retur.NomorPenjualanAsal.isEmpty ? 'Asal: tanpa struk' : 'Asal: ${retur.NomorPenjualanAsal}'),
       BarisDuaKolom(tanggal, jam),
       if (identitas.pengaturan.tampilkanKasir) BarisTeks('Kasir: ${retur.NamaKasir}'),
@@ -102,7 +103,7 @@ abstract final class PenyusunDokumenKasir {
       const BarisTeks('BUKTI UANG MUKA', rata: RataStruk.Tengah, tebal: true),
       const BarisTeks('PRE-ORDER', rata: RataStruk.Tengah),
       if (cetakUlang) const BarisTeks('CETAK ULANG', rata: RataStruk.Tengah, tebal: true),
-      BarisTeks(preOrder.nomor),
+      BarisTeks(PendekkanNomorStruk(preOrder.nomor)),
       BarisDuaKolom(tanggal, jam),
       if (identitas.pengaturan.tampilkanKasir && preOrder.namaKasir.isNotEmpty)
         BarisTeks('Kasir: ${preOrder.namaKasir}'),
@@ -154,7 +155,7 @@ abstract final class PenyusunDokumenKasir {
       const BarisTeks('TAGIHAN SEMENTARA', rata: RataStruk.Tengah, tebal: true),
       const BarisTeks('BELUM LUNAS', rata: RataStruk.Tengah),
       BarisTeks(judul, rata: RataStruk.Tengah, tebal: true, besar: true),
-      BarisTeks(nomor),
+      BarisTeks(PendekkanNomorStruk(nomor)),
       BarisDuaKolom(tanggal, jam),
       if (identitas.pengaturan.tampilkanKasir && namaKasir != null && namaKasir.isNotEmpty)
         BarisTeks('Kasir: $namaKasir'),
@@ -228,7 +229,7 @@ abstract final class PenyusunDokumenKasir {
       const BarisGaris(),
       const BarisTeks('BUKTI ISI DEPOSIT', rata: RataStruk.Tengah, tebal: true),
       if (cetakUlang) const BarisTeks('CETAK ULANG', rata: RataStruk.Tengah, tebal: true),
-      BarisTeks(isi.nomor),
+      BarisTeks(PendekkanNomorStruk(isi.nomor)),
       BarisDuaKolom(tanggal, jam),
       if (identitas.pengaturan.tampilkanKasir && isi.namaKasir.isNotEmpty) BarisTeks('Kasir: ${isi.namaKasir}'),
       BarisTeks('Pelanggan: ${isi.namaPelanggan}'),
@@ -259,7 +260,7 @@ abstract final class PenyusunDokumenKasir {
       BarisTeks('TIKET ${namaStasiun.toUpperCase()}', rata: RataStruk.Tengah, tebal: true),
       if (cetakUlang) const BarisTeks('CETAK ULANG', rata: RataStruk.Tengah, tebal: true),
       BarisTeks(pesanan.AmbilJudul(), rata: RataStruk.Tengah, tebal: true, besar: true),
-      BarisTeks(pesanan.nomor),
+      BarisTeks(PendekkanNomorStruk(pesanan.nomor)),
       BarisDuaKolom('Ronde $ronde', '$tanggal $jam'),
       if (namaKasir != null && namaKasir.isNotEmpty) BarisTeks('Kasir: $namaKasir'),
       const BarisGaris(),
