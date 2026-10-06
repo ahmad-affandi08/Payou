@@ -161,7 +161,7 @@ it('tautan berhenti berlangganan: GET hanya konfirmasi, POST mencabut persetujua
     $this->get($tautan)->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
         ->component('Publik/BerhentiLangganan')
         ->where('Ditemukan', true)
-        ->where('NamaToko', 'Kopi Senja Kampanye')
+        ->where('NamaToko', $k['Outlet']->Nama)
         ->where('SudahBerhenti', false));
     BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
     expect(Pelanggan::query()->whereKey($k['Budi']->Id)->value('SetujuPemasaran'))->toBeTruthy();
