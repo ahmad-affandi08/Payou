@@ -87,12 +87,16 @@ const kolom: KolomTabel<RingkasHalamanSitus>[] = [
     },
 ];
 
+export type TemplatHalaman = { Kunci: string; Nama: string; Deskripsi: string };
+
 /** Daftar halaman situs pemasaran (D-21). Halaman bawaan disiapkan otomatis saat pertama dibuka. */
 export default function HalamanDaftarHalamanSitus({
     Halaman,
+    Templat,
     Izin,
 }: {
     Halaman: RingkasHalamanSitus[];
+    Templat: TemplatHalaman[];
     Izin: { Kelola: boolean };
 }) {
     const { props } = usePage<PropsBersamaPengelola>();
@@ -106,7 +110,7 @@ export default function HalamanDaftarHalamanSitus({
                 Susun isi situs payoung.id per halaman. Perubahan disimpan sebagai draf, cek lewat Pratinjau, lalu
                 Terbitkan agar tampil ke pengunjung.
             </p>
-            {buat ? <FormBuatHalaman saatTutup={() => AturBuat(false)} /> : null}
+            {buat ? <FormBuatHalaman templat={Templat} saatTutup={() => AturBuat(false)} /> : null}
             <AksiHalaman>
                 {Izin.Kelola ? <Tombol onClick={() => AturBuat(true)}>Buat halaman</Tombol> : null}
             </AksiHalaman>
@@ -120,20 +124,26 @@ export default function HalamanDaftarHalamanSitus({
                 alamatDetail={(h) => `/situs/halaman/${h.Uuid}`}
                 {...(Izin.Kelola
                     ? {
-                          aksiBaris: (h: RingkasHalamanSitus) =>
-                              h.Terbit && h.Slug !== 'beranda' ? (
-                                  <DropdownMenuItem
-                                      onSelect={() =>
-                                          router.post(
-                                              `/situs/halaman/${h.Uuid}/aktif`,
-                                              { Aktif: !h.Aktif },
-                                              { preserveScroll: true },
-                                          )
-                                      }
-                                  >
-                                      {h.Aktif ? 'Sembunyikan dari situs' : 'Tampilkan lagi'}
+                          aksiBaris: (h: RingkasHalamanSitus) => (
+                              <>
+                                  <DropdownMenuItem onSelect={() => router.post(`/situs/halaman/${h.Uuid}/gandakan`)}>
+                                      Gandakan halaman
                                   </DropdownMenuItem>
-                              ) : null,
+                                  {h.Terbit && h.Slug !== 'beranda' ? (
+                                      <DropdownMenuItem
+                                          onSelect={() =>
+                                              router.post(
+                                                  `/situs/halaman/${h.Uuid}/aktif`,
+                                                  { Aktif: !h.Aktif },
+                                                  { preserveScroll: true },
+                                              )
+                                          }
+                                      >
+                                          {h.Aktif ? 'Sembunyikan dari situs' : 'Tampilkan lagi'}
+                                      </DropdownMenuItem>
+                                  ) : null}
+                              </>
+                          ),
                       }
                     : {})}
                 kosong={{ ilustrasi: true, judul: 'Belum ada halaman. Buat halaman pertama untuk situs pemasaran.' }}
@@ -142,8 +152,8 @@ export default function HalamanDaftarHalamanSitus({
     );
 }
 
-function FormBuatHalaman({ saatTutup }: { saatTutup: () => void }) {
-    const formulir = useForm({ Judul: '', Slug: '' });
+function FormBuatHalaman({ templat, saatTutup }: { templat: TemplatHalaman[]; saatTutup: () => void }) {
+    const formulir = useForm({ Judul: '', Slug: '', Templat: 'Kosong' });
     const [slugDiubah, AturSlugDiubah] = useState(false);
     const BuatSlug = (judul: string) =>
         judul
@@ -190,6 +200,28 @@ function FormBuatHalaman({ saatTutup }: { saatTutup: () => void }) {
                     maxLength={100}
                     required
                 />
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="text-label font-semibold text-teks-utama">Mulai dari</legend>
+                    <div role="radiogroup" aria-label="Templat halaman" className="grid gap-2 sm:grid-cols-2">
+                        {templat.map((t) => (
+                            <button
+                                key={t.Kunci}
+                                type="button"
+                                role="radio"
+                                aria-checked={formulir.data.Templat === t.Kunci}
+                                onClick={() => formulir.setData('Templat', t.Kunci)}
+                                className={`flex flex-col gap-0.5 rounded-panel border p-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                                    formulir.data.Templat === t.Kunci
+                                        ? 'border-brand bg-permukaan-sorot'
+                                        : 'border-garis bg-permukaan hover:bg-permukaan-sorot'
+                                }`}
+                            >
+                                <span className="text-isi font-semibold text-teks-utama">{t.Nama}</span>
+                                <span className="text-keterangan text-teks-sekunder">{t.Deskripsi}</span>
+                            </button>
+                        ))}
+                    </div>
+                </fieldset>
                 <div className="flex justify-end gap-2">
                     <Tombol varian="sekunder" onClick={saatTutup}>
                         Batal

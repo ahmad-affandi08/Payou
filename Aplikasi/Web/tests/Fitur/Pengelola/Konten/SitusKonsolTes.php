@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Pengelola\Konten\Layanan\TemplatHalamanSitus;
 use App\Domain\Pengelola\TimInternal\Enum\PeranPengelolaBawaan;
 use App\Domain\Pengelola\TimInternal\Model\LogAuditPengelola;
 use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
@@ -10,6 +11,7 @@ use App\Domain\Situs\Layanan\KontenSitusBawaan;
 use App\Domain\Situs\Model\GambarSitus;
 use App\Domain\Situs\Model\HalamanSitus;
 use App\Domain\Situs\Model\PengaturanSitus;
+use App\Domain\Situs\Model\RevisiHalamanSitus;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
@@ -215,6 +217,111 @@ describe('D-63 penyunting visual halaman situs', function (): void {
 
         expect((string) $respons->headers->get('Content-Security-Policy'))->toContain('frame-ancestors')->not->toContain('*')
             ->and((string) $respons->headers->get('Cache-Control'))->toContain('no-store');
+    });
+});
+
+describe('D-63 revisi, jadwal, gandakan, templat', function (): void {
+    it('menerbitkan mencatat revisi; memulihkan menaruhnya di draf dan menyimpan draf lama dulu', function (): void {
+        MasukSebagaiKontenSitus($this);
+        $this->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => 'riwayat', 'Judul' => 'Riwayat']);
+        $halaman = HalamanSitus::query()->where('Slug', 'riwayat')->sole();
+        $url = BantuanPengelola::Url("/situs/halaman/{$halaman->Uuid}");
+
+        $this->put($url, ['Slug' => 'riwayat', 'Judul' => 'Riwayat', 'Bagian' => BagianUjiSitus('Versi satu')])->assertSessionHasNoErrors();
+        $this->post("{$url}/terbitkan")->assertSessionHasNoErrors();
+        $this->put($url, ['Slug' => 'riwayat', 'Judul' => 'Riwayat', 'Bagian' => BagianUjiSitus('Versi dua')])->assertSessionHasNoErrors();
+
+        $revisi = RevisiHalamanSitus::query()->where('IdHalamanSitus', $halaman->Id)->sole();
+        expect($revisi->Jenis)->toBe('Terbit')->and($revisi->Bagian[0]['Judul'])->toBe('Versi satu');
+
+        $this->get($url)->assertInertia(fn (AssertableInertia $h) => $h->has('Revisi', 1)->where('Revisi.0.Jenis', 'Terbit'));
+
+        $this->post("{$url}/revisi/{$revisi->Uuid}/pulihkan")->assertSessionHasNoErrors();
+        expect($halaman->refresh()->BagianDraf[0]['Judul'])->toBe('Versi satu')
+            ->and(RevisiHalamanSitus::query()->where('Jenis', 'SebelumPulih')->sole()->Bagian[0]['Judul'])->toBe('Versi dua');
+    });
+
+    it('revisi milik halaman lain tidak bisa dipulihkan', function (): void {
+        MasukSebagaiKontenSitus($this);
+        $this->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => 'satu', 'Judul' => 'Satu']);
+        $this->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => 'dua', 'Judul' => 'Dua']);
+        $satu = HalamanSitus::query()->where('Slug', 'satu')->sole();
+        $dua = HalamanSitus::query()->where('Slug', 'dua')->sole();
+        $this->post(BantuanPengelola::Url("/situs/halaman/{$satu->Uuid}/terbitkan"));
+        $revisi = RevisiHalamanSitus::query()->where('IdHalamanSitus', $satu->Id)->sole();
+
+        $this->post(BantuanPengelola::Url("/situs/halaman/{$dua->Uuid}/revisi/{$revisi->Uuid}/pulihkan"))->assertSessionHasErrors();
+    });
+
+    it('revisi dibatasi per halaman', function (): void {
+        MasukSebagaiKontenSitus($this);
+        $this->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => 'sering', 'Judul' => 'Sering']);
+        $halaman = HalamanSitus::query()->where('Slug', 'sering')->sole();
+
+        for ($i = 0; $i < RevisiHalamanSitus::BATAS_PER_HALAMAN + 4; $i++) {
+            $this->post(BantuanPengelola::Url("/situs/halaman/{$halaman->Uuid}/terbitkan"));
+        }
+
+        expect(RevisiHalamanSitus::query()->where('IdHalamanSitus', $halaman->Id)->count())->toBe(RevisiHalamanSitus::BATAS_PER_HALAMAN);
+    });
+
+    it('jadwal terbit: harus di masa depan, bisa dibatalkan, dan perintah menerbitkan saat tiba', function (): void {
+        $pelaku = MasukSebagaiKontenSitus($this);
+        $this->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => 'nanti', 'Judul' => 'Nanti']);
+        $halaman = HalamanSitus::query()->where('Slug', 'nanti')->sole();
+        $url = BantuanPengelola::Url("/situs/halaman/{$halaman->Uuid}");
+
+        $this->put("{$url}/jadwal", ['JadwalTerbitPada' => now()->subHour()->toIso8601String()])->assertSessionHasErrors('JadwalTerbitPada');
+
+        $this->put("{$url}/jadwal", ['JadwalTerbitPada' => now()->addDay()->toIso8601String()])->assertSessionHasNoErrors();
+        expect($halaman->refresh()->JadwalTerbitPada)->not->toBeNull()->and($halaman->IdPenggunaPengelolaPenjadwal)->toBe($pelaku->Id);
+        $this->artisan('situs:terbitkan-terjadwal')->assertSuccessful();
+        expect($halaman->refresh()->CekTerbit())->toBeFalse();
+
+        $this->put("{$url}/jadwal", ['JadwalTerbitPada' => null])->assertSessionHasNoErrors();
+        expect($halaman->refresh()->JadwalTerbitPada)->toBeNull();
+
+        $halaman->forceFill(['JadwalTerbitPada' => now()->subMinute(), 'IdPenggunaPengelolaPenjadwal' => $pelaku->Id])->save();
+        $this->artisan('situs:terbitkan-terjadwal')->expectsOutput('1 halaman diterbitkan.')->assertSuccessful();
+        expect($halaman->refresh()->CekTerbit())->toBeTrue()->and($halaman->JadwalTerbitPada)->toBeNull();
+        $this->get(UrlSitusPublik('/nanti'))->assertOk();
+    });
+
+    it('menggandakan halaman menjadi draf baru dengan slug unik', function (): void {
+        MasukSebagaiKontenSitus($this);
+        $this->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => 'asli', 'Judul' => 'Asli']);
+        $asli = HalamanSitus::query()->where('Slug', 'asli')->sole();
+        $url = BantuanPengelola::Url("/situs/halaman/{$asli->Uuid}/gandakan");
+
+        $this->post($url)->assertRedirect();
+        $this->post($url)->assertRedirect();
+
+        expect(HalamanSitus::query()->whereIn('Slug', ['asli-salinan', 'asli-salinan-2'])->count())->toBe(2)
+            ->and(HalamanSitus::query()->where('Slug', 'asli-salinan')->sole()->CekTerbit())->toBeFalse();
+    });
+
+    it('halaman baru dari setiap templat lolos validasi blok', function (): void {
+        MasukSebagaiKontenSitus($this);
+
+        foreach (array_keys(TemplatHalamanSitus::Daftar()) as $kunci) {
+            $slug = 'templat-'.strtolower($kunci);
+            $this->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => $slug, 'Judul' => 'Uji '.$kunci, 'Templat' => $kunci])->assertSessionHasNoErrors();
+            $halaman = HalamanSitus::query()->where('Slug', $slug)->sole();
+            $this->postJson(BantuanPengelola::Url("/situs/halaman/{$halaman->Uuid}/pratinjau-langsung"), ['Judul' => $halaman->Judul, 'Bagian' => $halaman->BagianDraf])
+                ->assertOk()->assertJsonPath('Galat', []);
+        }
+
+        $this->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => 'templat-ngawur', 'Judul' => 'X', 'Templat' => 'Tidak ada'])->assertSessionHasErrors('Templat');
+    });
+
+    it('izin: hanya yang boleh mengelola bisa menjadwalkan dan menggandakan', function (): void {
+        MasukSebagaiKontenSitus($this);
+        $this->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => 'izin-uji', 'Judul' => 'Izin']);
+        $halaman = HalamanSitus::query()->where('Slug', 'izin-uji')->sole();
+        MasukSebagaiKontenSitus($this, PeranPengelolaBawaan::Dukungan);
+
+        $this->post(BantuanPengelola::Url("/situs/halaman/{$halaman->Uuid}/gandakan"))->assertForbidden();
+        $this->put(BantuanPengelola::Url("/situs/halaman/{$halaman->Uuid}/jadwal"), ['JadwalTerbitPada' => null])->assertForbidden();
     });
 });
 

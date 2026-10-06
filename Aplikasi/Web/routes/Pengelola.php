@@ -202,6 +202,9 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
                 Route::put('/halaman/{halamanSitus}/draf-otomatis', [SitusKontroler::class, 'SimpanOtomatis'])->where('halamanSitus', $ulidSitus)->middleware('throttle:60,1')->name('pengelola.situs.halaman.simpan-otomatis');
                 Route::put('/halaman/{halamanSitus}', [SitusKontroler::class, 'SimpanHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.simpan');
                 Route::post('/halaman/{halamanSitus}/terbitkan', [SitusKontroler::class, 'TerbitkanHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.terbitkan');
+                Route::post('/halaman/{halamanSitus}/gandakan', [SitusKontroler::class, 'GandakanHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.gandakan');
+                Route::put('/halaman/{halamanSitus}/jadwal', [SitusKontroler::class, 'JadwalkanHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.jadwal');
+                Route::post('/halaman/{halamanSitus}/revisi/{revisiHalamanSitus}/pulihkan', [SitusKontroler::class, 'PulihkanRevisi'])->where(['halamanSitus' => $ulidSitus, 'revisiHalamanSitus' => $ulidSitus])->name('pengelola.situs.halaman.pulihkan');
                 Route::post('/halaman/{halamanSitus}/aktif', [SitusKontroler::class, 'UbahAktifHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.aktif');
                 Route::delete('/halaman/{halamanSitus}', [SitusKontroler::class, 'HapusHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.hapus');
                 Route::post('/gambar', [SitusKontroler::class, 'UnggahGambar'])->middleware('throttle:30,1')->name('pengelola.situs.gambar.unggah');

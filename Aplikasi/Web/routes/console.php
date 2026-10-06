@@ -101,6 +101,9 @@ Schedule::command('reservasi:kirim-pengingat')->hourlyAt(5)->withoutOverlapping(
 // Situs pemasaran bagian B: retensi data prospek (UU PDP).
 $jadwalSaas('situs:bersihkan-prospek')->dailyAt('03:30')->timezone('Asia/Jakarta')->withoutOverlapping();
 
+// D-63: halaman situs yang jadwal terbitnya sudah tiba.
+$jadwalSaas('situs:terbitkan-terjadwal')->everyMinute()->withoutOverlapping();
+
 // Audit P0 F-02: tagihan QRIS dinamis yang hasil pembuatannya di gerbang tidak pasti direkonsiliasi (bukan dihapus).
 Schedule::command('penjualan:rekonsiliasi-qris')->everyTenMinutes()->withoutOverlapping();
 

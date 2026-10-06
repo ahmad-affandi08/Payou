@@ -27,6 +27,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $UuidGambarOgTerbit
  * @property bool $Aktif
  * @property Carbon|null $DiterbitkanPada
+ * @property Carbon|null $JadwalTerbitPada
+ * @property int|null $IdPenggunaPengelolaPenjadwal
  * @property int|null $IdPenggunaPengelolaPenerbit
  * @property int|null $IdPenggunaPengelolaPengubah
  * @property Carbon|null $DiubahPada
@@ -52,6 +54,7 @@ final class HalamanSitus extends ModelDasar
             'TampilDiSitemap' => 'boolean',
             'Aktif' => 'boolean',
             'DiterbitkanPada' => 'datetime',
+            'JadwalTerbitPada' => 'datetime',
         ];
     }
 

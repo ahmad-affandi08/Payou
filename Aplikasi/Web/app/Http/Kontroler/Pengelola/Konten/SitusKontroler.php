@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Kontroler\Pengelola\Konten;
 
 use App\Domain\Bersama\Web\AlamatDomain;
+use App\Domain\Pengelola\Konten\Aksi\GandakanHalamanSitus;
 use App\Domain\Pengelola\Konten\Aksi\HapusGambarSitus;
 use App\Domain\Pengelola\Konten\Aksi\HapusHalamanSitus;
+use App\Domain\Pengelola\Konten\Aksi\JadwalkanTerbitHalamanSitus;
+use App\Domain\Pengelola\Konten\Aksi\PulihkanRevisiHalamanSitus;
 use App\Domain\Pengelola\Konten\Aksi\SiapkanHalamanSitusBawaan;
 use App\Domain\Pengelola\Konten\Aksi\SimpanHalamanSitus;
 use App\Domain\Pengelola\Konten\Aksi\SimpanPengaturanSitus;
@@ -16,18 +19,21 @@ use App\Domain\Pengelola\Konten\Aksi\UbahGambarSitus;
 use App\Domain\Pengelola\Konten\Aksi\UnggahGambarSitus;
 use App\Domain\Pengelola\Konten\Kueri\DaftarKontenSitus;
 use App\Domain\Pengelola\Konten\Kueri\PratinjauLangsungHalamanSitus;
+use App\Domain\Pengelola\Konten\Layanan\TemplatHalamanSitus;
 use App\Domain\Pengelola\TimInternal\Enum\IzinPengelola;
 use App\Domain\Situs\Kueri\PengaturanSitusBerlaku;
 use App\Domain\Situs\Layanan\KontenSitusBawaan;
 use App\Domain\Situs\Layanan\SkemaBagianSitus;
 use App\Domain\Situs\Model\GambarSitus;
 use App\Domain\Situs\Model\HalamanSitus;
+use App\Domain\Situs\Model\RevisiHalamanSitus;
 use App\Http\Kontroler\Kontroler;
 use App\Http\Kontroler\Pengelola\PelakuPengelola;
 use App\Http\Permintaan\Pengelola\Konten\SimpanPengaturanSitusPermintaan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -77,6 +83,7 @@ final class SitusKontroler extends Kontroler
 
         return Inertia::render('Pengelola/Situs/Halaman/Daftar', [
             'Halaman' => $daftar->AmbilHalaman(),
+            'Templat' => collect(TemplatHalamanSitus::Daftar())->map(fn (array $t, string $kunci): array => ['Kunci' => $kunci, ...$t])->values()->all(),
             'Izin' => $this->AmbilIzin(),
         ]);
     }
@@ -86,11 +93,12 @@ final class SitusKontroler extends Kontroler
         $valid = $permintaan->validate([
             'Slug' => ['required', 'string', 'max:100'],
             'Judul' => ['required', 'string', 'max:150'],
+            'Templat' => ['nullable', 'string', 'in:'.implode(',', array_keys(TemplatHalamanSitus::Daftar()))],
         ], attributes: ['Slug' => 'slug', 'Judul' => 'judul']);
         $halaman = $simpan->Jalankan($this->AmbilPelaku(), [
             'Slug' => (string) $valid['Slug'],
             'Judul' => (string) $valid['Judul'],
-            'Bagian' => [['Jenis' => 'Hero', 'Judul' => (string) $valid['Judul']]],
+            'Bagian' => TemplatHalamanSitus::AmbilBagian((string) ($valid['Templat'] ?? TemplatHalamanSitus::KOSONG), (string) $valid['Judul']),
         ]);
 
         return redirect()->route('pengelola.situs.halaman.ubah', $halaman)->with('Kilat', 'Halaman dibuat sebagai draf. Susun bloknya lalu terbitkan.');
@@ -115,6 +123,8 @@ final class SitusKontroler extends Kontroler
             'PintasanTautan' => SkemaBagianSitus::PINTASAN_TAUTAN,
             'NamaSitus' => (string) ($pengaturan->Ambil()['NamaSitus'] ?? 'Payoung'),
             'AlamatSitus' => AlamatDomain::BuatUrlAbsolutPemasaran('/'),
+            'JadwalTerbitPada' => $halamanSitus->JadwalTerbitPada?->toIso8601ZuluString(),
+            'Revisi' => $daftar->AmbilRevisi($halamanSitus),
             'UrlPratinjauEditor' => $this->BuatUrlPratinjau($halamanSitus, (int) config('situs.MenitPratinjauEditor')),
             'Izin' => $this->AmbilIzin(),
         ]);
@@ -156,6 +166,29 @@ final class SitusKontroler extends Kontroler
         $terbitkan->Jalankan($this->AmbilPelaku(), $halamanSitus);
 
         return back()->with('Kilat', "Halaman {$halamanSitus->Judul} diterbitkan.");
+    }
+
+    public function GandakanHalaman(HalamanSitus $halamanSitus, GandakanHalamanSitus $gandakan): RedirectResponse
+    {
+        $baru = $gandakan->Jalankan($this->AmbilPelaku(), $halamanSitus);
+
+        return redirect()->route('pengelola.situs.halaman.ubah', $baru)->with('Kilat', 'Salinan dibuat sebagai draf. Ubah slug & judulnya, lalu terbitkan.');
+    }
+
+    public function JadwalkanHalaman(Request $permintaan, HalamanSitus $halamanSitus, JadwalkanTerbitHalamanSitus $jadwalkan): RedirectResponse
+    {
+        $valid = $permintaan->validate(['JadwalTerbitPada' => ['nullable', 'date']]);
+        $waktu = isset($valid['JadwalTerbitPada']) ? Carbon::parse((string) $valid['JadwalTerbitPada']) : null;
+        $jadwalkan->Jalankan($this->AmbilPelaku(), $halamanSitus, $waktu);
+
+        return back()->with('Kilat', $waktu === null ? 'Jadwal terbit dibatalkan.' : 'Terbit terjadwal. Draf pada saat itu yang akan diterbitkan.');
+    }
+
+    public function PulihkanRevisi(HalamanSitus $halamanSitus, RevisiHalamanSitus $revisiHalamanSitus, PulihkanRevisiHalamanSitus $pulihkan): RedirectResponse
+    {
+        $pulihkan->Jalankan($this->AmbilPelaku(), $halamanSitus, $revisiHalamanSitus);
+
+        return back()->with('Kilat', 'Revisi dipulihkan ke draf. Situs publik belum berubah sampai diterbitkan.');
     }
 
     public function UbahAktifHalaman(Request $permintaan, HalamanSitus $halamanSitus, UbahAktifHalamanSitus $ubah): RedirectResponse

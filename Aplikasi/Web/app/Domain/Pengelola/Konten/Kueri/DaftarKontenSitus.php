@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Pengelola\Konten\Kueri;
 
+use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
 use App\Domain\Situs\Model\GambarSitus;
 use App\Domain\Situs\Model\HalamanSitus;
+use App\Domain\Situs\Model\RevisiHalamanSitus;
 
 /**
  * Daftar halaman & gambar situs pemasaran untuk konsol (D-21). Jumlah kecil (puluhan), jadi dimuat utuh untuk
@@ -39,6 +41,26 @@ final class DaftarKontenSitus
             'DiterbitkanPada' => $h->DiterbitkanPada?->toIso8601ZuluString(),
             'DiubahPada' => $h->DiubahPada?->toIso8601ZuluString(),
         ];
+    }
+
+    /**
+     * Riwayat revisi satu halaman (terbaru dulu) untuk panel Riwayat di penyunting.
+     *
+     * @return list<array{Uuid: string, Jenis: string, Judul: string, JumlahBlok: int, DibuatPada: string, Pembuat: string|null}>
+     */
+    public function AmbilRevisi(HalamanSitus $halaman): array
+    {
+        $revisi = RevisiHalamanSitus::query()->where('IdHalamanSitus', $halaman->Id)->orderByDesc('Id')->limit(RevisiHalamanSitus::BATAS_PER_HALAMAN)->get();
+        $nama = PenggunaPengelola::query()->whereIn('Id', $revisi->pluck('IdPenggunaPengelola')->filter()->unique())->pluck('Nama', 'Id');
+
+        return array_values($revisi->map(fn (RevisiHalamanSitus $r): array => [
+            'Uuid' => $r->Uuid,
+            'Jenis' => $r->Jenis,
+            'Judul' => $r->Judul,
+            'JumlahBlok' => count($r->Bagian),
+            'DibuatPada' => $r->DibuatPada->toIso8601ZuluString(),
+            'Pembuat' => $r->IdPenggunaPengelola === null ? null : (string) ($nama[$r->IdPenggunaPengelola] ?? null),
+        ])->all());
     }
 
     /**

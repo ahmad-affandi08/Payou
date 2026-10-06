@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-li
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import DialogTambahBlok from './DialogTambahBlok';
+import PanelRiwayat, { type RevisiHalaman } from './PanelRiwayat';
 import { RingkasBlok } from './DaftarBlok';
 import { BerinyaIdBlok, BuatMuatan, KunciDraf, type Draf } from './Tipe';
 import { useRiwayat } from './useRiwayat';
@@ -81,5 +82,63 @@ describe('Editor visual situs D-63', () => {
 
         fireEvent.click(screen.getByRole('button', { name: /Tanya jawab/ }));
         expect(SaatPilih).toHaveBeenCalledWith('Faq');
+    });
+});
+
+describe('Riwayat versi & jadwal terbit D-63', () => {
+    const revisi: RevisiHalaman[] = [
+        {
+            Uuid: 'R1',
+            Jenis: 'Terbit',
+            Judul: 'Promo',
+            JumlahBlok: 3,
+            DibuatPada: '2026-10-06T03:00:00Z',
+            Pembuat: 'Rina',
+        },
+    ];
+
+    it('menampilkan revisi dan memulihkan lewat tombol Pulihkan', () => {
+        const SaatPulihkan = vi.fn();
+
+        render(
+            <PanelRiwayat
+                terbuka
+                saatTutup={() => undefined}
+                revisi={revisi}
+                bolehUbah
+                memproses={false}
+                saatPulihkan={SaatPulihkan}
+            />,
+        );
+
+        expect(screen.getByText(/Saat diterbitkan/)).toBeTruthy();
+        fireEvent.click(screen.getByRole('button', { name: 'Pulihkan' }));
+        expect(SaatPulihkan).toHaveBeenCalledWith(revisi[0]);
+    });
+
+    it('tanpa izin kelola tidak ada tombol pulihkan; kosong menjelaskan kapan versi pertama tersimpan', () => {
+        const { rerender: RenderUlang } = render(
+            <PanelRiwayat
+                terbuka
+                saatTutup={() => undefined}
+                revisi={revisi}
+                bolehUbah={false}
+                memproses={false}
+                saatPulihkan={() => undefined}
+            />,
+        );
+        expect(screen.queryByRole('button', { name: 'Pulihkan' })).toBeNull();
+
+        RenderUlang(
+            <PanelRiwayat
+                terbuka
+                saatTutup={() => undefined}
+                revisi={[]}
+                bolehUbah
+                memproses={false}
+                saatPulihkan={() => undefined}
+            />,
+        );
+        expect(screen.getByText(/Versi pertama tersimpan saat halaman ini diterbitkan/)).toBeTruthy();
     });
 });

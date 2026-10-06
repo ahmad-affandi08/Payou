@@ -1,8 +1,11 @@
 import { Link, router } from '@inertiajs/react';
 import {
+    CalendarClock,
+    Copy,
     Eye,
     EyeOff,
     ExternalLink,
+    History,
     LayoutPanelLeft,
     MoreHorizontal,
     Monitor,
@@ -18,8 +21,10 @@ import Tombol from '@/Komponen/Formulir/Tombol';
 import { DaftarSaranTautan } from '@/Komponen/Pengelola/Situs/BidangTautan';
 import { BuatNilaiKosong } from '@/Komponen/Pengelola/Situs/EditorBlok';
 import DaftarBlok from '@/Komponen/Pengelola/Situs/EditorVisual/DaftarBlok';
+import DialogJadwalTerbit from '@/Komponen/Pengelola/Situs/EditorVisual/DialogJadwalTerbit';
 import DialogTambahBlok from '@/Komponen/Pengelola/Situs/EditorVisual/DialogTambahBlok';
 import PanelPengaturanHalaman from '@/Komponen/Pengelola/Situs/EditorVisual/PanelPengaturanHalaman';
+import PanelRiwayat, { type RevisiHalaman } from '@/Komponen/Pengelola/Situs/EditorVisual/PanelRiwayat';
 import PanelPratinjau, { OPSI_PERANGKAT } from '@/Komponen/Pengelola/Situs/EditorVisual/PanelPratinjau';
 import {
     BerinyaIdBlok,
@@ -66,6 +71,8 @@ type PropsUbah = {
     NamaSitus: string;
     AlamatSitus: string;
     UrlPratinjauEditor: string;
+    Revisi: RevisiHalaman[];
+    JadwalTerbitPada: string | null;
     Izin: { Kelola: boolean };
 };
 
@@ -90,6 +97,8 @@ export default function HalamanUbahHalamanSitus({
     NamaSitus,
     AlamatSitus,
     UrlPratinjauEditor,
+    Revisi,
+    JadwalTerbitPada,
     Izin,
 }: PropsUbah) {
     const url = `/situs/halaman/${halaman.Uuid}`;
@@ -125,6 +134,9 @@ export default function HalamanUbahHalamanSitus({
     const [panelHalaman, AturPanelHalaman] = useState(false);
     const [konfirmasi, AturKonfirmasi] = useState<'terbit' | 'hapus' | null>(null);
     const [memproses, AturMemproses] = useState(false);
+    const [panelRiwayat, AturPanelRiwayat] = useState(false);
+    const [dialogJadwal, AturDialogJadwal] = useState(false);
+    const [galatJadwal, AturGalatJadwal] = useState<string | undefined>(undefined);
     const [terhapus, AturTerhapus] = useState<string | null>(null);
     const terpilihIndeks = draf.Bagian.findIndex((b) => b._id === terbukaId);
     const status = AmbilStatusHalaman({ ...halaman, AdaPerubahan: adaPerubahanServer || simpan.kotor });
@@ -266,6 +278,45 @@ export default function HalamanUbahHalamanSitus({
         }
     };
 
+    const Jadwalkan = async (iso: string | null) => {
+        if (iso !== null && !(await simpan.simpanSekarang())) {
+            return;
+        }
+
+        router.put(
+            `${url}/jadwal`,
+            { JadwalTerbitPada: iso },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onStart: () => AturMemproses(true),
+                onFinish: () => AturMemproses(false),
+                onSuccess: () => {
+                    AturDialogJadwal(false);
+                    AturGalatJadwal(undefined);
+                },
+                onError: (galatServer) => AturGalatJadwal(galatServer.JadwalTerbitPada ?? galatServer.Umum),
+            },
+        );
+    };
+
+    const Pulihkan = async (revisi: RevisiHalaman) => {
+        if (!(await simpan.simpanSekarang())) {
+            return;
+        }
+
+        router.post(
+            `${url}/revisi/${revisi.Uuid}/pulihkan`,
+            {},
+            {
+                // Pasang ulang editor dengan isi draf hasil pemulihan.
+                preserveState: false,
+                onStart: () => AturMemproses(true),
+                onFinish: () => AturMemproses(false),
+            },
+        );
+    };
+
     const MintaTerbit = async () => {
         if (await simpan.simpanSekarang()) {
             AturKonfirmasi('terbit');
@@ -324,6 +375,16 @@ export default function HalamanUbahHalamanSitus({
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => AturPanelRiwayat(true)}>
+                                    <History aria-hidden /> Riwayat versi
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => AturDialogJadwal(true)}>
+                                    <CalendarClock aria-hidden />{' '}
+                                    {JadwalTerbitPada === null ? 'Jadwalkan terbit' : 'Ubah jadwal terbit'}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => Kirim('gandakan')}>
+                                    <Copy aria-hidden /> Gandakan halaman
+                                </DropdownMenuItem>
                                 {halaman.Terbit && halaman.Slug !== 'beranda' ? (
                                     <DropdownMenuItem onSelect={() => Kirim('aktif', { Aktif: !halaman.Aktif })}>
                                         {halaman.Aktif ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
@@ -387,6 +448,26 @@ export default function HalamanUbahHalamanSitus({
                         : `Blok baru ditambahkan di bawah blok ${String(dialogBlok.sisipSetelah + 1)}.`
                 }
             />
+            <PanelRiwayat
+                terbuka={panelRiwayat}
+                saatTutup={() => AturPanelRiwayat(false)}
+                revisi={Revisi}
+                bolehUbah={Izin.Kelola}
+                memproses={memproses}
+                saatPulihkan={(r) => void Pulihkan(r)}
+            />
+            {dialogJadwal ? (
+                <DialogJadwalTerbit
+                    jadwalSaatIni={JadwalTerbitPada}
+                    memproses={memproses}
+                    galat={galatJadwal}
+                    saatTutup={() => {
+                        AturDialogJadwal(false);
+                        AturGalatJadwal(undefined);
+                    }}
+                    saatSimpan={(iso) => void Jadwalkan(iso)}
+                />
+            ) : null}
             <PanelPengaturanHalaman
                 terbuka={panelHalaman}
                 saatTutup={() => AturPanelHalaman(false)}
@@ -408,6 +489,9 @@ export default function HalamanUbahHalamanSitus({
                     {AlamatSitus.replace(/^https?:\/\//, '').replace(/\/$/, '')}
                     {draf.Slug === 'beranda' ? '' : `/${draf.Slug}`}
                 </span>
+                {JadwalTerbitPada ? (
+                    <LabelStatus jenis="netral" teks={`Terbit terjadwal ${FormatTanggalWaktu(JadwalTerbitPada)}`} />
+                ) : null}
                 {halaman.DiterbitkanPada ? (
                     <span className="text-keterangan text-teks-sekunder">
                         Terbit {FormatTanggalWaktu(halaman.DiterbitkanPada)}

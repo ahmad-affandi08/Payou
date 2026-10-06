@@ -7,6 +7,7 @@ namespace App\Domain\Pengelola\Konten\Aksi;
 use App\Domain\Pengelola\TimInternal\Layanan\PencatatAuditPengelola;
 use App\Domain\Pengelola\TimInternal\Model\PenggunaPengelola;
 use App\Domain\Situs\Model\HalamanSitus;
+use App\Domain\Situs\Model\RevisiHalamanSitus;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -14,7 +15,10 @@ use Illuminate\Support\Facades\DB;
  */
 final class TerbitkanHalamanSitus
 {
-    public function __construct(private readonly PencatatAuditPengelola $audit) {}
+    public function __construct(
+        private readonly PencatatAuditPengelola $audit,
+        private readonly CatatRevisiHalamanSitus $revisi,
+    ) {}
 
     public function Jalankan(PenggunaPengelola $pelaku, HalamanSitus $halaman): HalamanSitus
     {
@@ -28,9 +32,12 @@ final class TerbitkanHalamanSitus
                 'UuidGambarOgTerbit' => $halaman->UuidGambarOg,
                 'DiterbitkanPada' => now(),
                 'IdPenggunaPengelolaPenerbit' => $pelaku->Id,
+                'JadwalTerbitPada' => null,
+                'IdPenggunaPengelolaPenjadwal' => null,
             ])->save();
+            $this->revisi->Jalankan($halaman, RevisiHalamanSitus::JENIS_TERBIT, $pelaku->Id);
 
-            $this->audit->Catat('situs.halaman.terbitkan', $halaman, nilaiBaru: ['Slug' => $halaman->Slug, 'Judul' => $halaman->Judul]);
+            $this->audit->Catat('situs.halaman.terbitkan', $halaman, nilaiBaru: ['Slug' => $halaman->Slug, 'Judul' => $halaman->Judul], idPelaku: $pelaku->Id);
 
             return $halaman;
         });
