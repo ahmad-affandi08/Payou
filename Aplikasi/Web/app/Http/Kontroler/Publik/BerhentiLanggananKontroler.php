@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Kontroler\Publik;
 
 use App\Domain\Bersama\Tenant\KonteksTenant;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Pelanggan\Aksi\HentikanPemasaranPelanggan;
 use App\Domain\Pelanggan\Layanan\TautanBerhentiLangganan;
 use App\Domain\Pelanggan\Model\Pelanggan;
@@ -63,7 +64,7 @@ final class BerhentiLanggananKontroler extends Kontroler
         try {
             $pelanggan = Pelanggan::query()->where('Uuid', $urai['Uuid'])->first();
 
-            return $pelanggan === null ? $this->TidakDitemukan($permintaan) : $kerja($pelanggan, (string) $profil->Ambil($urai['IdTenant'])['Nama']);
+            return $pelanggan === null ? $this->TidakDitemukan($permintaan) : $kerja($pelanggan, app(NamaTampilUsaha::class)->UntukTenant($urai['IdTenant']));
         } finally {
             $konteks->Kosongkan();
         }

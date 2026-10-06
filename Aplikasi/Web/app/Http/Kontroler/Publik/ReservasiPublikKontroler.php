@@ -8,6 +8,7 @@ use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Karyawan\Kueri\JadwalStafReservasi;
 use App\Domain\Katalog\Kueri\LayananReservasi;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Organisasi\Kueri\PetaUuidOutlet;
 use App\Domain\Pemenuhan\Aksi\BatalkanReservasiPelanggan;
 use App\Domain\Pemenuhan\Aksi\BuatReservasi;
@@ -141,7 +142,7 @@ final class ReservasiPublikKontroler extends Kontroler
             $baris = $daftar->Petakan(collect([$r]))[0];
 
             return [
-                'Toko' => ['Nama' => $this->profil->Ambil($idTenant)['Nama']],
+                'Toko' => ['Nama' => app(NamaTampilUsaha::class)->UntukTenant($idTenant)],
                 'Reservasi' => [
                     'Nomor' => $baris['Nomor'],
                     'MulaiPada' => $baris['MulaiPada'],

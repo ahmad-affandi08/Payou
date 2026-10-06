@@ -7,6 +7,7 @@ namespace App\Domain\Pelanggan\Layanan;
 use App\Domain\Integrasi\Whatsapp\HasilKirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PembuatPengirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Pelanggan\Enum\JenisPengingatPiutang;
 use App\Domain\Pelanggan\Enum\KanalPengingatPiutang;
 use App\Domain\Pelanggan\Enum\StatusPengingatPiutang;
@@ -55,7 +56,7 @@ final class PengirimPengingatPiutang
         $profil = $this->profil->Ambil($pengingat->IdTenant);
         $hariIni = now()->setTimezone($profil['ZonaWaktu'])->toDateString();
         $isi = [
-            'NamaUsaha' => $profil['Nama'],
+            'NamaUsaha' => app(NamaTampilUsaha::class)->UntukTenant($pengingat->IdTenant),
             'NamaPelanggan' => (string) Pelanggan::query()->whereKey($piutang->IdPelanggan)->value('Nama'),
             'Nomor' => $piutang->Nomor,
             'Sisa' => $piutang->AmbilSisa()->FormatRupiah(),

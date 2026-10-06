@@ -7,6 +7,7 @@ namespace App\Domain\Pemenuhan\Tugas;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Integrasi\Whatsapp\PembuatPengirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Pemenuhan\Enum\StatusLaundry;
 use App\Domain\Pemenuhan\Model\TiketLaundry;
 use App\Domain\Penjualan\Layanan\KodeStrukDigital;
@@ -37,7 +38,7 @@ final class KirimNotifikasiLaundrySiapTugas implements ShouldQueue
         public readonly int $idTiket,
     ) {}
 
-    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil): void
+    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil, NamaTampilUsaha $namaTampil): void
     {
         $sebelumnya = $konteks->Ambil();
         $konteks->Atur($this->idTenant);
@@ -57,7 +58,7 @@ final class KirimNotifikasiLaundrySiapTugas implements ShouldQueue
                 return;
             }
 
-            $toko = $profil->Ambil($this->idTenant)['Nama'];
+            $toko = $namaTampil->UntukOutlet($t->IdOutlet, $this->idTenant);
             $tautan = url('/s/'.KodeStrukDigital::Buat($this->idTenant, $t->Uuid));
             $templat = $pengirim->CekResmi() ? $whatsapp->AmbilTemplatLaundrySiap() : null;
             $hasil = $pengirim->Kirim(new PesanWhatsapp(

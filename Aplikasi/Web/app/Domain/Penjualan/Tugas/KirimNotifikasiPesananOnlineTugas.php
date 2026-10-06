@@ -7,6 +7,7 @@ namespace App\Domain\Penjualan\Tugas;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Integrasi\Whatsapp\PembuatPengirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Penjualan\Model\NotifikasiPesananOnline;
 use App\Domain\Penjualan\Model\PesananOnline;
 use App\Domain\Tenant\Kueri\ProfilTenant;
@@ -31,7 +32,7 @@ final class KirimNotifikasiPesananOnlineTugas implements ShouldQueue
         public readonly int $idNotifikasi,
     ) {}
 
-    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil): void
+    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil, NamaTampilUsaha $namaTampil): void
     {
         $sebelumnya = $konteks->Ambil();
         $konteks->Atur($this->idTenant);
@@ -51,7 +52,7 @@ final class KirimNotifikasiPesananOnlineTugas implements ShouldQueue
                 return;
             }
 
-            $toko = $profil->Ambil($this->idTenant)['Nama'];
+            $toko = $namaTampil->UntukOutlet($pesanan->IdOutlet, $this->idTenant);
             $nama = trim(explode(' ', trim($pesanan->NamaPelanggan))[0] ?? '');
             $tautan = url('/'.$profil->AmbilSlug($this->idTenant).'/pesanan/'.$pesanan->KodeAkses);
             $templat = $pengirim->CekResmi() ? $whatsapp->AmbilTemplatStatusPesanan() : null;

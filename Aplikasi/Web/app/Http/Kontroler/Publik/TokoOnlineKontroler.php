@@ -8,6 +8,7 @@ use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Katalog\Kueri\MenuPesanSendiri;
 use App\Domain\Katalog\Layanan\PenyimpanGambarProduk;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Organisasi\Model\Outlet;
 use App\Domain\Pelanggan\Kueri\ProfilPembeliOnline;
 use App\Domain\Pelanggan\Layanan\SesiPembeliOnline;
@@ -72,7 +73,7 @@ final class TokoOnlineKontroler extends Kontroler
             return [
                 'Aktif' => $k->aktif && ($bisaAmbil || $bisaKirim),
                 'Slug' => $slugTenant,
-                'Toko' => ['Nama' => $this->profil->Ambil($idTenant)['Nama'], 'NamaOutlet' => $k->namaOutlet, 'Alamat' => $outlet->Alamat],
+                'Toko' => ['Nama' => app(NamaTampilUsaha::class)->UntukOutlet($k->idOutlet, $idTenant), 'NamaOutlet' => $k->namaOutlet, 'Alamat' => $outlet->Alamat],
                 'Outlet' => $daftarOutlet->map(fn (Outlet $o): array => ['Uuid' => $o->Uuid, 'Nama' => $o->Nama])->values()->all(),
                 'OutletDipilih' => $outlet->Uuid,
                 'Pemenuhan' => ['AmbilSendiri' => $bisaAmbil, 'Kirim' => $bisaKirim],
@@ -148,7 +149,7 @@ final class TokoOnlineKontroler extends Kontroler
             $namaKurir = $pengiriman?->IdKurir === null ? null : Kurir::query()->whereKey($pengiriman->IdKurir)->value('Nama');
 
             return [
-                'Toko' => ['Nama' => $this->profil->Ambil($idTenant)['Nama']],
+                'Toko' => ['Nama' => app(NamaTampilUsaha::class)->UntukTenant($idTenant)],
                 'Pesanan' => [
                     'Nomor' => $pesanan->Nomor, 'NamaPelanggan' => $pesanan->NamaPelanggan,
                     'JenisPemenuhan' => $pesanan->JenisPemenuhan->AmbilLabel(), 'Status' => $pesanan->Status->value,

@@ -8,6 +8,7 @@ use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Katalog\Kueri\MenuPesanSendiri;
 use App\Domain\Katalog\Layanan\PenyimpanGambarProduk;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Penjualan\Aksi\BuatPesananSendiri;
 use App\Domain\Penjualan\Kueri\PesananSendiriTamu;
 use App\Domain\Penjualan\Layanan\PenentuKonteksPesanSendiri;
@@ -50,7 +51,7 @@ final class PesanSendiriKontroler extends Kontroler
 
             return [
                 'Aktif' => $konteks->aktif,
-                'Toko' => ['Nama' => $this->profil->Ambil($idTenant)['Nama'], 'NamaOutlet' => $konteks->namaOutlet],
+                'Toko' => ['Nama' => app(NamaTampilUsaha::class)->UntukOutlet($konteks->idOutlet, $idTenant), 'NamaOutlet' => $konteks->namaOutlet],
                 'Meja' => ['Nama' => $konteks->namaMeja],
                 'Token' => $tokenMeja,
                 'Slug' => $slugTenant,

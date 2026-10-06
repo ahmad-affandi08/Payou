@@ -8,6 +8,7 @@ use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Integrasi\Whatsapp\PembuatPengirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
 use App\Domain\Katalog\Kueri\LayananReservasi;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Organisasi\Kueri\ZonaWaktuOutlet;
 use App\Domain\Pemenuhan\Enum\StatusReservasi;
 use App\Domain\Pemenuhan\Model\Reservasi;
@@ -32,7 +33,7 @@ final class KirimPengingatReservasiTugas implements ShouldQueue
         public readonly int $idReservasi,
     ) {}
 
-    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil, LayananReservasi $layanan, ZonaWaktuOutlet $zona): void
+    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil, NamaTampilUsaha $namaTampil, LayananReservasi $layanan, ZonaWaktuOutlet $zona): void
     {
         $sebelumnya = $konteks->Ambil();
         $konteks->Atur($this->idTenant);
@@ -45,7 +46,7 @@ final class KirimPengingatReservasiTugas implements ShouldQueue
                 return;
             }
 
-            $toko = $profil->Ambil($this->idTenant)['Nama'];
+            $toko = $namaTampil->UntukOutlet($r->IdOutlet, $this->idTenant);
             $namaLayanan = $layanan->AmbilNama([$r->IdProduk])[$r->IdProduk] ?? 'layanan';
             $waktu = $r->MulaiPada->copy()->setTimezone($zona->Ambil($r->IdOutlet))->translatedFormat('l, j F Y \p\u\k\u\l H.i');
             $tautan = url('/'.$profil->AmbilSlug($this->idTenant).'/reservasi/'.$r->KodeAkses);

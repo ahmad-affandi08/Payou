@@ -9,6 +9,7 @@ use App\Domain\Bengkel\Model\PerintahKerja;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Integrasi\Whatsapp\PembuatPengirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Pelanggan\Kueri\IdentitasPelanggan;
 use App\Domain\Tenant\Kueri\ProfilTenant;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,7 +34,7 @@ final class KirimPengingatServisTugas implements ShouldQueue
         public readonly int $idPerintahKerja,
     ) {}
 
-    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil, IdentitasPelanggan $pelanggan): void
+    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil, NamaTampilUsaha $namaTampil, IdentitasPelanggan $pelanggan): void
     {
         $sebelumnya = $konteks->Ambil();
         $konteks->Atur($this->idTenant);
@@ -60,7 +61,7 @@ final class KirimPengingatServisTugas implements ShouldQueue
                 return;
             }
 
-            $toko = $profil->Ambil($this->idTenant)['Nama'];
+            $toko = $namaTampil->UntukOutlet($pk->IdOutlet, $this->idTenant);
             $tanggal = $pk->ServisBerikutnyaPada->translatedFormat('j F Y');
             $km = $pk->ServisBerikutnyaKm === null ? '' : ' atau saat kilometer mencapai '.preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', (string) $pk->ServisBerikutnyaKm).' km';
             $templat = $pengirim->CekResmi() ? $whatsapp->AmbilTemplatPengingatServis() : null;

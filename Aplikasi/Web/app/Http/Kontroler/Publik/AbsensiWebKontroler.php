@@ -13,6 +13,7 @@ use App\Domain\Karyawan\Data\DataAbsensiWeb;
 use App\Domain\Karyawan\Enum\StatusKaryawan;
 use App\Domain\Karyawan\Kueri\StatusAbsensiWeb;
 use App\Domain\Karyawan\Model\Karyawan;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Tenant\Kueri\ProfilTenant;
 use App\Http\Kontroler\Kontroler;
 use Brick\Math\BigDecimal;
@@ -43,7 +44,7 @@ final class AbsensiWebKontroler extends Kontroler
     public function Tampilkan(string $slugTenant, string $token, StatusAbsensiWeb $status): SymfonyResponse
     {
         return $this->DenganKaryawan($slugTenant, $token, fn (Karyawan $karyawan, int $idTenant): SymfonyResponse => Inertia::render('Publik/Absensi', [
-            'NamaToko' => $this->profil->Ambil($idTenant)['Nama'],
+            'NamaToko' => app(NamaTampilUsaha::class)->UntukTenant($idTenant),
             'NamaKaryawan' => $karyawan->Nama,
             'AlamatDasar' => url("/{$slugTenant}/absen/{$token}"),
             'AlamatModelWajah' => asset('model-wajah'),
@@ -56,7 +57,7 @@ final class AbsensiWebKontroler extends Kontroler
     {
         return $this->DenganKaryawan($slugTenant, $token, function (Karyawan $karyawan, int $idTenant) use ($slugTenant, $token): JsonResponse {
             $alamat = "/{$slugTenant}/absen/{$token}";
-            $namaToko = $this->profil->Ambil($idTenant)['Nama'];
+            $namaToko = app(NamaTampilUsaha::class)->UntukTenant($idTenant);
 
             return response()->json([
                 'name' => "Absen {$namaToko}",

@@ -6,6 +6,7 @@ namespace App\Http\Kontroler\Publik;
 
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Bersama\Tenant\KonteksTenant;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Pelanggan\Aksi\DaftarkanPelangganOnline;
 use App\Domain\Pelanggan\Aksi\MintaKodeMasukPelanggan;
 use App\Domain\Pelanggan\Aksi\PerbaruiProfilPelangganOnline;
@@ -55,7 +56,7 @@ final class AkunTokoOnlineKontroler extends Kontroler
 
             return [
                 'Slug' => $slugTenant,
-                'Toko' => ['Nama' => $this->profil->Ambil($idTenant)['Nama']],
+                'Toko' => ['Nama' => app(NamaTampilUsaha::class)->UntukTenant($idTenant)],
                 'AkunAktif' => $this->akun->CekAktif(),
                 'Pelanggan' => $pelanggan === null ? null : $this->profilPembeli->Ambil($pelanggan),
                 'Riwayat' => $pelanggan === null ? null : $this->riwayat->Ambil($idTenant, $pelanggan->Id, $slugTenant),
@@ -72,7 +73,7 @@ final class AkunTokoOnlineKontroler extends Kontroler
 
         return $this->DalamTenant($slugTenant, function (int $idTenant) use ($permintaan, $minta, $hashIp): JsonResponse {
             $this->WajibAkunAktif();
-            $hasil = $minta->Jalankan((string) $permintaan->validated('NoHp'), $hashIp, $this->profil->Ambil($idTenant)['Nama']);
+            $hasil = $minta->Jalankan((string) $permintaan->validated('NoHp'), $hashIp, app(NamaTampilUsaha::class)->UntukTenant($idTenant));
 
             return response()->json([
                 'KedaluwarsaPada' => $hasil['KedaluwarsaPada']->toIso8601String(),

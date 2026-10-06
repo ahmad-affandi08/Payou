@@ -11,6 +11,7 @@ use App\Domain\Bengkel\Model\PerintahKerja;
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Integrasi\Whatsapp\PembuatPengirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Pelanggan\Kueri\IdentitasPelanggan;
 use App\Domain\Tenant\Kueri\ProfilTenant;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -36,7 +37,7 @@ final class KirimTautanPersetujuanServisTugas implements ShouldQueue
         public readonly int $idPerintahKerja,
     ) {}
 
-    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil, IdentitasPelanggan $pelanggan): void
+    public function handle(KonteksTenant $konteks, PembuatPengirimWhatsapp $whatsapp, ProfilTenant $profil, NamaTampilUsaha $namaTampil, IdentitasPelanggan $pelanggan): void
     {
         $sebelumnya = $konteks->Ambil();
         $konteks->Atur($this->idTenant);
@@ -55,7 +56,7 @@ final class KirimTautanPersetujuanServisTugas implements ShouldQueue
                 return;
             }
 
-            $toko = $profil->Ambil($this->idTenant)['Nama'];
+            $toko = $namaTampil->UntukOutlet($pk->IdOutlet, $this->idTenant);
             $plat = Kendaraan::query()->whereKey($pk->IdKendaraan)->value('NomorPolisi') ?? '';
             $tautan = TautanPersetujuanServis::Buat($profil->AmbilSlug($this->idTenant), $pk->TokenPersetujuan);
             $templat = $pengirim->CekResmi() ? $whatsapp->AmbilTemplatPersetujuanServis() : null;

@@ -6,6 +6,7 @@ namespace App\Http\Kontroler\Publik;
 
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Bersama\Tenant\KonteksTenant;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Pemenuhan\Aksi\AturTautanPortalKurir;
 use App\Domain\Pemenuhan\Aksi\UbahStatusPengirimanPesanan;
 use App\Domain\Pemenuhan\Enum\StatusKurir;
@@ -54,7 +55,7 @@ final class PortalKurirKontroler extends Kontroler
             $pesanan = PesananOnline::query()->with('Detail')->whereKey($pengiriman->pluck('IdPesananOnline')->all())->get()->keyBy('Id');
 
             return Inertia::render('Publik/PortalKurir', [
-                'NamaToko' => $this->profil->Ambil($idTenant)['Nama'],
+                'NamaToko' => app(NamaTampilUsaha::class)->UntukTenant($idTenant),
                 'NamaKurir' => $kurir->Nama,
                 'AlamatDasar' => url("/{$slugTenant}/kurir/{$token}"),
                 'Pengiriman' => $pengiriman->map(function (PengirimanPesanan $k) use ($pesanan, $aktif): ?array {

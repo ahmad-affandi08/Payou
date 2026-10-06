@@ -6,6 +6,7 @@ namespace App\Http\Kontroler\Publik;
 
 use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Organisasi\Kueri\LayarAbsensiOutlet;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Tenant\Kueri\ProfilTenant;
 use App\Http\Kontroler\Kontroler;
 use Carbon\CarbonImmutable;
@@ -29,7 +30,7 @@ final class LayarAbsensiKontroler extends Kontroler
     public function Tampilkan(string $slugTenant, string $token): SymfonyResponse
     {
         $isi = $this->AmbilIsi($slugTenant, $token);
-        $namaToko = $this->profil->Ambil($isi['IdTenant'])['Nama'];
+        $namaToko = app(NamaTampilUsaha::class)->UntukTenant($isi['IdTenant']);
         unset($isi['IdTenant']);
 
         $respons = Inertia::render('Publik/LayarAbsensi', [

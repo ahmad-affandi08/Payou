@@ -7,6 +7,7 @@ namespace App\Domain\Pelanggan\Layanan;
 use App\Domain\Integrasi\Whatsapp\HasilKirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PembuatPengirimWhatsapp;
 use App\Domain\Integrasi\Whatsapp\PesanWhatsapp;
+use App\Domain\Organisasi\Kueri\NamaTampilUsaha;
 use App\Domain\Pelanggan\Enum\KanalKampanye;
 use App\Domain\Pelanggan\Enum\StatusKampanye;
 use App\Domain\Pelanggan\Enum\StatusPelanggan;
@@ -55,6 +56,7 @@ final class PengirimKampanyePesan
         }
 
         $profil = $this->profil->Ambil($kampanye->IdTenant);
+        $namaTampil = app(NamaTampilUsaha::class)->UntukTenant($kampanye->IdTenant);
         $tunggu = self::HitungTungguJamTenang(CarbonImmutable::now()->setTimezone($profil['ZonaWaktu']));
 
         if ($tunggu > 0) {
@@ -73,7 +75,7 @@ final class PengirimKampanyePesan
                 return null;
             }
 
-            $this->KirimSatu($kampanye, $penerima, $profil['Nama']);
+            $this->KirimSatu($kampanye, $penerima, $namaTampil);
         }
 
         $kampanye->refresh();
