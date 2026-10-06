@@ -251,13 +251,37 @@ void main() {
     );
   }
 
+  testWidgets('D-67 satu printer untuk struk, dapur, dan bar sekaligus: kartu tunggal berlencana lengkap', (tester) async {
+    final u = await Masuk(tester, const Size(1280, 900), meja: true);
+    await Ketuk(tester, NavPengaturan().last);
+    await Ketuk(tester, find.widgetWithText(FilledButton, 'Atur printer'));
+    await tester.enterText(find.widgetWithText(TextField, 'Alamat IP printer'), '192.168.1.70');
+    await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
+    await GulirKe(tester, find.text('Printer LAN/Wi-Fi 192.168.1.70:9100 | 58 mm'));
+
+    expect(find.text('Struk kasir'), findsOneWidget);
+    expect(find.text('Tiket Dapur'), findsOneWidget);
+    expect(find.text('Tiket Bar'), findsOneWidget);
+    expect(find.text('Printer LAN/Wi-Fi 192.168.1.70:9100 | 58 mm'), findsOneWidget, reason: 'Satu kartu saja.');
+    final tersimpan = await tester.runAsync(() => PrinterDapur.MuatSemua(u.repositori));
+    expect(tersimpan!.values.every((p) => p.samaDenganStruk), isTrue);
+    expect(tersimpan.keys, containsAll(['01K5STAS1VN000000000BAR001', '01K5STAS1VN000000000DAPUR1']));
+    await Lepas(tester, u);
+  });
+
   testWidgets('D-67 printer harus punya kegunaan: tanpa struk dan tanpa stasiun tidak bisa disimpan', (tester) async {
     final u = await Masuk(tester, const Size(1280, 900), meja: true);
     await Ketuk(tester, NavPengaturan().last);
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Atur printer'));
     await tester.enterText(find.widgetWithText(TextField, 'Alamat IP printer'), '192.168.1.60');
-    // Printer pertama: struk menyala otomatis; matikan lalu simpan.
+    // Printer pertama = satu printer untuk semuanya: struk menyala dan semua stasiun terpilih.
+    expect(tester.widget<SwitchListTile>(find.byKey(const ValueKey('KegunaanStruk'))).value, isTrue);
+    expect(tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'Dapur')).selected, isTrue);
+    expect(tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'Bar')).selected, isTrue);
+    // Matikan semua kegunaan lalu simpan.
     await Ketuk(tester, find.byKey(const ValueKey('KegunaanStruk')));
+    await Ketuk(tester, find.widgetWithText(FilterChip, 'Dapur'));
+    await Ketuk(tester, find.widgetWithText(FilterChip, 'Bar'));
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
     expect(find.textContaining('Pilih kegunaan printer'), findsOneWidget);
     expect(await tester.runAsync(() => ProfilPrinter.Muat(u.repositori)), isNull);

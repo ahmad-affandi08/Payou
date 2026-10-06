@@ -80,9 +80,11 @@ class _BagianPrinterState extends ConsumerState<BagianPrinter> {
       _struk = daftar[indeks].struk;
       _stasiun = {...daftar[indeks].stasiun};
     } else {
-      // Printer pertama biasanya printer struk; printer berikutnya biasanya untuk dapur/bar.
+      // Printer pertama = satu printer untuk semuanya (struk + semua stasiun dapur/bar); toko dengan banyak printer
+      // tinggal mematikan yang tidak perlu. Printer berikutnya kosong: kegunaannya dipilih sendiri.
+      final pertama = daftar.isEmpty;
       _struk = !daftar.any((p) => p.struk);
-      _stasiun = {};
+      _stasiun = pertama ? {for (final s in _rute.stasiun) s.uuid} : {};
     }
   });
 
@@ -134,6 +136,10 @@ class _BagianPrinterState extends ConsumerState<BagianPrinter> {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text('Kegunaan printer', style: teks.titleSmall),
+      Text(
+        'Satu printer boleh dipakai untuk semuanya: struk kasir, tiket dapur, dan tiket bar.',
+        style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
+      ),
       SwitchListTile(
         key: const ValueKey('KegunaanStruk'),
         contentPadding: EdgeInsets.zero,
