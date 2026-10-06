@@ -66,7 +66,7 @@ export default function HalamanLengkapiGoogle({ Dibuka, Akun, Paket, PaketTerpil
                     required
                 />
                 <BidangTeks
-                    label="Nama usaha"
+                    label="Nama toko/usaha"
                     autoComplete="organization"
                     nilai={formulir.data.NamaUsaha}
                     saatBerubah={(nilai) => formulir.setData('NamaUsaha', nilai)}

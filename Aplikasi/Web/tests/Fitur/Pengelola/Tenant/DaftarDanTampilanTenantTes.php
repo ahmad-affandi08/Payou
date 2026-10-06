@@ -99,7 +99,7 @@ describe('P-07 tampilan 360° tenant', function (): void {
                 ->where('Tenant.Langganan.Status', 'Trial')
                 ->where('Tenant.Langganan.KodePaket', 'PRO')
                 ->where('Tenant.Langganan.SisaPerpanjanganTrial', 2)
-                ->where('Tenant.Organisasi.Outlet.0.Nama', 'Outlet Utama')
+                ->where('Tenant.Organisasi.Outlet.0.Nama', 'Kopi Nusantara')
                 ->where('Tenant.Organisasi.JumlahGudang', 1)
                 ->where('Tenant.Pemakaian.0.Label', 'Outlet')
                 ->where('Tenant.Pemakaian.0.Pakai', 1)
@@ -137,7 +137,7 @@ describe('P-07 tampilan 360° tenant', function (): void {
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $halaman) => $halaman
                 ->count('Tenant.Organisasi.Outlet', 1)
-                ->where('Tenant.Organisasi.Outlet.0.Nama', 'Outlet Utama'));
+                ->where('Tenant.Organisasi.Outlet.0.Nama', 'Kopi Nusantara'));
         $this->get(BantuanPengelola::Url("/tenant/{$b->Uuid}"))
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $halaman) => $halaman->count('Tenant.Organisasi.Outlet', 2));

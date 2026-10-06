@@ -43,9 +43,13 @@ final class SimpanProfilUsaha
                 $hapusLogo,
             );
 
+            // D-78: pemilik hanya mengisi satu nama. Outlet pertama yang masih bernama bawaan (nama usaha lama atau
+            // "Outlet Utama") ikut nama baru; outlet yang sudah diberi nama sendiri tidak disentuh.
+            $masihBawaan = in_array($outlet->Nama, ['Outlet Utama', $outlet->Merek->Nama], true);
+
             $profilPajak = $outlet->ProfilPajak ?? [];
             $this->simpanOutlet->Jalankan($outlet, new DataOutlet(
-                nama: $outlet->Nama,
+                nama: $masihBawaan ? $data->namaUsaha : $outlet->Nama,
                 kode: $outlet->Kode,
                 uuidMerek: $outlet->Merek->Uuid,
                 alamat: $data->alamat,

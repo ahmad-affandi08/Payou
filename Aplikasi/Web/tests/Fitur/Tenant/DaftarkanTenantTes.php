@@ -44,7 +44,7 @@ describe('Pendaftaran tenant (F-00)', function (): void {
             ->and(PersetujuanDokumenLegal::query()->first()?->Ip)->toBe('203.0.113.9');
 
         app(KonteksTenant::class)->Atur($tenant->Id);
-        expect(Outlet::query()->sole()->Nama)->toBe('Outlet Utama')
+        expect(Outlet::query()->sole()->Nama)->toBe('Kopi Nusantara')
             ->and(Gudang::query()->sole()->IdOutlet)->toBe(Outlet::query()->sole()->Id);
     });
 

@@ -10,7 +10,7 @@ use App\Domain\Organisasi\Model\Merek;
 use App\Domain\Organisasi\Model\Outlet;
 
 /**
- * Organisasi bawaan tenant baru (F-00 langkah 3): satu merek, "Outlet Utama", dan gudang tokonya, serta peran
+ * Organisasi bawaan tenant baru (F-00 langkah 3): satu merek, outlet pertama (bernama sama dengan usaha, D-78), dan gudang tokonya, serta peran
  * bawaan tenant dengan Owner sebagai Pemilik (F-02, §19.1). Dipanggil setelah Owner dibuat.
  */
 final class SiapkanOrganisasiAwal
@@ -26,7 +26,7 @@ final class SiapkanOrganisasiAwal
             'IdTenant' => $idTenant,
             'IdMerek' => $merek->Id,
             'Kode' => self::KODE_OUTLET_UTAMA,
-            'Nama' => 'Outlet Utama',
+            'Nama' => $namaUsaha,
             'ZonaWaktu' => $zonaWaktu,
         ]);
         Gudang::query()->create([

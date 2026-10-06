@@ -70,11 +70,11 @@ export default function FormProfilUsaha({ alamat, profil, kota, batasLogo }: Pro
                 <RingkasanGalatFormulir galat={formulir.errors} />
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <BidangTeks
-                        label="Nama usaha"
+                        label="Nama toko/usaha"
                         nilai={formulir.data.NamaUsaha}
                         saatBerubah={(nilai) => formulir.setData('NamaUsaha', nilai)}
                         galat={formulir.errors.NamaUsaha}
-                        keterangan="Tampil di struk dan aplikasi kasir, misal Kopi Nusantara."
+                        keterangan="Nama ini juga jadi nama outlet pertama dan tampil di struk, misal Kopi Nusantara. Cabang baru bisa diberi nama sendiri."
                         maxLength={150}
                         autoComplete="organization"
                         required
