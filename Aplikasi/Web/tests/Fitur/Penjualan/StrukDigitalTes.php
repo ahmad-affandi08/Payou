@@ -26,7 +26,7 @@ describe('POS-11 struk digital /s/{kodeStruk}', function (): void {
         $this->get('/s/'.$kode)->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
             ->component('Publik/StrukDigital')
             ->where('Struk.Nomor', $p->Nomor)
-            ->where('Struk.NamaUsaha', 'Toko Kelontong Berkah Solo')
+            ->where('Struk.NamaUsaha', $k['Outlet']->Nama)
             ->where('Struk.TotalAkhir', '77000.00')
             ->where('Struk.Dibatalkan', false)
             ->has('Struk.Baris', 1)
