@@ -219,7 +219,9 @@ describe('K3 kirim struk digital dari POS', function (): void {
                 && str_contains($html, 'Minyak Goreng Sawit Bening Kemasan Pouch 2 Liter')
                 && str_contains($html, 'Rp 77.000')
                 && str_contains($teks, 'Minyak Goreng Sawit Bening Kemasan Pouch 2 Liter x 2: Rp 77.000')
-                && ! str_contains($html, '<img') && ! str_contains($teks, '<img');
+                // D-74: satu-satunya gambar adalah logo merek milik sendiri; tidak ada piksel pelacak atau gambar lain.
+                && preg_match_all('/<img\b[^>]*>/i', $html, $gambar) === 1 && str_contains($gambar[0][0], 'surel/logo-payoung.png')
+                && ! str_contains($teks, '<img');
         });
         expect($pesan->refresh()->Status)->toBe(StatusPesanKeluar::Terkirim);
     });
