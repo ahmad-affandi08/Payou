@@ -321,6 +321,8 @@
         content: ' *' / '';
         color: var(--color-bahaya);
         font-weight: 700;
+        /* Label shadcn berupa flex ber-gap-2: tanpa ini * terpisah ±1 karakter lebih jauh dari teks labelnya. */
+        margin-inline-start: -0.5rem;
     }
 
     body {
