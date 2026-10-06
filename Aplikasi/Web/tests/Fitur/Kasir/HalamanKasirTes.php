@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Domain\Akuntansi\Model\Akun;
 use App\Domain\Bersama\Audit\Model\LogAudit;
+use App\Domain\Kasir\Enum\StatusShift;
 use App\Domain\Kasir\Model\KategoriKas;
+use App\Domain\Kasir\Model\Shift;
 use App\Domain\Organisasi\Enum\PeranTenantBawaan;
 use App\Domain\Organisasi\Model\OutletPengguna;
 use App\Domain\Tenant\Kueri\PengaturanKasirTenant;
@@ -201,5 +203,57 @@ describe('F-06 pengaturan kasir', function (): void {
         $this->put('/kelola/kasir/pengaturan', ['BatasKasKeluar' => '500000.00', 'ShiftBersama' => true])->assertRedirect();
         BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
         expect(LogAudit::query()->where('Peristiwa', 'kasir.pengaturan.ubah')->count())->toBe(1);
+    });
+});
+
+describe('Tutup paksa shift dari back-office', function (): void {
+    it('supervisor menutup shift yang tidak ditutup kasir: alasan wajib, tanpa selisih = tanpa jurnal, riwayat & audit tercatat, kasir bisa buka shift baru', function (): void {
+        $k = BantuanKasir::Siapkan($this);
+        $shift = BantuanKasir::ItemBukaShift($k['Kasir'], '500000.00');
+        BantuanKasir::KirimRingkas($this, $k['Token'], [$shift]);
+        BantuanPersediaan::MasukSebagai($this, $k['Tenant']->Id, PeranTenantBawaan::ManajerOutlet);
+        $url = "/kelola/kasir/shift/{$shift['Uuid']}";
+
+        $this->get($url)->assertInertia(fn (AssertableInertia $h) => $h->where('Izin.TutupPaksa', true)->where('Shift.Status', 'Terbuka'));
+
+        $this->post("{$url}/tutup-paksa", ['Alasan' => 'ok'])->assertSessionHasErrors('Alasan');
+        expect(Shift::query()->where('Uuid', $shift['Uuid'])->sole()->Status)->toBe(StatusShift::Terbuka);
+
+        $this->post("{$url}/tutup-paksa", ['Alasan' => 'Kasir lupa menutup shift kemarin'])->assertSessionHasNoErrors();
+        $tutup = Shift::query()->where('Uuid', $shift['Uuid'])->sole();
+        expect($tutup->Status)->toBe(StatusShift::Tertutup)
+            ->and($tutup->KasAktual)->toBe($tutup->KasSeharusnya)
+            ->and($tutup->PerluTinjauan)->toBeTrue()
+            ->and($tutup->AlasanSelisih)->toBe('Kasir lupa menutup shift kemarin')
+            ->and(LogAudit::query()->where('Peristiwa', 'shift.tutup-paksa')->count())->toBe(1);
+
+        // Sudah tertutup: tidak bisa ditutup paksa lagi.
+        $this->post("{$url}/tutup-paksa", ['Alasan' => 'Coba lagi nanti ya'])->assertSessionHasErrors();
+    });
+
+    it('kas aktual yang diisi supervisor diposting sebagai selisih kas', function (): void {
+        $k = BantuanKasir::Siapkan($this);
+        $shift = BantuanKasir::ItemBukaShift($k['Kasir'], '500000.00');
+        BantuanKasir::KirimRingkas($this, $k['Token'], [$shift]);
+        BantuanPersediaan::MasukSebagai($this, $k['Tenant']->Id, PeranTenantBawaan::ManajerOutlet);
+
+        $this->post("/kelola/kasir/shift/{$shift['Uuid']}/tutup-paksa", ['Alasan' => 'Perangkat rusak, uang dihitung manual', 'KasAktual' => '490000'])->assertSessionHasNoErrors();
+
+        $tutup = Shift::query()->where('Uuid', $shift['Uuid'])->sole();
+        expect((string) $tutup->Selisih)->toBe('-10000.00');
+    });
+
+    it('kasir biasa tidak boleh menutup paksa (403) dan shift tenant lain 404', function (): void {
+        $k = BantuanKasir::Siapkan($this);
+        $shift = BantuanKasir::ItemBukaShift($k['Kasir'], '500000.00');
+        BantuanKasir::KirimRingkas($this, $k['Token'], [$shift]);
+
+        BantuanPersediaan::MasukSebagai($this, $k['Tenant']->Id, PeranTenantBawaan::Kasir);
+        $this->post("/kelola/kasir/shift/{$shift['Uuid']}/tutup-paksa", ['Alasan' => 'Tidak berwenang sama sekali'])->assertForbidden();
+
+        $b = BantuanKasir::Siapkan($this, 'Warung Bakso Pak Kumis');
+        BantuanPersediaan::MasukSebagai($this, $b['Tenant']->Id, PeranTenantBawaan::ManajerOutlet);
+        $this->post("/kelola/kasir/shift/{$shift['Uuid']}/tutup-paksa", ['Alasan' => 'Shift milik tenant lain'])->assertSessionHasErrors();
+        expect(Shift::query()->withoutGlobalScopes()->where('Uuid', $shift['Uuid'])->sole()->Status)->toBe(StatusShift::Terbuka);
     });
 });

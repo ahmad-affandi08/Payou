@@ -156,6 +156,7 @@ export type PropsDetailShift = {
     Laporan: LaporanShift;
     /** F-11: null selama shift belum ditutup. */
     Tutup: TutupShift | null;
+    Izin: { TutupPaksa: boolean };
 };
 
 export type OpsiAkun = { Uuid: string; Kode: string; Nama: string; Jenis: string };

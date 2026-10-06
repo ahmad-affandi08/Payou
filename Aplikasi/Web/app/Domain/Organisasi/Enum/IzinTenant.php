@@ -142,7 +142,7 @@ enum IzinTenant: string
             self::KasKeluarSetujui => 'Menyetujui kas keluar di atas batas',
             self::PenjualanDiskonSetujui => 'Menyetujui diskon manual di atas batas kasir',
             self::PenjualanTempoSetujui => 'Menyetujui penjualan tempo di atas limit kredit atau saat piutang lewat jatuh tempo',
-            self::ShiftSelisihSetujui => 'Menyetujui selisih kas tutup shift di atas toleransi & buka ulang shift',
+            self::ShiftSelisihSetujui => 'Menyetujui selisih kas tutup shift di atas toleransi, buka ulang shift, & menutup paksa shift yang tidak ditutup kasir',
             self::LaporanPenjualanLihat => 'Melihat laporan penjualan',
             self::LaporanKeuanganLihat => 'Melihat laporan keuangan',
             self::AkuntansiKelola => 'Mengelola jurnal, pajak, dan tutup buku',

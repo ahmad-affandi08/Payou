@@ -2076,7 +2076,7 @@
     "isDynamicEntry": true
   },
   "resources/js/Aplikasi.tsx": {
-    "file": "assets/Aplikasi-OgNmREPQ.js",
+    "file": "assets/Aplikasi-DvsH3Wx6.js",
     "name": "Aplikasi",
     "src": "resources/js/Aplikasi.tsx",
     "isEntry": true,
@@ -3941,7 +3941,7 @@
     ]
   },
   "resources/js/Halaman/Kelola/Kasir/Shift/Detail.tsx": {
-    "file": "assets/Detail-B8aX2Bkq.js",
+    "file": "assets/Detail-j9zPPL_U.js",
     "name": "Detail",
     "src": "resources/js/Halaman/Kelola/Kasir/Shift/Detail.tsx",
     "isDynamicEntry": true,
@@ -3949,11 +3949,15 @@
       "_jsx-runtime-CM6s92_4.js",
       "_TataLetakAplikasi-DTQ4vi5B.js",
       "_TabelData-LjPbCywD.js",
+      "_BidangTeks-CSXKmKAt.js",
       "_Pemberitahuan-DTMxKOdl.js",
       "_button-qux1idtA.js",
+      "_Tombol-BdKA5xES.js",
       "_card-28YNmb49.js",
       "_Format-D1Z2MPC0.js",
       "_FormatWaktu-bKvj24HB.js",
+      "_DialogFormulir-DM-cbtMM.js",
+      "_BidangUang-CcbGl8kh.js",
       "_HitungDesimal-BR2WLmO-.js",
       "_LencanaShift-C5xIahMx.js",
       "_KolomPenjualan-BZIJLNZL.js"

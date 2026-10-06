@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Kontroler\Kelola\Kasir;
 
+use App\Domain\Bersama\Nilai\Uang;
 use App\Domain\Bersama\Tabel\Data\DataPermintaanTabel;
+use App\Domain\Kasir\Aksi\TutupShiftPaksa;
 use App\Domain\Kasir\Enum\StatusShift;
 use App\Domain\Kasir\Kueri\DaftarShift;
 use App\Domain\Kasir\Kueri\DetailShift;
 use App\Domain\Kasir\Layanan\PenyimpanBuktiKas;
+use App\Domain\Organisasi\Enum\IzinTenant;
+use App\Domain\Organisasi\Kueri\AksesPengguna;
 use App\Domain\Organisasi\Kueri\PetaUuidOutlet;
 use App\Http\Kontroler\Kelola\DasarKelolaKontroler;
 use App\Http\Respons\ResponsTabel;
@@ -41,12 +45,28 @@ final class ShiftKontroler extends DasarKelolaKontroler
         );
     }
 
-    public function Detail(string $shift, DetailShift $detail): Response
+    public function Detail(string $shift, DetailShift $detail, AksesPengguna $akses): Response
     {
         $props = $detail->Ambil($shift, $this->IdOutletBoleh());
         abort_if($props === null, 404);
 
-        return Inertia::render('Kelola/Kasir/Shift/Detail', $props);
+        return Inertia::render('Kelola/Kasir/Shift/Detail', [
+            ...$props,
+            'Izin' => ['TutupPaksa' => $akses->CekIzin($this->IdTenant(), $this->Pelaku()->Id, IzinTenant::ShiftSelisihSetujui)],
+        ]);
+    }
+
+    /** Tutup paksa shift yang tidak pernah ditutup kasir (izin `shift.selisih.setujui`, alasan wajib, tercatat di audit). */
+    public function TutupPaksa(Request $permintaan, string $shift, TutupShiftPaksa $tutup): RedirectResponse
+    {
+        $data = $permintaan->validate([
+            'Alasan' => ['required', 'string', 'min:5', 'max:255'],
+            'KasAktual' => ['nullable', 'numeric', 'min:0', 'max:99999999999'],
+        ], attributes: ['Alasan' => 'alasan', 'KasAktual' => 'kas aktual']);
+        $kasAktual = isset($data['KasAktual']) && $data['KasAktual'] !== '' ? Uang::Dari((string) $data['KasAktual']) : null;
+        $tutup->Jalankan($shift, $this->Pelaku()->Id, (string) $data['Alasan'], $kasAktual, $this->IdOutletBoleh());
+
+        return back()->with('Kilat', 'Shift ditutup paksa. Kasir bisa membuka shift baru.');
     }
 
     /** Tautan sumber jurnal mutasi kas → halaman shift pemiliknya. */

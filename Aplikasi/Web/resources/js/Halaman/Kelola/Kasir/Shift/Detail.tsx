@@ -1,7 +1,12 @@
-import { Link } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
+import { useState, type FormEvent } from 'react';
 
+import BidangTeks from '@/Komponen/Formulir/BidangTeks';
+import BidangUang from '@/Komponen/Formulir/BidangUang';
+import Tombol from '@/Komponen/Formulir/Tombol';
 import LencanaShift from '@/Komponen/Kasir/LencanaShift';
 import { kolomPenjualan } from '@/Komponen/Penjualan/KolomPenjualan';
+import DialogFormulir from '@/Komponen/Tindakan/DialogFormulir';
 import TabelData from '@/Komponen/TabelData/TabelData';
 import type { KolomTabel } from '@/Komponen/TabelData/Tipe';
 import { Button } from '@/Komponen/Ui/button';
@@ -383,6 +388,51 @@ function BagianTutup({ tutup }: { tutup: TutupShift }) {
     );
 }
 
+function FormTutupPaksa({ uuidShift, saatTutup }: { uuidShift: string; saatTutup: () => void }) {
+    const formulir = useForm({ Alasan: '', KasAktual: '' });
+    const Kirim = (p: FormEvent) => {
+        p.preventDefault();
+        formulir.post(`/kelola/kasir/shift/${uuidShift}/tutup-paksa`, { preserveScroll: true, onSuccess: saatTutup });
+    };
+
+    return (
+        <DialogFormulir
+            judul="Tutup paksa shift"
+            keterangan="Shift ditutup sekarang atas nama Anda dan ditandai perlu ditinjau. Penjualan dan kas yang sudah tercatat tidak berubah."
+            saatTutup={saatTutup}
+            galatUmum={(formulir.errors as Record<string, string | undefined>).Umum}
+        >
+            <form onSubmit={Kirim} className="flex flex-col gap-4" noValidate>
+                <BidangTeks
+                    label="Alasan tutup paksa"
+                    keterangan="Misal: kasir lupa menutup shift kemarin, perangkat rusak."
+                    nilai={formulir.data.Alasan}
+                    saatBerubah={(v) => formulir.setData('Alasan', v)}
+                    galat={formulir.errors.Alasan}
+                    maxLength={255}
+                    required
+                    autoFocus
+                />
+                <BidangUang
+                    label="Uang di laci menurut hitungan Anda (opsional)"
+                    keterangan="Kosongkan bila tidak dihitung: kas dianggap sama dengan seharusnya (tanpa selisih). Bila diisi, selisihnya dibukukan sebagai selisih kas."
+                    nilai={formulir.data.KasAktual}
+                    saatBerubah={(v) => formulir.setData('KasAktual', v)}
+                    galat={formulir.errors.KasAktual}
+                />
+                <div className="flex justify-end gap-2">
+                    <Tombol varian="sekunder" onClick={saatTutup}>
+                        Batal
+                    </Tombol>
+                    <Tombol type="submit" memproses={formulir.processing}>
+                        Tutup shift sekarang
+                    </Tombol>
+                </div>
+            </form>
+        </DialogFormulir>
+    );
+}
+
 /**
  * F-06: detail shift (baca saja): pembukaan, pecahan kas awal, ringkasan kas non-penjualan, dan mutasi kas.
  * F-07b: penjualan yang dibuat di shift ini. F-11: laporan shift X/Z dan hasil tutup shift. Cetak struk bagian 4:
@@ -396,12 +446,31 @@ export default function HalamanDetailShift({
     Penjualan,
     Laporan,
     Tutup,
+    Izin,
 }: PropsDetailShift) {
+    const [tutupPaksa, AturTutupPaksa] = useState(false);
+    const aktif = Shift.Status === 'Terbuka' || Shift.Status === 'DibukaUlang';
+
     return (
         <TataLetakAplikasi judul={`Shift ${Shift.NamaKasir} | ${FormatTanggalWaktu(Shift.DibukaPada)}`}>
             <Button asChild variant="link" className="h-auto self-start px-0">
                 <Link href="/kelola/kasir/shift">Kembali ke daftar shift</Link>
             </Button>
+
+            {aktif && Izin.TutupPaksa ? (
+                <Pemberitahuan jenis="peringatan" judul="Shift ini masih terbuka">
+                    <div className="flex flex-col items-start gap-2">
+                        <p>
+                            Kalau kasirnya sudah pulang atau perangkatnya tidak bisa menutup shift, Anda bisa menutupnya
+                            dari sini supaya kasir bisa membuka shift baru.
+                        </p>
+                        <Tombol varian="sekunder" onClick={() => AturTutupPaksa(true)}>
+                            Tutup paksa shift
+                        </Tombol>
+                    </div>
+                </Pemberitahuan>
+            ) : null}
+            {tutupPaksa ? <FormTutupPaksa uuidShift={Shift.Uuid} saatTutup={() => AturTutupPaksa(false)} /> : null}
 
             {Shift.PerluTinjauan ? (
                 <Pemberitahuan jenis="peringatan" judul="Shift ini perlu ditinjau">

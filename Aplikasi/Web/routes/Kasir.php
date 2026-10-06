@@ -28,6 +28,7 @@ Route::middleware(SiapkanAuditTenant::class)->group(function () use ($izin, $uli
 
     Route::get('/kasir/shift', [ShiftKontroler::class, 'Daftar'])->middleware($lihat)->name('kelola.kasir.shift.daftar');
     Route::get('/kasir/shift/{shift}', [ShiftKontroler::class, 'Detail'])->middleware($lihat)->where('shift', $ulid)->name('kelola.kasir.shift.detail');
+    Route::post('/kasir/shift/{shift}/tutup-paksa', [ShiftKontroler::class, 'TutupPaksa'])->middleware($izin(IzinTenant::ShiftSelisihSetujui))->where('shift', $ulid)->name('kelola.kasir.shift.tutup-paksa');
     Route::get('/kasir/mutasi-kas/{mutasiKas}', [ShiftKontroler::class, 'MutasiKas'])->middleware($lihat)->where('mutasiKas', $ulid)->name('kelola.kasir.mutasi-kas');
     Route::get('/kasir/mutasi-kas/{mutasiKas}/bukti', [ShiftKontroler::class, 'BuktiKas'])->middleware($lihat)->where('mutasiKas', $ulid)->name('kelola.kasir.mutasi-kas.bukti');
 

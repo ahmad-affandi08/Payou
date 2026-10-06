@@ -205,6 +205,7 @@ describe('F-06 halaman kasir back-office', () => {
             },
             Laporan: laporanShift,
             Tutup: null,
+            Izin: { TutupPaksa: false },
         };
 
         RenderUji(<HalamanDetailShift {...props} />);
@@ -403,8 +404,18 @@ describe('F-06 halaman kasir back-office', () => {
             Penjualan: { Daftar: [], DaftarTerpotong: false, JumlahTransaksi: 0, TotalPenjualan: '0.00' },
             Laporan: laporanShift,
             Tutup: null,
+            Izin: { TutupPaksa: true },
         };
 
+        RenderUji(<HalamanDetailShift {...dasar} />);
+        // Shift masih terbuka + izin supervisor: tombol tutup paksa tersedia, dan dialognya meminta alasan.
+        fireEvent.click(screen.getByRole('button', { name: 'Tutup paksa shift' }));
+        expect(screen.getByLabelText(/Alasan tutup paksa/)).toBeTruthy();
+        fireEvent.click(screen.getByRole('button', { name: 'Batal' }));
+        cleanup();
+        RenderUji(<HalamanDetailShift {...dasar} Izin={{ TutupPaksa: false }} />);
+        expect(screen.queryByRole('button', { name: 'Tutup paksa shift' })).toBeNull();
+        cleanup();
         RenderUji(<HalamanDetailShift {...dasar} />);
         expect(screen.getByRole('heading', { name: 'Laporan X (shift berjalan)' })).toBeTruthy();
         expect(screen.getByText('QRIS Kopi Senja')).toBeTruthy();
