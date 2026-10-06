@@ -1,6 +1,7 @@
 // Merekam VideoPromosi30Detik.html menjadi MP4 1920x1080 lengkap dengan audio, bingkai demi bingkai (deterministik).
 // Butuh: Playwright (Chromium) dan ffmpeg. Jalankan dari akar repo:
-//   NODE_PATH=$(npm root -g) node Spesifikasi/Merek/VideoPromosi/RekamVideo.mjs [keluaran.mp4] [fps]
+//   NODE_PATH=$(npm root -g) node Spesifikasi/Merek/VideoPromosi/RekamVideo.mjs [keluaran.mp4] [fps] [berkas.html] [lebar] [tinggi]
+// Bawaan: VideoPromosi30Detik.html 1920x1080. Versi vertikal TikTok: VideoTikTok18Detik.html 1080 1920.
 // Path ffmpeg bisa diatur lewat variabel lingkungan FFMPEG.
 import { spawn } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -15,11 +16,14 @@ const { chromium } = require('playwright');
 const folderIni = dirname(fileURLToPath(import.meta.url));
 const pathKeluaran = resolve(process.argv[2] ?? resolve(folderIni, 'VideoPromosi30Detik.mp4'));
 const fps = Number(process.argv[3] ?? 30);
-const alamatHalaman = pathToFileURL(resolve(folderIni, 'VideoPromosi30Detik.html')).href + '?rekam=1';
+const berkasHtml = process.argv[4] ?? 'VideoPromosi30Detik.html';
+const lebar = Number(process.argv[5] ?? 1920);
+const tinggi = Number(process.argv[6] ?? 1080);
+const alamatHalaman = pathToFileURL(resolve(folderIni, berkasHtml)).href + '?rekam=1';
 
 async function RekamVideo() {
   const peramban = await chromium.launch();
-  const halaman = await peramban.newPage({ viewport: { width: 1920, height: 1080 } });
+  const halaman = await peramban.newPage({ viewport: { width: lebar, height: tinggi } });
   await halaman.goto(alamatHalaman);
   await halaman.waitForFunction(() => document.body.dataset.siap === '1', null, { timeout: 60000 });
   const hurufSiap = await halaman.evaluate(() => document.fonts.check('800 40px "Atkinson Hyperlegible Next"'));
