@@ -18,7 +18,7 @@ export function PasangPenandaNavigasi(): () => void {
     bilah.className = 'penanda-navigasi';
     bilah.setAttribute('role', 'status');
     bilah.setAttribute('aria-label', 'Memuat');
-    bilah.innerHTML = `<div class="penanda-navigasi__kotak"><div class="tanda-muat" style="--u:56px"><span class="tanda-muat__isi"><img src="${gambarIkon}" alt=""></span></div></div>`;
+    bilah.innerHTML = `<div class="penanda-navigasi__kotak"><div class="tanda-muat" style="--u:80px"><span class="tanda-muat__isi"><img src="${gambarIkon}" alt=""></span></div></div>`;
     document.body.appendChild(bilah);
 
     let aktif = 0;
