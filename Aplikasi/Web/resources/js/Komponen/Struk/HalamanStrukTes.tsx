@@ -42,10 +42,19 @@ describe('Pengaturan struk (PRD v1.79)', () => {
         ]);
         expect(DuaKolom('TOTAL', 'Rp 56.000', 32)).toHaveLength(32);
         const baris = SusunPratinjauStruk(bawaan, profil, '58').map((b) => b.teks);
-        expect(baris[0]).toBe('Kopi Senja Solo');
+        // D-75: judul = nama outlet; nama usaha/akun pemilik tidak pernah tampil, dan nama outlet tidak diulang.
+        expect(baris[0]).toBe('Outlet Utama');
+        expect(baris.filter((b) => b === 'Outlet Utama')).toHaveLength(1);
+        expect(baris).not.toContain('Kopi Senja Solo');
         expect(baris).toContain('NPWP 0123456789012345');
         expect(baris.at(-1)).toBe('Dibuat dengan Payoung');
         expect(baris.every((b) => b.length <= 32)).toBe(true);
+    });
+
+    it('nama di struk yang diisi menggantikan nama outlet sebagai judul (D-75)', () => {
+        const baris = SusunPratinjauStruk({ ...bawaan, NamaDicetak: 'Lil Escape' }, profil, '58').map((b) => b.teks);
+        expect(baris[0]).toBe('Lil Escape');
+        expect(baris[1]).toBe('Outlet Utama');
     });
 
     it('isian ↔ pengaturan: teks kosong menjadi null dan baris kepala kosong dibuang', () => {
