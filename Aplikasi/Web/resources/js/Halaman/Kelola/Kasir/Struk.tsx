@@ -219,7 +219,7 @@ function IsiPengaturanStruk({
                             label="Nama di struk"
                             nilai={isian.NamaDicetak}
                             saatBerubah={(teks) => Ubah('NamaDicetak', teks)}
-                            keterangan={`Kosongkan agar tiap outlet memakai nama mereknya sendiri (bawaan: ${Profil.NamaUsaha}). Isi hanya bila semua outlet memakai satu nama.`}
+                            keterangan="Kosongkan agar struk memakai nama outlet masing-masing. Nama usaha atau akun pemilik tidak pernah dicetak. Isi hanya bila semua outlet harus memakai satu nama yang sama."
                             maxLength={PANJANG_BARIS}
                             galat={galat.NamaDicetak}
                         />

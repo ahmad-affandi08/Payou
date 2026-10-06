@@ -53,11 +53,13 @@ export function SusunPratinjauStruk(
     const Kiri = (teks: string, tebal = false): BarisPratinjau => ({ teks, rata: 'kiri', tebal });
     const baris: BarisPratinjau[] = [];
 
-    baris.push(...Tengah(pengaturan.NamaDicetak ?? profil.NamaUsaha, true));
+    // D-75: judul = nama outlet (yang dilihat pelanggan); nama usaha/akun pemilik tidak pernah dicetak.
+    const judul = pengaturan.NamaDicetak ?? profil.NamaOutlet ?? profil.NamaUsaha;
+    baris.push(...Tengah(judul, true));
     for (const teks of pengaturan.TeksKepala) {
         baris.push(...Tengah(teks));
     }
-    if (profil.NamaOutlet) {
+    if (profil.NamaOutlet && profil.NamaOutlet !== judul) {
         baris.push(...Tengah(profil.NamaOutlet));
     }
     if (pengaturan.TampilkanAlamat) {

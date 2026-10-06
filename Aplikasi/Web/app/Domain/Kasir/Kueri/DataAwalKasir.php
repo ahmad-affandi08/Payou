@@ -106,7 +106,7 @@ final class DataAwalKasir
                 // v3.55 (aditif, §9.3): barcode timbangan EAN-13 `AA PPPPP NNNNN C` (berat gram atau harga Rupiah).
                 'BarcodeTimbangan' => $this->barcodeTimbangan->Ambil(),
             ],
-            'Struk' => $this->AmbilStruk($perangkat, $profil->pkp ?? false, $outlet?->namaMerek, $outlet?->idMerek),
+            'Struk' => $this->AmbilStruk($perangkat, $profil->pkp ?? false, $outlet?->namaOutlet ?? $outlet?->namaMerek, $outlet?->idMerek),
             'Outlet' => $outlet === null ? null : [
                 'Uuid' => $outlet->uuidOutlet,
                 'Kode' => $outlet->kodeOutlet,
@@ -174,7 +174,7 @@ final class DataAwalKasir
 
         return [
             ...$struk->KeLarik(),
-            // Nama merek outlet (bukan nama akun/pemilik): satu akun bisa punya beberapa merek dengan struk berbeda.
+            // D-75: judul struk = nama outlet (identitas yang dilihat pelanggan), bukan nama usaha/akun pemilik.
             'NamaUsaha' => $namaMerek ?? $tenant['Nama'],
             'Npwp' => $pkp ? $tenant['Npwp'] : null,
             'AdaLogo' => $this->pengaturanStruk->AmbilPathLogo($perangkat->IdTenant, $idMerek) !== null,

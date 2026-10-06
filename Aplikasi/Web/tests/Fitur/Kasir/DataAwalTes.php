@@ -144,7 +144,7 @@ describe('F-06 PIN kasir offline & data awal (GET /api/pos/v1/data-awal)', funct
             'TampilkanNpwp' => true,
             'CatatanKaki' => null,
             'TeksPenutup' => null,
-            'NamaUsaha' => 'Kopi Senja Solo',
+            'NamaUsaha' => $k['Outlet']->Nama,
             'Npwp' => null,
             'AdaLogo' => false,
             'TandaAir' => true,
@@ -206,7 +206,7 @@ describe('F-06 PIN kasir offline & data awal (GET /api/pos/v1/data-awal)', funct
             'CatatanKaki' => 'Barang yang sudah dibeli bisa ditukar 7 hari.',
             'TeksPenutup' => null,
             'TampilkanStrukDigital' => true,
-            'NamaUsaha' => 'Kopi Senja Solo',
+            'NamaUsaha' => $k['Outlet']->Nama,
             'Npwp' => '0123456789012345',
             'AdaLogo' => false,
             'TandaAir' => false,
@@ -215,14 +215,14 @@ describe('F-06 PIN kasir offline & data awal (GET /api/pos/v1/data-awal)', funct
     });
 });
 
-describe('Struk memakai nama merek outlet', function (): void {
-    it('NamaUsaha di struk = nama merek outlet perangkat, bukan nama akun pemilik', function (): void {
-        $k = BantuanKasir::Siapkan($this, 'Budi Santoso');
-        Merek::query()->where('IdTenant', $k['Tenant']->Id)->update(['Nama' => 'Brewland']);
+describe('Judul struk = nama outlet (D-75)', function (): void {
+    it('judul struk memakai nama outlet perangkat, bukan nama usaha/akun maupun nama merek bawaan', function (): void {
+        $k = BantuanKasir::Siapkan($this, 'Sudirman Group');
+        Outlet::query()->whereKey($k['Outlet']->Id)->update(['Nama' => "Lil' Escape Coffee & Eatery"]);
 
         $struk = $this->withToken($k['Token'])->getJson('/api/pos/v1/data-awal')->assertOk()->json('Struk');
 
-        expect($struk['NamaUsaha'])->toBe('Brewland');
+        expect($struk['NamaUsaha'])->toBe("Lil' Escape Coffee & Eatery")->not->toBe('Sudirman Group');
     });
 });
 
@@ -283,7 +283,7 @@ describe('Pengaturan struk: isolasi tenant', function (): void {
         ])->assertRedirect('/kelola/kasir/struk');
 
         $strukB = $this->withToken($b['Token'])->getJson('/api/pos/v1/data-awal')->assertOk()->json('Struk');
-        expect($strukB['NamaUsaha'])->toBe('Warung Bakso Pak Kumis')
+        expect($strukB['NamaUsaha'])->toBe($b['Outlet']->Nama)
             ->and($strukB['NamaDicetak'])->toBeNull()
             ->and($strukB['TeksKepala'])->toBe([])
             ->and($strukB['CatatanKaki'])->toBeNull()
