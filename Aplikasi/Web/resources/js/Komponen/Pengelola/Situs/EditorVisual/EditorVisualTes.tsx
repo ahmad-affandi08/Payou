@@ -1,6 +1,7 @@
 import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import BidangTeksKaya from '@/Komponen/Formulir/BidangTeksKaya';
 import DialogTambahBlok from './DialogTambahBlok';
 import PanelRiwayat, { type RevisiHalaman } from './PanelRiwayat';
 import { RingkasBlok } from './DaftarBlok';
@@ -140,5 +141,18 @@ describe('Riwayat versi & jadwal terbit D-63', () => {
             />,
         );
         expect(screen.getByText(/Versi pertama tersimpan saat halaman ini diterbitkan/)).toBeTruthy();
+    });
+});
+
+describe('Bilah alat teks kaya D-63', () => {
+    it('tombol Tebal membungkus pilihan dengan penanda', () => {
+        const SaatUbah = vi.fn();
+
+        render(<BidangTeksKaya label="Isi" nilai="halo dunia" saatBerubah={SaatUbah} />);
+        const kolom = screen.getByLabelText('Isi') as HTMLTextAreaElement;
+        kolom.setSelectionRange(5, 10);
+        fireEvent.click(screen.getByRole('button', { name: 'Tebal' }));
+
+        expect(SaatUbah).toHaveBeenCalledWith('halo **dunia**');
     });
 });

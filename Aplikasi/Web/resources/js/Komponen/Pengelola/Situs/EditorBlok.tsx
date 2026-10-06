@@ -2,6 +2,7 @@ import { ArrowDown, ArrowUp, Copy, Plus, Trash2 } from 'lucide-react';
 
 import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
+import BidangTeksKaya from '@/Komponen/Formulir/BidangTeksKaya';
 import BidangTeksPanjang from '@/Komponen/Formulir/BidangTeksPanjang';
 import KotakCentang from '@/Komponen/Formulir/KotakCentang';
 import Tombol from '@/Komponen/Formulir/Tombol';
@@ -112,16 +113,28 @@ function BidangSkema({ bidang, aturan, nilai, saatBerubah, galat, jalur, ikon, b
         case 'TeksPanjang':
             return (
                 <div className="sm:col-span-2">
-                    <BidangTeksPanjang
-                        label={label}
-                        nilai={Teks(nilai)}
-                        saatBerubah={saatBerubah}
-                        galat={g}
-                        maksimal={aturan[1]}
-                        baris={aturan[1] > 1000 ? 12 : 3}
-                        {...(aturan[1] > 300 ? { keterangan: KETERANGAN_TEKS_PANJANG } : {})}
-                        required={aturan[2] === true}
-                    />
+                    {aturan[1] > 1000 ? (
+                        <BidangTeksKaya
+                            label={label}
+                            nilai={Teks(nilai)}
+                            saatBerubah={saatBerubah}
+                            galat={g}
+                            maksimal={aturan[1]}
+                            keterangan={KETERANGAN_TEKS_PANJANG}
+                            required={aturan[2] === true}
+                        />
+                    ) : (
+                        <BidangTeksPanjang
+                            label={label}
+                            nilai={Teks(nilai)}
+                            saatBerubah={saatBerubah}
+                            galat={g}
+                            maksimal={aturan[1]}
+                            baris={3}
+                            {...(aturan[1] > 300 ? { keterangan: KETERANGAN_TEKS_PANJANG } : {})}
+                            required={aturan[2] === true}
+                        />
+                    )}
                 </div>
             );
         case 'Tombol': {

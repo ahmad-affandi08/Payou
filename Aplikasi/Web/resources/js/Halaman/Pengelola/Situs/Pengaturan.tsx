@@ -1,5 +1,23 @@
+import {
+    closestCenter,
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    TouchSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useForm } from '@inertiajs/react';
-import { ExternalLink, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ExternalLink, GripVertical, Plus, Trash2 } from 'lucide-react';
 import type { FormEvent, ReactNode } from 'react';
 
 import BidangTeks from '@/Komponen/Formulir/BidangTeks';
@@ -83,45 +101,114 @@ type PropsEditorTautan = {
     jalur: string;
 };
 
-/** Daftar tautan menu (label + tautan) yang bisa ditambah, dihapus, dan diurutkan. */
+/** Satu baris tautan menu yang bisa diseret lewat pegangan (atau papan ketik: fokus pegangan, Spasi, panah). */
+function BarisTautanUrut({
+    id,
+    indeks,
+    label,
+    tautan,
+    galat,
+    jalur,
+    saatUbah,
+    saatHapus,
+}: {
+    id: string;
+    indeks: number;
+    label: string;
+    tautan: TautanMenu;
+    galat: Record<string, string>;
+    jalur: string;
+    saatUbah: (kunci: keyof TautanMenu, nilai: string) => void;
+    saatHapus: () => void;
+}) {
+    const { attributes, listeners, setNodeRef: AturNode, transform, transition, isDragging } = useSortable({ id });
+
+    return (
+        <div
+            ref={AturNode}
+            style={{ transform: CSS.Transform.toString(transform), transition }}
+            className={`grid items-start gap-2 rounded-kontrol border border-garis bg-permukaan p-2 sm:grid-cols-[auto_1fr_1.5fr_auto] ${
+                isDragging ? 'z-10 shadow-lg' : ''
+            }`}
+        >
+            <button
+                type="button"
+                aria-label={`Geser ${label.toLowerCase()} ${String(indeks + 1)}`}
+                className="inline-flex size-8 cursor-grab touch-none items-center justify-center self-end rounded-kontrol text-teks-sekunder outline-none hover:bg-permukaan-sorot focus-visible:ring-2 focus-visible:ring-brand active:cursor-grabbing pointer-coarse:size-11"
+                {...attributes}
+                {...listeners}
+            >
+                <GripVertical className="size-4" aria-hidden />
+            </button>
+            <BidangTeks
+                label={`Label ${String(indeks + 1)}`}
+                nilai={tautan.Label}
+                saatBerubah={(v) => saatUbah('Label', v)}
+                galat={galat[`${jalur}.${String(indeks)}.Label`]}
+                maxLength={40}
+            />
+            <BidangTautan
+                label={`Tautan ${String(indeks + 1)}`}
+                keterangan=""
+                nilai={tautan.Tautan}
+                saatBerubah={(v) => saatUbah('Tautan', v)}
+                galat={galat[`${jalur}.${String(indeks)}.Tautan`]}
+            />
+            <button
+                type="button"
+                aria-label={`Hapus ${label.toLowerCase()} ${String(indeks + 1)}`}
+                onClick={saatHapus}
+                className="inline-flex size-8 items-center justify-center self-end rounded-kontrol text-teks-sekunder hover:bg-permukaan-sorot pointer-coarse:size-11"
+            >
+                <Trash2 className="size-4" aria-hidden />
+            </button>
+        </div>
+    );
+}
+
+/** Daftar tautan menu (label + tautan) yang bisa ditambah, dihapus, dan diurutkan dengan diseret (D-63). */
 function EditorTautan({ label, tautan, maks, saatBerubah, galat, jalur }: PropsEditorTautan) {
     const Ubah = (i: number, kunci: keyof TautanMenu, nilai: string) =>
         saatBerubah(tautan.map((t, j) => (j === i ? { ...t, [kunci]: nilai } : t)));
+    const sensor = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    );
+    const daftarId = tautan.map((_, i) => `tautan-${jalur}-${String(i)}`);
+    const SaatSelesaiSeret = ({ active, over }: DragEndEvent) => {
+        if (!over || active.id === over.id) {
+            return;
+        }
+
+        saatBerubah(arrayMove(tautan, daftarId.indexOf(String(active.id)), daftarId.indexOf(String(over.id))));
+    };
 
     return (
         <fieldset className="flex flex-col gap-2 sm:col-span-2">
             <legend className="mb-1 text-label font-semibold text-teks-utama">
                 {label} ({tautan.length}/{maks})
             </legend>
-            {tautan.map((t, i) => (
-                <div
-                    key={i}
-                    className="grid items-start gap-2 rounded-kontrol border border-garis p-2 sm:grid-cols-[1fr_1.5fr_auto]"
-                >
-                    <BidangTeks
-                        label={`Label ${i + 1}`}
-                        nilai={t.Label}
-                        saatBerubah={(v) => Ubah(i, 'Label', v)}
-                        galat={galat[`${jalur}.${i}.Label`]}
-                        maxLength={40}
-                    />
-                    <BidangTautan
-                        label={`Tautan ${i + 1}`}
-                        keterangan=""
-                        nilai={t.Tautan}
-                        saatBerubah={(v) => Ubah(i, 'Tautan', v)}
-                        galat={galat[`${jalur}.${i}.Tautan`]}
-                    />
-                    <button
-                        type="button"
-                        aria-label={`Hapus ${label.toLowerCase()} ${i + 1}`}
-                        onClick={() => saatBerubah(tautan.filter((_, j) => j !== i))}
-                        className="inline-flex size-8 items-center justify-center self-end rounded-kontrol text-teks-sekunder hover:bg-permukaan-sorot pointer-coarse:size-11"
-                    >
-                        <Trash2 className="size-4" aria-hidden />
-                    </button>
-                </div>
-            ))}
+            <DndContext sensors={sensor} collisionDetection={closestCenter} onDragEnd={SaatSelesaiSeret}>
+                <SortableContext items={daftarId} strategy={verticalListSortingStrategy}>
+                    {tautan.map((t, i) => (
+                        <BarisTautanUrut
+                            key={daftarId[i]}
+                            id={daftarId[i] ?? String(i)}
+                            indeks={i}
+                            label={label}
+                            tautan={t}
+                            galat={galat}
+                            jalur={jalur}
+                            saatUbah={(kunci, nilai) => Ubah(i, kunci, nilai)}
+                            saatHapus={() => saatBerubah(tautan.filter((_, j) => j !== i))}
+                        />
+                    ))}
+                </SortableContext>
+            </DndContext>
+            {tautan.length > 1 ? (
+                <p className="text-keterangan text-teks-sekunder">Geser pegangan di kiri untuk mengubah urutan.</p>
+            ) : null}
             {tautan.length < maks ? (
                 <div>
                     <Tombol varian="sekunder" onClick={() => saatBerubah([...tautan, { Label: '', Tautan: '' }])}>
@@ -424,6 +511,24 @@ export default function HalamanPengaturanSitus({
                                         maxLength={40}
                                     />
                                 </div>
+                                <button
+                                    type="button"
+                                    aria-label={`Geser kolom ${String(i + 1)} ke atas`}
+                                    disabled={i === 0}
+                                    onClick={() => formulir.setData('MenuKaki', arrayMove(d.MenuKaki, i, i - 1))}
+                                    className="inline-flex size-8 items-center justify-center rounded-kontrol border border-garis-input text-teks-utama hover:bg-permukaan-sorot disabled:opacity-40 pointer-coarse:size-11"
+                                >
+                                    <ArrowUp className="size-4" aria-hidden />
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label={`Geser kolom ${String(i + 1)} ke bawah`}
+                                    disabled={i === d.MenuKaki.length - 1}
+                                    onClick={() => formulir.setData('MenuKaki', arrayMove(d.MenuKaki, i, i + 1))}
+                                    className="inline-flex size-8 items-center justify-center rounded-kontrol border border-garis-input text-teks-utama hover:bg-permukaan-sorot disabled:opacity-40 pointer-coarse:size-11"
+                                >
+                                    <ArrowDown className="size-4" aria-hidden />
+                                </button>
                                 <Tombol
                                     varian="sekunder"
                                     onClick={() =>
