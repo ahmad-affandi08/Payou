@@ -29,6 +29,7 @@ class LayarPerangkat extends ConsumerWidget {
             if (daftar.isEmpty)
               const KotakPanel(
                 anak: KeadaanKosong(
+                  ilustrasi: IlustrasiKosong.Outlet,
                   ikon: Icons.point_of_sale_outlined,
                   judul: 'Belum ada perangkat POS.',
                   keterangan: 'Perangkat kasir yang sudah diaktifkan muncul di sini beserta status sambungannya.',

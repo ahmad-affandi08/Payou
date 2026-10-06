@@ -29,6 +29,7 @@ class LayarPersetujuan extends ConsumerWidget {
             if (daftar.isEmpty)
               const KotakPanel(
                 anak: KeadaanKosong(
+                  ilustrasi: IlustrasiKosong.Umum,
                   ikon: Icons.approval_outlined,
                   judul: 'Tidak ada permintaan persetujuan.',
                   keterangan:

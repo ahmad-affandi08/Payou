@@ -28,6 +28,7 @@ class LayarShift extends ConsumerWidget {
           isi: (daftar) => daftar.isEmpty
               ? const KotakPanel(
                   anak: KeadaanKosong(
+                    ilustrasi: IlustrasiKosong.Penjualan,
                     ikon: Icons.schedule_outlined,
                     judul: 'Belum ada shift pada tanggal ini.',
                     keterangan: 'Shift kasir, jam buka dan tutup, serta selisih kas muncul di sini.',

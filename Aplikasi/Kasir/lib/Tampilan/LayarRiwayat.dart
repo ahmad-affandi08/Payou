@@ -305,6 +305,7 @@ class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
         if (semua.isEmpty && riwayat.hasValue)
           KotakPanel(
             anak: KeadaanKosong(
+              ilustrasi: IlustrasiKosong.Penjualan,
               ikon: Icons.receipt_long_outlined,
               judul: lampau ? 'Tidak ada struk di tanggal ini' : 'Struk pertama hari ini akan muncul di sini',
               keterangan:

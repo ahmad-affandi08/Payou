@@ -92,6 +92,7 @@ class _IsiBeranda extends StatelessWidget {
           lencana: d.perluTindakan.isEmpty ? null : '${d.perluTindakan.length}',
           anak: d.perluTindakan.isEmpty
               ? const KeadaanKosong(
+                  ilustrasi: IlustrasiKosong.Umum,
                   ikon: Icons.check_circle_outline,
                   judul: 'Tidak ada yang perlu ditindaklanjuti.',
                   keterangan: 'Selisih kas, stok menipis, dan hal penting lain akan muncul di sini.',

@@ -43,6 +43,7 @@ class LayarLaporan extends ConsumerWidget {
           isi: (l) => l.baris.isEmpty
               ? const KotakPanel(
                   anak: KeadaanKosong(
+                    ilustrasi: IlustrasiKosong.Laporan,
                     ikon: Icons.bar_chart_outlined,
                     judul: 'Belum ada penjualan pada tanggal ini.',
                     keterangan: 'Ringkasan penjualan per produk, kategori, kasir, jam, dan kanal muncul di sini.',
