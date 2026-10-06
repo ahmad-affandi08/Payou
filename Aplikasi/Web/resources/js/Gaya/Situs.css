@@ -18,7 +18,7 @@
 @source '../Komponen/Ui/utils.ts';
 @source '../Tipe/Situs.ts';
 @source '../Komponen/Umpan/JudulHalaman.tsx';
-@source '../Pustaka/{AnalitikSitus,Format,FormatWaktu}.ts';
+@source '../Pustaka/{AnalitikSitus,DaftarIsiTeks,Format,FormatWaktu}.ts';
 @source '../../views/Situs.blade.php';
 /* File test tidak dirender; contoh pola terlarang di dalamnya jangan sampai menjadi CSS. */
 @source not '../**/*Tes.{ts,tsx}';

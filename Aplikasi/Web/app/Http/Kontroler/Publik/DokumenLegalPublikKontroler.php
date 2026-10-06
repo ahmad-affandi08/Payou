@@ -29,7 +29,20 @@ final class DokumenLegalPublikKontroler extends Kontroler
         $dokumen = $versi > 0 ? $berlaku->CariVersiTerbit($jenisDokumen, $versi) : $berlaku->Cari($jenisDokumen, now());
         abort_if($dokumen === null, 404);
 
+        // Tab ke dokumen legal lain yang sedang berlaku (kontrak mitra tidak dipublikasikan di sini).
+        $daftar = collect(JenisDokumenLegal::cases())
+            ->reject(fn (JenisDokumenLegal $kasus): bool => $kasus === JenisDokumenLegal::KontrakMitra)
+            ->filter(fn (JenisDokumenLegal $kasus): bool => $berlaku->Cari($kasus, now()) !== null)
+            ->map(fn (JenisDokumenLegal $kasus): array => [
+                'Label' => $kasus->AmbilLabel(),
+                'Tautan' => route('legal.tampil', ['jenis' => Str::kebab($kasus->value)]),
+                'Aktif' => $kasus === $jenisDokumen,
+            ])
+            ->values()
+            ->all();
+
         return Inertia::render('Situs/DokumenLegal', [
+            'Daftar' => $daftar,
             'Dokumen' => [
                 'Label' => $jenisDokumen->AmbilLabel(),
                 'Judul' => $dokumen->Judul,

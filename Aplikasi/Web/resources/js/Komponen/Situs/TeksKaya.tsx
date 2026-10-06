@@ -1,5 +1,7 @@
 import { Fragment, type ReactNode } from 'react';
 
+import { BuatIdJudul } from '@/Pustaka/DaftarIsiTeks';
+
 /** Hanya tautan aman yang dirender sebagai `<a>` (tanpa javascript:, data:, dst.). */
 function CekTautanAman(url: string): boolean {
     return /^(https:\/\/|\/(?!\/)|#|mailto:|tel:)/.test(url);
@@ -51,7 +53,16 @@ function RenderInline(teks: string, kunci: string): ReactNode[] {
  * Tidak ada HTML yang dirender sama sekali — React meng-escape isinya, dan tautan disaring `CekTautanAman` — jadi
  * isi yang ditulis pengelola tidak bisa menyuntikkan skrip ke halaman publik.
  */
-export default function TeksKaya({ teks, className }: { teks: string; className?: string }) {
+export default function TeksKaya({
+    teks,
+    className,
+    jangkar = false,
+}: {
+    teks: string;
+    className?: string;
+    /** Beri id pada judul `# ` dan `## ` supaya bisa ditautkan dari daftar isi (dokumen legal). */
+    jangkar?: boolean;
+}) {
     const blok = teks.split(/\n{2,}/);
 
     return (
@@ -95,7 +106,11 @@ export default function TeksKaya({ teks, className }: { teks: string; className?
 
                 if (baris.length === 1 && baris[0]?.startsWith('## ')) {
                     return (
-                        <h3 key={i} className="text-judul font-bold text-teks-utama">
+                        <h3
+                            key={i}
+                            {...(jangkar ? { id: BuatIdJudul(baris[0].slice(3)) } : {})}
+                            className="scroll-mt-24 text-judul font-bold text-teks-utama"
+                        >
                             {baris[0].slice(3)}
                         </h3>
                     );
@@ -103,7 +118,11 @@ export default function TeksKaya({ teks, className }: { teks: string; className?
 
                 if (baris.length === 1 && baris[0]?.startsWith('# ')) {
                     return (
-                        <h2 key={i} className="text-tampilan font-bold text-teks-utama">
+                        <h2
+                            key={i}
+                            {...(jangkar ? { id: BuatIdJudul(baris[0].slice(2)) } : {})}
+                            className="scroll-mt-24 text-tampilan font-bold text-teks-utama"
+                        >
                             {baris[0].slice(2)}
                         </h2>
                     );

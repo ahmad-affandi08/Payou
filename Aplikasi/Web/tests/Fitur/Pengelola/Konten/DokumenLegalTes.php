@@ -224,3 +224,49 @@ describe('Izin dokumen legal', function (): void {
             ->assertInertia(fn (AssertableInertia $halaman) => $halaman->where('Dokumen.3.Jenis', 'Sla')->has('Dokumen.3.Versi', 0));
     });
 });
+
+describe('Draf dokumen legal bawaan (P-06)', function (): void {
+    it('membuat draf tiga dokumen wajib dari naskah bawaan, tidak menerbitkan, dan idempoten', function (): void {
+        $this->artisan('legal:siapkan-bawaan')->assertSuccessful();
+
+        foreach (JenisDokumenLegal::AmbilWajibRegistrasi() as $jenis) {
+            $dokumen = DokumenLegal::query()->where('Jenis', $jenis->value)->sole();
+            expect($dokumen->Status)->toBe(StatusDokumenLegal::Draf)
+                ->and($dokumen->Versi)->toBe(1)
+                ->and(mb_strlen($dokumen->Isi))->toBeGreaterThan(2000)
+                ->and($dokumen->Isi)->toContain('# 1.');
+        }
+
+        expect(app(DokumenLegalBerlaku::class)->Cari(JenisDokumenLegal::KebijakanPrivasi, now()))->toBeNull();
+
+        $this->artisan('legal:siapkan-bawaan')->assertSuccessful();
+        expect(DokumenLegal::query()->count())->toBe(3);
+    });
+
+    it('tidak menyentuh jenis yang sudah punya versi', function (): void {
+        DokumenLegal::query()->create([
+            'Jenis' => JenisDokumenLegal::KebijakanPrivasi, 'Versi' => 1, 'Status' => StatusDokumenLegal::Terbit,
+            'Judul' => 'Kebijakan Privasi', 'Isi' => 'Isi lama.', 'Materiil' => true, 'BerlakuMulai' => '2026-01-01',
+        ]);
+
+        $this->artisan('legal:siapkan-bawaan')->assertSuccessful();
+
+        expect(DokumenLegal::query()->where('Jenis', JenisDokumenLegal::KebijakanPrivasi->value)->count())->toBe(1)
+            ->and(DokumenLegal::query()->where('Jenis', JenisDokumenLegal::KebijakanPrivasi->value)->value('Isi'))->toBe('Isi lama.')
+            ->and(DokumenLegal::query()->count())->toBe(3);
+    });
+});
+
+it('halaman publik dokumen legal menyertakan tab ke dokumen legal lain yang berlaku', function (): void {
+    foreach ([JenisDokumenLegal::SyaratKetentuan, JenisDokumenLegal::KebijakanPrivasi] as $jenis) {
+        DokumenLegal::query()->create([
+            'Jenis' => $jenis, 'Versi' => 1, 'Status' => StatusDokumenLegal::Terbit, 'Judul' => $jenis->AmbilLabel(),
+            'Isi' => "# 1. Pasal\n\nIsi.", 'Materiil' => true, 'BerlakuMulai' => '2026-01-01',
+        ]);
+    }
+
+    $this->get('/legal/kebijakan-privasi')->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
+        ->component('Situs/DokumenLegal')
+        ->has('Daftar', 2)
+        ->where('Daftar.1.Aktif', true));
+});
