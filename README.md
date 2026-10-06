@@ -135,8 +135,8 @@ Ekstensi PHP yang dibutuhkan Laravel: `bcmath`, `ctype`, `curl`, `fileinfo`, `mb
 **1. Ambil kode**
 
 ```bash
-git clone https://github.com/ahmad-affandi08/Payou.git
-cd Payou
+git clone https://github.com/ahmad-affandi08/Payoung.git
+cd Payoung
 ```
 
 **2. Buat database MySQL**
@@ -194,7 +194,7 @@ Satu perintah ini menjalankan empat proses sekaligus: server Laravel di `http://
 **1. Pasang dependensi Dart** (dari akar repo, sekali saja)
 
 ```bash
-cd /path/ke/Payou
+cd /path/ke/Payoung
 dart pub get
 ```
 

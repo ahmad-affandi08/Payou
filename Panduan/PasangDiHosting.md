@@ -122,8 +122,8 @@ menerbitkan `public/build` sebagai aset rilis bertag tetap `aset-terbaru` (job `
 
 ```bash
 cd ~/domains/payoung.id/aplikasi/Aplikasi/Web/public
-curl -fL -o build.zip https://github.com/ahmad-affandi08/Payou/releases/download/aset-terbaru/public-build.zip
-curl -fL -o build.zip.sha256 https://github.com/ahmad-affandi08/Payou/releases/download/aset-terbaru/public-build.zip.sha256
+curl -fL -o build.zip https://github.com/ahmad-affandi08/Payoung/releases/download/aset-terbaru/public-build.zip
+curl -fL -o build.zip.sha256 https://github.com/ahmad-affandi08/Payoung/releases/download/aset-terbaru/public-build.zip.sha256
 sed -i 's|public-build.zip|build.zip|' build.zip.sha256
 sha256sum -c build.zip.sha256          # wajib: pastikan berkas utuh sebelum dipasang
 rm -rf build && unzip -q build.zip && rm build.zip build.zip.sha256

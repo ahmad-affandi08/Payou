@@ -18,7 +18,7 @@ final class TokenApiBerdasarkanToken
 
     public function Cari(string $token): ?TokenApiTenant
     {
-        if (preg_match('/^payoung?_(\d{1,19})_([A-Za-z0-9]{40})$/', $token, $cocok) !== 1) {
+        if (preg_match('/^payoung_(\d{1,19})_([A-Za-z0-9]{40})$/', $token, $cocok) !== 1) {
             return null;
         }
 

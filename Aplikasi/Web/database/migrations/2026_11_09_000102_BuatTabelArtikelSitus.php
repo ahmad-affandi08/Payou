@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Situs pemasaran bagian B2 (§13.9): artikel blog `payou.id/blog` (data platform, bukan tenant). Isi memakai format teks
+ * Situs pemasaran bagian B2 (§13.9): artikel blog `payoung.id/blog` (data platform, bukan tenant). Isi memakai format teks
  * ringan situs (tanpa HTML); sampul dari pustaka `GambarSitus` (lewat Uuid, sama seperti gambar halaman).
  */
 return new class extends Migration

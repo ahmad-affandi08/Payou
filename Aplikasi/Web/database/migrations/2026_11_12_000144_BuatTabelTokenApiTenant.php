@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * X7 Open API v1 bagian 1 (PRD §16.1 lapisan Publik): token API milik tenant untuk integrasi pihak ketiga. Token asli
- * (`payou_{IdTenant}_{rahasia}`) hanya ditampilkan sekali saat dibuat; yang disimpan hanya SHA-256 rahasianya dan
+ * (`payoung_{IdTenant}_{rahasia}`) hanya ditampilkan sekali saat dibuat; yang disimpan hanya SHA-256 rahasianya dan
  * `Prefiks` untuk dikenali di daftar. `Cakupan` = daftar scope (`produk:baca`, ...). Dicabut = `DicabutPada` terisi.
  */
 return new class extends Migration

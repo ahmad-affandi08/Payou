@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * D-21 v2.10: situs pemasaran `payou.id` yang isinya diatur dari konsol (data platform, tanpa IdTenant).
+ * D-21 v2.10: situs pemasaran `payoung.id` yang isinya diatur dari konsol (data platform, tanpa IdTenant).
  *
  * `PengaturanSitus`: satu baris (`Kunci` = `Umum`), `Nilai` JSON: identitas, SEO bawaan, kontak, media sosial,
  * pengumuman, menu atas & kaki, tautan unduh, ID analitik.

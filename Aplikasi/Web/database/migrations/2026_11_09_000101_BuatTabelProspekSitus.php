@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Situs pemasaran bagian B (§13.9): prospek dari formulir kontak/minta demo di situs `payou.id` (data platform, bukan
+ * Situs pemasaran bagian B (§13.9): prospek dari formulir kontak/minta demo di situs `payoung.id` (data platform, bukan
  * tenant). Nomor HP & email disimpan terenkripsi (UU 27/2022 PDP); `SidikIp` = HMAC alamat IP untuk membatasi spam tanpa
  * menyimpan IP mentah. Prospek lebih dari 24 bulan dihapus otomatis.
  */

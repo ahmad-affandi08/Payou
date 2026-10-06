@@ -1,6 +1,6 @@
 # Merek Payoung (D-61)
 
-Nama: **Payoung** (payung; sebelumnya PAYOU). Tagline resmi: **Smart Choice Your Business Partner**.
+Nama: **Payoung** (payung). Tagline resmi: **Smart Choice Your Business Partner**.
 Tanda merek: **payung** dengan kubah bergerigi empat, rusuk, gagang melengkung, dan kilau bintang Apricot.
 
 ## Sumber utama

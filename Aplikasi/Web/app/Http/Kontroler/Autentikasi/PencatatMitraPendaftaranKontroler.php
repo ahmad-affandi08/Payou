@@ -15,18 +15,17 @@ use Throwable;
  * P-12: tenant baru diatribusikan ke mitra dari cookie tautan (`kode|unix detik klik pertama`); cookie lalu dihapus.
  * Gagal tidak menggagalkan pendaftaran. Dipakai pendaftaran email dan pendaftaran lewat Google (D-57).
  */
-final class PencatatMitraPendaftaran
+final class PencatatMitraPendaftaranKontroler
 {
     public function Catat(Request $permintaan, int $idTenant): void
     {
-        $nilai = $permintaan->cookie(PendaftaranKontroler::COOKIE_MITRA) ?? $permintaan->cookie(PendaftaranKontroler::COOKIE_MITRA_LAMA);
+        $nilai = $permintaan->cookie(PendaftaranKontroler::COOKIE_MITRA);
 
         if (! is_string($nilai) || preg_match('/^([A-Z0-9-]{3,20})\|(\d{1,12})$/', $nilai, $cocok) !== 1) {
             return;
         }
 
         Cookie::queue(Cookie::forget(PendaftaranKontroler::COOKIE_MITRA));
-        Cookie::queue(Cookie::forget(PendaftaranKontroler::COOKIE_MITRA_LAMA));
 
         try {
             app(CatatAtribusiMitra::class)->Jalankan($idTenant, $cocok[1], CarbonImmutable::createFromTimestamp((int) $cocok[2]));

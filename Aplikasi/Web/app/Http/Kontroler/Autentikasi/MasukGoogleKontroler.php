@@ -211,7 +211,7 @@ final class MasukGoogleKontroler extends Kontroler
         ), wajibPanduanAwal: true);
 
         $permintaan->session()->forget(SesiAutentikasiTenant::GOOGLE_PENDAFTARAN);
-        (new PencatatMitraPendaftaran)->Catat($permintaan, $hasil['Tenant']->Id);
+        (new PencatatMitraPendaftaranKontroler)->Catat($permintaan, $hasil['Tenant']->Id);
 
         Auth::guard('web')->login($hasil['Pengguna']);
         $permintaan->session()->regenerate();
