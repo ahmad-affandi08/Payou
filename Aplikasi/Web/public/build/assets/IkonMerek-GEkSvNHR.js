@@ -1,0 +1,1 @@
+var e=`/build/assets/IkonMerek-CdpABxIf.webp`;export{e as t};

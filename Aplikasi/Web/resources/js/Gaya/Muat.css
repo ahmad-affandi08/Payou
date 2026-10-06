@@ -1,5 +1,5 @@
 /*
- * Bahasa gerak "memuat" Payoung (D-58): tanda muat bercincin, bilah navigasi tipis, layar muat awal, dan kerangka berkilau.
+ * Bahasa gerak "memuat" Payoung (D-58): tanda muat bercincin, penanda navigasi, layar muat awal, dan kerangka berkilau.
  * Hanya merujuk token warna (var(--color-...)); nilai warna tetap milik Aplikasi.css. Pengguna yang mematikan animasi
  * di perangkatnya melihat versi diam (blok `prefers-reduced-motion` di bawah).
  */
@@ -57,40 +57,27 @@
     }
 }
 
-/* Bilah navigasi: 3px di tepi atas, merayap sampai 92% lalu penuh dan memudar. */
-.bilah-navigasi {
+/* Penanda navigasi (D-62): tanda muat kecil melayang di tengah atas saat pindah halaman, tanpa garis. */
+.penanda-navigasi {
     position: fixed;
-    inset: 0 0 auto 0;
+    top: 14px;
+    left: 50%;
     z-index: 9998;
-    height: 3px;
-    background: var(--color-brand);
-    transform-origin: left;
-    transform: scaleX(0);
+    translate: -50% 0;
+    padding: 5px;
+    border-radius: 9999px;
+    background: var(--color-permukaan);
+    box-shadow: 0 2px 10px var(--color-bayangan);
     opacity: 0;
+    scale: 0.85;
     pointer-events: none;
+    transition:
+        opacity 0.2s,
+        scale 0.2s;
 }
-.bilah-navigasi[data-keadaan='jalan'] {
+.penanda-navigasi[data-keadaan='jalan'] {
     opacity: 1;
-    animation: bilah-isi 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
-}
-.bilah-navigasi[data-keadaan='selesai'] {
-    transform: scaleX(1);
-    opacity: 0;
-    transition: opacity 0.35s 0.05s;
-}
-@keyframes bilah-isi {
-    0% {
-        transform: scaleX(0);
-    }
-    30% {
-        transform: scaleX(0.55);
-    }
-    70% {
-        transform: scaleX(0.8);
-    }
-    100% {
-        transform: scaleX(0.92);
-    }
+    scale: 1;
 }
 
 /* Layar muat awal: markup statis dari blade, dicabut oleh Pustaka/LayarMuat saat React terpasang. */
@@ -181,10 +168,6 @@
     }
     [data-slot='skeleton'] {
         background-image: none;
-    }
-    .bilah-navigasi[data-keadaan='jalan'] {
-        animation: none;
-        transform: scaleX(0.7);
     }
     .layar-muat__kata > span:first-child,
     .layar-muat__kata > span:last-child {

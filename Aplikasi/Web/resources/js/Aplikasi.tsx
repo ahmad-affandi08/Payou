@@ -1,5 +1,5 @@
 import './Gaya/Dasbor.css';
-import { PasangBilahNavigasi } from '@/Pustaka/BilahNavigasi';
+import { PasangPenandaNavigasi } from '@/Pustaka/PenandaNavigasi';
 import { TutupLayarMuat } from '@/Pustaka/LayarMuat';
 
 import { createInertiaApp } from '@inertiajs/react';
@@ -32,7 +32,7 @@ void createInertiaApp({
     title: (judul) => (judul ? `${judul} | ${NamaAplikasi}` : NamaAplikasi),
     resolve: MuatHalaman,
     setup({ el, App, props }) {
-        PasangBilahNavigasi();
+        PasangPenandaNavigasi();
         TutupLayarMuat();
         createRoot(el).render(
             <StrictMode>
