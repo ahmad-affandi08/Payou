@@ -17,7 +17,7 @@ use Illuminate\Console\Command;
 final class TerbitkanLisensiPerintah extends Command
 {
     protected $signature = 'lisensi:terbitkan
-        {--nomor= : Nomor lisensi, misal PAYOU-L-2026-0001}
+        {--nomor= : Nomor lisensi, misal PAYOUNG-L-2026-0001}
         {--pemegang= : Nama pembeli (badan usaha atau perorangan)}
         {--domain= : Domain dashboard pembeli, misal kasir.tokoabc.com}
         {--batas-outlet= : Jumlah outlet maksimal (kosong = tak terbatas)}
@@ -25,9 +25,9 @@ final class TerbitkanLisensiPerintah extends Command
         {--batas-pengguna= : Pengguna maksimal (kosong = tak terbatas)}
         {--pembaruan-sampai= : Akhir masa pembaruan & dukungan YYYY-MM-DD (bawaan 1 tahun sejak terbit, D-36)}
         {--kunci-privat= : Berkas kunci privat penerbit}
-        {--keluaran= : Berkas lisensi yang dihasilkan, misal payou-tokoabc.lisensi}';
+        {--keluaran= : Berkas lisensi yang dihasilkan, misal payoung-tokoabc.lisensi}';
 
-    protected $description = 'Menerbitkan berkas lisensi PAYOU bertanda tangan untuk satu pembeli (D-35).';
+    protected $description = 'Menerbitkan berkas lisensi Payoung bertanda tangan untuk satu pembeli (D-35).';
 
     public function handle(PenandaLisensi $penanda): int
     {

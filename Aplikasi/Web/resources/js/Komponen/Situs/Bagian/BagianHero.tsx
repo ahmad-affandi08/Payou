@@ -21,7 +21,7 @@ const KELAS_LATAR = {
  * (D-39 "bersih & meyakinkan"); merek/Navy tetap tersedia untuk halaman lain.
  *
  * Label di latar terang memakai `BrandLembut` + teks `Brand` (bukan kuning lagi, D-39): satu warna merek saja
- * di atas lipatan. Di latar gelap label tetap `Aksen` berteks `TeksUtama` (8,98:1).
+ * di atas lipatan. Di latar gelap label tetap `Aksen` berteks `TeksUtama` (6,4:1).
  */
 export default function BagianHero({ bagian, utama }: Props) {
     const Judul = utama ? 'h1' : 'h2';

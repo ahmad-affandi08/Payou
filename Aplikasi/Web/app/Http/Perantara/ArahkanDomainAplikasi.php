@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * D-20: pemisahan domain pemasaran (`DOMAIN_PEMASARAN`, misal `payou.id`) dan tenant (`DOMAIN_TENANT`, misal
- * `dashboard.payou.id`). Di domain pemasaran hanya rute pemasaran yang dilayani; rute lain dialihkan ke domain tenant
+ * D-20: pemisahan domain pemasaran (`DOMAIN_PEMASARAN`, misal `payoung.id`) dan tenant (`DOMAIN_TENANT`, misal
+ * `dashboard.payoung.id`). Di domain pemasaran hanya rute pemasaran yang dilayani; rute lain dialihkan ke domain tenant
  * dengan jalur & query yang sama (GET 302, selain itu 307 agar metode & isi tetap). Beranda di domain tenant dialihkan
  * ke back-office (tamu diarahkan ke halaman masuk oleh `auth`); respons domain tenant diberi `X-Robots-Tag: noindex`.
  * Tanpa kedua domain diatur, tidak melakukan apa-apa.

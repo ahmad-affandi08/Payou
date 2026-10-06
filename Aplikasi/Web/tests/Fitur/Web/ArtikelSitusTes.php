@@ -67,7 +67,7 @@ describe('konsol artikel', function (): void {
 
         $this->put(BantuanPengelola::Url("/situs/artikel/{$a->Uuid}"), [
             'Judul' => 'Cara menghitung HPP kopi', 'Slug' => 'hpp-kopi', 'Ringkasan' => 'Rumus sederhana.',
-            'Isi' => "HPP = bahan + kemasan.\n\n- Kopi\n- Susu", 'Kategori' => 'Keuangan', 'NamaPenulis' => 'Tim PAYOU',
+            'Isi' => "HPP = bahan + kemasan.\n\n- Kopi\n- Susu", 'Kategori' => 'Keuangan', 'NamaPenulis' => 'Tim Payoung',
         ])->assertSessionHasNoErrors();
         $this->post(BantuanPengelola::Url("/situs/artikel/{$a->Uuid}/terbitkan"))->assertSessionHasNoErrors();
 
@@ -161,7 +161,7 @@ describe('blog publik', function (): void {
         $html = $respons->getContent();
         expect($html)->toContain('<meta property="og:type" content="article">')
             ->toContain('"@type":"BlogPosting"')
-            ->toContain('<title inertia>Tips kasir kafe | PAYOU</title>');
+            ->toContain('<title inertia>Tips kasir kafe | Payoung</title>');
     });
 
     it('peta situs memuat /blog dan artikel terbit saja', function (): void {
@@ -173,10 +173,10 @@ describe('blog publik', function (): void {
     });
 
     it('domain terpisah: blog dilayani di domain pemasaran, dialihkan dari domain tenant', function (): void {
-        config(['app.url' => 'https://dashboard.payou.test', 'domain.Pemasaran' => 'payou.test', 'domain.Tenant' => 'dashboard.payou.test']);
+        config(['app.url' => 'https://dashboard.payoung.test', 'domain.Pemasaran' => 'payoung.test', 'domain.Tenant' => 'dashboard.payoung.test']);
         BuatArtikelUji();
 
-        $this->get('https://payou.test/blog/tips-kasir-kafe')->assertOk();
-        $this->get('https://dashboard.payou.test/blog')->assertRedirect('https://payou.test/blog');
+        $this->get('https://payoung.test/blog/tips-kasir-kafe')->assertOk();
+        $this->get('https://dashboard.payoung.test/blog')->assertRedirect('https://payoung.test/blog');
     });
 });

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 $penyedia = 'midtrans|xendit|tripay|duitku|ipaymu|doku';
 
-// BR-P08.11: notifikasi gerbang billing platform (tagihan langganan PAYOU sendiri). Akun gerbangnya milik platform,
+// BR-P08.11: notifikasi gerbang billing platform (tagihan langganan Payoung sendiri). Akun gerbangnya milik platform,
 // jadi URL-nya tunggal tanpa token dan tenant ditentukan dari nomor pesanan. Didaftarkan lebih dulu agar tidak pernah
 // tertangkap pola `/webhook/{penyedia}/{tokenWebhook}` gerbang tenant di bawahnya. D-35: tidak ada di edisi Lisensi.
 if (! EdisiAplikasi::CekLisensi()) {

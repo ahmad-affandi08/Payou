@@ -7,7 +7,7 @@ export type PengaturanAnalitik = { IdGoogleAnalytics: string | null; IdMetaPixel
 
 export type PilihanCookie = 'terima' | 'tolak';
 
-export const KUNCI_PERSETUJUAN = 'payou.persetujuan-cookie';
+export const KUNCI_PERSETUJUAN = 'payoung.persetujuan-cookie';
 
 const POLA_GA = /^G-[A-Z0-9]{4,16}$/i;
 const POLA_PIXEL = /^[0-9]{6,20}$/;
@@ -46,7 +46,7 @@ export function SimpanPilihanCookie(pilihan: PilihanCookie): void {
 }
 
 /** Audit F-22: peristiwa untuk membuka ulang bilah persetujuan dari tautan "Pengaturan cookie" di kaki situs. */
-export const PERISTIWA_ATUR_COOKIE = 'payou:atur-cookie';
+export const PERISTIWA_ATUR_COOKIE = 'payoung:atur-cookie';
 
 export function BukaPengaturanCookie(): void {
     window.dispatchEvent(new Event(PERISTIWA_ATUR_COOKIE));

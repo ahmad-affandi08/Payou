@@ -33,7 +33,7 @@ final class KontenSitusBawaan
         return [
             'beranda' => [
                 'Judul' => 'Beranda',
-                'JudulSeo' => 'PAYOU | Aplikasi Kasir yang Tetap Jalan Walau Offline',
+                'JudulSeo' => 'Payoung | Aplikasi Kasir yang Tetap Jalan Walau Offline',
                 'DeskripsiSeo' => 'Aplikasi kasir (POS) untuk kafe, resto, toko, salon, dan laundry: tetap jalan saat offline, stok & HPP otomatis, pajak PPN/PBJT, promo, loyalti, dan laporan keuangan.',
                 'Bagian' => [
                     [
@@ -102,7 +102,7 @@ final class KontenSitusBawaan
                         'Jenis' => 'Faq',
                         'Judul' => 'Pertanyaan sebelum daftar',
                         'Item' => [
-                            ['Pertanyaan' => 'Apakah PAYOU bisa dipakai tanpa internet?', 'Jawaban' => 'Bisa. Aplikasi kasir menyimpan transaksi di perangkat dan mengirimnya otomatis saat internet kembali. Nomor struk memakai kode perangkat supaya tidak bentrok antar kasir.'],
+                            ['Pertanyaan' => 'Apakah Payoung bisa dipakai tanpa internet?', 'Jawaban' => 'Bisa. Aplikasi kasir menyimpan transaksi di perangkat dan mengirimnya otomatis saat internet kembali. Nomor struk memakai kode perangkat supaya tidak bentrok antar kasir.'],
                             ['Pertanyaan' => 'Perangkat apa yang didukung?', 'Jawaban' => 'Android, iPhone/iPad, dan Windows. Printer dan perangkat yang sudah kami uji ada di halaman Perangkat kompatibel.'],
                             ['Pertanyaan' => 'Apakah data usaha saya aman?', 'Jawaban' => 'Data tersimpan di server dengan cadangan rutin dan akses dibatasi per peran. Kami bertindak sebagai pemroses data sesuai UU Perlindungan Data Pribadi.'],
                             ['Pertanyaan' => 'Bagaimana cara berlangganan?', 'Jawaban' => 'Daftar gratis, lalu pilih paket dari menu Langganan di back-office. Pembayaran lewat transfer bank dengan unggah bukti transfer.'],
@@ -113,8 +113,8 @@ final class KontenSitusBawaan
             ],
             'fitur' => [
                 'Judul' => 'Fitur',
-                'JudulSeo' => 'Fitur Aplikasi Kasir PAYOU',
-                'DeskripsiSeo' => 'Fitur PAYOU: kasir offline, stok & HPP, pajak, promo, loyalti, deposit, piutang, karyawan & komisi, dapur, self-order QR, dan laporan keuangan.',
+                'JudulSeo' => 'Fitur Aplikasi Kasir Payoung',
+                'DeskripsiSeo' => 'Fitur Payoung: kasir offline, stok & HPP, pajak, promo, loyalti, deposit, piutang, karyawan & komisi, dapur, self-order QR, dan laporan keuangan.',
                 'Bagian' => [
                     [
                         'Jenis' => 'Hero',
@@ -186,8 +186,8 @@ final class KontenSitusBawaan
             ],
             'harga' => [
                 'Judul' => 'Harga',
-                'JudulSeo' => 'Harga Paket Aplikasi Kasir PAYOU',
-                'DeskripsiSeo' => 'Paket PAYOU mulai dari gratis. Bandingkan batas outlet, perangkat, pengguna, dan fitur tiap paket.',
+                'JudulSeo' => 'Harga Paket Aplikasi Kasir Payoung',
+                'DeskripsiSeo' => 'Paket Payoung mulai dari gratis. Bandingkan batas outlet, perangkat, pengguna, dan fitur tiap paket.',
                 'Bagian' => [
                     [
                         'Jenis' => 'Hero',
@@ -219,7 +219,7 @@ final class KontenSitusBawaan
             ],
             'solusi/kafe-resto' => [
                 'Judul' => 'Kafe & Resto',
-                'JudulSeo' => 'Aplikasi Kasir Kafe & Resto | PAYOU',
+                'JudulSeo' => 'Aplikasi Kasir Kafe & Resto | Payoung',
                 'DeskripsiSeo' => 'Aplikasi kasir kafe dan resto: denah meja, pesanan ke dapur, self-order QR, pisah tagihan, pajak PBJT dan biaya layanan.',
                 'Bagian' => [
                     [
@@ -251,7 +251,7 @@ final class KontenSitusBawaan
             ],
             'solusi/toko-retail' => [
                 'Judul' => 'Toko & Retail',
-                'JudulSeo' => 'Aplikasi Kasir Toko & Retail | PAYOU',
+                'JudulSeo' => 'Aplikasi Kasir Toko & Retail | Payoung',
                 'DeskripsiSeo' => 'Aplikasi kasir toko dan minimarket: pemindai barcode, varian, harga grosir & member, stok multi-gudang, pembelian dan hutang pemasok.',
                 'Bagian' => [
                     [
@@ -282,7 +282,7 @@ final class KontenSitusBawaan
             ],
             'solusi/jasa' => [
                 'Judul' => 'Salon, Laundry & Jasa',
-                'JudulSeo' => 'Aplikasi Kasir Salon, Laundry & Jasa | PAYOU',
+                'JudulSeo' => 'Aplikasi Kasir Salon, Laundry & Jasa | Payoung',
                 'DeskripsiSeo' => 'Aplikasi kasir usaha jasa: komisi per staf, deposit pelanggan, paket sesi, reservasi, tiket laundry, jadwal & absensi karyawan.',
                 'Bagian' => [
                     [
@@ -313,8 +313,8 @@ final class KontenSitusBawaan
             ],
             'kontak' => [
                 'Judul' => 'Kontak',
-                'JudulSeo' => 'Hubungi PAYOU',
-                'DeskripsiSeo' => 'Hubungi tim PAYOU lewat WhatsApp atau email untuk demo, pertanyaan harga, dan bantuan.',
+                'JudulSeo' => 'Hubungi Payoung',
+                'DeskripsiSeo' => 'Hubungi tim Payoung lewat WhatsApp atau email untuk demo, pertanyaan harga, dan bantuan.',
                 'Bagian' => [
                     [
                         'Jenis' => 'Kontak',
@@ -330,20 +330,20 @@ final class KontenSitusBawaan
                     ],
                     [
                         'Jenis' => 'UnduhAplikasi',
-                        'Judul' => 'Unduh aplikasi PAYOU',
+                        'Judul' => 'Unduh aplikasi Payoung',
                         'Subjudul' => 'Aplikasi kasir untuk Android, iPhone/iPad, dan Windows.',
                     ],
                 ],
             ],
             'tentang' => [
                 'Judul' => 'Tentang kami',
-                'JudulSeo' => 'Tentang PAYOU',
-                'DeskripsiSeo' => 'PAYOU adalah aplikasi kasir dan pembukuan untuk usaha di Indonesia.',
+                'JudulSeo' => 'Tentang Payoung',
+                'DeskripsiSeo' => 'Payoung adalah aplikasi kasir dan pembukuan untuk usaha di Indonesia.',
                 'Bagian' => [
                     [
                         'Jenis' => 'TeksBebas',
-                        'Judul' => 'Tentang PAYOU',
-                        'Isi' => "PAYOU dibuat untuk pemilik usaha di Indonesia yang ingin berjualan dengan tenang: kasir tetap jalan saat internet putus, stok dan pajak dihitung benar, dan laporan keuangan tersedia tanpa input ulang.\n\n## Tiga hal yang kami pegang\n- **Dokumen yang sudah diposting tidak pernah kami ubah diam-diam.** Koreksi selalu lewat dokumen pembalik, sehingga riwayatnya bisa diperiksa.\n- **Pajak mengikuti tarif yang berlaku**, bukan angka yang kami tanam di kode.\n- **Data pelanggan Anda dilindungi** sesuai UU Perlindungan Data Pribadi, dan kami bertindak sebagai pemroses data.",
+                        'Judul' => 'Tentang Payoung',
+                        'Isi' => "Payoung dibuat untuk pemilik usaha di Indonesia yang ingin berjualan dengan tenang: kasir tetap jalan saat internet putus, stok dan pajak dihitung benar, dan laporan keuangan tersedia tanpa input ulang.\n\n## Tiga hal yang kami pegang\n- **Dokumen yang sudah diposting tidak pernah kami ubah diam-diam.** Koreksi selalu lewat dokumen pembalik, sehingga riwayatnya bisa diperiksa.\n- **Pajak mengikuti tarif yang berlaku**, bukan angka yang kami tanam di kode.\n- **Data pelanggan Anda dilindungi** sesuai UU Perlindungan Data Pribadi, dan kami bertindak sebagai pemroses data.",
                     ],
                     $ctaDaftar,
                 ],

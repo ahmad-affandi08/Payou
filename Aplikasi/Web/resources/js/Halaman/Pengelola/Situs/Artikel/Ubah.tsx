@@ -127,7 +127,7 @@ export default function HalamanUbahArtikelSitus({
             {galat.Umum ? <Pemberitahuan jenis="bahaya">{galat.Umum}</Pemberitahuan> : null}
             <div className="flex flex-wrap items-center gap-2 text-keterangan text-teks-sekunder">
                 <LabelStatus jenis={terbit ? 'sukses' : 'peringatan'} teks={artikel.LabelStatus} />
-                <span className="font-mono break-all">payou.id{artikel.Jalur}</span>
+                <span className="font-mono break-all">payoung.id{artikel.Jalur}</span>
                 {artikel.DiterbitkanPada ? <span>Terbit {FormatTanggalWaktu(artikel.DiterbitkanPada)}</span> : null}
             </div>
             {formulir.isDirty ? (
@@ -184,7 +184,7 @@ export default function HalamanUbahArtikelSitus({
                     <BidangTeks
                         label="Alamat artikel"
                         kode
-                        keterangan="Huruf kecil, angka, tanda hubung. Menjadi payou.id/blog/alamat."
+                        keterangan="Huruf kecil, angka, tanda hubung. Menjadi payoung.id/blog/alamat."
                         nilai={d.Slug}
                         saatBerubah={(v) => formulir.setData('Slug', v.toLowerCase())}
                         galat={galat.Slug}

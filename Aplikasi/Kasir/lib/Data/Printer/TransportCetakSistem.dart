@@ -22,7 +22,7 @@ abstract final class PenyusunPdfStruk {
     final ukuran = format.availableWidth / (lebar.kolom * 0.6);
     final biasa = pw.Font.courier();
     final tebal = pw.Font.courierBold();
-    final pdf = pw.Document(title: 'Struk', creator: 'PAYOU');
+    final pdf = pw.Document(title: 'Struk', creator: 'Payoung');
     pdf.addPage(
       pw.Page(
         pageFormat: format,
@@ -94,7 +94,7 @@ class TransportCetakSistem implements TransportDokumen {
     final pdf = await PenyusunPdfStruk.Susun(dokumen, lebar);
     final bool dicetak;
     try {
-      dicetak = await _cetak(pdf, 'Struk PAYOU', PenyusunPdfStruk.AmbilFormat(lebar));
+      dicetak = await _cetak(pdf, 'Struk Payoung', PenyusunPdfStruk.AmbilFormat(lebar));
     } on Exception {
       throw const GalatPrinter(
         'Printer sistem tidak tersedia di perangkat ini. Pakai printer thermal atau simpan PDF.',

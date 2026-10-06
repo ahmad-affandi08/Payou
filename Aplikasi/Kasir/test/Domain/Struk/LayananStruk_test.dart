@@ -120,7 +120,7 @@ void main() {
     expect(baris.any((b) => b.startsWith('Kembalian') && b.endsWith('32.900')), isTrue);
     expect(baris, contains('Barang yang sudah dibeli bisa'));
     expect(baris[baris.length - 2], 'Terima kasih atas kunjungan Anda');
-    expect(baris.last, 'Dibuat dengan PAYOU');
+    expect(baris.last, 'Dibuat dengan Payoung');
     expect(baris, isNot(contains('CETAK ULANG')));
     expect(baris, isNot(contains('Poin masuk setelah transaksi tersinkron')));
   });
@@ -207,7 +207,7 @@ void main() {
   });
 
   test('POS-11 struk digital: QR & tautan = awalan dari server + Uuid penjualan; tanpa awalan tidak dicetak', () async {
-    await Siapkan(struk: {'AwalanStrukDigital': 'https://payou.id/s/1c.'});
+    await Siapkan(struk: {'AwalanStrukDigital': 'https://payoung.id/s/1c.'});
     final hasil = await Jual(JenisMetodeBayar.tunai);
     Future<DokumenStruk> Susun() async => PenyusunStrukPenjualan.Susun(
       await IdentitasStruk.Muat(u.repositori),
@@ -217,7 +217,7 @@ void main() {
         pembayaran: await u.repositoriPenjualan.AmbilPembayaran(hasil.uuid),
       ),
     );
-    final tautan = 'https://payou.id/s/1c.${hasil.uuid.toUpperCase()}';
+    final tautan = 'https://payoung.id/s/1c.${hasil.uuid.toUpperCase()}';
     final dokumen = await Susun();
     expect(dokumen.baris.whereType<BarisQr>().single.data, tautan);
     expect(dokumen.baris.whereType<BarisTeks>().map((b) => b.teks), containsAll(['Struk digital:', tautan]));
@@ -249,7 +249,7 @@ void main() {
     expect(teks, isNot(contains('Budi Santoso')));
     expect(teks, isNot(contains('NPWP')));
     expect(teks, contains('Sampai jumpa lagi'));
-    expect(teks, isNot(contains('PAYOU')));
+    expect(teks, isNot(contains('Payoung')));
   });
 
   test('cetak otomatis: tanpa printer / otomatis mati = tidak mencetak; tunai membuka laci, EDC tidak', () async {

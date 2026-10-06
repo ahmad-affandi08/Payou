@@ -20,13 +20,13 @@ use Tests\Pendukung\Tenant\BantuanPendaftaran;
 beforeEach(function (): void {
     BantuanPendaftaran::SiapkanPrasyarat();
     config([
-        'app.url' => 'https://dashboard.payou.test',
-        'domain.Pemasaran' => 'payou.test',
-        'domain.Tenant' => 'dashboard.payou.test',
+        'app.url' => 'https://dashboard.payoung.test',
+        'domain.Pemasaran' => 'payoung.test',
+        'domain.Tenant' => 'dashboard.payoung.test',
     ]);
 });
 
-/** Memasang rute aplikasi sebagai rute ter-cache (seperti `route:cache`), lalu (opsional) perbaikan PAYOU. */
+/** Memasang rute aplikasi sebagai rute ter-cache (seperti `route:cache`), lalu (opsional) perbaikan Payoung. */
 function PasangRuteTerCache(bool $perbaiki): RouteCollectionInterface
 {
     $router = app(Router::class);
@@ -51,7 +51,7 @@ function NamaRuteCocok(RouteCollectionInterface $koleksi, string $url): ?string
 
 describe('rute ter-cache tetap menjalankan validator halaman situs', function (): void {
     it('rute ter-cache bawaan Laravel salah menangkap /masuk sebagai halaman situs', function (): void {
-        expect(NamaRuteCocok(PasangRuteTerCache(false), 'https://dashboard.payou.test/masuk'))->toBe('situs.halaman');
+        expect(NamaRuteCocok(PasangRuteTerCache(false), 'https://dashboard.payoung.test/masuk'))->toBe('situs.halaman');
     });
 
     it('setelah diperbaiki: /masuk, /daftar, back-office, halaman situs, dan toko online masing-masing ke rute yang benar', function (): void {
@@ -60,16 +60,16 @@ describe('rute ter-cache tetap menjalankan validator halaman situs', function ()
         $koleksi = PasangRuteTerCache(true);
 
         expect($koleksi)->toBeInstanceOf(RouteCollection::class)
-            ->and(NamaRuteCocok($koleksi, 'https://dashboard.payou.test/masuk'))->toBe('masuk')
-            ->and(NamaRuteCocok($koleksi, 'https://dashboard.payou.test/daftar'))->toBe('daftar')
-            ->and(NamaRuteCocok($koleksi, 'https://payou.test/fitur'))->toBe('situs.halaman')
-            ->and(NamaRuteCocok($koleksi, 'https://dashboard.payou.test/'.$tenant['Tenant']->Slug))->toBe('publik.toko-online')
-            ->and(NamaRuteCocok($koleksi, 'https://dashboard.payou.test/kelola/produk'))->toBe('kelola.produk.daftar');
+            ->and(NamaRuteCocok($koleksi, 'https://dashboard.payoung.test/masuk'))->toBe('masuk')
+            ->and(NamaRuteCocok($koleksi, 'https://dashboard.payoung.test/daftar'))->toBe('daftar')
+            ->and(NamaRuteCocok($koleksi, 'https://payoung.test/fitur'))->toBe('situs.halaman')
+            ->and(NamaRuteCocok($koleksi, 'https://dashboard.payoung.test/'.$tenant['Tenant']->Slug))->toBe('publik.toko-online')
+            ->and(NamaRuteCocok($koleksi, 'https://dashboard.payoung.test/kelola/produk'))->toBe('kelola.produk.daftar');
     });
 
-    it('setelah diperbaiki, /masuk dashboard tampil (bukan dialihkan ke payou.id)', function (): void {
+    it('setelah diperbaiki, /masuk dashboard tampil (bukan dialihkan ke payoung.id)', function (): void {
         PasangRuteTerCache(true);
 
-        $this->get('https://dashboard.payou.test/masuk')->assertOk();
+        $this->get('https://dashboard.payoung.test/masuk')->assertOk();
     });
 });

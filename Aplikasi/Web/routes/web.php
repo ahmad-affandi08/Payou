@@ -57,7 +57,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 
 // D-35 edisi Lisensi (dashboard dipasang pembeli di server & domainnya sendiri): tanpa Platform Pengelola, situs
-// pemasaran, pendaftaran publik, langganan, maupun tiket bantuan ke PAYOU. Hanya dashboard tenant & halaman publik toko.
+// pemasaran, pendaftaran publik, langganan, maupun tiket bantuan ke Payoung. Hanya dashboard tenant & halaman publik toko.
 $saas = ! EdisiAplikasi::CekLisensi();
 
 // Platform Pengelola di subdomain sendiri (PRD §13.8). Didaftarkan lebih dulu agar menang atas rute tenant.
@@ -217,7 +217,7 @@ Route::middleware([TolakDomainPengelola::class, ArahkanDomainAplikasi::class, Ba
                 Route::get('/persetujuan-legal', [PersetujuanLegalKontroler::class, 'Tampilkan'])->name('kelola.persetujuan-legal');
                 Route::post('/persetujuan-legal', [PersetujuanLegalKontroler::class, 'Setujui'])->name('kelola.persetujuan-legal.setujui');
 
-                // D-35: tiket bantuan diterima Platform Pengelola PAYOU, yang tidak ada di edisi Lisensi.
+                // D-35: tiket bantuan diterima Platform Pengelola Payoung, yang tidak ada di edisi Lisensi.
                 if ($saas) {
                     // P-09 Bantuan (tiket dukungan). Parameter tiket = Uuid, dicari lewat MilikTenant di kueri (bukan route
                     // model binding, yang berjalan sebelum tenant aktif ditetapkan).

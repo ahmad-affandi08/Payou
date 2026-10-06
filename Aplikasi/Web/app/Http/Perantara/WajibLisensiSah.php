@@ -29,11 +29,11 @@ final class WajibLisensiSah
         $lisensi = $this->lisensiBerlaku->Ambil();
 
         if ($lisensi === null) {
-            return $this->Tolak($request, 'LisensiBelumTerpasang', 'Lisensi PAYOU belum terpasang di server ini. Jalankan: php artisan lisensi:pasang');
+            return $this->Tolak($request, 'LisensiBelumTerpasang', 'Lisensi Payoung belum terpasang di server ini. Jalankan: php artisan lisensi:pasang');
         }
 
         if (! $lisensi->CekDomainCocok($request->getHost())) {
-            return $this->Tolak($request, 'DomainLisensiBerbeda', "Lisensi PAYOU ini untuk domain {$lisensi->domain}. Buka aplikasi lewat domain tersebut.");
+            return $this->Tolak($request, 'DomainLisensiBerbeda', "Lisensi Payoung ini untuk domain {$lisensi->domain}. Buka aplikasi lewat domain tersebut.");
         }
 
         return $next($request);

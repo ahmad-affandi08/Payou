@@ -101,7 +101,7 @@ final class MulaiPembayaranGerbangLangganan
             return $this->gerbang->BuatTransaksiSnap(
                 (string) $pembayaran->RefGateway,
                 $pembayaran->AmbilJumlah(),
-                "Langganan PAYOU {$tagihan->Nomor}",
+                "Langganan Payoung {$tagihan->Nomor}",
                 $namaPengguna,
                 $emailPengguna,
             );

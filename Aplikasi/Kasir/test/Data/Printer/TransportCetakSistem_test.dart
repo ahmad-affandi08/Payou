@@ -14,7 +14,7 @@ void main() {
     const BarisDuaKolom('Es Kopi Susu Aren', '36.000'),
     const BarisGaris(),
     const BarisDuaKolom('TOTAL', 'Rp 67.100', tebal: true),
-    const BarisQr('https://payou.id/s/1c.01K5'),
+    const BarisQr('https://payoung.id/s/1c.01K5'),
     BarisGambar(GambarMonokrom(8, 2, Uint8List.fromList(List.filled(16, 1)))),
   ]);
 
@@ -34,7 +34,7 @@ void main() {
         return true;
       },
     ).CetakDokumen(dokumen, LebarKertas.Mm80);
-    expect(panggilan.single.$2, 'Struk PAYOU');
+    expect(panggilan.single.$2, 'Struk Payoung');
     expect(panggilan.single.$3.width, closeTo(80 * PdfPageFormat.mm, 0.01));
 
     await expectLater(

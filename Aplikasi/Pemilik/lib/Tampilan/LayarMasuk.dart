@@ -78,7 +78,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   children: [
                     const Center(child: LogoMerek.lengkap()),
                     const SizedBox(height: TokenJarak.jarak24),
-                    Text(duaFaktor ? 'Verifikasi dua langkah' : 'Masuk ke PAYOU Owner', style: teks.headlineSmall),
+                    Text(duaFaktor ? 'Verifikasi dua langkah' : 'Masuk ke Payoung Owner', style: teks.headlineSmall),
                     const SizedBox(height: TokenJarak.jarak8),
                     Text(
                       duaFaktor
@@ -128,7 +128,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                           decoration: InputDecoration(
                             labelText: 'Alamat server toko',
                             hintText: 'https://kasir.tokoanda.com',
-                            helperText: 'Untuk toko yang memasang PAYOU di server sendiri.',
+                            helperText: 'Untuk toko yang memasang Payoung di server sendiri.',
                             errorText: _galatAlamat,
                           ),
                           onSubmitted: (_) => unawaited(_Masuk()),

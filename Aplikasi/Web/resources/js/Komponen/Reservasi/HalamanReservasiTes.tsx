@@ -58,7 +58,7 @@ function Props(ubah: Partial<PropsDaftarReservasi> = {}): PropsDaftarReservasi {
             PengingatAktif: true,
         },
         HariIni: '2026-10-12',
-        TautanPublik: 'https://dashboard.payou.id/salon-ayu/reservasi',
+        TautanPublik: 'https://dashboard.payoung.id/salon-ayu/reservasi',
         Izin: { Pengaturan: true },
         ...ubah,
     };
@@ -77,7 +77,7 @@ describe('Reservasi (F-07 mode service)', () => {
         );
         RenderUji(<HalamanDaftarReservasi {...Props()} />);
         expect(screen.getAllByText('Rina Wulandari Kusumaningrum').length).toBeGreaterThan(0);
-        expect(screen.getByRole('link', { name: 'https://dashboard.payou.id/salon-ayu/reservasi' })).toBeTruthy();
+        expect(screen.getByRole('link', { name: 'https://dashboard.payoung.id/salon-ayu/reservasi' })).toBeTruthy();
 
         BukaMenu(screen.getAllByRole('button', { name: /Aksi/ })[0] as HTMLElement);
         expect(screen.getByRole('menuitem', { name: 'Pelanggan sudah datang' })).toBeTruthy();

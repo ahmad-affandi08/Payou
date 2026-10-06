@@ -4,7 +4,7 @@ import { AmbilKodeGalat, AmbilPesanGalat, AmbilTokenXsrf, PesanStatusHttp } from
 
 describe('AmbilTokenXsrf', () => {
     it('mengambil token walau cookie lain mendahuluinya', () => {
-        expect(AmbilTokenXsrf('payou_session=abc; XSRF-TOKEN=tok123; lain=1')).toBe('tok123');
+        expect(AmbilTokenXsrf('payoung_session=abc; XSRF-TOKEN=tok123; lain=1')).toBe('tok123');
     });
 
     it('mengambil token saat berada di awal', () => {

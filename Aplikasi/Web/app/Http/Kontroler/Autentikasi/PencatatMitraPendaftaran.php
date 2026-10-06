@@ -19,13 +19,14 @@ final class PencatatMitraPendaftaran
 {
     public function Catat(Request $permintaan, int $idTenant): void
     {
-        $nilai = $permintaan->cookie(PendaftaranKontroler::COOKIE_MITRA);
+        $nilai = $permintaan->cookie(PendaftaranKontroler::COOKIE_MITRA) ?? $permintaan->cookie(PendaftaranKontroler::COOKIE_MITRA_LAMA);
 
         if (! is_string($nilai) || preg_match('/^([A-Z0-9-]{3,20})\|(\d{1,12})$/', $nilai, $cocok) !== 1) {
             return;
         }
 
         Cookie::queue(Cookie::forget(PendaftaranKontroler::COOKIE_MITRA));
+        Cookie::queue(Cookie::forget(PendaftaranKontroler::COOKIE_MITRA_LAMA));
 
         try {
             app(CatatAtribusiMitra::class)->Jalankan($idTenant, $cocok[1], CarbonImmutable::createFromTimestamp((int) $cocok[2]));

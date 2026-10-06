@@ -120,7 +120,7 @@ describe('konsol mitra', () => {
                     NamaBank: 'Bank Rakyat Indonesia',
                     RekeningTersamar: '•••• 3567',
                     NamaPemilikRekening: 'CV Agen Kasir Solo',
-                    TautanPendaftaran: 'https://dashboard.payou.id/daftar?mitra=AGEN-SOLO',
+                    TautanPendaftaran: 'https://dashboard.payoung.id/daftar?mitra=AGEN-SOLO',
                     Tenant: [],
                     Komisi: [
                         {
@@ -139,7 +139,7 @@ describe('konsol mitra', () => {
                 }}
             />,
         );
-        expect(screen.getByText('https://dashboard.payou.id/daftar?mitra=AGEN-SOLO')).toBeTruthy();
+        expect(screen.getByText('https://dashboard.payoung.id/daftar?mitra=AGEN-SOLO')).toBeTruthy();
         expect(screen.getByText(/•••• 3567/)).toBeTruthy();
         expect(screen.getByText(/tertunda Rp 39\.800/)).toBeTruthy();
         expect(screen.queryByRole('button', { name: 'Ubah mitra' })).toBeNull();

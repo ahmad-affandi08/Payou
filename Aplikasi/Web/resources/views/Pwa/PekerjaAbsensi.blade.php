@@ -3,7 +3,7 @@
 // - Model wajah (/model-wajah/*) disimpan di cache: ±10 MB hanya diunduh sekali.
 // - Halaman absen network-first; tanpa koneksi tampil pesan offline (absen wajib online karena server yang menilai
 //   lokasi & wajah). Kiriman absen (POST) tidak pernah disimpan atau diulang di sini.
-const CACHE_MODEL = 'payou-model-wajah-v1';
+const CACHE_MODEL = 'payoung-model-wajah-v1';
 
 self.addEventListener('install', () => self.skipWaiting());
 
@@ -11,7 +11,7 @@ self.addEventListener('activate', (peristiwa) => {
     peristiwa.waitUntil(
         caches
             .keys()
-            .then((kunci) => Promise.all(kunci.filter((k) => k.startsWith('payou-model-wajah-') && k !== CACHE_MODEL).map((k) => caches.delete(k))))
+            .then((kunci) => Promise.all(kunci.filter((k) => k.startsWith('payoung-model-wajah-') && k !== CACHE_MODEL).map((k) => caches.delete(k))))
             .then(() => self.clients.claim()),
     );
 });

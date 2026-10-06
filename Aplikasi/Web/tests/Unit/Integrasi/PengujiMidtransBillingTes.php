@@ -8,7 +8,7 @@ use App\Domain\Pengelola\Integrasi\Penguji\PengujiMidtransBilling;
 use Illuminate\Support\Facades\Http;
 
 /*
- * P-05 penyedia Gerbang billing (P-08 langkah 3): server key Midtrans milik PAYOU diuji dengan menanyakan status
+ * P-05 penyedia Gerbang billing (P-08 langkah 3): server key Midtrans milik Payoung diuji dengan menanyakan status
  * order yang sengaja tidak ada. Midtrans menjawab 401 bila kunci salah dan 404 bila kunci benar tetapi ordernya
  * tidak dikenal — jadi 404 adalah bukti kunci diterima, tanpa membuat transaksi palsu.
  */

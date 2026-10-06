@@ -31,7 +31,10 @@ use Throwable;
 final class PendaftaranKontroler extends Kontroler
 {
     /** P-12: cookie atribusi tautan mitra (`kode|unix detik klik pertama`), berlaku `CatatAtribusiMitra::HARI_BERLAKU`. */
-    public const COOKIE_MITRA = 'payou_mitra';
+    public const COOKIE_MITRA = 'payoung_mitra';
+
+    /** Nama cookie sebelum merek diganti (D-61); tetap dibaca agar atribusi klik yang masih berlaku (90 hari) tidak hilang. */
+    public const COOKIE_MITRA_LAMA = 'payou_mitra';
 
     public function Tampilkan(Request $permintaan, StatusPendaftaran $status, PaketTersedia $paket, PemeriksaCaptcha $captcha): Response
     {
@@ -44,7 +47,7 @@ final class PendaftaranKontroler extends Kontroler
         $kodeMitra = mb_strtoupper(trim($permintaan->string('mitra')->toString()));
 
         // P-12 langkah 3: klik **pertama** tautan mitra yang dihitung; tautan mitra lain sesudahnya tidak menimpa.
-        if (preg_match('/^[A-Z0-9-]{3,20}$/', $kodeMitra) === 1 && ! $permintaan->hasCookie(self::COOKIE_MITRA)) {
+        if (preg_match('/^[A-Z0-9-]{3,20}$/', $kodeMitra) === 1 && ! $permintaan->hasCookie(self::COOKIE_MITRA) && ! $permintaan->hasCookie(self::COOKIE_MITRA_LAMA)) {
             Cookie::queue(self::COOKIE_MITRA, $kodeMitra.'|'.now()->getTimestamp(), CatatAtribusiMitra::HARI_BERLAKU * 24 * 60, '/', null, (bool) config('session.secure'), true, false, 'lax');
         }
 

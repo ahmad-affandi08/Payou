@@ -1,9 +1,9 @@
 # Migrasi dari Hosting Bersama ke Server Sendiri (tanpa henti layanan)
 
-Sasaran pemilik produk (3 Okt 2026): saat PAYOU pindah dari hosting bersama (hPanel) ke server sendiri, **toko tidak
+Sasaran pemilik produk (3 Okt 2026): saat Payoung pindah dari hosting bersama (hPanel) ke server sendiri, **toko tidak
 boleh berhenti berjualan**. Panduan ini menjelaskan apa yang harus disiapkan sejak sekarang dan langkah pindahnya.
 
-## Arti "tanpa henti" di PAYOU
+## Arti "tanpa henti" di Payoung
 
 | Pengguna | Target | Kenapa bisa |
 |---|---|---|
@@ -25,7 +25,7 @@ SHOW GRANTS;                        -- cari REPLICATION SLAVE / REPLICATION CLIE
 
 ## Yang harus disiapkan SEJAK SEKARANG (supaya nanti mudah)
 
-1. **Domain lewat Cloudflare (atau DNS dengan TTL rendah).** Pindahkan DNS `payou.id` ke Cloudflare sekarang. Saat
+1. **Domain lewat Cloudflare (atau DNS dengan TTL rendah).** Pindahkan DNS `payoung.id` ke Cloudflare sekarang. Saat
    migrasi, perpindahan cukup mengganti alamat asal di Cloudflare (berlaku detik), bukan menunggu propagasi DNS
    berjam-jam. Bila tidak memakai Cloudflare, turunkan TTL A record ke 60 detik **minimal 2 hari** sebelum pindah.
    Setel `PROKSI_TEPERCAYA` ke rentang IP Cloudflare.

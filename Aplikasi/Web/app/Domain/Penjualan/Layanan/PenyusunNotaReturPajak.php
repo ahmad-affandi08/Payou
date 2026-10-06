@@ -25,7 +25,7 @@ use Carbon\CarbonImmutable;
  * Barang yang dikembalikan atas penyerahan yang sudah dibuatkan Faktur Pajak mengurangi PPN Keluaran lewat **nota
  * retur** yang merujuk Faktur Pajak asal (NSFP). Bila pembelinya PKP, pembeli yang membuat retur di Coretax (Retur
  * Pajak Masukan) dan penjual mengonfirmasinya; bila bukan PKP, penjual mencatatnya sendiri di Coretax (Retur Pajak
- * Keluaran). PAYOU tidak tahu status PKP pembeli, jadi rekap ini menyiapkan angka yang sama untuk kedua jalur:
+ * Keluaran). Payoung tidak tahu status PKP pembeli, jadi rekap ini menyiapkan angka yang sama untuk kedua jalur:
  * nomor Faktur Pajak asal, barang, jumlah, DPP, DPP nilai lain 11/12, dan PPN per baris — dihitung dengan cara yang
  * sama dengan baris Faktur Pajak (`PenghitungBarisFakturPajak`) dari snapshot harga & tarif retur.
  *

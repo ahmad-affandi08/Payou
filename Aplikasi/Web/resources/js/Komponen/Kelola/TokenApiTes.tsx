@@ -14,7 +14,7 @@ const props: PropsHalamanTokenApi = {
         {
             Uuid: '01K5TOKEN0000000000000000A1',
             Nama: 'Aplikasi akuntansi',
-            Prefiks: 'payou_12_Ab3D',
+            Prefiks: 'payoung_12_Ab3D',
             Cakupan: ['produk:baca', 'penjualan:baca'],
             Aktif: true,
             DibuatPada: '2026-10-05T03:00:00Z',
@@ -28,7 +28,7 @@ const props: PropsHalamanTokenApi = {
         { Nilai: 'penjualan:baca', Label: 'Baca penjualan beserta baris & pembayaran' },
     ],
     TokenBaru: null,
-    AlamatApi: 'https://dashboard.payou.id/api/v1',
+    AlamatApi: 'https://dashboard.payoung.id/api/v1',
 };
 
 describe('X7 halaman Token API', () => {
@@ -42,12 +42,12 @@ describe('X7 halaman Token API', () => {
         RenderUji(
             <HalamanTokenApi
                 {...props}
-                TokenBaru={{ Nama: 'Aplikasi akuntansi', Token: 'payou_12_' + 'x'.repeat(40) }}
+                TokenBaru={{ Nama: 'Aplikasi akuntansi', Token: 'payoung_12_' + 'x'.repeat(40) }}
             />,
         );
 
-        expect(screen.getAllByText('payou_12_Ab3D…').length).toBeGreaterThan(0);
-        expect(screen.getByText('payou_12_' + 'x'.repeat(40))).toBeTruthy();
+        expect(screen.getAllByText('payoung_12_Ab3D…').length).toBeGreaterThan(0);
+        expect(screen.getByText('payoung_12_' + 'x'.repeat(40))).toBeTruthy();
         expect(screen.getByRole('button', { name: /Salin token/ })).toBeTruthy();
         expect(screen.getByText(/tidak bisa ditampilkan lagi/)).toBeTruthy();
     });

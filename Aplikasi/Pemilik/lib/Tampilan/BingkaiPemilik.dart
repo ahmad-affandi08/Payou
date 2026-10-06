@@ -134,7 +134,7 @@ class _BingkaiPemilikState extends ConsumerState<BingkaiPemilik> {
         backgroundColor: warna.brandGelap,
         foregroundColor: warna.permukaan,
         surfaceTintColor: warna.brandGelap,
-        title: Text(sesi.namaTenant ?? 'PAYOU Owner', style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(sesi.namaTenant ?? 'Payoung Owner', style: const TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             tooltip: belumDibaca > 0 ? 'Notifikasi ($belumDibaca belum dibaca)' : 'Notifikasi',

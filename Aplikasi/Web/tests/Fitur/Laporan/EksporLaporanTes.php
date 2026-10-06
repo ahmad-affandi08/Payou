@@ -56,7 +56,7 @@ describe('Kop laporan seragam (D-43): laporan penjualan', function (): void {
             ->and($sheet)->toContain('No Transaksi')
             ->and($sheet)->toContain('Metode Pembayaran')
             ->and($sheet)->toContain(htmlspecialchars($d['Minyak']->Nama, ENT_XML1))
-            ->and($sheet)->toContain('Dibuat dengan PAYOU');
+            ->and($sheet)->toContain('Dibuat dengan Payoung');
         expect($bagian['xl/workbook.xml'])->toContain('name="Detail Penjualan"');
     });
 
@@ -142,7 +142,7 @@ describe('Kop laporan seragam (D-43): umur piutang, umur hutang, komisi', functi
 
         foreach ($daftar as $alamat => [$judul, $kolom]) {
             $xlsx = BacaUnduhanXlsx($this->get("{$alamat}?format=xlsx")->assertOk()->streamedContent());
-            expect($xlsx['xl/worksheets/sheet1.xml'])->toContain($judul)->toContain($kolom)->toContain('Dibuat dengan PAYOU');
+            expect($xlsx['xl/worksheets/sheet1.xml'])->toContain($judul)->toContain($kolom)->toContain('Dibuat dengan Payoung');
             expect($this->get("{$alamat}?format=csv")->assertOk()->streamedContent())->toContain($kolom);
         }
     });

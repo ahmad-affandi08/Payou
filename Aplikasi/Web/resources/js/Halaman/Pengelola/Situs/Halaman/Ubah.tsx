@@ -147,7 +147,7 @@ export default function HalamanUbahHalamanSitus({ Halaman: halaman, LabelBlok, S
             {galat.Umum ? <Pemberitahuan jenis="bahaya">{galat.Umum}</Pemberitahuan> : null}
             <div className="flex flex-wrap items-center gap-2 text-keterangan text-teks-sekunder">
                 <LabelStatus jenis={status.jenis} teks={status.teks} />
-                <span className="font-mono">payou.id{halaman.Jalur}</span>
+                <span className="font-mono">payoung.id{halaman.Jalur}</span>
                 {halaman.DiterbitkanPada ? <span>Terbit {FormatTanggalWaktu(halaman.DiterbitkanPada)}</span> : null}
             </div>
             {berubah ? (

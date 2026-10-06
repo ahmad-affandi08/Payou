@@ -1,7 +1,7 @@
-# Rencana Desain Ulang Situs Pemasaran `payou.id`
+# Rencana Desain Ulang Situs Pemasaran `payoung.id`
 
 Status: **diterapkan** (D-25; disempurnakan D-39 v4.47 "bersih & meyakinkan" dengan tangkapan layar asli aplikasi)
-Cakupan: D-20, D-21 (situs pemasaran `payou.id`). Tidak menyentuh `dashboard.payou.id` maupun `consol.payou.id`.
+Cakupan: D-20, D-21 (situs pemasaran `payoung.id`). Tidak menyentuh `dashboard.payoung.id` maupun `consol.payoung.id`.
 Referensi desain yang disepakati: **squareup.com**.
 
 ---
@@ -10,7 +10,7 @@ Referensi desain yang disepakati: **squareup.com**.
 
 Dipilih bukan karena "bagus", tapi karena disiplinnya bisa ditiru tanpa merombak sistem desain kita.
 
-| Hal | Square | PAYOU sekarang |
+| Hal | Square | Payoung sekarang |
 |---|---|---|
 | Warna merek | Dijatah ekstrem: hanya border 1px & focus ring, bukan isian | `bg-brand-lembut` di setiap kartu |
 | Skala judul | Judul editorial besar, jurang lebar ke body 16px | 48px → 18px, lompatan sempit |
@@ -35,7 +35,7 @@ Ditolak sebagai referensi utama: **nory.ai** — masih memakai grid kartu ikon 3
    judul bagiannya kata benda kategori ("Penjualan", "Stok & pembelian").
 3. **Kotak ikon ungu di setiap kartu** (`size-12 rounded-panel bg-brand-lembut text-brand`,
    `BagianKartu.tsx:33-37`) — ciri AI slop paling khas, dan melanggar semangat aturan 90/10 §17.6.3.
-4. **Selang-seling latar tidak bekerja.** `--color-latar: #f9fafb` vs `--color-permukaan: #ffffff` beda ~2%,
+4. **Selang-seling latar tidak bekerja.** `--color-latar: #f7f9f6` vs `--color-permukaan: #ffffff` beda ~2%,
    jadi batas bagian yang dijanjikan `HitungLatar()` (`RenderBagian.tsx:20-38`) praktis tak terlihat.
 5. **`KepalaBagian` default `rata="tengah"`** (`KepalaBagian.tsx:14`) → dinding teks rata tengah dari atas ke bawah.
 6. **Hero tanpa jangkar visual.** `Gambar` opsional, tanpa bawaan → beranda dibuka dengan teks rata tengah
@@ -53,8 +53,8 @@ eksplisit** sebelum implementasi, karena membalik keputusan yang terikat D-15.
 ### D-25.a Kuning aksen menjadi token UI
 
 - **Menimpa** §17.6.3: *"Kuning aksen tidak menjadi token UI (tetap hanya di logo) agar tidak tertukar dengan `Peringatan`."*
-- **Usul**: `Aksen` = `#FBBF24` menjadi token resmi, dengan pagar pemakaian:
-  - Hanya di `payou.id`. **Dilarang** di back-office, konsol pengelola, POS, KDS, Aplikasi Pemilik.
+- **Usul**: `Aksen` = `#f4a261` menjadi token resmi, dengan pagar pemakaian:
+  - Hanya di `payoung.id`. **Dilarang** di back-office, konsol pengelola, POS, KDS, Aplikasi Pemilik.
   - **Tidak pernah menandai status apa pun.** Status tetap `Sukses`/`Peringatan`/`Bahaya`/`Info` + teks/ikon.
     Ini yang menjaga aturan "makna warna sama di semua klien".
   - Peran tunggal: aksen grafis pemasaran (garis bawah judul, penanda harga tersorot, blok kutipan).
@@ -62,10 +62,10 @@ eksplisit** sebelum implementasi, karena membalik keputusan yang terikat D-15.
 
   | Pasangan | Rasio | Putusan |
   |---|---|---|
-  | Putih di atas `#FBBF24` | **1,67:1** | **Dilarang** |
-  | Navy `#0F2747` di atas `#FBBF24` | **8,98:1** | Boleh (AAA) |
-  | `#FBBF24` sebagai teks di atas `Permukaan` putih | **1,67:1** | **Dilarang** |
-  | `#FBBF24` sebagai teks di atas `BrandGelap` `#1D29B8` | **6,10:1** | Boleh (AA) |
+  | Putih di atas `#f4a261` | **2,1:1** | **Dilarang** |
+  | Navy `#1f3335` di atas `#f4a261` | **6,4:1** | Boleh (AAA) |
+  | `#f4a261` sebagai teks di atas `Permukaan` putih | **2,1:1** | **Dilarang** |
+  | `#f4a261` sebagai teks di atas `BrandGelap` `#22383a` | **5,1:1** | Boleh (AA) |
 
   Artinya kuning adalah **warna latar dan grafis**, bukan warna teks — kecuali di atas permukaan gelap.
 
@@ -79,7 +79,7 @@ eksplisit** sebelum implementasi, karena membalik keputusan yang terikat D-15.
 ### D-25.c Animasi pemasaran
 
 - **Menimpa** §17.6.4: *"Animasi singkat (100–200 ms) dan fungsional."*
-- **Usul**: di `payou.id` diizinkan **animasi masuk saat gulir** 200–400 ms (fade + geser ≤ 16px) dan
+- **Usul**: di `payoung.id` diizinkan **animasi masuk saat gulir** 200–400 ms (fade + geser ≤ 16px) dan
   transisi angka harga. Syarat mutlak:
   - `prefers-reduced-motion: reduce` mematikan seluruhnya — pola ini **sudah ada** di
     `UtilitasKomponen.css:186`, jadi tinggal diperluas.
@@ -90,7 +90,7 @@ eksplisit** sebelum implementasi, karena membalik keputusan yang terikat D-15.
 
 ### D-25.d Pemakaian palet penuh di situs pemasaran
 
-- **Menimpa** aturan 90/10 §17.6.3 **hanya untuk `payou.id`**.
+- **Menimpa** aturan 90/10 §17.6.3 **hanya untuk `payoung.id`**.
 - **Usul**: blok berlatar penuh boleh memakai `BrandGelap`, `TeksUtama` (Navy), dan `Aksen` sebagai
   latar bagian. Warna semantik (`Sukses`/`Peringatan`/`Bahaya`/`Info`) **tetap hanya untuk status** dan
   tidak dipakai sebagai warna dekoratif — ini tidak dilonggarkan.
@@ -111,7 +111,7 @@ Jalur yang benar (menambah kasus, bukan melemahkan penjaga — sesuai `.claude/r
 
 | File | Perubahan |
 |---|---|
-| `Aplikasi/Web/resources/js/Gaya/Aplikasi.css` | `--color-aksen: #fbbf24;` + turunan `--color-aksen-lembut` (color-mix, tidak ikut terbaca test) |
+| `Aplikasi/Web/resources/js/Gaya/Aplikasi.css` | `--color-aksen: #f4a261;` + turunan `--color-aksen-lembut` (color-mix, tidak ikut terbaca test) |
 | `Paket/SistemDesain/lib/Token/TokenWarna.dart` | field `aksen` dengan nilai sama |
 | `Paket/SistemDesain/test/Token/SumberWarna_test.dart` | tambah `'aksen': t.aksen.toARGB32()` ke peta |
 
@@ -158,7 +158,7 @@ Semua di `Aplikasi/Web/resources/js/Komponen/Situs/Bagian/`.
   Ini yang membuatnya beda bentuk dari blok fitur.
 
 ### `BagianHarga.tsx` — penyorotan diperbaiki
-- Lencana "Paling populer" memakai `Aksen` + teks Navy (8,98:1), bukan `Brand` + putih.
+- Lencana "Paling populer" memakai `Aksen` + teks Navy (6,4:1), bukan `Brand` + putih.
 - Paket tersorot: latar `Permukaan` dengan border 2px `Brand`; paket lain tanpa border, dipisah garis 1px.
 - Transisi angka saat Bulanan ↔ Tahunan (D-25.c).
 
@@ -242,4 +242,4 @@ Kalau Anda ingin hasil cepat tanpa mengubah keputusan, kita bisa mulai dari situ
 | Menambah token mematahkan `SumberWarna_test` | Token ditambah ke Flutter juga, bukan test yang dilemahkan |
 | Animasi memperlambat / mengganggu | Isi dirender penuh di HTML; reduced-motion dihormati; anggaran JS < 150 KB |
 | Palet penuh merusak aksesibilitas yang sudah lolos audit D-16c | Setiap pasangan warna baru dihitung rasionya sebelum dipakai |
-| Cakupan melebar ke back-office | D-25 mengikat pemakaian hanya ke `payou.id`, diuji penjaga |
+| Cakupan melebar ke back-office | D-25 mengikat pemakaian hanya ke `payoung.id`, diuji penjaga |

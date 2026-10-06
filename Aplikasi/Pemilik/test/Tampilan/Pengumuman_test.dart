@@ -47,7 +47,7 @@ void main() {
             'Isi': 'Buka Laporan lalu pilih Ekspor.',
             'Jenis': 'YangBaru',
             'LabelJenis': 'Yang baru',
-            'Tautan': 'https://payou.id/blog/laporan-per-jam',
+            'Tautan': 'https://payoung.id/blog/laporan-per-jam',
             'BolehDitutup': true,
             'PemeliharaanMulai': null,
             'PemeliharaanSelesai': null,
@@ -66,7 +66,7 @@ void main() {
     expect(find.text('Pemeliharaan terjadwal: Pemeliharaan server Sabtu malam'), findsOneWidget);
     expect(find.textContaining('Jadwal: 10 Okt'), findsOneWidget);
     expect(find.text('Yang baru: Laporan per jam kini bisa diekspor'), findsOneWidget);
-    expect(find.text('https://payou.id/blog/laporan-per-jam'), findsOneWidget);
+    expect(find.text('https://payoung.id/blog/laporan-per-jam'), findsOneWidget);
     expect(find.byTooltip('Tutup pengumuman'), findsOneWidget, reason: 'Hanya Yang baru yang bisa ditutup.');
     final minta = server.permintaan.lastWhere((p) => p.url.path.endsWith('/pengumuman'));
     expect(minta.headers['X-Tenant'], 'T1');

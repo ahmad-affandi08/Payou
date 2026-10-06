@@ -6,7 +6,7 @@ import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
 import { FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
 import type { PengumumanPlatform } from '@/Tipe/Aplikasi';
 
-const KUNCI_SIMPAN = 'payou.pengumuman-ditutup';
+const KUNCI_SIMPAN = 'payoung.pengumuman-ditutup';
 
 const JenisPemberitahuan: Record<PengumumanPlatform['Jenis'], 'info' | 'sukses' | 'peringatan' | 'bahaya'> = {
     Info: 'info',
@@ -54,7 +54,7 @@ export default function BannerPengumuman({ pengumuman }: { pengumuman: Pengumuma
     };
 
     return (
-        <div className="flex flex-col gap-2" aria-label="Pengumuman PAYOU" role="region">
+        <div className="flex flex-col gap-2" aria-label="Pengumuman Payoung" role="region">
             {tampil.map((p) => (
                 <Pemberitahuan key={p.Uuid} jenis={JenisPemberitahuan[p.Jenis]} judul={`${p.LabelJenis}: ${p.Judul}`}>
                     <div className="flex items-start gap-2">

@@ -1,6 +1,6 @@
 # Ruang kerja pub (Dart workspace) untuk seluruh aplikasi & paket Flutter (PRD §13.0, §17.2).
 # Satu pubspec.lock di akar. Pengecekan: `dart pub global activate melos 7.8.2` sekali, lalu `melos run periksa`.
-name: payou_ruang_kerja
+name: payoung_ruang_kerja
 publish_to: none
 
 environment:

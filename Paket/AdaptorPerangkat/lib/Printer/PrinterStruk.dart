@@ -38,7 +38,7 @@ class PrinterStruk {
     const BarisTeks('Teks tebal', tebal: true),
     if (keterangan != null) BarisTeks(keterangan),
     const BarisGaris(),
-    const BarisQr('https://payou.id'),
+    const BarisQr('https://payoung.id'),
     const BarisTeks('Bila semua baris lurus, printer siap dipakai.', rata: RataStruk.Tengah),
   ]);
 }

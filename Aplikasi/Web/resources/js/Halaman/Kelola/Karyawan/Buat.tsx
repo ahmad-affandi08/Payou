@@ -7,7 +7,17 @@ import TataLetakAplikasi from '@/TataLetak/TataLetakAplikasi';
 import type { PropsBersamaAplikasi } from '@/Tipe/Aplikasi';
 import type { PropsBuatKaryawan } from '@/Tipe/Karyawan';
 
-const isianForm = ['Nama', 'Jabatan', 'LevelStaf', 'GajiPokok', 'TarifLemburPerJam', 'PotonganTerlambatPerMenit', 'PotonganTidakMasukPerHari', 'UuidPengguna', 'UuidOutlet'];
+const isianForm = [
+    'Nama',
+    'Jabatan',
+    'LevelStaf',
+    'GajiPokok',
+    'TarifLemburPerJam',
+    'PotonganTerlambatPerMenit',
+    'PotonganTidakMasukPerHari',
+    'UuidPengguna',
+    'UuidOutlet',
+];
 
 /** F-18 EMP-01 halaman "Tambah karyawan". Setelah disimpan, server mengarahkan kembali ke daftar karyawan. */
 export default function HalamanBuatKaryawan({ OpsiPengguna, OpsiOutlet }: PropsBuatKaryawan) {

@@ -48,7 +48,7 @@ export default function TautanSitus({ href, children, className, ...lainnya }: P
     }
 
     const luar = /^https?:\/\//.test(href) && typeof window !== 'undefined' && !href.startsWith(window.location.origin);
-    const bukanSitus = luar && !/^https?:\/\/[^/]*payou\./.test(href);
+    const bukanSitus = luar && !/^https?:\/\/[^/]*payoung\./.test(href);
 
     return (
         <a

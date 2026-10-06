@@ -213,7 +213,7 @@ void main() {
     // Aplikasi dibuka ulang dengan sesi tersimpan (ProviderScope baru).
     await tester.pumpWidget(const SizedBox());
     await PasangPemilik(tester, server: server, sesi: sesi);
-    expect(find.text('Masuk ke PAYOU Owner'), findsOneWidget);
+    expect(find.text('Masuk ke Payoung Owner'), findsOneWidget);
     expect(find.text('Sesi berakhir. Masuk lagi.'), findsOneWidget);
     expect(sesi.isi, isEmpty);
   });

@@ -46,16 +46,16 @@ use RuntimeException;
  */
 final class DataDemoLokal extends Seeder
 {
-    private const EMAIL_SUPER_ADMIN_SATU = 'admin@payou.test';
+    private const EMAIL_SUPER_ADMIN_SATU = 'admin@payoung.test';
 
-    private const EMAIL_SUPER_ADMIN_DUA = 'admin2@payou.test';
+    private const EMAIL_SUPER_ADMIN_DUA = 'admin2@payoung.test';
 
     /** Tarif pajak nasional butuh dua penyetuju selain pengaju (TinjauTarifPajak::PENYETUJU_NASIONAL). */
-    private const EMAIL_SUPER_ADMIN_TIGA = 'admin3@payou.test';
+    private const EMAIL_SUPER_ADMIN_TIGA = 'admin3@payoung.test';
 
-    private const EMAIL_PEMILIK = 'owner@payou.test';
+    private const EMAIL_PEMILIK = 'owner@payoung.test';
 
-    private const NAMA_USAHA = 'Toko Demo PAYOU';
+    private const NAMA_USAHA = 'Toko Demo Payoung';
 
     private const KODE_PAKET = 'PRO';
 
@@ -80,9 +80,9 @@ final class DataDemoLokal extends Seeder
 
         $kataSandi = $this->AmbilKataSandi();
 
-        $superAdminSatu = $this->SiapkanSuperAdmin($buatSuperAdmin, self::EMAIL_SUPER_ADMIN_SATU, 'Super Admin PAYOU', $kataSandi);
-        $superAdminDua = $this->SiapkanSuperAdmin($buatSuperAdmin, self::EMAIL_SUPER_ADMIN_DUA, 'Admin Kedua PAYOU', $kataSandi);
-        $superAdminTiga = $this->SiapkanSuperAdmin($buatSuperAdmin, self::EMAIL_SUPER_ADMIN_TIGA, 'Admin Ketiga PAYOU', $kataSandi);
+        $superAdminSatu = $this->SiapkanSuperAdmin($buatSuperAdmin, self::EMAIL_SUPER_ADMIN_SATU, 'Super Admin Payoung', $kataSandi);
+        $superAdminDua = $this->SiapkanSuperAdmin($buatSuperAdmin, self::EMAIL_SUPER_ADMIN_DUA, 'Admin Kedua Payoung', $kataSandi);
+        $superAdminTiga = $this->SiapkanSuperAdmin($buatSuperAdmin, self::EMAIL_SUPER_ADMIN_TIGA, 'Admin Ketiga Payoung', $kataSandi);
 
         $this->TerbitkanDokumenWajib($simpanDraf, $terbitkanDokumen, $superAdminSatu);
         $this->AktifkanPaket($ajukanHarga, $tinjauHarga, $ubahStatusPaket, $superAdminSatu, $superAdminDua);
@@ -156,7 +156,7 @@ final class DataDemoLokal extends Seeder
             $data = new DataDokumenLegal(
                 jenis: $jenis,
                 judul: $jenis->AmbilLabel(),
-                isi: "# {$jenis->AmbilLabel()}\n\nNaskah contoh untuk lingkungan demo lokal PAYOU. Bukan dokumen legal final.",
+                isi: "# {$jenis->AmbilLabel()}\n\nNaskah contoh untuk lingkungan demo lokal Payoung. Bukan dokumen legal final.",
                 ringkasanPerubahan: null,
                 materiil: false,
                 berlakuMulai: $hariIni,

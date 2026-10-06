@@ -1,5 +1,5 @@
 /*
- * Entri CSS situs pemasaran (Situs.tsx, payou.id; T1, PRD v3.30). Tailwind **tidak** memindai seluruh kode
+ * Entri CSS situs pemasaran (Situs.tsx, payoung.id; T1, PRD v3.30). Tailwind **tidak** memindai seluruh kode
  * (`source(none)`): hanya kode yang benar-benar dipakai situs, sehingga kelas back-office (tabel, kalender, grafik)
  * tidak ikut dikirim ke pengunjung situs. Daftar di bawah dijaga Gaya/SumberCssSitusTes.ts: setiap berkas yang
  * diimpor (langsung atau tidak) dari Situs.tsx harus tercakup salah satu `@source`.

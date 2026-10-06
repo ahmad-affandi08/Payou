@@ -18,7 +18,7 @@ class AplikasiKasir extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final skala = ref.watch(penyediaPengaturanPerangkat.select((p) => p.ukuran.skalaTeks));
     return MaterialApp(
-      title: 'PAYOU POS',
+      title: 'Payoung POS',
       debugShowCheckedModeBanner: false,
       // Hanya tema terang, tanpa darkTheme (D-14).
       theme: BuatTema(),

@@ -670,7 +670,7 @@ class StrukPos {
   /// Logo tersedia & ditampilkan (unduh lewat `GET /logo-struk`).
   final bool adaLogo;
 
-  /// Paket tanpa fitur `struk.tanpa-watermark`: cetak "Dibuat dengan PAYOU".
+  /// Paket tanpa fitur `struk.tanpa-watermark`: cetak "Dibuat dengan Payoung".
   final bool tandaAir;
   final String? namaDicetak;
   final List<String> teksKepala;

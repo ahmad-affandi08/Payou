@@ -24,13 +24,13 @@ use Illuminate\Validation\Rules\Password;
 final class PasangLisensiPerintah extends Command
 {
     protected $signature = 'lisensi:pasang
-        {berkas : Berkas lisensi dari PAYOU}
+        {berkas : Berkas lisensi dari Payoung}
         {--nama-usaha= : Nama usaha (pemasangan pertama)}
         {--nama= : Nama lengkap Owner (pemasangan pertama)}
         {--email= : Email Owner untuk masuk dashboard (pemasangan pertama)}
         {--hp= : Nomor WhatsApp Owner, misal 081234567890 (pemasangan pertama)}';
 
-    protected $description = 'Memasang atau mengganti berkas lisensi PAYOU di server ini (edisi Lisensi, D-35).';
+    protected $description = 'Memasang atau mengganti berkas lisensi Payoung di server ini (edisi Lisensi, D-35).';
 
     public function handle(PasangLisensi $pasang): int
     {

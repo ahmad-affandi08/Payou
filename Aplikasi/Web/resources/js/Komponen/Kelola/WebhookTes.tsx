@@ -15,7 +15,7 @@ const props: PropsHalamanWebhook = {
         {
             Uuid: '01K5WEBHOOK000000000000AA1',
             Nama: 'Sistem gudang',
-            Url: 'https://gudang.contoh.co.id/payou',
+            Url: 'https://gudang.contoh.co.id/payoung',
             Peristiwa: ['penjualan.selesai'],
             Aktif: true,
             DibuatPada: '2026-10-05T03:00:00Z',
@@ -56,7 +56,7 @@ describe('X7 halaman Webhook', () => {
         expect(screen.getByText('r'.repeat(48))).toBeTruthy();
         expect(screen.getByRole('button', { name: /Salin rahasia/ })).toBeTruthy();
         expect(screen.getAllByText(/HTTP 503/).length).toBeGreaterThan(0);
-        expect(screen.getAllByText('https://gudang.contoh.co.id/payou').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('https://gudang.contoh.co.id/payoung').length).toBeGreaterThan(0);
     });
 
     it('formulir tambah webhook mengirim nama, URL, dan peristiwa terpilih', () => {

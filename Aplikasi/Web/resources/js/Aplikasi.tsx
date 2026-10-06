@@ -9,7 +9,7 @@ import { createRoot } from 'react-dom/client';
 
 import { BuatKlienKueri } from './Pustaka/KlienKueri';
 
-const NamaAplikasi = import.meta.env.VITE_APP_NAME ?? 'PAYOU';
+const NamaAplikasi = import.meta.env.VITE_APP_NAME ?? 'Payoung';
 const klienKueri = BuatKlienKueri();
 // Halaman Platform Pengelola & situs pemasaran dikecualikan: bundle-nya terpisah (Pengelola.tsx, Situs.tsx).
 const daftarHalaman = import.meta.glob<{ default: ComponentType }>([

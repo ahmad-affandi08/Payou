@@ -52,7 +52,7 @@ function CatatDrafRilis(TestCase $tes, string $versi, string $kanal = 'Stabil'):
 {
     $tes->post(BantuanPengelola::Url('/rilis'), [
         'Aplikasi' => 'Pos', 'Platform' => 'Android', 'Kanal' => $kanal, 'Versi' => $versi, 'Build' => 150,
-        'UrlUnduh' => 'https://unduh.payou.id/payou-kasir-'.$versi.'.apk', 'CatatanRilis' => 'Cetak struk Bluetooth.',
+        'UrlUnduh' => 'https://unduh.payoung.id/payoung-kasir-'.$versi.'.apk', 'CatatanRilis' => 'Cetak struk Bluetooth.',
     ])->assertSessionHasNoErrors();
 
     return RilisAplikasi::query()->where('Versi', $versi)->where('Kanal', $kanal)->sole();
@@ -94,7 +94,7 @@ describe('P-10 rilis aplikasi', function (): void {
         expect($aplikasi['VersiTerbaru'])->toBe('1.5.0')
             ->and($aplikasi['AdaPembaruan'])->toBeTrue()
             ->and($aplikasi['WajibPembaruan'])->toBeFalse()
-            ->and($aplikasi['TautanUnduh'])->toBe('https://unduh.payou.id/payou-kasir-1.5.0.apk')
+            ->and($aplikasi['TautanUnduh'])->toBe('https://unduh.payoung.id/payoung-kasir-1.5.0.apk')
             ->and($aplikasi['CatatanRilis'])->toBe('Cetak struk Bluetooth.')
             ->and(LogAuditPengelola::query()->whereIn('Aksi', ['rilis.draf.simpan', 'rilis.terbit', 'rilis.rollout.ubah'])->count())->toBe(3);
 

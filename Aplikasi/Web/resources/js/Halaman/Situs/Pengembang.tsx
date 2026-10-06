@@ -8,7 +8,7 @@ import type { PropsHalamanPengembang } from '@/Tipe/Situs';
 const contohVerifikasiPhp = `$badan = file_get_contents('php://input');
 $waktu = $_SERVER['HTTP_X_WAKTU_KIRIM'] ?? '';
 $tanda = $_SERVER['HTTP_X_TANDA_TANGAN'] ?? '';
-$hitung = 'sha256=' . hash_hmac('sha256', $waktu . '.' . $badan, getenv('RAHASIA_WEBHOOK_PAYOU'));
+$hitung = 'sha256=' . hash_hmac('sha256', $waktu . '.' . $badan, getenv('RAHASIA_WEBHOOK_Payoung'));
 
 if (! hash_equals($hitung, $tanda) || abs(time() - (int) $waktu) > 300) {
     http_response_code(401);
@@ -61,10 +61,10 @@ export default function Pengembang() {
         <TataLetakSitus judul="Dokumentasi API untuk pengembang">
             <main className="mx-auto flex max-w-4xl flex-col gap-10 px-4 py-10 sm:py-14">
                 <header className="flex flex-col gap-3">
-                    <JudulHalaman skala="situs">API PAYOU untuk pengembang</JudulHalaman>
+                    <JudulHalaman skala="situs">API Payoung untuk pengembang</JudulHalaman>
                     <p className="max-w-2xl text-pengantar text-teks-sekunder">
-                        Sambungkan aplikasi akuntansi, marketplace, atau dasbor BI ke data usaha di PAYOU. Versi {Versi}
-                        , baca saja, ditambah webhook untuk peristiwa penjualan.
+                        Sambungkan aplikasi akuntansi, marketplace, atau dasbor BI ke data usaha di Payoung. Versi{' '}
+                        {Versi}, baca saja, ditambah webhook untuk peristiwa penjualan.
                     </p>
                     <p className="text-isi text-teks-utama">
                         Spesifikasi lengkap (OpenAPI 3.1):{' '}
@@ -93,7 +93,7 @@ export default function Pengembang() {
                     </ol>
                     <BlokKode
                         label="Contoh permintaan"
-                        kode={`curl -H "Authorization: Bearer payou_123_xxxxxxxx" \\\n  "${AlamatApi}/penjualan?dari=2026-10-01&sampai=2026-10-31&per=100"`}
+                        kode={`curl -H "Authorization: Bearer payoung_123_xxxxxxxx" \\\n  "${AlamatApi}/penjualan?dari=2026-10-01&sampai=2026-10-31&per=100"`}
                     />
                 </Bagian>
 
@@ -150,10 +150,10 @@ export default function Pengembang() {
 
                 <Bagian id="webhook" judul="Webhook">
                     <p className="text-isi text-teks-utama">
-                        Daftarkan alamat HTTPS publik di <strong>Pengaturan › Webhook</strong>. PAYOU mengirim POST JSON{' '}
-                        <span className="font-mono">{'{IdPeristiwa, Peristiwa, TerjadiPada, Data}'}</span>; balas 2xx
-                        dalam 10 detik. Gagal dicoba lagi 1 menit, 5 menit, 30 menit, 2 jam, lalu 12 jam kemudian. Pakai{' '}
-                        <span className="font-mono">X-Id-Peristiwa</span> untuk mengabaikan kiriman ganda.
+                        Daftarkan alamat HTTPS publik di <strong>Pengaturan › Webhook</strong>. Payoung mengirim POST
+                        JSON <span className="font-mono">{'{IdPeristiwa, Peristiwa, TerjadiPada, Data}'}</span>; balas
+                        2xx dalam 10 detik. Gagal dicoba lagi 1 menit, 5 menit, 30 menit, 2 jam, lalu 12 jam kemudian.
+                        Pakai <span className="font-mono">X-Id-Peristiwa</span> untuk mengabaikan kiriman ganda.
                     </p>
                     <ul className="flex flex-col divide-y divide-garis rounded-panel border border-garis">
                         {Webhook.map((w) => (

@@ -68,7 +68,14 @@ class _Bilah extends StatelessWidget {
                 const Spacer(),
                 Icon(Icons.person_outline, size: TokenJarak.ikonSedang, color: warna.permukaan),
                 const SizedBox(width: TokenJarak.jarak8),
-                Text(namaKasir, style: teks.labelLarge?.copyWith(color: warna.permukaan)),
+                Flexible(
+                  child: Text(
+                    namaKasir,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: teks.labelLarge?.copyWith(color: warna.permukaan),
+                  ),
+                ),
               ],
             ),
           ),

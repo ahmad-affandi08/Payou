@@ -15,36 +15,36 @@ use Tests\Pendukung\Tenant\BantuanPendaftaran;
 
 beforeEach(function (): void {
     config([
-        'app.url' => 'https://dashboard.payou.test',
-        'domain.Pemasaran' => 'payou.test',
-        'domain.Tenant' => 'dashboard.payou.test',
+        'app.url' => 'https://dashboard.payoung.test',
+        'domain.Pemasaran' => 'payoung.test',
+        'domain.Tenant' => 'dashboard.payoung.test',
     ]);
 });
 
 describe('D-20 pembagian domain', function (): void {
     it('domain pemasaran: beranda dilayani dengan tautan masuk & daftar ke domain tenant; legal & kompatibilitas tetap dilayani', function (): void {
-        $this->get('https://payou.test/')->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
+        $this->get('https://payoung.test/')->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
             ->component('Situs/Halaman')
-            ->where('Situs.TombolMasuk.Tautan', 'https://dashboard.payou.test/masuk')
-            ->where('Situs.TombolDaftar.Tautan', 'https://dashboard.payou.test/daftar'));
-        $this->get('https://payou.test/kompatibilitas-perangkat')->assertOk();
+            ->where('Situs.TombolMasuk.Tautan', 'https://dashboard.payoung.test/masuk')
+            ->where('Situs.TombolDaftar.Tautan', 'https://dashboard.payoung.test/daftar'));
+        $this->get('https://payoung.test/kompatibilitas-perangkat')->assertOk();
     });
 
     it('domain pemasaran: rute tenant dialihkan ke domain tenant dengan jalur & query sama (GET 302, POST 307)', function (): void {
-        $this->get('https://payou.test/masuk')->assertRedirect('https://dashboard.payou.test/masuk');
-        $this->get('https://payou.test/kelola/penjualan?halaman=2')->assertRedirect('https://dashboard.payou.test/kelola/penjualan?halaman=2');
-        $this->get('https://payou.test/s/1a.01K5AAAAAAAAAAAAAAAAAAAAAA')->assertRedirect('https://dashboard.payou.test/s/1a.01K5AAAAAAAAAAAAAAAAAAAAAA');
-        $this->post('https://payou.test/masuk', ['Email' => 'a@b.id'])
+        $this->get('https://payoung.test/masuk')->assertRedirect('https://dashboard.payoung.test/masuk');
+        $this->get('https://payoung.test/kelola/penjualan?halaman=2')->assertRedirect('https://dashboard.payoung.test/kelola/penjualan?halaman=2');
+        $this->get('https://payoung.test/s/1a.01K5AAAAAAAAAAAAAAAAAAAAAA')->assertRedirect('https://dashboard.payoung.test/s/1a.01K5AAAAAAAAAAAAAAAAAAAAAA');
+        $this->post('https://payoung.test/masuk', ['Email' => 'a@b.id'])
             ->assertStatus(307)
-            ->assertHeader('Location', 'https://dashboard.payou.test/masuk');
+            ->assertHeader('Location', 'https://dashboard.payoung.test/masuk');
     });
 
     it('domain tenant: halaman masuk dilayani, beranda dialihkan ke back-office (tamu lalu ke masuk)', function (): void {
-        $this->get('https://dashboard.payou.test/masuk')->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
+        $this->get('https://dashboard.payoung.test/masuk')->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
             ->component('Autentikasi/Masuk')
-            ->where('UrlPemasaran', 'https://payou.test/'));
-        $this->get('https://dashboard.payou.test/')->assertRedirect(route('kelola.beranda'));
-        $this->get('https://dashboard.payou.test/kelola')->assertRedirect();
+            ->where('UrlPemasaran', 'https://payoung.test/'));
+        $this->get('https://dashboard.payoung.test/')->assertRedirect(route('kelola.beranda'));
+        $this->get('https://dashboard.payoung.test/kelola')->assertRedirect();
     });
 
     it('domain tenant: pengguna masuk membuka back-office; domain pengelola tidak melayani rute tenant', function (): void {
@@ -52,8 +52,8 @@ describe('D-20 pembagian domain', function (): void {
         ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant('Toko Domain Terpisah');
         BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id);
 
-        $this->get('https://dashboard.payou.test/kelola')->assertOk();
-        // Rute pengelola didaftarkan saat boot dari PENGELOLA_DOMAIN (consol.payou.id di produksi).
+        $this->get('https://dashboard.payoung.test/kelola')->assertOk();
+        // Rute pengelola didaftarkan saat boot dari PENGELOLA_DOMAIN (consol.payoung.id di produksi).
         $this->get(BantuanPengelola::Url('/kelola'))->assertNotFound();
         $this->get(BantuanPengelola::Url('/masuk'))->assertOk();
     });

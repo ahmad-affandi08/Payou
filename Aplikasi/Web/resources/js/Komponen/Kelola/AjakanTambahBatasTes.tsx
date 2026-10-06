@@ -40,6 +40,6 @@ describe('AjakanTambahBatas (D-35)', () => {
         );
 
         expect(screen.queryByRole('link')).toBeNull();
-        expect(container.textContent).toBe('minta berkas lisensi dengan batas lebih besar ke penjual lisensi PAYOU');
+        expect(container.textContent).toBe('minta berkas lisensi dengan batas lebih besar ke penjual lisensi Payoung');
     });
 });

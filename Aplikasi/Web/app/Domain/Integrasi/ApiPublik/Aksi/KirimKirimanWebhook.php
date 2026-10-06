@@ -65,7 +65,7 @@ final class KirimKirimanWebhook
         try {
             $respons = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'User-Agent' => 'PAYOU-Webhook/1',
+                'User-Agent' => 'PAYOUNG-Webhook/1',
                 'X-Id-Peristiwa' => $kiriman->Uuid,
                 'X-Peristiwa' => $kiriman->Peristiwa,
                 'X-Waktu-Kirim' => $waktu,

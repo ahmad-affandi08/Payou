@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aset listing Google Play untuk PAYOU POS dan PAYOU Owner.
+"""Aset listing Google Play untuk Payoung POS dan Payoung Owner.
 
 Bahan:
 - Tanda merek & logo dari `Spesifikasi/Merek/Sumber/`.
@@ -29,11 +29,11 @@ FONT = AKAR / "Paket/SistemDesain/assets/fonts/AtkinsonHyperlegibleNextVariable.
 FOTO_KASIR = AKAR / "Aplikasi/Kasir/AlatSitus/Hasil/PlayStore"
 FOTO_PEMILIK = AKAR / "Aplikasi/Pemilik/AlatSitus/Hasil/PlayStore"
 
-# Palet merek (Spesifikasi/Merek/README.md).
-BRAND = (85, 88, 232)
-BRAND_GELAP = (29, 41, 184)
-NAVY = (15, 39, 71)
-KUNING = (251, 191, 36)
+# Palet merek Payoung D-61 (Spesifikasi/Merek/README.md): Brand, BrandGelap, TeksUtama, Aksen Apricot.
+BRAND = (59, 91, 93)
+BRAND_GELAP = (34, 56, 58)
+NAVY = (31, 51, 53)
+KUNING = (244, 162, 97)
 PUTIH = (255, 255, 255)
 
 # (berkas sumber, judul, keterangan) per tangkapan layar, urut tampil di Play.
@@ -228,11 +228,11 @@ def main() -> None:
         Simpan(ikon, KELUARAN / aplikasi / "Ikon512.png")
 
     Simpan(
-        GrafikFitur("PAYOU POS", "Aplikasi kasir untuk kafe, resto, toko, salon, dan laundry", FOTO_KASIR / "Tablet1Jual.png", False),
+        GrafikFitur("Payoung POS", "Aplikasi kasir untuk kafe, resto, toko, salon, dan laundry", FOTO_KASIR / "Tablet1Jual.png", False),
         KELUARAN / "Kasir/GrafikFitur.png",
     )
     Simpan(
-        GrafikFitur("PAYOU Owner", "Pantau omzet, shift, dan karyawan semua outlet dari HP", FOTO_PEMILIK / "PemilikHp1Beranda.png", True),
+        GrafikFitur("Payoung Owner", "Pantau omzet, shift, dan karyawan semua outlet dari HP", FOTO_PEMILIK / "PemilikHp1Beranda.png", True),
         KELUARAN / "Pemilik/GrafikFitur.png",
     )
 

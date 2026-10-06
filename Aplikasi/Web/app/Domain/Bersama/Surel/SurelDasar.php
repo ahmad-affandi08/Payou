@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\View;
 use InvalidArgumentException;
 
 /**
- * Induk semua email PAYOU (D-26).
+ * Induk semua email Payoung (D-26).
  *
  * Setiap email dikirim **dua bagian**: HTML bermerek (`Surel.Html.{Grup}.{Nama}`) untuk klien biasa, dan teks
  * biasa (`Surel.{Grup}.{Nama}`) sebagai cadangan untuk klien yang memblokir HTML. Bagian teks juga menjaga

@@ -12,7 +12,7 @@ use SodiumException;
 
 /**
  * Tanda tangan & verifikasi berkas lisensi (D-35) dengan Ed25519 (libsodium). Verifikasi sepenuhnya offline: server
- * pembeli hanya butuh kunci publik di `config/lisensi.php`, tidak pernah menghubungi server PAYOU.
+ * pembeli hanya butuh kunci publik di `config/lisensi.php`, tidak pernah menghubungi server Payoung.
  *
  * Bentuk berkas: JSON `{"Format": 1|2, "Data": {...}, "TandaTangan": "<base64>"}`. Yang ditandatangani adalah JSON
  * kanonik `DataLisensi::KeArray()` (urutan kunci tetap, tanpa escape garis miring/unicode), bukan teks berkas apa
@@ -21,7 +21,7 @@ use SodiumException;
 final class PenandaLisensi
 {
     /**
-     * Buat pasangan kunci baru (base64). Hanya dipakai `lisensi:buat-kunci` di mesin PAYOU.
+     * Buat pasangan kunci baru (base64). Hanya dipakai `lisensi:buat-kunci` di mesin Payoung.
      *
      * @return array{KunciPublik: string, KunciPrivat: string}
      */
@@ -86,7 +86,7 @@ final class PenandaLisensi
         }
 
         if (! $sah) {
-            throw new LisensiTidakSah('Tanda tangan berkas lisensi tidak cocok. Berkas diubah atau bukan dari PAYOU.');
+            throw new LisensiTidakSah('Tanda tangan berkas lisensi tidak cocok. Berkas diubah atau bukan dari Payoung.');
         }
 
         return $data;

@@ -86,8 +86,7 @@ void main() {
     };
     await PasangAplikasi(tester, u, ukuran: const Size(1280, 800));
     await Tunggu(tester, const Duration(milliseconds: 600));
-    await tester.tap(find.text('Rina Wulandari'));
-    await tester.pump();
+    await PilihKasir(tester, 'Rina Wulandari');
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
     await Tunggu(tester);
 

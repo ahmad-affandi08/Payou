@@ -1,4 +1,4 @@
-# PAYOU
+# Payoung
 
 POS SaaS multi-sektor untuk usaha di Indonesia: retail, F&B, jasa, dan lainnya. Satu sistem untuk kasir (online & offline), stok, pembelian, akuntansi otomatis, pajak, dan laporan, lengkap dengan Platform Pengelola untuk tim internal.
 
@@ -27,7 +27,7 @@ POS SaaS multi-sektor untuk usaha di Indonesia: retail, F&B, jasa, dan lainnya. 
 | **Back-office web** (`/kelola`) | Pemilik, admin, manajer outlet, akuntan, staf gudang | Peramban, responsif 360px s.d. layar lebar |
 | **Aplikasi Kasir (POS)** | Kasir, supervisor | Android, iOS/iPadOS, Windows. Offline-first, minimal 72 jam tanpa internet |
 | **Aplikasi Pemilik** | Pemilik usaha | Android, iOS |
-| **Platform Pengelola** (`pengelola.`) | Tim internal PAYOU | Peramban, akun & guard terpisah |
+| **Platform Pengelola** (`pengelola.`) | Tim internal Payoung | Peramban, akun & guard terpisah |
 | **Web publik** | Calon pelanggan, pembeli (self-order/toko online, fase berikutnya) | Peramban |
 
 Kemampuan utama:
@@ -59,7 +59,7 @@ Repo ini adalah **monorepo**: satu repositori berisi server web, dua aplikasi Fl
 | `Paket/KlienApi/` | Kode untuk memanggil API server dari aplikasi. | Tidak |
 | `Paket/MesinKasir/` | Mesin hitung harga, pajak, diskon, biaya layanan, dan pembulatan (sama persis dengan versi PHP di server). | Tidak |
 | `Paket/SistemDesain/` | Warna, ukuran, dan komponen tampilan bersama (ubin produk, baris keranjang, papan angka). | Tidak |
-| `Spesifikasi/` | Data uji bersama: contoh perhitungan kasir (`VektorUjiKalkulasi/`) dan PIN (`VektorUjiPin/`) yang wajib dihasilkan sama oleh PHP dan Dart, plus aset merek PAYOU (`Merek/`). | Tidak |
+| `Spesifikasi/` | Data uji bersama: contoh perhitungan kasir (`VektorUjiKalkulasi/`) dan PIN (`VektorUjiPin/`) yang wajib dihasilkan sama oleh PHP dan Dart, plus aset merek Payoung (`Merek/`). | Tidak |
 | `PRD.md` | **Dokumen kebutuhan produk** lengkap. Sumber kebenaran untuk semua fitur. | Tidak (dibaca saja) |
 | `Dokumen/` | Potongan `PRD.md` per bagian & per flow agar mudah dibaca. **Dibuat otomatis**, jangan diedit langsung. | Tidak |
 | `Alat/` | Skrip Python penjaga kualitas: `CekKonvensi.py` (cek penamaan & pola terlarang) dan `PecahPrd.py` (memecah PRD ke `Dokumen/`). | Tidak (dipakai saat pengecekan) |
@@ -110,7 +110,7 @@ Repo ini adalah **monorepo**: satu repositori berisi server web, dua aplikasi Fl
 | Back-office | Inertia.js + React 19 + TypeScript strict, Tailwind CSS 4, shadcn/ui, TanStack Query & TanStack Table (`TabelData`), Vite |
 | Aplikasi mobile/desktop | Flutter & Dart 3.13+, Riverpod, Drift (SQLite), paket `decimal` |
 | Kualitas | Pest (termasuk `arch()`), Larastan/PHPStan, Pint, Vitest, ESLint, Prettier, `flutter analyze`, melos |
-| Tipografi & merek | Atkinson Hyperlegible Next (UI) & Mono, palet PAYOU lewat token desain |
+| Tipografi & merek | Atkinson Hyperlegible Next (UI) & Mono, palet Payoung lewat token desain |
 
 ---
 

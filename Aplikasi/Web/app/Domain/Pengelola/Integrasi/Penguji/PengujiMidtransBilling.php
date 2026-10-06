@@ -16,7 +16,7 @@ use Throwable;
  * dikenal dijawab 404 "Transaction doesn't exist". Jadi **404 justru bukti kunci diterima** — dan tidak ada
  * transaksi palsu yang tercipta, berbeda dengan uji yang membuat transaksi sungguhan lalu harus dibatalkan.
  *
- * Akun ini milik PAYOU untuk menagih tenant, terpisah dari gerbang QRIS milik toko (D-19) yang akunnya milik tenant.
+ * Akun ini milik Payoung untuk menagih tenant, terpisah dari gerbang QRIS milik toko (D-19) yang akunnya milik tenant.
  */
 final class PengujiMidtransBilling implements PengujiKoneksi
 {
@@ -25,7 +25,7 @@ final class PengujiMidtransBilling implements PengujiKoneksi
     public const URL_PRODUKSI = 'https://api.midtrans.com';
 
     /** Order yang dipakai menguji; sengaja bernama jelas agar terbaca di log Midtrans bila tim mereka melihatnya. */
-    private const ORDER_UJI = 'payou-uji-koneksi';
+    private const ORDER_UJI = 'payoung-uji-koneksi';
 
     public function Uji(array $pengaturan, array $kredensial): HasilUjiKoneksi
     {

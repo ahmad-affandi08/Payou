@@ -45,7 +45,7 @@ export type TenantAktif = {
 
 export type PropsBersamaAplikasi = {
     NamaAplikasi: string;
-    /** D-35: `Lisensi` = dashboard dipasang pembeli sendiri (tanpa pendaftaran, langganan, tiket bantuan PAYOU). */
+    /** D-35: `Lisensi` = dashboard dipasang pembeli sendiri (tanpa pendaftaran, langganan, tiket bantuan Payoung). */
     Edisi?: 'Saas' | 'Lisensi';
     /** D-20: alamat situs pemasaran (absolut bila domain pemasaran terpisah, selain itu `/`). */
     UrlPemasaran?: string;

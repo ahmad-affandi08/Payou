@@ -42,7 +42,7 @@ final class PenghitungPajakPembelian
         $tarif = $this->tarifBerlaku->CariDataKategoriNasional(KategoriJenisPajak::Ppn, $tanggal);
 
         if ($tarif === null) {
-            throw new PelanggaranAturanBisnis('TarifPajakBelumAda', 'Tarif PPN yang berlaku pada tanggal ini belum tersedia. Hubungi tim PAYOU.', 'Tanggal');
+            throw new PelanggaranAturanBisnis('TarifPajakBelumAda', 'Tarif PPN yang berlaku pada tanggal ini belum tersedia. Hubungi tim Payoung.', 'Tanggal');
         }
 
         $pkpPembeli = $idOutlet !== null

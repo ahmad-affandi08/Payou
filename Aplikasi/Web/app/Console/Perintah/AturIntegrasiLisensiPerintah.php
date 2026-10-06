@@ -22,7 +22,7 @@ use Illuminate\Console\Command;
  */
 final class AturIntegrasiLisensiPerintah extends Command
 {
-    /** Jenis yang dipakai dashboard toko; CAPTCHA, push, dan billing milik PAYOU SaaS; Masuk dengan Google ikut (D-57). */
+    /** Jenis yang dipakai dashboard toko; CAPTCHA, push, dan billing milik Payoung SaaS; Masuk dengan Google ikut (D-57). */
     private const JENIS = ['Email' => JenisIntegrasi::Email, 'Whatsapp' => JenisIntegrasi::Whatsapp, 'Penyimpanan' => JenisIntegrasi::Penyimpanan, 'LoginSosial' => JenisIntegrasi::LoginSosial];
 
     protected $signature = 'lisensi:atur-integrasi {jenis? : Email, Whatsapp, Penyimpanan, atau LoginSosial}';

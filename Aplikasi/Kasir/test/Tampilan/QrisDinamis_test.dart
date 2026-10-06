@@ -80,7 +80,7 @@ void main() {
 
   http.Response Tagihan(Map<String, Object?> kiriman, {String status = 'Menunggu'}) => JsonUji({
     'Uuid': kiriman['Uuid'],
-    'NomorPesanan': 'PAYOU-QR-0001',
+    'NomorPesanan': 'PAYOUNG-QR-0001',
     'IsiQr': '00020101021226620014ID.CO.QRIS.WWW0118936000000000000001520458125303360540${kiriman['Jumlah']}6304ABCD',
     'HalamanBayar': false,
     'KedaluwarsaPada': DateTime.now().toUtc().add(const Duration(minutes: 15)).toIso8601String(),

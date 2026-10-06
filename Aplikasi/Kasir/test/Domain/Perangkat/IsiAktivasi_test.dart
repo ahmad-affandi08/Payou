@@ -15,8 +15,8 @@ void main() {
     expect(isi.kode, 'A7K9M2QT');
     expect(isi.alamatServer.toString(), 'https://kasir.tokoabc.id/');
 
-    final subfolder = IsiAktivasi.Uraikan('http://192.168.1.10:8080/payou/aktivasi-perangkat?kode=ZX12');
-    expect(subfolder.alamatServer.toString(), 'http://192.168.1.10:8080/payou/');
+    final subfolder = IsiAktivasi.Uraikan('http://192.168.1.10:8080/payoung/aktivasi-perangkat?kode=ZX12');
+    expect(subfolder.alamatServer.toString(), 'http://192.168.1.10:8080/payoung/');
     expect(subfolder.kode, 'ZX12');
   });
 
@@ -28,8 +28,8 @@ void main() {
   test('alamat ketikan dinormalkan; yang tidak sah ditolak', () {
     expect(IsiAktivasi.NormalkanAlamat('kasir.tokoabc.id').toString(), 'https://kasir.tokoabc.id/');
     expect(
-      IsiAktivasi.NormalkanAlamat(' https://kasir.tokoabc.id/payou ').toString(),
-      'https://kasir.tokoabc.id/payou/',
+      IsiAktivasi.NormalkanAlamat(' https://kasir.tokoabc.id/payoung ').toString(),
+      'https://kasir.tokoabc.id/payoung/',
     );
     expect(IsiAktivasi.NormalkanAlamat(''), isNull);
     expect(IsiAktivasi.NormalkanAlamat('https://kasir.tokoabc.id/?a=1'), isNull);

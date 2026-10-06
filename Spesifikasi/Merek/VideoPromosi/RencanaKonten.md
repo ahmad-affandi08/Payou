@@ -1,4 +1,4 @@
-# Rencana Konten Motion Graphic PAYOU: 30 Video × 30 Detik untuk Go-Live
+# Rencana Konten Motion Graphic Payoung: 30 Video × 30 Detik untuk Go-Live
 
 Dokumen kerja tim pemasaran & produk. Dipakai mulai 6 minggu sebelum **launch publik (GA, akhir Fase 2 §22)**.
 Tagline resmi D-15: **Smart Choice Your Business Partner**.
@@ -7,18 +7,18 @@ Tagline resmi D-15: **Smart Choice Your Business Partner**.
 
 ## 1. Tujuan
 
-1. Memperkenalkan PAYOU saat GA dan mendorong pendaftaran paket **Gratis** / trial.
+1. Memperkenalkan Payoung saat GA dan mendorong pendaftaran paket **Gratis** / trial.
 2. Menunjukkan **aplikasi yang sebenarnya**: layar asli, data yang masuk akal, alur yang benar-benar bisa diikuti calon pengguna.
-3. Satu video = **satu pesan** = **satu flow** (P-xx/F-xx). Penonton selesai menonton tahu persis satu hal yang bisa PAYOU lakukan untuk usahanya.
-4. Membangun ciri merek yang dikenali dari **gambar dan suara**: palet D-15, bintang kuning, font Atkinson, dan tanda bunyi PAYOU yang sama di setiap video.
+3. Satu video = **satu pesan** = **satu flow** (P-xx/F-xx). Penonton selesai menonton tahu persis satu hal yang bisa Payoung lakukan untuk usahanya.
+4. Membangun ciri merek yang dikenali dari **gambar dan suara**: palet D-15, bintang kuning, font Atkinson, dan tanda bunyi Payoung yang sama di setiap video.
 
-**Target penonton utama** (persona §5.2): pemilik UMKM (Bu Rina), manajer outlet (Dimas), dan kasir (Sari). Kanal utama: TikTok, Instagram Reels, YouTube Shorts, Status WhatsApp. Kanal kedua: YouTube, situs PAYOU, presentasi penjualan & mitra.
+**Target penonton utama** (persona §5.2): pemilik UMKM (Bu Rina), manajer outlet (Dimas), dan kasir (Sari). Kanal utama: TikTok, Instagram Reels, YouTube Shorts, Status WhatsApp. Kanal kedua: YouTube, situs Payoung, presentasi penjualan & mitra.
 
 ---
 
 ## 2. Prinsip "Bukan AI Slop"
 
-Video PAYOU mengikuti prinsip produk §17.6.1 **"alat kerja, bukan brosur"**. Aturan di bawah wajib; video yang melanggar tidak tayang.
+Video Payoung mengikuti prinsip produk §17.6.1 **"alat kerja, bukan brosur"**. Aturan di bawah wajib; video yang melanggar tidak tayang.
 
 ### 2.1 Wajib
 
@@ -39,7 +39,7 @@ Video PAYOU mengikuti prinsip produk §17.6.1 **"alat kerja, bukan brosur"**. At
 | HP/laptop 3D melayang berputar, efek kaca, gradien neon, partikel, lens flare, glitch berulang | Hiasan tanpa fungsi; bertentangan dengan checklist anti-slop §17.6.11 |
 | Mockup layar yang tidak ada di aplikasi, fitur yang belum rilis ditampilkan seolah sudah ada | Menyesatkan; melanggar etika pariwara |
 | Kata kosong: "revolusioner", "next-gen", "solusi all-in-one terbaik", "#1 di Indonesia" | Tanpa bukti; terdengar seperti template |
-| Menyebut atau menjelekkan merek pesaing | Etika Pariwara Indonesia; tunjukkan keunggulan PAYOU saja |
+| Menyebut atau menjelekkan merek pesaing | Etika Pariwara Indonesia; tunjukkan keunggulan Payoung saja |
 | Musik tanpa lisensi jelas, suara TTS | Risiko takedown dan terdengar murahan |
 | Transisi acak tiap detik, lebih dari 2 jenis transisi dalam satu video | Membuat video terasa terburu-buru |
 | Logo pihak ketiga (bank, e-wallet, merek perangkat, layanan ojol) tanpa izin | Pakai istilah umum: "QRIS", "EDC", "perangkat POS all-in-one" |
@@ -63,7 +63,7 @@ Semua video memakai kerangka yang sama supaya ritmenya tenang dan tidak terburu-
 | 0–3 | **Kait** | Momen masalah nyata atau hasil akhir yang mengejutkan | Teks ≤ 6 kata. Tanpa logo. Suara: satu bunyi khas, bukan musik penuh |
 | 3–21 | **Demo** | Satu alur di layar asli, 2–4 langkah | Tiap langkah ≥ 3 detik. Maksimal 2 teks overlay per langkah, masing-masing tampil ≥ 1,5 detik |
 | 21–26 | **Bukti** | Hasilnya: angka, status hijau, laporan jadi, B-roll manusia | Satu angka besar atau satu status. Tahan ≥ 2 detik tanpa gerakan lain |
-| 26–30 | **Penutup** | Logo + tagline + ajakan + tanda bunyi PAYOU | Selalu sama di 30 video (templat `KartuPenutup`) |
+| 26–30 | **Penutup** | Logo + tagline + ajakan + tanda bunyi Payoung | Selalu sama di 30 video (templat `KartuPenutup`) |
 
 **Sapaan:** "kamu" di VO, teks layar, dan subtitle (sama dengan seri tutorial).
 
@@ -81,21 +81,21 @@ Semua video memakai kerangka yang sama supaya ritmenya tenang dan tidak terburu-
 | Zoom kamera | Maksimal 1,0× → 1,8×, satu kali per langkah, selalu ke titik aksi (tombol yang diketuk, angka yang berubah) |
 | Sorotan | Cincin indigo 3 px + area lain diredupkan 35%. Tanpa panah kartun |
 | Kursor/jari | Titik sentuh lingkaran indigo 60 px (seperti `sentuhan` di teaser). Untuk web: kursor sistem asli, tidak diganti |
-| Transisi | Hanya 2 jenis: **potong di aksi** (cut on action) dan **tirai merek** (kuning–indigo–navy) untuk pindah babak besar. Maksimal 2 tirai per video |
-| Bintang kuning | Tanda baca merek: muncul di pembuka logo, penutup, dan paling banyak 1 kali sebagai penanda "berhasil". Tidak dipakai sebagai hiasan acak |
+| Transisi | Hanya 2 jenis: **potong di aksi** (cut on action) dan **tirai merek** (Apricot–teal–teal tinta) untuk pindah babak besar. Maksimal 2 tirai per video |
+| Bintang Apricot | Tanda baca merek: muncul di pembuka logo, penutup, dan paling banyak 1 kali sebagai penanda "berhasil". Tidak dipakai sebagai hiasan acak |
 | Tipografi | Atkinson Hyperlegible Next (judul 800, isi 500), Mono untuk angka uang. Ukuran judul 72–96 px (16:9) / 88–110 px (9:16) |
-| Warna | Hanya token D-15: `Brand` #5558E8, `BrandGelap` #1D29B8, `TeksUtama` #0F2747, kuning #FBBF24 (aksen merek), `Latar` #F9FAFB, `Garis` #E5E7EB. Status memakai warna status aplikasi (sukses, peringatan, bahaya) |
-| Bingkai perangkat | Vektor datar sederhana (warna navy), bukan render foto 3D. Rasio layar sama persis dengan perangkat rekaman |
+| Warna | Hanya token D-61: `Brand` #3b5b5d, `BrandGelap` #22383a, `TeksUtama` #1f3335, Apricot #f4a261 (aksen merek), `Latar` #f7f9f6, `Garis` #e8ece9. Status memakai warna status aplikasi (sukses, peringatan, bahaya) |
+| Bingkai perangkat | Vektor datar sederhana (warna teal tinta), bukan render foto 3D. Rasio layar sama persis dengan perangkat rekaman |
 
 ---
 
 ## 5. Audio: Backsound, Efek Suara, dan Tanda Bunyi
 
-### 5.1 Tanda bunyi PAYOU (sonic logo)
+### 5.1 Tanda bunyi Payoung (sonic logo)
 
 - Arpeggio lonceng C6–E6–G6–C7 (jarak 90 ms) + kilau tinggi, total 1,6 detik. Sudah dipakai di teaser (`VideoPromosi30Detik.html` detik 27).
 - Selalu jatuh tepat saat logo penutup muncul. Tidak dipakai di tempat lain.
-- Versi final dibuat komposer/sound designer manusia berdasarkan motif ini, lalu dikunci sebagai aset merek (`Audio/TandaBunyiPayou.wav`).
+- Versi final dibuat komposer/sound designer manusia berdasarkan motif ini, lalu dikunci sebagai aset merek (`Audio/TandaBunyiPayoung.wav`).
 
 ### 5.2 Backsound
 
@@ -226,7 +226,7 @@ File video besar (rekaman mentah, MP4 final) disimpan di penyimpanan aset tim, *
 
 | No | Judul | Pilar | Flow / pembeda | Suasana musik | Syarat tayang |
 |---|---|---|---|---|---|
-| K01 | Kenalan dengan PAYOU | Peluncuran | Semua (POS, back-office, Owner) | Semangat | GA |
+| K01 | Kenalan dengan Payoung | Peluncuran | Semua (POS, back-office, Owner) | Semangat | GA |
 | K02 | Satu Hari di Kedai Rina | Peluncuran | F-06, F-07, F-11, F-14 | Semangat | GA |
 | K03 | Daftar sampai Jualan Pertama | Peluncuran | F-00, F-01, X16 | Semangat | GA + waktu terukur |
 | K04 | Internet Mati, Tetap Jualan | Kasir | F-07, §18, X1 | Tegang → lega | Fase 1 offline lolos beta |
@@ -261,7 +261,7 @@ File video besar (rekaman mentah, MP4 final) disimpan di penyimpanan aset tim, *
 
 ---
 
-### K01 · Kenalan dengan PAYOU
+### K01 · Kenalan dengan Payoung
 
 - **Pesan tunggal:** Satu aplikasi untuk jualan, stok, dan pembukuan usahamu.
 - **Persona:** semua pemilik UMKM. **Layar asli:** Kasir `LayarJual` dalam bingkai `RuangKerja`, back-office `Kelola/Beranda`, Owner tab Beranda.
@@ -277,7 +277,7 @@ File video besar (rekaman mentah, MP4 final) disimpan di penyimpanan aset tim, *
 
 ### K02 · Satu Hari di Kedai Rina
 
-- **Pesan tunggal:** Dari buka toko sampai tutup buku, semua di PAYOU.
+- **Pesan tunggal:** Dari buka toko sampai tutup buku, semua di Payoung.
 - **Layar asli:** `LayarBukaShift`, `LayarJual`, `LayarShift` (tutup), Owner Beranda. **Gaya:** time-lapse jam dinding 07.00 → 22.00 di pojok.
 
 | Detik | Visual | Teks layar / VO | Suara |
@@ -291,7 +291,7 @@ File video besar (rekaman mentah, MP4 final) disimpan di penyimpanan aset tim, *
 
 ### K03 · Daftar sampai Jualan Pertama
 
-- **Pesan tunggal:** Pilih jenis usaha, PAYOU menyiapkan sisanya.
+- **Pesan tunggal:** Pilih jenis usaha, Payoung menyiapkan sisanya.
 - **Layar asli:** `Autentikasi/Daftar`, `Kelola/PanduanAwal/Sektor`, `Pajak`, `Produk` (impor), `Perangkat` (kode aktivasi), Kasir `LayarAktivasi`.
 - **Klaim waktu** ("x menit") hanya dipakai bila median waktu onboarding beta sudah diukur.
 
@@ -306,7 +306,7 @@ File video besar (rekaman mentah, MP4 final) disimpan di penyimpanan aset tim, *
 
 ### K04 · Internet Mati, Tetap Jualan
 
-- **Pesan tunggal:** Kasir PAYOU tetap bisa jualan saat internet mati, lalu sinkron sendiri tanpa transaksi dobel.
+- **Pesan tunggal:** Kasir Payoung tetap bisa jualan saat internet mati, lalu sinkron sendiri tanpa transaksi dobel.
 - **Layar asli:** `LayarJual`, bilah status `RuangKerja` (koneksi & tertunda sinkron), `LayarStatusSinkron`. Rekam dengan mematikan Wi-Fi sungguhan.
 
 | Detik | Visual | Teks layar / VO | Suara |
@@ -376,7 +376,7 @@ File video besar (rekaman mentah, MP4 final) disimpan di penyimpanan aset tim, *
 
 ### K09 · Tutup Shift, Selisih Kas Jelas
 
-- **Pesan tunggal:** Hitung uang per pecahan, PAYOU langsung menunjukkan selisihnya.
+- **Pesan tunggal:** Hitung uang per pecahan, Payoung langsung menunjukkan selisihnya.
 - **Layar asli:** `LayarShift` (tutup shift), `Kelola/Kasir/Shift/Detail`.
 
 | Detik | Visual | Teks layar / VO | Suara |
@@ -495,7 +495,7 @@ File video besar (rekaman mentah, MP4 final) disimpan di penyimpanan aset tim, *
 | Detik | Visual | Teks layar / VO | Suara |
 |---|---|---|---|
 | 0–3 | Excel 1.248 baris digulir cepat | "1.248 produk?" | Gulir |
-| 3–9 | Unggah file ke PAYOU | "Unggah saja." | Klik |
+| 3–9 | Unggah file ke Payoung | "Unggah saja." | Klik |
 | 9–15 | Pratinjau: 1.245 siap, 3 baris bermasalah ditandai jelas | "Kesalahan ditunjukkan per baris." | Galat pelan ×1 |
 | 15–21 | Perbaiki 3 baris, konfirmasi | "Perbaiki, lalu simpan." | Ketuk |
 | 21–26 | `Kelola/Persediaan/Saldo`: stok awal terisi | "Langsung siap jualan." | Denting |
@@ -671,13 +671,13 @@ File video besar (rekaman mentah, MP4 final) disimpan di penyimpanan aset tim, *
 
 ### K30 · Cerita Nyata Pengguna Beta
 
-- **Pesan tunggal:** Usaha sungguhan sudah memakai PAYOU sehari-hari.
+- **Pesan tunggal:** Usaha sungguhan sudah memakai Payoung sehari-hari.
 - **Materi:** wawancara singkat pemilik tenant beta (bukan aktor) di outlet mereka + layar asli dashboard mereka (**dengan izin tertulis**; angka sensitif boleh dikaburkan).
 
 | Detik | Visual | Teks layar / VO | Suara |
 |---|---|---|---|
 | 0–3 | Wajah pemilik, nama & usaha di teks bawah | Kutipan pertama (suara asli) | Suara lokasi |
-| 3–12 | B-roll outlet sibuk + kasir memakai PAYOU | Kutipan: masalah sebelum PAYOU | Musik Tenang pelan |
+| 3–12 | B-roll outlet sibuk + kasir memakai Payoung | Kutipan: masalah sebelum Payoung | Musik Tenang pelan |
 | 12–21 | Layar dashboard mereka (dikaburkan bila perlu) | Kutipan: perubahan yang dirasakan | Musik naik |
 | 21–26 | Pemilik menutup toko dengan tenang | "Sudah dipakai sejak beta." | |
 | 26–30 | Kartu penutup | | Tanda bunyi |

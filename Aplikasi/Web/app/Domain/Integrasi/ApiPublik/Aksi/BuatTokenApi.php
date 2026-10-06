@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 
 /**
  * X7 bagian 1: Owner membuat token API publik bercakupan. Hanya bila paket tenant punya fitur `api.publik`. Token asli
- * `payou_{IdTenant}_{40 karakter}` dikembalikan sekali untuk ditampilkan; yang tersimpan hanya hash & prefiks. Paling
+ * `payoung_{IdTenant}_{40 karakter}` dikembalikan sekali untuk ditampilkan; yang tersimpan hanya hash & prefiks. Paling
  * banyak [BATAS_AKTIF] token aktif per tenant.
  */
 final class BuatTokenApi
@@ -53,10 +53,10 @@ final class BuatTokenApi
             }
 
             $rahasia = Str::random(self::PANJANG_RAHASIA);
-            $token = "payou_{$idTenant}_{$rahasia}";
+            $token = "payoung_{$idTenant}_{$rahasia}";
             $model = TokenApiTenant::query()->create([
                 'Nama' => mb_substr(trim($nama), 0, 60),
-                'Prefiks' => mb_substr($token, 0, mb_strlen("payou_{$idTenant}_") + 4),
+                'Prefiks' => mb_substr($token, 0, mb_strlen("payoung_{$idTenant}_") + 4),
                 'HashToken' => TokenApiTenant::BuatHashToken($rahasia),
                 'Cakupan' => $cakupan,
                 'DibuatOleh' => $idPengguna,

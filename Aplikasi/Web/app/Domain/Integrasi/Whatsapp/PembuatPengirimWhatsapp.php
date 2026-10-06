@@ -103,7 +103,7 @@ final class PembuatPengirimWhatsapp
         return is_string($nama) && $nama !== '' ? $nama : null;
     }
 
-    /** Nama templat resmi untuk pengingat tagihan langganan PAYOU ke Owner (P-08); null = kirim teks. */
+    /** Nama templat resmi untuk pengingat tagihan langganan Payoung ke Owner (P-08); null = kirim teks. */
     public function AmbilTemplatPengingatTagihan(): ?string
     {
         $nama = config('integrasi.Whatsapp.Pengaturan.NamaTemplatPengingatTagihan');

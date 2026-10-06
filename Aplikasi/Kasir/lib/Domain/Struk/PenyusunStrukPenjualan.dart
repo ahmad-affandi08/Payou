@@ -44,7 +44,7 @@ class DataStrukPenjualan {
 /// (anti-fraud) dan penjualan void diberi tanda "DIBATALKAN". QR struk digital dicetak bila diaktifkan tenant.
 abstract final class PenyusunStrukPenjualan {
   static const String penutupBawaan = 'Terima kasih atas kunjungan Anda';
-  static const String tandaAir = 'Dibuat dengan PAYOU';
+  static const String tandaAir = 'Dibuat dengan Payoung';
 
   static const List<String> _bulan = [
     'Jan',

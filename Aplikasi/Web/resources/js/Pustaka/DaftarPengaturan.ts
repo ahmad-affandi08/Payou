@@ -140,7 +140,7 @@ export const daftarPengaturan: GrupPengaturan[] = [
             },
             {
                 label: 'Stok awal',
-                keterangan: 'Saldo stok pembuka per produk & lokasi, diposting sekali saat mulai memakai PAYOU.',
+                keterangan: 'Saldo stok pembuka per produk & lokasi, diposting sekali saat mulai memakai Payoung.',
                 href: '/kelola/persediaan/stok-awal',
                 izin: IzinTenant.PersediaanLihat,
             },

@@ -1,13 +1,13 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "PAYOU Open API",
+    "title": "Payoung Open API",
     "version": "1.0.0",
     "description": "API baca data usaha untuk aplikasi pihak ketiga (akuntansi, marketplace, BI), endpoint tulis penyesuaian stok (cakupan stok:tulis, idempoten per Uuid), dan webhook keluar. Key JSON PascalCase Bahasa Indonesia; uang & jumlah dikirim sebagai string desimal; waktu ISO-8601 UTC; pengenal = Uuid (ULID). Token dibuat Owner di Pengaturan › Token API (paket Bisnis/Enterprise). Batas 120 permintaan/menit per token. Perubahan yang tidak kompatibel = versi baru, versi lama didukung ≥ 6 bulan setelah pengumuman."
   },
   "servers": [
     {
-      "url": "https://dashboard.payou.id/api/v1"
+      "url": "https://dashboard.payoung.id/api/v1"
     }
   ],
   "tags": [
@@ -21,7 +21,7 @@
     },
     {
       "name": "Webhook",
-      "description": "Dikirim PAYOU ke alamat HTTPS Anda"
+      "description": "Dikirim Payoung ke alamat HTTPS Anda"
     }
   ],
   "paths": {
@@ -2189,7 +2189,7 @@
       "TokenApi": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Authorization: Bearer payou_{IdTenant}_{rahasia}. Cakupan: produk:baca, stok:baca, penjualan:baca, pelanggan:baca."
+        "description": "Authorization: Bearer payoung_{IdTenant}_{rahasia}. Cakupan: produk:baca, stok:baca, penjualan:baca, pelanggan:baca."
       }
     },
     "parameters": {

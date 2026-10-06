@@ -13,7 +13,7 @@ export default function PemberitahuanBatasOutlet() {
     if (props.Edisi === 'Lisensi') {
         return (
             <Pemberitahuan jenis="info" judul="Batas outlet lisensi sudah tercapai">
-                Hubungi penjual lisensi PAYOU untuk menambah outlet. Outlet yang diarsipkan tidak dihitung.
+                Hubungi penjual lisensi Payoung untuk menambah outlet. Outlet yang diarsipkan tidak dihitung.
             </Pemberitahuan>
         );
     }

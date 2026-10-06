@@ -45,7 +45,7 @@ function JenisStatus(status: PengirimanKurir['Status']): 'sukses' | 'peringatan'
 }
 
 /**
- * F-10 (v3.49) portal kurir: halaman HP untuk kurir tanpa akun PAYOU, dibuka lewat tautan rahasia dari toko. Kurir
+ * F-10 (v3.49) portal kurir: halaman HP untuk kurir tanpa akun Payoung, dibuka lewat tautan rahasia dari toko. Kurir
  * menandai berangkat, menyerahkan barang (nama penerima + foto bukti opsional), atau gagal mengirim (alasan).
  */
 export default function HalamanPortalKurir({ NamaToko, NamaKurir, AlamatDasar, Pengiriman }: PropsPortalKurir) {

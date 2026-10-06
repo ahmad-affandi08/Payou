@@ -184,7 +184,7 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
             });
         });
 
-        // D-21 Situs pemasaran (payou.id) diatur dari konsol.
+        // D-21 Situs pemasaran (payoung.id) diatur dari konsol.
         Route::middleware($izin(IzinPengelola::SitusLihat))->prefix('situs')->group(function () use ($izin): void {
             $ulidSitus = '[0-9A-HJKMNP-TV-Z]{26}';
             Route::get('/pengaturan', [SitusKontroler::class, 'Pengaturan'])->name('pengelola.situs.pengaturan');

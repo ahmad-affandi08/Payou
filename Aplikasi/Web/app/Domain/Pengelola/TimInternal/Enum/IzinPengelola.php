@@ -49,7 +49,7 @@ enum IzinPengelola: string
     case LegalLihat = 'legal.lihat';
     case LegalKelola = 'legal.kelola';
 
-    // D-21 Situs pemasaran (payou.id) diatur dari konsol.
+    // D-21 Situs pemasaran (payoung.id) diatur dari konsol.
     case SitusLihat = 'situs.lihat';
     case SitusKelola = 'situs.kelola';
 

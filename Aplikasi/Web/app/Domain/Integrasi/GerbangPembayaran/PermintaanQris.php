@@ -20,7 +20,7 @@ final readonly class PermintaanQris
         public CarbonImmutable $kedaluwarsaPada,
         public string $urlNotifikasi,
         public string $namaPelanggan = 'Pelanggan',
-        public string $emailPelanggan = 'pelanggan@payou.id',
+        public string $emailPelanggan = 'pelanggan@payoung.id',
         public string $teleponPelanggan = '080000000000',
     ) {}
 

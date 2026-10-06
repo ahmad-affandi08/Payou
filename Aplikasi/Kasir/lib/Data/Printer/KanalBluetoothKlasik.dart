@@ -7,7 +7,7 @@ import '../../Domain/Struk/PemindaiPrinter.dart';
 class KanalBluetoothKlasik {
   const KanalBluetoothKlasik([this._kanal = const MethodChannel(namaKanal)]);
 
-  static const String namaKanal = 'id.payou.kasir/bluetooth-klasik';
+  static const String namaKanal = 'id.payoung.kasir/bluetooth-klasik';
 
   final MethodChannel _kanal;
 
@@ -18,7 +18,7 @@ class KanalBluetoothKlasik {
       return 'Perangkat ini tidak punya Bluetooth. Pakai printer LAN/Wi-Fi.';
     }
     if (status['Izin'] != true && await _Panggil<bool>('MintaIzin') != true) {
-      return 'Izin Perangkat di sekitar ditolak. Buka Pengaturan Android › Aplikasi › PAYOU POS › Izin, lalu izinkan.';
+      return 'Izin Perangkat di sekitar ditolak. Buka Pengaturan Android › Aplikasi › Payoung POS › Izin, lalu izinkan.';
     }
     if (status['Aktif'] != true) {
       return 'Bluetooth mati. Nyalakan Bluetooth, lalu coba lagi.';

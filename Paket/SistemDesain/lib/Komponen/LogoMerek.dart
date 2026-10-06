@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 
 /// Nama sistem (D-15). Dipakai sebagai label semantik logo agar pembaca layar tetap menyebut nama merek.
-const String namaMerek = 'PAYOU';
+const String namaMerek = 'Payoung';
 
-/// Logo PAYOU (sumber `Spesifikasi/Merek`, dibuat ulang lewat `Spesifikasi/Merek/BuatTurunanAset.py`).
+/// Logo Payoung (sumber `Spesifikasi/Merek`, dibuat ulang lewat `Spesifikasi/Merek/BuatTurunanAset.py`).
 ///
 /// [LogoMerek.lengkap] = logo horizontal dengan tagline, untuk layar sambutan/aktivasi.
-/// [LogoMerek.ikon] = tanda huruf P saja, untuk ruang sempit.
+/// [LogoMerek.ikon] = tanda payung saja, untuk ruang sempit.
 /// Varian [LogoMerek.lengkapPutih] dan [LogoMerek.ikonPutih] dipakai di atas permukaan gelap.
 class LogoMerek extends StatelessWidget {
   const LogoMerek.lengkap({super.key, this.tinggi = 56}) : _berkas = 'assets/merek/LogoHorizontal.png';

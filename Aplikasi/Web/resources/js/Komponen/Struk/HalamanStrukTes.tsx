@@ -44,7 +44,7 @@ describe('Pengaturan struk (PRD v1.79)', () => {
         const baris = SusunPratinjauStruk(bawaan, profil, '58').map((b) => b.teks);
         expect(baris[0]).toBe('Kopi Senja Solo');
         expect(baris).toContain('NPWP 0123456789012345');
-        expect(baris.at(-1)).toBe('Dibuat dengan PAYOU');
+        expect(baris.at(-1)).toBe('Dibuat dengan Payoung');
         expect(baris.every((b) => b.length <= 32)).toBe(true);
     });
 

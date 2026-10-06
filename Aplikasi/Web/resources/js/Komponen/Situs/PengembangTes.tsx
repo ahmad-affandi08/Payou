@@ -5,7 +5,7 @@ import Pengembang from '@/Halaman/Situs/Pengembang';
 import type { PropsHalamanPengembang } from '@/Tipe/Situs';
 
 const props: PropsHalamanPengembang = {
-    AlamatApi: 'https://dashboard.payou.id/api/v1',
+    AlamatApi: 'https://dashboard.payoung.id/api/v1',
     Versi: '1.0.0',
     Endpoint: [
         {

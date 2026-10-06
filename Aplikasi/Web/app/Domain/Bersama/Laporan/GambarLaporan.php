@@ -57,11 +57,11 @@ final class GambarLaporan
     }
 
     /**
-     * Logo PAYOU untuk kaki "Dibuat dengan PAYOU".
+     * Logo Payoung untuk kaki "Dibuat dengan Payoung".
      *
      * @return array{Png: string, Lebar: int, Tinggi: int}|null
      */
-    public static function LogoPayou(int $tinggiTarget): ?array
+    public static function LogoPayoung(int $tinggiTarget): ?array
     {
         $path = resource_path('js/Aset/Merek/LogoHorizontal.webp');
 

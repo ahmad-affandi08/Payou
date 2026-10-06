@@ -15,7 +15,7 @@ Tenant 1─* User *─* Outlet (penugasan) + Role per outlet
 **Langkah:**
 1. Tambah outlet (nama, kode 3–5 huruf untuk penomoran dokumen, alamat, zona waktu, template sektor, jam operasional).
 2. Tambah gudang/lokasi stok per outlet (default: 1 lokasi "Toko"). Bisa tambah "Gudang Belakang", "Dapur", "Bar".
-3. **Tambah pengguna langsung** dengan peran & outlet yang ditugaskan (D-22): karyawan kasir cukup nama + PIN tanpa email (hanya masuk aplikasi kasir); pengguna dengan email diberi kata sandi awal yang wajib diganti saat pertama masuk. Email yang sudah punya akun PAYOU tetap lewat undangan email (persetujuan pemilik akun). Undangan via email tetap tersedia sebagai pilihan.
+3. **Tambah pengguna langsung** dengan peran & outlet yang ditugaskan (D-22): karyawan kasir cukup nama + PIN tanpa email (hanya masuk aplikasi kasir); pengguna dengan email diberi kata sandi awal yang wajib diganti saat pertama masuk. Email yang sudah punya akun Payoung tetap lewat undangan email (persetujuan pemilik akun). Undangan via email tetap tersedia sebagai pilihan.
 4. Kasir mendapat **PIN 6 digit** untuk login cepat di perangkat kasir bersama.
 5. **Aktivasi perangkat**: di back-office, admin membuat perangkat (tipe: Kasir / KDS / Gudang / Pelayan) dan mendapat **kode aktivasi 8 karakter + QR** (berlaku 15 menit). Di aplikasi Flutter, pengguna memindai QR atau mengetik kode. Server mengembalikan **device token** (disimpan di secure storage) dan kode perangkat `Perangkat.Kode` (misal `JKT1-K02`) untuk penomoran offline. Satu instalasi aplikasi = satu perangkat terdaftar.
 

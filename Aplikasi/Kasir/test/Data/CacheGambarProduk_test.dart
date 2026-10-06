@@ -8,7 +8,7 @@ import 'package:klien_api/KlienApi.dart';
 
 void main() {
   test('gambar diunduh bertoken lalu dapat dibaca dari cache saat offline', () async {
-    final folder = await Directory.systemTemp.createTemp('payou-gambar-produk-');
+    final folder = await Directory.systemTemp.createTemp('payoung-gambar-produk-');
     addTearDown(() => folder.delete(recursive: true));
     var jumlahUnduh = 0;
     final klien = KlienPos(

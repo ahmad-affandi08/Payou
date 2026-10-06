@@ -17,14 +17,14 @@ use Inertia\Testing\AssertableInertia;
 use Tests\Pendukung\Tenant\BantuanPendaftaran;
 
 /*
- * D-21 situs pemasaran publik (payou.id): halaman berblok dari konsol dengan isi bawaan, harga dari katalog P-04,
+ * D-21 situs pemasaran publik (payoung.id): halaman berblok dari konsol dengan isi bawaan, harga dari katalog P-04,
  * meta SEO dari server, peta situs, noindex domain tenant, pratinjau bertanda tangan, dan pembagian domain D-20.
  */
 
 /** Domain terpisah seperti produksi (https). */
 function AturDomainSitusUji(): void
 {
-    config(['app.url' => 'https://dashboard.payou.test', 'domain.Pemasaran' => 'payou.test', 'domain.Tenant' => 'dashboard.payou.test']);
+    config(['app.url' => 'https://dashboard.payoung.test', 'domain.Pemasaran' => 'payoung.test', 'domain.Tenant' => 'dashboard.payoung.test']);
 }
 
 describe('D-21 halaman publik', function (): void {
@@ -88,15 +88,15 @@ describe('D-21 halaman publik', function (): void {
             'BagianDraf' => [],
             'BagianTerbit' => [],
             'JudulTerbit' => 'Uji',
-            'JudulSeoTerbit' => 'Kasir "PAYOU" <b>',
+            'JudulSeoTerbit' => 'Kasir "Payoung" <b>',
             'DiterbitkanPada' => now(),
         ]);
 
-        $isi = $this->get('https://payou.test/uji-seo')->assertOk()->getContent();
+        $isi = $this->get('https://payoung.test/uji-seo')->assertOk()->getContent();
 
-        expect($isi)->toContain('<title inertia>Kasir &quot;PAYOU&quot; &lt;b&gt;</title>')
+        expect($isi)->toContain('<title inertia>Kasir &quot;Payoung&quot; &lt;b&gt;</title>')
             ->not->toContain('<b></title>')
-            ->toContain('<link rel="canonical" href="https://payou.test/uji-seo">')
+            ->toContain('<link rel="canonical" href="https://payoung.test/uji-seo">')
             ->toContain('name="google-site-verification" content="abc123"')
             ->toContain('property="og:title"')
             ->not->toContain('noindex');
@@ -107,15 +107,15 @@ describe('D-21 halaman publik', function (): void {
             'Kunci' => PengaturanSitus::KUNCI_UMUM,
             'Nilai' => [
                 ...PengaturanSitusBerlaku::AmbilBawaan(),
-                'Kontak' => [...PengaturanSitusBerlaku::AmbilBawaan()['Kontak'], 'WhatsApp' => '0812-3456-7890', 'PesanWhatsApp' => 'Halo PAYOU'],
+                'Kontak' => [...PengaturanSitusBerlaku::AmbilBawaan()['Kontak'], 'WhatsApp' => '0812-3456-7890', 'PesanWhatsApp' => 'Halo Payoung'],
                 'Menu' => [['Label' => 'Tanya', 'Tautan' => '@whatsapp']],
                 'Pengumuman' => ['Aktif' => true, 'Teks' => 'Diskon 17 Agustus', 'Tautan' => '/harga'],
             ],
         ]);
 
         $this->get('/')->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
-            ->where('Situs.Kontak.TautanWhatsApp', 'https://wa.me/6281234567890?text=Halo%20PAYOU')
-            ->where('Situs.Menu.0.Tautan', 'https://wa.me/6281234567890?text=Halo%20PAYOU')
+            ->where('Situs.Kontak.TautanWhatsApp', 'https://wa.me/6281234567890?text=Halo%20Payoung')
+            ->where('Situs.Menu.0.Tautan', 'https://wa.me/6281234567890?text=Halo%20Payoung')
             ->where('Situs.WhatsAppMelayang', true)
             ->where('Situs.Pengumuman.Teks', 'Diskon 17 Agustus'));
     });
@@ -148,22 +148,22 @@ describe('D-21 halaman publik', function (): void {
         app(SiapkanHalamanSitusBawaan::class)->Jalankan();
         HalamanSitus::query()->where('Slug', 'tentang')->update(['Aktif' => false]);
 
-        $xml = $this->get('https://payou.test/peta-situs')->assertOk()->assertHeader('Content-Type', 'application/xml; charset=UTF-8')->getContent();
-        expect($xml)->toContain('<loc>https://payou.test/</loc>')
-            ->toContain('<loc>https://payou.test/solusi/kafe-resto</loc>')
-            ->not->toContain('https://payou.test/tentang');
+        $xml = $this->get('https://payoung.test/peta-situs')->assertOk()->assertHeader('Content-Type', 'application/xml; charset=UTF-8')->getContent();
+        expect($xml)->toContain('<loc>https://payoung.test/</loc>')
+            ->toContain('<loc>https://payoung.test/solusi/kafe-resto</loc>')
+            ->not->toContain('https://payoung.test/tentang');
 
-        $this->get('https://payou.test/fitur')->assertHeaderMissing('X-Robots-Tag');
-        $this->get('https://dashboard.payou.test/masuk')->assertOk()->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+        $this->get('https://payoung.test/fitur')->assertHeaderMissing('X-Robots-Tag');
+        $this->get('https://dashboard.payoung.test/masuk')->assertOk()->assertHeader('X-Robots-Tag', 'noindex, nofollow');
     });
 
     it('D-20: halaman situs di domain tenant dialihkan ke domain pemasaran', function (): void {
         AturDomainSitusUji();
 
-        $this->get('https://payou.test/fitur')->assertOk();
-        $this->get('https://dashboard.payou.test/fitur')->assertRedirect('https://payou.test/fitur');
-        $this->get('https://dashboard.payou.test/solusi/kafe-resto?utm=x')->assertRedirect('https://payou.test/solusi/kafe-resto?utm=x');
-        $this->get('https://dashboard.payou.test/peta-situs')->assertRedirect('https://payou.test/peta-situs');
+        $this->get('https://payoung.test/fitur')->assertOk();
+        $this->get('https://dashboard.payoung.test/fitur')->assertRedirect('https://payoung.test/fitur');
+        $this->get('https://dashboard.payoung.test/solusi/kafe-resto?utm=x')->assertRedirect('https://payoung.test/solusi/kafe-resto?utm=x');
+        $this->get('https://dashboard.payoung.test/peta-situs')->assertRedirect('https://payoung.test/peta-situs');
     });
 
     it('slug terlarang menutup semua segmen pertama rute aplikasi (halaman konsol tidak tertutup rute sistem)', function (): void {

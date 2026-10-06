@@ -591,7 +591,7 @@ void main() {
               'VersiSaatIni': '1.4.0',
               'VersiTerbaru': '1.5.0',
               'VersiMinimal': '1.5.0',
-              'TautanUnduh': 'https://unduh.payou.id/kasir.apk',
+              'TautanUnduh': 'https://unduh.payoung.id/kasir.apk',
               'CatatanRilis': 'Cetak struk Bluetooth.',
               'AdaPembaruan': true,
               'WajibPembaruan': true,

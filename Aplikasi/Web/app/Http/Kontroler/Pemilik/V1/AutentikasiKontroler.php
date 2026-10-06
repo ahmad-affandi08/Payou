@@ -150,7 +150,7 @@ final class AutentikasiKontroler extends Kontroler
         $pengguna = $masuk->Jalankan($identitas);
 
         if (! $pengguna instanceof Pengguna) {
-            throw new PelanggaranAturanBisnis('AkunGoogleBelumTerdaftar', 'Akun Google ini belum terdaftar. Daftar dulu di dashboard web PAYOU, lalu masuk lagi di sini.', 'IdToken', 404);
+            throw new PelanggaranAturanBisnis('AkunGoogleBelumTerdaftar', 'Akun Google ini belum terdaftar. Daftar dulu di dashboard web Payoung, lalu masuk lagi di sini.', 'IdToken', 404);
         }
 
         RateLimiter::clear($kunciIp);

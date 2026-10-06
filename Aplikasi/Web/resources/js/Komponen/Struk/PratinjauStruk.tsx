@@ -97,11 +97,11 @@ export function SusunPratinjauStruk(
         baris.push(...Tengah(pengaturan.CatatanKaki));
     }
     if (pengaturan.TampilkanStrukDigital) {
-        baris.push(...Tengah('[QR] Struk digital: payou.id/s/…'));
+        baris.push(...Tengah('[QR] Struk digital: payoung.id/s/…'));
     }
     baris.push(...Tengah(pengaturan.TeksPenutup ?? PENUTUP_BAWAAN));
     if (profil.TandaAir) {
-        baris.push(...Tengah('Dibuat dengan PAYOU'));
+        baris.push(...Tengah('Dibuat dengan Payoung'));
     }
 
     return baris;

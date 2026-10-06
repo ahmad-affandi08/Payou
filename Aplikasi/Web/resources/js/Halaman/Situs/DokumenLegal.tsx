@@ -9,7 +9,7 @@ type PropsDokumenLegal = {
 };
 
 /**
- * Dokumen legal versi yang berlaku (P-06, F-00 langkah 1), di domain pemasaran `payou.id`.
+ * Dokumen legal versi yang berlaku (P-06, F-00 langkah 1), di domain pemasaran `payoung.id`.
  *
  * Dua hal yang diperbaiki di D-28: halaman ini dulu berdiri sendiri tanpa kepala & kaki situs, padahal alamatnya
  * ada di domain pemasaran dan pengunjung sampai ke sini dari kaki situs — jadi tidak ada jalan kembali. Isinya juga

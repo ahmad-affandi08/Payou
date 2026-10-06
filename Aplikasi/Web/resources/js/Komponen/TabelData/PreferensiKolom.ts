@@ -10,7 +10,7 @@ export type PreferensiKolom = { Tampil: string[]; Sembunyi: string[]; Urutan: st
 const KOSONG: PreferensiKolom = { Tampil: [], Sembunyi: [], Urutan: [] };
 
 function Kunci(id: string): string {
-    return `PAYOU:TabelData:${id}`;
+    return `Payoung:TabelData:${id}`;
 }
 
 export function BacaPreferensi(id: string): PreferensiKolom {

@@ -51,7 +51,7 @@ function SimpanPengaturanSitusUji(array $nilai): void
 describe('formulir prospek publik', function (): void {
     it('menyimpan prospek dengan nomor ternormalisasi & terenkripsi, lalu mengabari tim lewat email', function (): void {
         Mail::fake();
-        SimpanPengaturanSitusUji(['Prospek' => ['EmailNotifikasi' => 'sales@payou.test']]);
+        SimpanPengaturanSitusUji(['Prospek' => ['EmailNotifikasi' => 'sales@payoung.test']]);
 
         $this->from('/kontak')->post('/prospek', IsianProspek())
             ->assertRedirect('/kontak')
@@ -70,7 +70,7 @@ describe('formulir prospek publik', function (): void {
             ->and((string) $mentah['Email'])->not->toContain('contoh.id')
             ->and($mentah['SidikIp'])->toHaveLength(64);
 
-        Mail::assertQueued(ProspekSitusBaru::class, fn (ProspekSitusBaru $surel): bool => $surel->hasTo('sales@payou.test'));
+        Mail::assertQueued(ProspekSitusBaru::class, fn (ProspekSitusBaru $surel): bool => $surel->hasTo('sales@payoung.test'));
     });
 
     it('email notifikasi jatuh ke email kontak situs; tanpa keduanya tidak mengirim email', function (): void {
@@ -78,13 +78,13 @@ describe('formulir prospek publik', function (): void {
         $this->post('/prospek', IsianProspek())->assertSessionHas('ProspekTerkirim', true);
         Mail::assertNothingQueued();
 
-        SimpanPengaturanSitusUji(['Kontak' => ['Email' => 'halo@payou.test']]);
+        SimpanPengaturanSitusUji(['Kontak' => ['Email' => 'halo@payoung.test']]);
         $this->post('/prospek', IsianProspek(['NoHp' => '081299998888']));
-        Mail::assertQueued(ProspekSitusBaru::class, fn (ProspekSitusBaru $surel): bool => $surel->hasTo('halo@payou.test'));
+        Mail::assertQueued(ProspekSitusBaru::class, fn (ProspekSitusBaru $surel): bool => $surel->hasTo('halo@payoung.test'));
     });
 
     it('isi email tim tidak memuat nomor & email pengunjung, dan menaut ke konsol', function (): void {
-        config(['pengelola.Domain' => 'konsol.payou.test']);
+        config(['pengelola.Domain' => 'konsol.payoung.test']);
         $p = app(TerimaProspekSitus::class)->Jalankan([
             'Jenis' => JenisProspek::Kontak, 'Nama' => 'Budi', 'NamaUsaha' => null, 'NoHp' => '08123000111',
             'Email' => 'budi@contoh.id', 'JenisUsaha' => null, 'Kota' => null, 'Pesan' => null, 'HalamanAsal' => null,
@@ -97,7 +97,7 @@ describe('formulir prospek publik', function (): void {
         ], '10.0.0.1');
         $isi = '';
         Mail::assertNothingQueued();
-        SimpanPengaturanSitusUji(['Kontak' => ['Email' => 'halo@payou.test']]);
+        SimpanPengaturanSitusUji(['Kontak' => ['Email' => 'halo@payoung.test']]);
         app(TerimaProspekSitus::class)->Jalankan([
             'Jenis' => JenisProspek::Kontak, 'Nama' => 'Budi', 'NamaUsaha' => null, 'NoHp' => '08123000333',
             'Email' => 'budi@contoh.id', 'JenisUsaha' => null, 'Kota' => null, 'Pesan' => null, 'HalamanAsal' => null,
@@ -108,7 +108,7 @@ describe('formulir prospek publik', function (): void {
             return true;
         });
         expect($p->Nama)->toBe('Budi');
-        expect($isi)->toContain('Budi')->toContain('konsol.payou.test/situs/prospek')
+        expect($isi)->toContain('Budi')->toContain('konsol.payoung.test/situs/prospek')
             ->not->toContain('628123000111')->not->toContain('budi@contoh.id');
     });
 
@@ -243,13 +243,13 @@ describe('retensi & analitik', function (): void {
         $this->put(BantuanPengelola::Url('/situs/pengaturan'), [
             ...$pengaturan,
             'Analitik' => ['IdGoogleAnalytics' => 'g-abc123xyz', 'IdMetaPixel' => '123456789012'],
-            'Prospek' => ['EmailNotifikasi' => 'Sales@PAYOU.test'],
+            'Prospek' => ['EmailNotifikasi' => 'Sales@Payoung.test'],
         ])->assertSessionHasNoErrors();
 
         $this->get(rtrim((string) config('app.url'), '/').'/')->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
             ->where('Situs.Analitik.IdGoogleAnalytics', 'G-ABC123XYZ')
             ->where('Situs.Analitik.IdMetaPixel', '123456789012'));
-        expect(app(PengaturanSitusBerlaku::class)->Ambil()['Prospek']['EmailNotifikasi'])->toBe('sales@payou.test');
+        expect(app(PengaturanSitusBerlaku::class)->Ambil()['Prospek']['EmailNotifikasi'])->toBe('sales@payoung.test');
     });
 });
 

@@ -1,11 +1,11 @@
-# Rilis Google Play: PAYOU POS & PAYOU Owner
+# Rilis Google Play: Payoung POS & Payoung Owner
 
 Semua bahan untuk mengisi Play Console dua aplikasi. Aset gambar ada di `Spesifikasi/Merek/PlayStore/`;
 teks di bawah siap ditempel. Bagian bertanda **[isi pemilik]** adalah data yang tidak boleh ditebak agent.
 
-| | PAYOU POS | PAYOU Owner |
+| | Payoung POS | Payoung Owner |
 |---|---|---|
-| ID paket | `id.payou.kasir` | `id.payou.pemilik` |
+| ID paket | `id.payoung.kasir` | `id.payoung.pemilik` |
 | Versi saat ini (`pubspec.yaml`) | `1.0.0+1` | `1.0.0+1` |
 | Kategori | Bisnis | Bisnis |
 | Tag | Kasir, POS, Bisnis kecil | Bisnis, Analitik |
@@ -21,7 +21,7 @@ cd Aplikasi/Pemilik && flutter test AlatSitus/FotoPlayStore_test.dart
 python3 Spesifikasi/Merek/PlayStore/BuatAsetPlayStore.py
 ```
 
-| Slot Play Console | PAYOU POS (`Kasir/`) | PAYOU Owner (`Pemilik/`) |
+| Slot Play Console | Payoung POS (`Kasir/`) | Payoung Owner (`Pemilik/`) |
 |---|---|---|
 | Ikon aplikasi 512×512 (PNG 32-bit) | `Ikon512.png` | `Ikon512.png` |
 | Grafis fitur 1024×500 | `GrafikFitur.png` | `GrafikFitur.png` |
@@ -32,9 +32,9 @@ python3 Spesifikasi/Merek/PlayStore/BuatAsetPlayStore.py
 Urutan nama berkas = urutan unggah. Data di tangkapan layar adalah data demo (toko "Kopi Senja"), dirender dari
 widget asli aplikasi, bukan mockup.
 
-## 2. Teks listing: PAYOU POS
+## 2. Teks listing: Payoung POS
 
-**Nama aplikasi** (≤ 30): `PAYOU POS - Aplikasi Kasir`
+**Nama aplikasi** (≤ 30): `Payoung POS - Aplikasi Kasir`
 
 **Deskripsi singkat** (≤ 80):
 `Kasir offline untuk kafe, resto, toko, salon & laundry. Stok & laporan otomatis.`
@@ -42,7 +42,7 @@ widget asli aplikasi, bukan mockup.
 **Deskripsi lengkap** (≤ 4000):
 
 ```
-PAYOU POS adalah aplikasi kasir untuk usaha Indonesia: kafe, restoran, toko ritel, grosir, salon, laundry, bengkel, dan apotek. Tetap bisa jualan saat internet putus; semua transaksi tersinkron otomatis begitu online lagi.
+Payoung POS adalah aplikasi kasir untuk usaha Indonesia: kafe, restoran, toko ritel, grosir, salon, laundry, bengkel, dan apotek. Tetap bisa jualan saat internet putus; semua transaksi tersinkron otomatis begitu online lagi.
 
 JUAL CEPAT
 • Katalog per kategori, pencarian, dan pindai barcode (kamera atau scanner USB/Bluetooth)
@@ -63,26 +63,26 @@ RETUR & KONTROL
 • Riwayat transaksi lengkap, void, retur, dan tukar barang dengan PIN penyetuju
 • Hak akses per peran: kasir, supervisor, pelayan, salesman
 
-TERHUBUNG KE DASHBOARD PAYOU
-Stok, jurnal akuntansi, laporan laba rugi, pelanggan & poin, promo, dan karyawan dikelola di dashboard web PAYOU. Pemilik bisa memantau semuanya dari aplikasi PAYOU Owner.
+TERHUBUNG KE DASHBOARD Payoung
+Stok, jurnal akuntansi, laporan laba rugi, pelanggan & poin, promo, dan karyawan dikelola di dashboard web Payoung. Pemilik bisa memantau semuanya dari aplikasi Payoung Owner.
 
-Aplikasi ini memerlukan akun usaha PAYOU. Daftar di payou.id, lalu aktifkan perangkat kasir dengan kode atau QR dari dashboard.
+Aplikasi ini memerlukan akun usaha Payoung. Daftar di payoung.id, lalu aktifkan perangkat kasir dengan kode atau QR dari dashboard.
 ```
 
 **Catatan rilis 1.0.0**:
-`Rilis pertama PAYOU POS: jual offline, QRIS, printer Bluetooth/USB/LAN, shift & kas, retur, mode meja.`
+`Rilis pertama Payoung POS: jual offline, QRIS, printer Bluetooth/USB/LAN, shift & kas, retur, mode meja.`
 
-## 3. Teks listing: PAYOU Owner
+## 3. Teks listing: Payoung Owner
 
-**Nama aplikasi** (≤ 30): `PAYOU Owner - Pantau Toko`
+**Nama aplikasi** (≤ 30): `Payoung Owner - Pantau Toko`
 
 **Deskripsi singkat** (≤ 80):
-`Pantau omzet, shift, stok, dan karyawan semua outlet PAYOU dari HP Anda.`
+`Pantau omzet, shift, stok, dan karyawan semua outlet Payoung dari HP Anda.`
 
 **Deskripsi lengkap**:
 
 ```
-PAYOU Owner adalah aplikasi pendamping untuk pemilik usaha yang memakai PAYOU POS. Lihat kondisi toko kapan saja tanpa harus datang ke outlet.
+Payoung Owner adalah aplikasi pendamping untuk pemilik usaha yang memakai Payoung POS. Lihat kondisi toko kapan saja tanpa harus datang ke outlet.
 
 • Omzet hari ini semua outlet, dibanding kemarin dan minggu lalu
 • Laporan penjualan per jam, per outlet, dan produk terlaris
@@ -92,41 +92,41 @@ PAYOU Owner adalah aplikasi pendamping untuk pemilik usaha yang memakai PAYOU PO
 • Insight mingguan: tren penjualan dan saran restock
 • Notifikasi penting langsung ke HP
 
-Masuk dengan akun pemilik usaha PAYOU yang sama dengan dashboard web.
+Masuk dengan akun pemilik usaha Payoung yang sama dengan dashboard web.
 ```
 
-**Catatan rilis 1.0.0**: `Rilis pertama PAYOU Owner: dasbor omzet, laporan, persetujuan jarak jauh, shift, karyawan, insight.`
+**Catatan rilis 1.0.0**: `Rilis pertama Payoung Owner: dasbor omzet, laporan, persetujuan jarak jauh, shift, karyawan, insight.`
 
 ## 4. Detail kontak & kebijakan
 
 | Isian | Nilai |
 |---|---|
-| Situs web | `https://payou.id` |
+| Situs web | `https://payoung.id` |
 | Email dukungan | **[isi pemilik]** (wajib, tampil publik) |
 | Telepon / WhatsApp | **[isi pemilik]** (opsional) |
-| Kebijakan privasi | `https://payou.id/legal/kebijakan-privasi` (P-06; pastikan versi berlaku sudah diterbitkan di konsol) |
+| Kebijakan privasi | `https://payoung.id/legal/kebijakan-privasi` (P-06; pastikan versi berlaku sudah diterbitkan di konsol) |
 
 ## 5. Akses aplikasi (untuk peninjau Google)
 
 Kedua aplikasi butuh akun, jadi pilih "Semua atau sebagian fungsi dibatasi" dan siapkan **tenant demo khusus peninjau**
 (jangan akun toko sungguhan):
 
-- **PAYOU POS**: buat perangkat kasir di tenant demo, tulis kode aktivasi + PIN kasir demo di instruksi.
+- **Payoung POS**: buat perangkat kasir di tenant demo, tulis kode aktivasi + PIN kasir demo di instruksi.
   Kode aktivasi sekali pakai, jadi buat yang baru setiap kali kirim ulang ke peninjauan.
-- **PAYOU Owner**: email + kata sandi pemilik tenant demo, 2FA dimatikan untuk akun ini. Peninjau memakai email + kata sandi; tombol "Masuk dengan Google" (D-57) boleh tetap ada tetapi jangan jadi satu-satunya jalan masuk, dan cantumkan di instruksi bahwa masuk Google bersifat opsional (panduan: `Panduan/LoginGoogle.md`).
+- **Payoung Owner**: email + kata sandi pemilik tenant demo, 2FA dimatikan untuk akun ini. Peninjau memakai email + kata sandi; tombol "Masuk dengan Google" (D-57) boleh tetap ada tetapi jangan jadi satu-satunya jalan masuk, dan cantumkan di instruksi bahwa masuk Google bersifat opsional (panduan: `Panduan/LoginGoogle.md`).
 
 Kredensial hanya diisi di Play Console, **tidak** di repo atau dokumen ini.
 
 ## 6. Keamanan data (Data safety)
 
 Jawaban umum kedua aplikasi:
-- Mengumpulkan/membagikan data: **Ya** mengumpulkan; **Tidak** membagikan ke pihak ketiga (server PAYOU adalah pemroses
+- Mengumpulkan/membagikan data: **Ya** mengumpulkan; **Tidak** membagikan ke pihak ketiga (server Payoung adalah pemroses
   data milik toko; gerbang QRIS & WhatsApp dipanggil server atas nama toko, bukan oleh aplikasi).
 - Dienkripsi saat transit: **Ya** (HTTPS). Basis data lokal kasir juga terenkripsi (K-7).
-- Permintaan penghapusan data: **Ya**, lewat dukungan PAYOU / pemilik toko (data milik tenant).
+- Permintaan penghapusan data: **Ya**, lewat dukungan Payoung / pemilik toko (data milik tenant).
 - Iklan: **Tidak ada**. SDK analitik/iklan pihak ketiga: **tidak ada**.
 
-### PAYOU POS
+### Payoung POS
 
 | Jenis data | Dikumpulkan | Tujuan | Wajib? |
 |---|---|---|---|
@@ -136,15 +136,15 @@ Jawaban umum kedua aplikasi:
 | Riwayat pembelian | Ya | Fungsi aplikasi, analitik toko | Wajib |
 | Foto (swafoto absensi, bukti kas) | Ya | Fungsi aplikasi | Opsional |
 | Lokasi persis | Ya (kunjungan salesman, absensi) | Fungsi aplikasi | Opsional |
-| Log error / diagnostik | Ya (dikirim ke server PAYOU, PII disaring) | Analitik, perbaikan | Wajib |
-| ID perangkat (ID perangkat kasir PAYOU) | Ya | Keamanan, fungsi | Wajib |
+| Log error / diagnostik | Ya (dikirim ke server Payoung, PII disaring) | Analitik, perbaikan | Wajib |
+| ID perangkat (ID perangkat kasir Payoung) | Ya | Keamanan, fungsi | Wajib |
 
 Informasi pembayaran pelanggan (kartu/rekening) **tidak** dikumpulkan; QRIS diproses gerbang pembayaran milik toko.
 
 Izin yang dijelaskan saat diminta: Kamera (pindai barcode, swafoto absensi, foto bukti), Perangkat sekitar /
 Bluetooth (printer & laci), Lokasi (kunjungan salesman, absensi).
 
-### PAYOU Owner
+### Payoung Owner
 
 | Jenis data | Dikumpulkan | Tujuan | Wajib? |
 |---|---|---|---|
@@ -167,14 +167,14 @@ Firebase Cloud Messaging hanya untuk notifikasi push; tidak ada analitik Firebas
 ## 8. Build & tanda tangan
 
 1. Buat keystore unggah sekali, simpan di pengelola rahasia (bukan repo):
-   `keytool -genkey -v -keystore payou-unggah.jks -keyalg RSA -keysize 2048 -validity 10000 -alias payou`
-2. Isi `android/key.properties` (diabaikan Git) atau variabel `PAYOU_KEYSTORE_FILE`, `PAYOU_KEYSTORE_PASSWORD`,
-   `PAYOU_KEY_ALIAS`, `PAYOU_KEY_PASSWORD`. Build rilis sengaja gagal bila kunci kosong.
+   `keytool -genkey -v -keystore payoung-unggah.jks -keyalg RSA -keysize 2048 -validity 10000 -alias payoung`
+2. Isi `android/key.properties` (diabaikan Git) atau variabel `PAYOUNG_KEYSTORE_FILE`, `PAYOUNG_KEYSTORE_PASSWORD`,
+   `PAYOUNG_KEY_ALIAS`, `PAYOUNG_KEY_PASSWORD`. Build rilis sengaja gagal bila kunci kosong.
 3. Aktifkan **Play App Signing** (Google memegang kunci aplikasi; keystore di atas = kunci unggah).
 4. Build AAB dengan alamat server produksi:
    ```bash
-   cd Aplikasi/Kasir   && flutter build appbundle --release --dart-define=ALAMAT_SERVER=https://dashboard.payou.id/
-   cd Aplikasi/Pemilik && flutter build appbundle --release --dart-define=ALAMAT_SERVER=https://dashboard.payou.id/
+   cd Aplikasi/Kasir   && flutter build appbundle --release --dart-define=ALAMAT_SERVER=https://dashboard.payoung.id/
+   cd Aplikasi/Pemilik && flutter build appbundle --release --dart-define=ALAMAT_SERVER=https://dashboard.payoung.id/
    ```
    Hasil: `build/app/outputs/bundle/release/app-release.aab`. Setiap unggahan wajib menaikkan angka build (`+N`).
 5. Pemilik: siapkan `google-services.json` proyek Firebase produksi (tidak di repo) sebelum build.
@@ -189,7 +189,7 @@ Firebase Cloud Messaging hanya untuk notifikasi push; tidak ada analitik Firebas
 
 ## Daftar periksa
 
-- [ ] Email dukungan & kebijakan privasi terbit di `payou.id/legal/kebijakan-privasi`
+- [ ] Email dukungan & kebijakan privasi terbit di `payoung.id/legal/kebijakan-privasi`
 - [ ] Tenant demo + kode aktivasi + akun Owner untuk peninjau
 - [x] Versi Pemilik dinaikkan ke 1.0.0, angka build naik tiap unggah
 - [ ] Keystore unggah tersimpan aman + Play App Signing aktif

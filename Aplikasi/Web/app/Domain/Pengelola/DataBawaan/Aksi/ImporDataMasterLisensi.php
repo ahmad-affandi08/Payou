@@ -19,8 +19,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * D-35 edisi Lisensi: memasang paket data master hasil `EksporDataMasterLisensi` dari server SaaS PAYOU (tarif pajak
- * & hari libur yang sudah terbit lewat four-eyes di konsol). Idempoten; dijalankan setiap PAYOU mengirim paket baru
+ * D-35 edisi Lisensi: memasang paket data master hasil `EksporDataMasterLisensi` dari server SaaS Payoung (tarif pajak
+ * & hari libur yang sudah terbit lewat four-eyes di konsol). Idempoten; dijalankan setiap Payoung mengirim paket baru
  * (misal tarif PPN berubah atau hari libur tahun depan terbit).
  *
  * - Tarif: yang nilainya sama dengan tarif terbit terakhir (jenis & wilayah sama) dilewati, termasuk tarif bawaan yang
@@ -89,7 +89,7 @@ final class ImporDataMasterLisensi
         }
 
         if (! $lisensi->CekDalamMasaPembaruan($tanggal)) {
-            throw new PelanggaranAturanBisnis('D-36', "Berkas data master ini dibuat {$tanggal}, setelah masa pembaruan lisensi {$lisensi->nomor} berakhir ({$lisensi->pembaruanSampai}). Perpanjang pemeliharaan ke PAYOU untuk menerima tarif pajak & hari libur terbaru.");
+            throw new PelanggaranAturanBisnis('D-36', "Berkas data master ini dibuat {$tanggal}, setelah masa pembaruan lisensi {$lisensi->nomor} berakhir ({$lisensi->pembaruanSampai}). Perpanjang pemeliharaan ke Payoung untuk menerima tarif pajak & hari libur terbaru.");
         }
     }
 
@@ -187,7 +187,7 @@ final class ImporDataMasterLisensi
                 $ada->update([
                     'Status' => StatusDataMaster::Dibatalkan,
                     'DibatalkanPada' => now(),
-                    'AlasanPembatalan' => 'Dibatalkan di paket data master PAYOU.',
+                    'AlasanPembatalan' => 'Dibatalkan di paket data master Payoung.',
                 ]);
                 $batal++;
             }

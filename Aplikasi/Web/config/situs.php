@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * D-21 Situs pemasaran (payou.id) yang diatur dari konsol. Kunci konfigurasi PascalCase (D-05).
+ * D-21 Situs pemasaran (payoung.id) yang diatur dari konsol. Kunci konfigurasi PascalCase (D-05).
  */
 return [
     // Disk penyimpanan gambar situs (bawaan `public`; bisa S3-compatible lewat .env).

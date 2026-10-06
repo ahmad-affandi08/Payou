@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Http;
 
 function PermintaanQrisUji(): PermintaanQris
 {
-    return new PermintaanQris('QR-SLB-0001', Uang::Dari('25000'), 'Penjualan Kopi Senja', CarbonImmutable::now()->addMinutes(15), 'https://payou.id/webhook/uji');
+    return new PermintaanQris('QR-SLB-0001', Uang::Dari('25000'), 'Penjualan Kopi Senja', CarbonImmutable::now()->addMinutes(15), 'https://payoung.id/webhook/uji');
 }
 
 function Gerbang(string $penyedia, array $pengaturan, array $kredensial)
@@ -51,7 +51,7 @@ it('Midtrans: charge QRIS dengan Basic server key, webhook SHA512, status settle
     Http::assertSent(fn (PermintaanHttp $r) => $r['payment_type'] === 'qris'
         && $r['transaction_details'] === ['order_id' => 'QR-SLB-0001', 'gross_amount' => 25000]
         && $r->hasHeader('Authorization', 'Basic '.base64_encode('SB-Mid-server-abc:'))
-        && $r->hasHeader('X-Override-Notification', 'https://payou.id/webhook/uji'));
+        && $r->hasHeader('X-Override-Notification', 'https://payoung.id/webhook/uji'));
 
     $isi = ['order_id' => 'QR-SLB-0001', 'status_code' => '200', 'gross_amount' => '25000.00', 'transaction_status' => 'settlement', 'transaction_id' => 'trx-1'];
     $sah = WebhookJson($isi + ['signature_key' => hash('sha512', 'QR-SLB-0001'.'200'.'25000.00'.'SB-Mid-server-abc')]);

@@ -199,7 +199,7 @@ describe('K3 kirim struk digital dari POS', function (): void {
     it('tugas email (kiriman lama yang sudah antre sebelum D-33): Mailable berisi ringkasan & tautan struk, pengirim bernama usaha', function (): void {
         Queue::fake();
         Mail::fake();
-        config(['mail.from.address' => 'struk@payou.id']);
+        config(['mail.from.address' => 'struk@payoung.id']);
         [$k, $p] = SiapkanJualStruk($this, whatsapp: false);
 
         $pesan = BuatPesanEmailLama($k, $p, 'bu.ratna@contoh.co.id');
@@ -213,7 +213,7 @@ describe('K3 kirim struk digital dari POS', function (): void {
             $html = $surel->render();
             $teks = (string) view($surel->textView, $surel->buildViewData())->render();
 
-            return $surel->hasTo('bu.ratna@contoh.co.id') && $surel->hasFrom('struk@payou.id', 'Toko Kelontong Berkah Solo')
+            return $surel->hasTo('bu.ratna@contoh.co.id') && $surel->hasFrom('struk@payoung.id', 'Toko Kelontong Berkah Solo')
                 && $surel->nomor === $p->Nomor && $surel->total === 'Rp 77.000'
                 && str_contains($html, $url) && str_contains($teks, $url)
                 && str_contains($html, 'Minyak Goreng Sawit Bening Kemasan Pouch 2 Liter')

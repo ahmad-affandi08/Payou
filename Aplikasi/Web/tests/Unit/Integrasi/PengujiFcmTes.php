@@ -23,8 +23,8 @@ function AkunLayananUji(array $ganti = []): string
 
     return json_encode(array_merge([
         'type' => 'service_account',
-        'project_id' => 'payou-uji',
-        'client_email' => 'push@payou-uji.iam.gserviceaccount.com',
+        'project_id' => 'payoung-uji',
+        'client_email' => 'push@payoung-uji.iam.gserviceaccount.com',
         'private_key' => $pem,
         'token_uri' => 'https://oauth2.googleapis.com/token',
     ], $ganti), JSON_THROW_ON_ERROR);
@@ -36,7 +36,7 @@ it('akun layanan sah ditukar jadi token akses dan dinyatakan berhasil', function
     $hasil = (new PengujiFcm)->Uji([], ['AkunLayanan' => AkunLayananUji()]);
 
     expect($hasil->berhasil)->toBeTrue()
-        ->and($hasil->pesan)->toContain('payou-uji');
+        ->and($hasil->pesan)->toContain('payoung-uji');
 
     // Permintaannya memang alur akun layanan Google, bukan sekadar GET apa pun.
     Http::assertSent(fn ($permintaan): bool => $permintaan['grant_type'] === 'urn:ietf:params:oauth:grant-type:jwt-bearer'
@@ -53,7 +53,7 @@ it('isi yang bukan JSON ditolak dengan pesan yang bisa ditindaklanjuti', functio
 
 it('berkas google-services.json ditolak karena tidak memuat kunci privat', function (): void {
     // Kesalahan paling mungkin: mengunggah berkas konfigurasi aplikasi, bukan akun layanan.
-    $hasil = (new PengujiFcm)->Uji([], ['AkunLayanan' => json_encode(['project_info' => ['project_id' => 'payou-uji']])]);
+    $hasil = (new PengujiFcm)->Uji([], ['AkunLayanan' => json_encode(['project_info' => ['project_id' => 'payoung-uji']])]);
 
     expect($hasil->berhasil)->toBeFalse()
         ->and($hasil->pesan)->toContain('client_email');
@@ -94,7 +94,7 @@ it('pengirim menukar token OAuth lalu mengirim pesan FCM HTTP v1', function (): 
     Cache::flush();
     Http::fake([
         'oauth2.googleapis.com/*' => Http::response(['access_token' => 'ya29.kirim']),
-        'fcm.googleapis.com/*' => Http::response(['name' => 'projects/payou-uji/messages/1']),
+        'fcm.googleapis.com/*' => Http::response(['name' => 'projects/payoung-uji/messages/1']),
     ]);
 
     $hasil = (new PengirimFcm)->Kirim('token-perangkat-yang-panjang', 'Perlu persetujuan', 'Kas keluar Rp100.000', [

@@ -55,7 +55,7 @@ export default function HalamanProdukPanduan({
             {kuotaPenuh ? (
                 <Pemberitahuan jenis="peringatan" judul="Kuota produk paket sudah penuh">
                     {FormatBatas(BatasSku, 'SKU produk')}.{' '}
-                    <AjakanTambahBatas teksLisensi="Minta berkas lisensi dengan batas lebih besar ke penjual lisensi PAYOU.">
+                    <AjakanTambahBatas teksLisensi="Minta berkas lisensi dengan batas lebih besar ke penjual lisensi Payoung.">
                         Tambah kuota di{' '}
                         <Link href="/kelola/langganan" className="font-semibold text-brand underline">
                             menu Langganan

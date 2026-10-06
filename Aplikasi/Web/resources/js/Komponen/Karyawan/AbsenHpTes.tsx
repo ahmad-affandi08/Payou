@@ -51,7 +51,7 @@ afterEach(() => {
 describe('Panel absen dari HP', () => {
     it('menampilkan tautan & 3 foto wajah menunggu; setujui mengirim Setujui=true; tolak wajib beralasan', async () => {
         TiruFetch({
-            Tautan: 'https://dashboard.payou.id/kopi-senja/absen/' + 'a'.repeat(40),
+            Tautan: 'https://dashboard.payoung.id/kopi-senja/absen/' + 'a'.repeat(40),
             TautanDibuatPada: '2026-10-05T01:00:00Z',
             Wajah: {
                 Status: 'Menunggu',

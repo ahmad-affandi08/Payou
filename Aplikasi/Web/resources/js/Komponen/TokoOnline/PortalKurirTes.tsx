@@ -12,7 +12,7 @@ vi.mock('@inertiajs/react', async () => (await import('@/Komponen/Katalog/Tiruan
  * tampil ringkas tanpa data kontak.
  */
 
-const dasar = 'https://dashboard.payou.id/kopi-senja/kurir/' + 'a'.repeat(40);
+const dasar = 'https://dashboard.payoung.id/kopi-senja/kurir/' + 'a'.repeat(40);
 
 function Pengiriman(status: 'Dikemas' | 'Dikirim' | 'Diterima', uuid: string, nomor: string) {
     const berjalan = status !== 'Diterima';

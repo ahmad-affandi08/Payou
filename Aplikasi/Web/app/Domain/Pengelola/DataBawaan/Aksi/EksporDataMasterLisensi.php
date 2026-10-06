@@ -9,7 +9,7 @@ use App\Domain\Pajak\Model\TarifPajak;
 use App\Domain\Referensi\Model\HariLibur;
 
 /**
- * D-35: paket data master untuk server edisi Lisensi, diekspor dari server SaaS PAYOU. Isinya hanya data yang sudah
+ * D-35: paket data master untuk server edisi Lisensi, diekspor dari server SaaS Payoung. Isinya hanya data yang sudah
  * **terbit** lewat konsol (tarif pajak & hari libur yang lolos four-eyes BR-P02.2), sehingga server pembeli menerima
  * data yang sama persis tanpa ada yang diketik ulang. Hari libur yang dibatalkan ikut ditandai agar pembatalannya
  * sampai juga ke server pembeli.

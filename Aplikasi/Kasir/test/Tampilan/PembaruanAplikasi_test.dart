@@ -63,7 +63,7 @@ void main() {
       'VersiSaatIni': '0.1.0',
       'VersiTerbaru': '0.2.0',
       'VersiMinimal': '0.2.0',
-      'TautanUnduh': 'https://unduh.payou.id/payou-kasir-0.2.0.apk',
+      'TautanUnduh': 'https://unduh.payoung.id/payoung-kasir-0.2.0.apk',
       'CatatanRilis': 'Cetak struk Bluetooth.',
       'AdaPembaruan': true,
       'WajibPembaruan': true,
@@ -73,7 +73,7 @@ void main() {
     expect(find.byType(LayarJual), findsNothing);
     expect(find.text('Wajib perbarui aplikasi'), findsOneWidget);
     expect(find.textContaining('Perbarui ke versi 0.2.0'), findsOneWidget);
-    expect(find.text('https://unduh.payou.id/payou-kasir-0.2.0.apk'), findsOneWidget);
+    expect(find.text('https://unduh.payoung.id/payoung-kasir-0.2.0.apk'), findsOneWidget);
     expect(find.text('Cetak struk Bluetooth.'), findsOneWidget);
     // Buka shift sudah terkirim (outbox tidak ditahan) dan jumlah outbox dilaporkan di setiap permintaan.
     final kirim = u.server.permintaan.where((p) => p.url.path.endsWith('/sinkron/kirim')).toList();
@@ -137,7 +137,7 @@ void main() {
 
       await tester.tap(find.text('Lihat (2)'));
       await tester.pumpAndSettle();
-      expect(find.text('Pengumuman PAYOU'), findsOneWidget);
+      expect(find.text('Pengumuman Payoung'), findsOneWidget);
       expect(find.text('Yang baru: Cetak ulang struk lebih cepat'), findsOneWidget);
       expect(find.textContaining('Sinkron berhenti sebentar'), findsOneWidget);
       await tester.tap(find.text('Tutup'));

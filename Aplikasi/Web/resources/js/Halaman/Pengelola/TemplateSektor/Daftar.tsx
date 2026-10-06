@@ -152,8 +152,8 @@ export default function HalamanDaftarTemplateSektor({ Template }: { Template: Ri
                     saatBatal={() => AturNonaktifkan(null)}
                 >
                     <p>
-                        Sektor ini tidak lagi muncul di pilihan tenant baru. Tenant yang sudah memakainya tidak
-                        berubah, dan datanya tetap tersimpan. Anda bisa mengaktifkannya kembali kapan saja.
+                        Sektor ini tidak lagi muncul di pilihan tenant baru. Tenant yang sudah memakainya tidak berubah,
+                        dan datanya tetap tersimpan. Anda bisa mengaktifkannya kembali kapan saja.
                     </p>
                 </DialogKonfirmasi>
             ) : null}

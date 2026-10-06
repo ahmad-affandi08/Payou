@@ -19,7 +19,7 @@
     <!-- Printer struk USB & printer bawaan all-in-one lewat USB host (PRD v1.96). -->
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
     <application
-        android:label="PAYOU POS"
+        android:label="Payoung POS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -29,9 +29,9 @@ final class PengaturanSitusBerlaku
     public static function AmbilBawaan(): array
     {
         return [
-            'NamaSitus' => 'PAYOU',
+            'NamaSitus' => 'Payoung',
             'Slogan' => 'Smart Choice Your Business Partner',
-            'JudulSeo' => 'PAYOU | Aplikasi Kasir & Pembukuan untuk Usaha Indonesia',
+            'JudulSeo' => 'Payoung | Aplikasi Kasir & Pembukuan untuk Usaha Indonesia',
             'DeskripsiSeo' => 'Aplikasi kasir (POS) yang tetap jalan saat offline, lengkap dengan stok, pajak, promo, pelanggan, dan laporan keuangan. Cocok untuk kafe, resto, toko, salon, dan laundry.',
             'KataKunci' => 'aplikasi kasir, POS, kasir offline, aplikasi kasir kafe, aplikasi kasir toko, pembukuan UMKM',
             'UuidGambarOg' => null,
@@ -39,7 +39,7 @@ final class PengaturanSitusBerlaku
             'VerifikasiGoogle' => null,
             'Kontak' => [
                 'WhatsApp' => null,
-                'PesanWhatsApp' => 'Halo PAYOU, saya ingin tahu lebih lanjut tentang aplikasi kasirnya.',
+                'PesanWhatsApp' => 'Halo Payoung, saya ingin tahu lebih lanjut tentang aplikasi kasirnya.',
                 'Email' => null,
                 'Telepon' => null,
                 'Alamat' => null,
@@ -80,7 +80,7 @@ final class PengaturanSitusBerlaku
                     ['Label' => 'Kebijakan privasi', 'Tautan' => '/legal/kebijakan-privasi'],
                 ]],
             ],
-            'TeksKaki' => 'PAYOU membantu usaha di Indonesia berjualan, mengelola stok, dan membaca laporan keuangan dari satu aplikasi.',
+            'TeksKaki' => 'Payoung membantu usaha di Indonesia berjualan, mengelola stok, dan membaca laporan keuangan dari satu aplikasi.',
             'TautanUnduh' => ['Android' => null, 'Ios' => null, 'Windows' => null],
             'TeksTombolDaftar' => 'Coba gratis',
             'TeksTombolMasuk' => 'Masuk',

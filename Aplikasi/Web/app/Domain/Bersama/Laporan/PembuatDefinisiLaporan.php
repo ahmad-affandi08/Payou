@@ -49,7 +49,7 @@ final class PembuatDefinisiLaporan
         return new DefinisiLaporan(
             judul: $judul,
             namaBerkas: $namaBerkas,
-            namaUsaha: $tenant['Nama'] ?? 'PAYOU',
+            namaUsaha: $tenant['Nama'] ?? 'Payoung',
             cakupan: $cakupan,
             saringan: $saringan,
             ringkasan: $ringkasan ?? self::RingkasanOtomatis($kolom, $baris),

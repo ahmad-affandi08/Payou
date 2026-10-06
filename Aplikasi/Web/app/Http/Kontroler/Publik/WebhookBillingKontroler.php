@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * BR-P08.11: notifikasi gerbang billing platform untuk tagihan langganan PAYOU (tanpa login/CSRF, dibatasi laju).
+ * BR-P08.11: notifikasi gerbang billing platform untuk tagihan langganan Payoung (tanpa login/CSRF, dibatasi laju).
  *
  * Berbeda dari `WebhookGerbangPembayaranKontroler` (QRIS milik toko, D-19) yang URL-nya bertoken per tenant: akun
  * gerbang di sini milik platform, jadi URL-nya tunggal dan tenant ditentukan dari nomor pesanan di dalam notifikasi.
@@ -21,7 +21,7 @@ use Illuminate\Http\Request;
  * `PengelolaTes` melarang kode di luar Platform Pengelola memakai domain Pengelola. Tenant ditetapkan dari nomor
  * pesanan sehingga pembayaran dicari lewat scope `MilikTenant` seperti biasa.
  *
- * - Tanda tangan tidak sah, gerbang belum dikonfigurasi, atau nomor pesanan bukan format PAYOU = 401. Midtrans akan
+ * - Tanda tangan tidak sah, gerbang belum dikonfigurasi, atau nomor pesanan bukan format Payoung = 401. Midtrans akan
  *   mengulang, yang memang diinginkan bila penyebabnya kredensial yang belum terpasang.
  * - Nomor pesanan yang sah tetapi tidak dikenal dijawab 200 `{Diterima: false}` supaya gerbang berhenti mengulang.
  */
@@ -40,7 +40,7 @@ final class WebhookBillingKontroler extends Kontroler
         $nomor = (string) $permintaan->input('order_id');
 
         if ($nomor === '' || str_starts_with(strtolower($nomor), 'test') || str_starts_with(strtolower($nomor), 'sample')) {
-            return response()->json(['Diterima' => true, 'Pesan' => 'Endpoint webhook billing PAYOU siap menerima notifikasi.']);
+            return response()->json(['Diterima' => true, 'Pesan' => 'Endpoint webhook billing Payoung siap menerima notifikasi.']);
         }
 
         $notifikasi = $gerbang->UraiNotifikasi($permintaan);

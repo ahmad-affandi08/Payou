@@ -5,7 +5,7 @@ import { StrictMode, type ComponentType } from 'react';
 import { createRoot } from 'react-dom/client';
 
 /*
- * Entry situs pemasaran (D-21, payou.id). Bundle ringan terpisah: hanya halaman di Halaman/Situs/ (tanpa TanStack
+ * Entry situs pemasaran (D-21, payoung.id). Bundle ringan terpisah: hanya halaman di Halaman/Situs/ (tanpa TanStack
  * Query & kode back-office). Judul & meta SEO awal diisi server di view `Situs.blade.php`.
  */
 const daftarHalaman = import.meta.glob<{ default: ComponentType }>('./Halaman/Situs/**/*.tsx');

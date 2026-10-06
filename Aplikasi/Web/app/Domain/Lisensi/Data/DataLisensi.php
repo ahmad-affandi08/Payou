@@ -7,7 +7,7 @@ namespace App\Domain\Lisensi\Data;
 use App\Domain\Lisensi\Galat\LisensiTidakSah;
 
 /**
- * Isi berkas lisensi yang ditandatangani PAYOU (D-35). Lisensi berlaku selamanya (sekali beli), untuk satu usaha di
+ * Isi berkas lisensi yang ditandatangani Payoung (D-35). Lisensi berlaku selamanya (sekali beli), untuk satu usaha di
  * satu domain, dengan semua fitur. Yang dibatasi hanya jumlah outlet, perangkat per outlet, dan pengguna (null = tak
  * terbatas).
  *
@@ -140,7 +140,7 @@ final readonly class DataLisensi
             return null;
         }
 
-        return "Rilis ini ({$tanggalRilis}) terbit setelah masa pembaruan lisensi {$this->nomor} berakhir ({$this->pembaruanSampai}). Perpanjang pemeliharaan ke PAYOU atau pakai rilis sebelum tanggal itu.";
+        return "Rilis ini ({$tanggalRilis}) terbit setelah masa pembaruan lisensi {$this->nomor} berakhir ({$this->pembaruanSampai}). Perpanjang pemeliharaan ke Payoung atau pakai rilis sebelum tanggal itu.";
     }
 
     /** Host permintaan cocok dengan domain lisensi (tanpa memperhatikan huruf besar & port). */

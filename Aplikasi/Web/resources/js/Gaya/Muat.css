@@ -1,10 +1,10 @@
 /*
- * Bahasa gerak "memuat" PAYOU (D-58): tanda muat bercincin, bilah navigasi tipis, layar muat awal, dan kerangka berkilau.
+ * Bahasa gerak "memuat" Payoung (D-58): tanda muat bercincin, bilah navigasi tipis, layar muat awal, dan kerangka berkilau.
  * Hanya merujuk token warna (var(--color-...)); nilai warna tetap milik Aplikasi.css. Pengguna yang mematikan animasi
  * di perangkatnya melihat versi diam (blok `prefers-reduced-motion` di bawah).
  */
 
-/* Tanda muat: logo P di lingkaran putih, dikelilingi cincin warna token tanpa jarak. Ukuran lewat --u. */
+/* Tanda muat: logo payung di lingkaran putih, dikelilingi cincin warna token tanpa jarak. Ukuran lewat --u. */
 .tanda-muat {
     --u: 64px;
     position: relative;

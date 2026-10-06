@@ -103,7 +103,7 @@ export default function HalamanDaftarHalamanSitus({
             <TabSitus />
             {props.errors.Umum ? <Pemberitahuan jenis="bahaya">{props.errors.Umum}</Pemberitahuan> : null}
             <p className="text-isi text-teks-sekunder">
-                Susun isi situs payou.id per halaman. Perubahan disimpan sebagai draf, cek lewat Pratinjau, lalu
+                Susun isi situs payoung.id per halaman. Perubahan disimpan sebagai draf, cek lewat Pratinjau, lalu
                 Terbitkan agar tampil ke pengunjung.
             </p>
             {buat ? <FormBuatHalaman saatTutup={() => AturBuat(false)} /> : null}
@@ -180,7 +180,7 @@ function FormBuatHalaman({ saatTutup }: { saatTutup: () => void }) {
                 <BidangTeks
                     label="Alamat halaman"
                     kode
-                    keterangan="Huruf kecil, angka, dan tanda hubung. Boleh satu tingkat, misal solusi/apotek. Menjadi payou.id/alamat."
+                    keterangan="Huruf kecil, angka, dan tanda hubung. Boleh satu tingkat, misal solusi/apotek. Menjadi payoung.id/alamat."
                     nilai={formulir.data.Slug}
                     saatBerubah={(v) => {
                         AturSlugDiubah(true);

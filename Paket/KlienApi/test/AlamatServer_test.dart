@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 void main() {
   test('alamat ketikan dinormalkan menjadi https dengan garis miring akhir', () {
     expect(NormalkanAlamatServer('kasir.tokoabc.id').toString(), 'https://kasir.tokoabc.id/');
-    expect(NormalkanAlamatServer(' https://kasir.tokoabc.id/payou ').toString(), 'https://kasir.tokoabc.id/payou/');
+    expect(NormalkanAlamatServer(' https://kasir.tokoabc.id/payoung ').toString(), 'https://kasir.tokoabc.id/payoung/');
     expect(NormalkanAlamatServer('http://192.168.1.10:8080').toString(), 'http://192.168.1.10:8080/');
   });
 

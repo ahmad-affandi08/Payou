@@ -10,7 +10,7 @@
  * - Palet bawaan Tailwind (red-500, white, black, ...) dimatikan agar tidak ada warna di luar token.
  *
  * Mengganti warna: ubah nilai di bagian 1 ("UBAH WARNA DI SINI") saja. Bagian 2 dan seterusnya adalah
- * pemetaan yang tidak perlu disentuh. Palet di bawah adalah warna final D-15 (§17.6.3).
+ * pemetaan yang tidak perlu disentuh. Palet di bawah adalah warna final D-61 (§17.6.3).
  */
 /*
  * T1 (PRD v3.30): `@import 'tailwindcss'` dan daftar `@source` ada di berkas entri, bukan di sini: Gaya/Dasbor.css
@@ -25,7 +25,7 @@
 
 /* ============================================================================================
  * 1. UBAH WARNA DI SINI
- *    Palet dasar merek PAYOU (D-15, §17.6.3; sumber Spesifikasi/Merek). Ke-12 nilai ini juga ada di Flutter
+ *    Palet dasar merek Payoung (D-61, §17.6.3; sumber Spesifikasi/Merek; Muted Teal & Apricot). Ke-12 nilai ini juga ada di Flutter
  *    (Paket/SistemDesain/lib/Token/TokenWarna.dart, nama sama dalam camelCase) dan dicek sama oleh
  *    Paket/SistemDesain/test/Token/SumberWarna_test.dart: ubah keduanya bersamaan.
  *    Setiap token menjadi utilitas Tailwind: bg-latar, text-teks-sekunder, border-garis, dst.
@@ -35,22 +35,23 @@
     /* Matikan palet bawaan Tailwind: hanya token di file ini yang boleh dipakai. */
     --color-*: initial;
 
-    --color-latar: #f9fafb; /* latar halaman (Warm Neutral) */
+    --color-latar: #f7f9f6; /* latar halaman (Dasar Cream) */
     --color-permukaan: #ffffff; /* panel, tabel, dialog, input; juga teks di atas brand/bahaya */
-    --color-garis: #e5e7eb; /* pemisah (Cool Gray) */
-    --color-garis-input: #7d8799; /* tepi input & kontrol (kontras >= 3:1) */
-    --color-teks-utama: #0f2747; /* Navy */
-    --color-teks-sekunder: #4a5873;
-    --color-brand: #5558e8; /* aksi utama, penanda aktif; Primary Indigo #6366f1 digelapkan agar teks putih >= 4,5:1 */
-    --color-brand-gelap: #1d29b8; /* Indigo Gelap dari gradasi logo P; latar sidebar/header merek, teks putih 10,2:1 */
+    --color-garis: #e8ece9; /* pemisah (Pendukung Sage) */
+    --color-garis-input: #7a8f90; /* tepi input & kontrol (kontras >= 3:1) */
+    --color-teks-utama: #1f3335; /* Teal Tinta (teal sangat gelap; 12,5:1 di atas latar) */
+    --color-teks-sekunder: #4f6567;
+    --color-brand: #3b5b5d; /* Utama Slate Teal: aksi utama, penanda aktif; teks putih 7,4:1 */
+    --color-brand-gelap: #22383a; /* Slate Teal gelap; latar sidebar/header merek, teks putih 12:1 */
     --color-sukses: #2e7d32;
     --color-peringatan: #9a5b00;
     --color-bahaya: #b3261e;
     --color-info: #1f5fad;
-    /* Accent Yellow D-15. HANYA situs pemasaran payou.id (D-25): aksen grafis, bukan status.
-     * Latar/grafis saja: teks di atasnya wajib teks-utama (8,98:1), putih dilarang (1,67:1).
-     * Sebagai teks hanya sah di atas brand-gelap (6,10:1), tidak pernah di atas permukaan/latar. */
-    --color-aksen: #fbbf24;
+    /* Aksen Apricot (D-61; menggantikan Accent Yellow D-15). Aksen grafis, bukan status: bintang logo, cincin
+     * tanda muat, sorotan situs pemasaran dan layar login. Latar/grafis saja: teks di atasnya wajib teks-utama
+     * (6,4:1), putih dilarang (2,1:1). Sebagai teks hanya sah di atas brand-gelap (5,1:1), tidak pernah di atas
+     * permukaan/latar. */
+    --color-aksen: #f4a261;
 }
 
 /* ============================================================================================
@@ -77,7 +78,7 @@
     --color-info-lembut: color-mix(in oklab, var(--color-info) 12%, var(--color-permukaan));
     --color-aksen-lembut: color-mix(in oklab, var(--color-aksen) 22%, var(--color-permukaan));
 
-    /* Sidebar merek gelap (D-15): latar BrandGelap, teks menu tidak aktif ~6,7:1, sorotan hover, garis pemisah */
+    /* Sidebar merek gelap (D-61): latar BrandGelap, teks menu tidak aktif ~6,7:1, sorotan hover, garis pemisah */
     --color-brand-gelap-teks: color-mix(in oklab, var(--color-permukaan) 80%, var(--color-brand-gelap));
     --color-brand-gelap-sorot: color-mix(in oklab, var(--color-permukaan) 12%, var(--color-brand-gelap));
     --color-brand-gelap-garis: color-mix(in oklab, var(--color-permukaan) 16%, var(--color-brand-gelap));
@@ -106,7 +107,7 @@
 
     /* Skala tipografi mode Ringkas (back-office). Mode Nyaman ada di aplikasi Flutter. */
     /* Situs pemasaran (D-21, kepadatan Nyaman): judul pembuka, judul bagian, dan paragraf pengantar. */
-    /* Hero situs pemasaran payou.id saja (D-25); tidak dipakai back-office, konsol, POS, Pemilik. */
+    /* Hero situs pemasaran payoung.id saja (D-25); tidak dipakai back-office, konsol, POS, Pemilik. */
     --text-sorotan-besar: 64px;
     --text-sorotan-besar--line-height: 70px;
     --text-sorotan-besar-hp: 40px;

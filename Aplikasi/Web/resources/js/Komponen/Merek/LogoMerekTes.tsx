@@ -7,19 +7,19 @@ describe('LogoMerek', () => {
     it('menyediakan varian warna dan putih untuk logo lengkap serta ikon', () => {
         render(
             <>
-                <LogoMerek nama="PAYOU warna" />
-                <LogoMerek nama="PAYOU putih" varian="putih" />
-                <IkonMerek nama="Ikon PAYOU warna" />
-                <IkonMerek nama="Ikon PAYOU putih" varian="putih" />
+                <LogoMerek nama="Payoung warna" />
+                <LogoMerek nama="Payoung putih" varian="putih" />
+                <IkonMerek nama="Ikon Payoung warna" />
+                <IkonMerek nama="Ikon Payoung putih" varian="putih" />
             </>,
         );
 
-        expect(screen.getByRole('img', { name: 'PAYOU warna' }).getAttribute('src')).toContain('LogoHorizontal.webp');
-        expect(screen.getByRole('img', { name: 'PAYOU putih' }).getAttribute('src')).toContain(
+        expect(screen.getByRole('img', { name: 'Payoung warna' }).getAttribute('src')).toContain('LogoHorizontal.webp');
+        expect(screen.getByRole('img', { name: 'Payoung putih' }).getAttribute('src')).toContain(
             'LogoHorizontalPutih.webp',
         );
-        expect(screen.getByRole('img', { name: 'Ikon PAYOU warna' }).getAttribute('src')).toContain('IkonMerek.webp');
-        expect(screen.getByRole('img', { name: 'Ikon PAYOU putih' }).getAttribute('src')).toContain(
+        expect(screen.getByRole('img', { name: 'Ikon Payoung warna' }).getAttribute('src')).toContain('IkonMerek.webp');
+        expect(screen.getByRole('img', { name: 'Ikon Payoung putih' }).getAttribute('src')).toContain(
             'IkonMerekPutih.png',
         );
     });

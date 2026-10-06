@@ -78,7 +78,7 @@ it('laporan CSP dicatat dengan kunci yang dikenal saja, dipotong, dan dijawab 20
     Log::spy();
 
     $this->postJson('/laporan-csp', ['csp-report' => [
-        'document-uri' => 'https://dashboard.payou.id/kelola',
+        'document-uri' => 'https://dashboard.payoung.id/kelola',
         'violated-directive' => 'script-src-elem',
         'blocked-uri' => 'inline',
         'kunci-asing' => 'tidak dicatat',

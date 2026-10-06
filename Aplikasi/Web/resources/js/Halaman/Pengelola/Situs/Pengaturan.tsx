@@ -189,7 +189,7 @@ export default function HalamanPengaturanSitus({
                     />
                     <PemilihGambarSitus
                         label="Logo (opsional)"
-                        keterangan="Kosong = logo PAYOU bawaan. Pakai PNG/WEBP latar transparan, tinggi ±96px."
+                        keterangan="Kosong = logo Payoung bawaan. Pakai PNG/WEBP latar transparan, tinggi ±96px."
                         nilai={d.UuidLogo}
                         saatBerubah={(v) => formulir.setData('UuidLogo', v)}
                         galat={galat.UuidLogo}

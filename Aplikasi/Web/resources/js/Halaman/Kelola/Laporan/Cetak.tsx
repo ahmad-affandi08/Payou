@@ -135,7 +135,7 @@ export default function Cetak(props: PropsCetak) {
             </div>
 
             <footer className="mt-2 text-right text-keterangan text-teks-sekunder">
-                Dibuat dengan <span className="font-bold text-brand-gelap">PAYOU</span> | payou.id
+                Dibuat dengan <span className="font-bold text-brand-gelap">Payoung</span> | payoung.id
             </footer>
         </main>
     );

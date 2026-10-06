@@ -8,10 +8,10 @@ use Symfony\Component\Finder\Finder;
  * Penjaga pengecualian desain D-25 (PRD §17.5, §17.6.3, §17.6.4). File penjaga: kalau test ini gagal,
  * perbaiki kodenya, bukan test-nya.
  *
- * D-25 melonggarkan tiga aturan §17 HANYA untuk situs pemasaran `payou.id`. Test ini memastikan
+ * D-25 melonggarkan tiga aturan §17 HANYA untuk situs pemasaran `payoung.id`. Test ini memastikan
  * kelonggaran itu tidak merembes ke back-office, Platform Pengelola, atau web publik tenant:
  *
- * - token warna `Aksen` (kuning `#FBBF24`) — bukan penanda status, hanya aksen grafis pemasaran;
+ * - token warna `Aksen` (kuning `#f4a261`) — bukan penanda status, hanya aksen grafis pemasaran;
  * - token ukuran judul `sorotan-besar` / `sorotan-besar-hp` — hanya hero pemasaran;
  * - utilitas `muncul-saat-gulir` — animasi masuk 320 ms, di luar batas 100–200 ms §17.6.4.
  *
@@ -54,6 +54,12 @@ function JalurBolehD25(): array
         'Halaman/Situs/',
         'TataLetak/TataLetakSitus.tsx',
         'Tipe/Situs.ts',
+        // D-61: Aksen Apricot juga warna merek di tanda muat (D-58), halaman absensi HP (D-54, jam besar), dan toko
+        // online per tenant (D-55). Tetap bukan penanda status. Sebelumnya tiga jalur ini memakainya tanpa daftar
+        // pengecualian, sehingga penjaga ini merah sejak D-54/D-55/D-58.
+        'Gaya/Muat.css',
+        'Halaman/Publik/Absensi.tsx',
+        'Halaman/Publik/TokoOnline.tsx',
     ];
 }
 
@@ -97,7 +103,7 @@ test('token warna Aksen hanya dipakai di situs pemasaran (D-25)', function (): v
     $pelanggaran = CariPemakaianDiLuarSitus(['/[a-z]+-aksen(-lembut)?\b/']);
 
     expect($pelanggaran)->toBe([], implode("\n", [
-        'Aksen (#FBBF24) terbatas pada situs pemasaran payou.id (D-25) dan tidak pernah menandai status.',
+        'Aksen (#f4a261) terbatas pada situs pemasaran payoung.id (D-25) dan tidak pernah menandai status.',
         'Pakai token status (sukses/peringatan/bahaya/info) di luar situs pemasaran. Berkas:',
         ...$pelanggaran,
     ]));
@@ -107,7 +113,7 @@ test('token judul sorotan-besar hanya dipakai di situs pemasaran (D-25)', functi
     $pelanggaran = CariPemakaianDiLuarSitus(['/\bsorotan-besar\b/']);
 
     expect($pelanggaran)->toBe([], implode("\n", [
-        'sorotan-besar (64px) / sorotan-besar-hp (40px) hanya untuk hero payou.id (D-25).',
+        'sorotan-besar (64px) / sorotan-besar-hp (40px) hanya untuk hero payoung.id (D-25).',
         'Di luar itu pakai enam token skala §17.5. Berkas:',
         ...$pelanggaran,
     ]));
@@ -117,13 +123,13 @@ test('animasi muncul-saat-gulir hanya dipakai di situs pemasaran (D-25)', functi
     $pelanggaran = CariPemakaianDiLuarSitus(['/\bmuncul-saat-gulir\b/']);
 
     expect($pelanggaran)->toBe([], implode("\n", [
-        'muncul-saat-gulir berdurasi 320 ms, di luar batas 100–200 ms §17.6.4; hanya payou.id (D-25).',
+        'muncul-saat-gulir berdurasi 320 ms, di luar batas 100–200 ms §17.6.4; hanya payoung.id (D-25).',
         'Berkas:',
         ...$pelanggaran,
     ]));
 });
 
-test('tidak ada teks putih di atas Aksen (kontras 1,67:1)', function (): void {
+test('tidak ada teks putih di atas Aksen (kontras 2,1:1)', function (): void {
     $pelanggaran = [];
 
     foreach (BerkasFrontend() as $berkas) {
@@ -141,7 +147,7 @@ test('tidak ada teks putih di atas Aksen (kontras 1,67:1)', function (): void {
     }
 
     expect($pelanggaran)->toBe([], implode("\n", [
-        'Teks putih di atas Aksen hanya 1,67:1 (gagal WCAG AA). Pakai text-teks-utama (8,98:1). Baris:',
+        'Teks putih di atas Aksen hanya 2,1:1 (gagal WCAG AA). Pakai text-teks-utama (6,4:1). Baris:',
         ...$pelanggaran,
     ]));
 });

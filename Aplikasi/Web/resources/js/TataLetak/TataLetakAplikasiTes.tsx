@@ -536,7 +536,7 @@ describe('TataLetakAplikasi: menu berbasis izin & banner langganan (F-00, §19.1
         propsHalaman = BuatProps(
             {
                 Nama: 'Kopi Kenangan Senja',
-                TautanLogo: 'https://payou.test/storage/logo.png',
+                TautanLogo: 'https://payoung.test/storage/logo.png',
             },
             [],
         );
@@ -552,6 +552,6 @@ describe('TataLetakAplikasi: menu berbasis izin & banner langganan (F-00, §19.1
 
         // Logo usaha tampil di dalam avatar
         const img = container.querySelector('header img[alt="Logo Kopi Kenangan Senja"]');
-        expect(img?.getAttribute('src')).toBe('https://payou.test/storage/logo.png');
+        expect(img?.getAttribute('src')).toBe('https://payoung.test/storage/logo.png');
     });
 });

@@ -26,7 +26,7 @@ use Illuminate\Support\Str;
 /**
  * D-22 (F-02 langkah 3, alternatif undangan): admin tenant menambah pengguna langsung, seperti aplikasi kasir lain.
  * - Dengan email: akun dibuat dengan kata sandi awal yang diketik admin, wajib diganti saat pertama masuk. Email yang
- *   sudah punya akun PAYOU (misal anggota usaha lain) tidak bisa ditambah langsung; pakai undangan agar pemiliknya setuju.
+ *   sudah punya akun Payoung (misal anggota usaha lain) tidak bisa ditambah langsung; pakai undangan agar pemiliknya setuju.
  * - Tanpa email: karyawan hanya kasir, wajib PIN; masuk aplikasi kasir dengan PIN, tidak bisa membuka back-office.
  * - BR-02.1: kursi pengguna dibatasi paket (`BatasPengguna`); aturan peran & outlet sama dengan undangan (anti-eskalasi).
  */
@@ -65,7 +65,7 @@ final class TambahPengguna
             $this->batasPaket->Pastikan($idTenant, 'BatasPengguna', fn (): int => $this->pemakaian->HitungPengguna($idTenant, kecualiEmail: $email));
 
             if ($email !== null && Pengguna::query()->where('Email', $email)->lockForUpdate()->exists()) {
-                throw new PelanggaranAturanBisnis('EmailSudahPunyaAkun', "{$email} sudah punya akun PAYOU. Pakai \"Undang lewat email\" agar pemilik akun menyetujuinya.", 'Email');
+                throw new PelanggaranAturanBisnis('EmailSudahPunyaAkun', "{$email} sudah punya akun Payoung. Pakai \"Undang lewat email\" agar pemilik akun menyetujuinya.", 'Email');
             }
 
             $noHp = $data->noHp === null || trim($data->noHp) === '' ? null : trim($data->noHp);

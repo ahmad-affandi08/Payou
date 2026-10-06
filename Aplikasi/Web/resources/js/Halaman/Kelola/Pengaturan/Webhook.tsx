@@ -111,7 +111,7 @@ function RingkasanHasil({ kiriman: k }: { kiriman: KirimanWebhook }) {
 }
 
 /**
- * X7 bagian 2: Pengaturan › Webhook (khusus Owner). PAYOU mengirim POST JSON bertanda tangan HMAC-SHA256 ke alamat
+ * X7 bagian 2: Pengaturan › Webhook (khusus Owner). Payoung mengirim POST JSON bertanda tangan HMAC-SHA256 ke alamat
  * HTTPS milik aplikasi lain saat penjualan selesai, di-void, atau diretur. Gagal dicoba lagi 1 menit, 5 menit,
  * 30 menit, 2 jam, lalu 12 jam; log 30 hari terakhir bisa dikirim ulang.
  */
@@ -263,7 +263,7 @@ function FormBuat({ opsi, saatSelesai }: { opsi: PropsHalamanWebhook['OpsiPerist
                     nilai={formulir.data.Url}
                     saatBerubah={(nilai) => formulir.setData('Url', nilai)}
                     galat={formulir.errors.Url}
-                    keterangan="Wajib https:// dan bisa diakses dari internet, misal https://contoh.co.id/webhook/payou."
+                    keterangan="Wajib https:// dan bisa diakses dari internet, misal https://contoh.co.id/webhook/payoung."
                     maxLength={500}
                     required
                 />

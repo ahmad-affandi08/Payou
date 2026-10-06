@@ -44,7 +44,7 @@ void main() {
           'ClientId': googleAktif ? 'klien-web.apps.googleusercontent.com' : null,
         }),
         'masuk/google' when statusMasuk != 200 => JsonUji({
-          'Galat': {'Kode': 'AkunGoogleBelumTerdaftar', 'Pesan': 'Akun Google ini belum terdaftar di PAYOU.'},
+          'Galat': {'Kode': 'AkunGoogleBelumTerdaftar', 'Pesan': 'Akun Google ini belum terdaftar di Payoung.'},
         }, statusMasuk),
         'masuk/google' => JsonUji({
           'Token': '9|rahasia',
@@ -131,7 +131,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('MasukGoogle')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Akun Google ini belum terdaftar di PAYOU.'), findsOneWidget);
+    expect(find.text('Akun Google ini belum terdaftar di Payoung.'), findsOneWidget);
     expect(await sesi.Baca(PenyimpanSesi.kunciToken), isNull);
   });
 }

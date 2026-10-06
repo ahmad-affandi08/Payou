@@ -78,7 +78,7 @@ function Slot(
 
 beforeEach(() => {
     const props: PropsBersamaPengelola = {
-        NamaAplikasi: 'PAYOU',
+        NamaAplikasi: 'Payoung',
         Lingkungan: 'Staging',
         Kilat: null,
         Pengguna: {
@@ -228,7 +228,7 @@ describe('Integrasi: ringkasan konfigurasi (T2)', () => {
                             Pengaturan: {
                                 Host: 'smtp.hostinger.com',
                                 Port: 465,
-                                NamaPengguna: 'halo@payou.id',
+                                NamaPengguna: 'halo@payoung.id',
                                 Enkripsi: 'Ssl',
                             },
                             PetunjukKredensial: { KataSandi: '••••' },

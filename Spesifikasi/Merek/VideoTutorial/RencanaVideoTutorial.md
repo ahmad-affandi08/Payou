@@ -1,6 +1,6 @@
-# Rencana Video Tutorial PAYOU: "Cara Menggunakan", per Fitur
+# Rencana Video Tutorial Payoung: "Cara Menggunakan", per Fitur
 
-Seri video panduan pemakaian PAYOU, satu video untuk satu fitur, dikelompokkan per modul seperti pusat bantuan.
+Seri video panduan pemakaian Payoung, satu video untuk satu fitur, dikelompokkan per modul seperti pusat bantuan.
 Dipakai tim produk, dukungan (P-09), dan pemasaran. Pelengkap dari `../VideoPromosi/RencanaKonten.md` (video promosi 30 detik).
 
 > Tagline di intro/penutup mengikuti keputusan merek yang berlaku (lihat catatan tagline di `RencanaKonten.md`).
@@ -11,7 +11,7 @@ Dipakai tim produk, dukungan (P-09), dan pemasaran. Pelengkap dari `../VideoProm
 
 | | Video promosi (`RencanaKonten.md`) | **Video tutorial (dokumen ini)** |
 |---|---|---|
-| Pertanyaan penonton | "Kenapa harus PAYOU?" | "Bagaimana caranya di PAYOU?" |
+| Pertanyaan penonton | "Kenapa harus Payoung?" | "Bagaimana caranya di Payoung?" |
 | Penonton | Calon pengguna | Pengguna yang sudah daftar: owner, manajer, kasir, gudang, akuntan |
 | Durasi | 30 detik | **60–180 detik** (satu fitur tuntas), plus potongan "Tips 30 detik" |
 | Gaya | Emosional, cepat, satu pesan | Tenang, runtut, langkah bernomor, bisa diikuti sambil membuka aplikasi |
@@ -53,7 +53,7 @@ Berlaku semua aturan "Dilarang" di `RencanaKonten.md` §2.2. Khusus tutorial:
 
 | Bagian | Durasi | Isi |
 |---|---|---|
-| **Pembuka** | 5–8 dtk | Judul "Cara …", modul, aplikasi (ikon Web/Kasir/Owner), **prasyarat** (izin/peran, paket, tutorial sebelumnya). Tanda bunyi PAYOU versi pendek (0,8 dtk) |
+| **Pembuka** | 5–8 dtk | Judul "Cara …", modul, aplikasi (ikon Web/Kasir/Owner), **prasyarat** (izin/peran, paket, tutorial sebelumnya). Tanda bunyi Payoung versi pendek (0,8 dtk) |
 | **Konteks** | 5–10 dtk | Kapan fitur ini dipakai, dalam satu kalimat ("Setiap awal jaga, kasir mencatat uang di laci.") |
 | **Langkah 1…n** | 10–25 dtk per langkah | Chip "Langkah 2/5" menempel di pojok. Zoom ke area kerja, sorot tombol, titik ketuk/kursor, VO satu kalimat |
 | **Aturan penting** | 10–20 dtk | 1–2 BR yang dialami pengguna, diperagakan (bukan hanya disebut) |
@@ -132,7 +132,7 @@ Layar dengan nama `Kelola/...` ada di `Aplikasi/Web/resources/js/Halaman/`; `Lay
 
 | ID | Judul | Layar asli | Langkah inti | Aturan/keadaan yang ditunjukkan | Durasi | Paket | Tayang |
 |---|---|---|---|---|---|---|---|
-| T-MUL-01 | Cara daftar akun PAYOU | `Autentikasi/Daftar`, `PersetujuanLegal` | Isi nama, email, WA, kata sandi, nama usaha → centang S&K → Daftar → cek email verifikasi | Trial tanpa kartu kredit, lalu turun ke Gratis (BR-00.3); tautan verifikasi berlaku 24 jam (BR-00.5); pesan umum bila email/WA sudah dipakai (BR-00.10) | 90 dtk | Semua | G1 |
+| T-MUL-01 | Cara daftar akun Payoung | `Autentikasi/Daftar`, `PersetujuanLegal` | Isi nama, email, WA, kata sandi, nama usaha → centang S&K → Daftar → cek email verifikasi | Trial tanpa kartu kredit, lalu turun ke Gratis (BR-00.3); tautan verifikasi berlaku 24 jam (BR-00.5); pesan umum bila email/WA sudah dipakai (BR-00.10) | 90 dtk | Semua | G1 |
 | T-MUL-02 | Cara menyelesaikan Panduan Awal | `Kelola/PanduanAwal/*` (ProfilUsaha, Sektor, Pajak, Produk, MetodePembayaran, Perangkat) | Profil usaha → pilih sektor & template → konfirmasi pajak → produk awal → metode bayar → perangkat & tes cetak → checklist "Langkah Berikutnya" | Template bersifat menambah, tidak menghapus data (BR-01.1); usulan pajak mengikuti kota & status PKP | 180 dtk | Semua | G1 |
 | T-MUL-03 | Cara masuk, lupa kata sandi, dan pilih usaha | `Autentikasi/Masuk`, `LupaKataSandi`, `AturUlangKataSandi`, `PilihTenant` | Masuk → (lupa) minta tautan → atur ulang → pilih usaha bila punya lebih dari satu | Tautan atur ulang berlaku 60 menit (BR-00.9); satu akun bisa di beberapa usaha (BR-00.1) | 75 dtk | Semua | G1 |
 | T-MUL-04 | Cara mengaktifkan verifikasi dua langkah | `Autentikasi/KeamananAkun`, `VerifikasiDuaFaktor` | Buka Keamanan → pindai QR dengan aplikasi autentikator → masukkan kode → simpan 8 kode pemulihan | Kode pemulihan hanya tampil sekali (BR-00.8) | 90 dtk | Semua (wajib di Bisnis) | G1 |

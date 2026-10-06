@@ -1,7 +1,7 @@
 import { cn } from '@/Komponen/Ui/utils';
 
 /**
- * Spesimen keluaran PAYOU untuk situs pemasaran (D-25, D-39): tangkapan layar asli aplikasi Kasir & Pemilik
+ * Spesimen keluaran Payoung untuk situs pemasaran (D-25, D-39): tangkapan layar asli aplikasi Kasir & Pemilik
  * (berkas statis di `public/situs/produk`, jadi bisa dipakai isi bawaan), serta struk dan jurnal yang benar-benar
  * dihasilkan produk. Dipakai sebagai visual hero dan blok gambar-teks bila konsol belum mengunggah gambar.
  *
@@ -25,13 +25,13 @@ const BARIS_STRUK = [
 
 /**
  * Struk termal: kop outlet, baris penjualan, PPN, total, dan penanda bahwa transaksi ini dibuat saat offline
- * lalu menunggu terkirim — pembeda utama PAYOU, ditandai dengan `Aksen` berteks `TeksUtama` (8,98:1).
+ * lalu menunggu terkirim — pembeda utama Payoung, ditandai dengan `Aksen` berteks `TeksUtama` (6,4:1).
  */
 export function SpesimenStruk({ className }: PropsSpesimen) {
     return (
         <div
             role="img"
-            aria-label="Contoh struk PAYOU: tiga baris penjualan, PPN, total Rp 77.000, dan penanda transaksi dibuat saat offline yang menunggu terkirim."
+            aria-label="Contoh struk Payoung: tiga baris penjualan, PPN, total Rp 77.000, dan penanda transaksi dibuat saat offline yang menunggu terkirim."
             className={cn(
                 'text-isi w-full max-w-sm rounded-panel border border-garis bg-permukaan p-6 font-mono text-teks-utama tabular-nums',
                 className,
@@ -98,7 +98,7 @@ export function SpesimenJurnal({ className }: PropsSpesimen) {
     return (
         <div
             role="img"
-            aria-label="Contoh jurnal otomatis PAYOU dari satu penjualan: Kas debit 77.000, Pendapatan Penjualan kredit 70.000, PPN Keluaran kredit 7.000, dengan total debit sama dengan total kredit."
+            aria-label="Contoh jurnal otomatis Payoung dari satu penjualan: Kas debit 77.000, Pendapatan Penjualan kredit 70.000, PPN Keluaran kredit 7.000, dengan total debit sama dengan total kredit."
             className={cn(
                 'text-isi w-full rounded-panel border border-garis bg-permukaan p-6 text-teks-utama',
                 className,
@@ -139,7 +139,7 @@ function BingkaiHp({ className, prioritas = false }: PropsSpesimen & { prioritas
                 height={FOTO_PEMILIK.tinggi}
                 loading={prioritas ? 'eager' : 'lazy'}
                 decoding="async"
-                alt="Aplikasi Pemilik PAYOU: omzet hari ini Rp 8.475.000, naik 14% dari kemarin, perlu tindakan stok susu hampir habis, dan omzet per outlet."
+                alt="Aplikasi Pemilik Payoung: omzet hari ini Rp 8.475.000, naik 14% dari kemarin, perlu tindakan stok susu hampir habis, dan omzet per outlet."
                 className="block h-auto w-full rounded-[1.375rem] bg-permukaan"
             />
         </div>
@@ -161,7 +161,7 @@ export function SpesimenKasir({ className }: PropsSpesimen) {
                     loading="eager"
                     fetchPriority="high"
                     decoding="async"
-                    alt="Aplikasi Kasir PAYOU di tablet: katalog menu kafe, keranjang berisi Es Kopi Susu Aren, Croissant Cokelat, dan Matcha Latte, total Rp 95.700 dengan PBJT 10%."
+                    alt="Aplikasi Kasir Payoung di tablet: katalog menu kafe, keranjang berisi Es Kopi Susu Aren, Croissant Cokelat, dan Matcha Latte, total Rp 95.700 dengan PBJT 10%."
                     className="block h-auto w-full rounded-[0.75rem] bg-permukaan"
                 />
             </div>

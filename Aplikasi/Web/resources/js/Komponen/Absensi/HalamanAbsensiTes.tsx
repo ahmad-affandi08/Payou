@@ -13,8 +13,8 @@ vi.mock('@inertiajs/react', async () => (await import('@/Komponen/Katalog/Tiruan
 const dasar: PropsAbsensi = {
     NamaToko: 'Kedai Kopi Senja',
     NamaKaryawan: 'Rina Wulandari',
-    AlamatDasar: 'https://dashboard.payou.id/kopi-senja/absen/' + 'a'.repeat(40),
-    AlamatModelWajah: 'https://dashboard.payou.id/model-wajah',
+    AlamatDasar: 'https://dashboard.payoung.id/kopi-senja/absen/' + 'a'.repeat(40),
+    AlamatModelWajah: 'https://dashboard.payoung.id/model-wajah',
     Wajah: null,
     AbsensiTerbuka: null,
     Riwayat: [],
@@ -128,7 +128,11 @@ describe('Halaman absensi web', () => {
                     NamaOutlet: 'Outlet Solo',
                 }}
                 Riwayat={[
-                    { MasukPada: '2026-10-04T01:00:00Z', KeluarPada: '2026-10-04T09:30:00Z', NamaOutlet: 'Outlet Solo' },
+                    {
+                        MasukPada: '2026-10-04T01:00:00Z',
+                        KeluarPada: '2026-10-04T09:30:00Z',
+                        NamaOutlet: 'Outlet Solo',
+                    },
                 ]}
             />,
         );

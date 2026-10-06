@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>PAYOU POS memakai Bluetooth untuk mencetak struk ke printer thermal.</string>
+	<string>Payoung POS memakai Bluetooth untuk mencetak struk ke printer thermal.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>PAYOU POS memakai Bluetooth untuk mencetak struk ke printer thermal.</string>
+	<string>Payoung POS memakai Bluetooth untuk mencetak struk ke printer thermal.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Lokasi dipakai sekali saat salesman memulai kunjungan ke toko pelanggan, supaya kantor tahu kunjungan benar-benar dilakukan. Kunjungan tetap bisa dicatat tanpa lokasi.</string>
 	<key>NSCameraUsageDescription</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>PAYOU POS</string>
+	<string>Payoung POS</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

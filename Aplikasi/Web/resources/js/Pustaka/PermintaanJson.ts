@@ -13,7 +13,7 @@ export function AmbilTokenXsrf(kuki: string): string {
     return cocok === null ? '' : decodeURIComponent(cocok[1] ?? '');
 }
 
-/** Pesan galat dari format galat API PAYOU (`{"Galat": {"Kode", "Pesan"}}`, §16); null bila bukan bentuk itu. */
+/** Pesan galat dari format galat API Payoung (`{"Galat": {"Kode", "Pesan"}}`, §16); null bila bukan bentuk itu. */
 export function AmbilPesanGalat(isi: unknown): string | null {
     if (typeof isi !== 'object' || isi === null || !('Galat' in isi)) {
         return null;
@@ -30,7 +30,7 @@ export function AmbilPesanGalat(isi: unknown): string | null {
     return typeof pesan === 'string' && pesan !== '' ? pesan : null;
 }
 
-/** Kode galat API PAYOU (`Galat.Kode`); null bila bukan bentuk itu. */
+/** Kode galat API Payoung (`Galat.Kode`); null bila bukan bentuk itu. */
 export function AmbilKodeGalat(isi: unknown): string | null {
     if (typeof isi !== 'object' || isi === null || !('Galat' in isi)) {
         return null;
@@ -55,7 +55,7 @@ export class GalatPermintaan extends Error {
     }
 }
 
-/** Pesan cadangan per status HTTP bila jawaban server tidak membawa pesan galat PAYOU (§17.6.7). */
+/** Pesan cadangan per status HTTP bila jawaban server tidak membawa pesan galat Payoung (§17.6.7). */
 export function PesanStatusHttp(status: number): string {
     if (status === 419) {
         return 'Sesi halaman kedaluwarsa. Muat ulang halaman, lalu coba lagi.';

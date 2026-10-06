@@ -1,4 +1,4 @@
-# Audit kemudahan pakai PAYOU (3 Oktober 2026)
+# Audit kemudahan pakai Payoung (3 Oktober 2026)
 
 Penyisiran baca-kode atas tiga area: back-office web, aplikasi Kasir, dan alur awal & pengaturan (termasuk Aplikasi
 Pemilik). Tujuannya mencari langkah yang terlalu banyak, isian yang bisa otomatis, istilah teknis, input ganda, dan

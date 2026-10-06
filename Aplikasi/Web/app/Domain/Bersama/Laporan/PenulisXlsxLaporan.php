@@ -20,7 +20,7 @@ use ZipArchive;
  *  - Kop: judul laporan (kiri), nama usaha + cakupan outlet + logo usaha (kanan).
  *  - Blok saringan (kiri) dan ringkasan angka (kanan), lalu jejak waktu "Dibuat" dan "Data terakhir diperbarui".
  *  - Tabel: header beku, filter otomatis, uang/tanggal sebagai nilai asli Excel (bisa dijumlah dan diurutkan),
- *    baris "Jumlah" bila kolom meminta, kaki "Dibuat dengan PAYOU" + logo, cetak A4 landscape pas lebar halaman
+ *    baris "Jumlah" bila kolom meminta, kaki "Dibuat dengan Payoung" + logo, cetak A4 landscape pas lebar halaman
  *    dengan header tabel berulang dan nomor halaman.
  *
  * Ditulis sendiri di atas ZipArchive + XMLWriter (bukan openspout) karena: angka uang harus masuk sebagai teks
@@ -118,7 +118,7 @@ final class PenulisXlsxLaporan
      */
     public static function Tulis(DefinisiLaporan $d): string
     {
-        $folder = sys_get_temp_dir().'/payou-laporan-'.bin2hex(random_bytes(8));
+        $folder = sys_get_temp_dir().'/payoung-laporan-'.bin2hex(random_bytes(8));
 
         if (! mkdir($folder, 0700, true) && ! is_dir($folder)) {
             throw new RuntimeException('Folder sementara laporan gagal dibuat.');
@@ -141,7 +141,7 @@ final class PenulisXlsxLaporan
         $dibuat = $d->dibuatPada ?? new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
         $logoUsaha = GambarLaporan::Siapkan($d->logo, 44);
-        $logoPayou = GambarLaporan::LogoPayou(26);
+        $logoPayoung = GambarLaporan::LogoPayoung(26);
 
         $saringan = [...$d->saringan, ['Zona Waktu', ZonaLaporan::Label($d->zonaWaktu)]];
         $samping = $jumlahKolom >= 5;
@@ -336,13 +336,13 @@ final class PenulisXlsxLaporan
             $x->endElement();
         }
 
-        // Kaki: "Dibuat dengan [logo PAYOU]".
+        // Kaki: "Dibuat dengan [logo Payoung]".
         $barisKaki = $barisTerakhir + 2;
         $x->startElement('row');
         $x->writeAttribute('r', (string) $barisKaki);
         $x->writeAttribute('ht', '24');
         $x->writeAttribute('customHeight', '1');
-        self::TulisSelTerisi($x, $barisKaki, max(0, $kolomTerakhir - 1), self::G_CAP, 'Dibuat dengan PAYOU | payou.id', 's');
+        self::TulisSelTerisi($x, $barisKaki, max(0, $kolomTerakhir - 1), self::G_CAP, 'Dibuat dengan Payoung | payoung.id', 's');
         $x->endElement();
 
         $x->endElement(); // sheetData
@@ -364,7 +364,7 @@ final class PenulisXlsxLaporan
         $x->writeAttribute('fitToHeight', '0');
         $x->endElement();
         $x->startElement('headerFooter');
-        $x->writeElement('oddFooter', '&L&8 '.str_replace('&', '&&', $d->judul).'&C&8 Dibuat dengan PAYOU&R&8 Halaman &P dari &N');
+        $x->writeElement('oddFooter', '&L&8 '.str_replace('&', '&&', $d->judul).'&C&8 Dibuat dengan Payoung&R&8 Halaman &P dari &N');
         $x->endElement();
 
         $gambar = [];
@@ -373,8 +373,8 @@ final class PenulisXlsxLaporan
             $gambar[] = ['Png' => $logoUsaha['Png'], 'Kolom' => $kolomTerakhir, 'Baris' => 0, 'Lebar' => $logoUsaha['Lebar'], 'Tinggi' => $logoUsaha['Tinggi']];
         }
 
-        if ($logoPayou !== null) {
-            $gambar[] = ['Png' => $logoPayou['Png'], 'Kolom' => $kolomTerakhir, 'Baris' => $barisKaki - 1, 'Lebar' => $logoPayou['Lebar'], 'Tinggi' => $logoPayou['Tinggi']];
+        if ($logoPayoung !== null) {
+            $gambar[] = ['Png' => $logoPayoung['Png'], 'Kolom' => $kolomTerakhir, 'Baris' => $barisKaki - 1, 'Lebar' => $logoPayoung['Lebar'], 'Tinggi' => $logoPayoung['Tinggi']];
         }
 
         if ($gambar !== []) {
@@ -630,7 +630,7 @@ final class PenulisXlsxLaporan
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             .'<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
             .'<dc:title>'.htmlspecialchars(self::BersihkanTeks($judul), ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8').'</dc:title>'
-            .'<dc:creator>PAYOU</dc:creator>'
+            .'<dc:creator>Payoung</dc:creator>'
             .'<dcterms:created xsi:type="dcterms:W3CDTF">'.$utc.'</dcterms:created>'
             .'</cp:coreProperties>';
     }
@@ -716,7 +716,7 @@ final class PenulisXlsxLaporan
             .'</numFmts>'
             .'<fonts count="7">'
             .'<font><sz val="10"/><color rgb="FF111827"/><name val="Calibri"/><family val="2"/></font>'
-            .'<font><b/><sz val="16"/><color rgb="FF1D29B8"/><name val="Calibri"/><family val="2"/></font>'
+            .'<font><b/><sz val="16"/><color rgb="FF3B5B5D"/><name val="Calibri"/><family val="2"/></font>'
             .'<font><b/><sz val="11"/><color rgb="FF111827"/><name val="Calibri"/><family val="2"/></font>'
             .'<font><i/><sz val="9"/><color rgb="FF6B7280"/><name val="Calibri"/><family val="2"/></font>'
             .'<font><b/><sz val="10"/><color rgb="FF4B5563"/><name val="Calibri"/><family val="2"/></font>'
@@ -725,14 +725,14 @@ final class PenulisXlsxLaporan
             .'</fonts>'
             .'<fills count="4">'
             .'<fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'
-            .'<fill><patternFill patternType="solid"><fgColor rgb="FF1D29B8"/><bgColor indexed="64"/></patternFill></fill>'
+            .'<fill><patternFill patternType="solid"><fgColor rgb="FF3B5B5D"/><bgColor indexed="64"/></patternFill></fill>'
             .'<fill><patternFill patternType="solid"><fgColor rgb="FFF3F4F6"/><bgColor indexed="64"/></patternFill></fill>'
             .'</fills>'
             .'<borders count="4">'
             .'<border><left/><right/><top/><bottom/><diagonal/></border>'
             .'<border><left/><right/><top/><bottom style="thin"><color rgb="FFE5E7EB"/></bottom><diagonal/></border>'
             .'<border><left/><right/><top style="thin"><color rgb="FF111827"/></top><bottom style="thin"><color rgb="FF111827"/></bottom><diagonal/></border>'
-            .'<border><left/><right/><top/><bottom style="medium"><color rgb="FF1D29B8"/></bottom><diagonal/></border>'
+            .'<border><left/><right/><top/><bottom style="medium"><color rgb="FF3B5B5D"/></bottom><diagonal/></border>'
             .'</borders>'
             .'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
             .'<cellXfs count="24">'

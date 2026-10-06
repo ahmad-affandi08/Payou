@@ -7,12 +7,12 @@ import 'ModulQr.dart';
 
 /// Layar kedua Android (PRD §17.2.5a `PortLayar`, v2.01) lewat `KanalLayarPelanggan.kt`: POS all-in-one dua layar
 /// (Sunmi T2/D2s, iMin D4, dll.) atau monitor HDMI kedua sebagai *presentation display*. [warna] berisi nilai ARGB
-/// token desain (Latar, Teks, TeksSekunder, Aksen) agar layar kedua mengikuti palet PAYOU. QR (QRIS dinamis) dikirim sebagai
+/// token desain (Latar, Teks, TeksSekunder, Aksen) agar layar kedua mengikuti palet Payoung. QR (QRIS dinamis) dikirim sebagai
 /// matriks modul `ModulQr` (baris "0/1") sehingga Kotlin menggambarnya tanpa pustaka QR.
 class LayarPelangganAndroid implements PortLayarPelanggan {
   LayarPelangganAndroid({required this.warna, this.kanal = const MethodChannel(namaKanal)});
 
-  static const String namaKanal = 'id.payou.kasir/layar-pelanggan';
+  static const String namaKanal = 'id.payoung.kasir/layar-pelanggan';
 
   final Map<String, int> warna;
   final MethodChannel kanal;

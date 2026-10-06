@@ -8,7 +8,7 @@ use App\Domain\Bersama\Tenant\KonteksTenant;
 use App\Domain\Integrasi\ApiPublik\Model\TokenApiTenant;
 
 /**
- * Mencari token API publik dari `payou_{IdTenant}_{rahasia}` (X7). Sama dengan device token: bagian `IdTenant` hanya
+ * Mencari token API publik dari `payoung_{IdTenant}_{rahasia}` (X7). Sama dengan device token: bagian `IdTenant` hanya
  * menetapkan scope pencarian; token ditemukan hanya bila hash rahasianya cocok di tenant itu. Tidak cocok, dicabut,
  * atau kedaluwarsa = null dan tenant aktif dikosongkan. `TerakhirDipakaiPada` diperbarui paling sering sekali per menit.
  */
@@ -18,7 +18,7 @@ final class TokenApiBerdasarkanToken
 
     public function Cari(string $token): ?TokenApiTenant
     {
-        if (preg_match('/^payou_(\d{1,19})_([A-Za-z0-9]{40})$/', $token, $cocok) !== 1) {
+        if (preg_match('/^payoung?_(\d{1,19})_([A-Za-z0-9]{40})$/', $token, $cocok) !== 1) {
             return null;
         }
 

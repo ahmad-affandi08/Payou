@@ -201,7 +201,7 @@ export default function HalamanPengaturanStruk({ Pengaturan, Profil }: PropsPeng
                         />
                         {Profil.TandaAir ? (
                             <p className="text-keterangan text-teks-sekunder">
-                                Paket Anda mencetak baris "Dibuat dengan PAYOU" di akhir struk. Upgrade paket untuk
+                                Paket Anda mencetak baris "Dibuat dengan Payoung" di akhir struk. Upgrade paket untuk
                                 menghapusnya.
                             </p>
                         ) : null}

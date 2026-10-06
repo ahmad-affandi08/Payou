@@ -69,7 +69,7 @@ final class AbsensiWebKontroler extends Kontroler
                 'display' => 'standalone',
                 'orientation' => 'portrait',
                 // Sama dengan token `--color-brand-gelap` & `--color-permukaan` (D-15).
-                'theme_color' => '#1d29b8',
+                'theme_color' => '#22383a',
                 'background_color' => '#ffffff',
                 'icons' => [
                     ['src' => '/ikon-pwa-192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any maskable'],

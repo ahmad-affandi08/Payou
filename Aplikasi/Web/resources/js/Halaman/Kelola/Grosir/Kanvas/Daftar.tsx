@@ -273,7 +273,7 @@ export default function HalamanDaftarKanvas({
             {IzinKanvas.TambahKendaraan && batasPenuh ? (
                 <Pemberitahuan jenis="info" judul="Batas outlet paket sudah tercapai">
                     Setiap kendaraan kanvas dihitung sebagai outlet.{' '}
-                    <AjakanTambahBatas teksLisensi="Minta berkas lisensi dengan batas outlet lebih besar ke penjual lisensi PAYOU">
+                    <AjakanTambahBatas teksLisensi="Minta berkas lisensi dengan batas outlet lebih besar ke penjual lisensi Payoung">
                         Tingkatkan paket atau tambah add-on outlet di{' '}
                         <Link href="/kelola/langganan" className="font-semibold text-brand underline">
                             menu Langganan

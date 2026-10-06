@@ -69,7 +69,7 @@ describe('v2.04 katalog penyedia', function (): void {
         MasukTeknisPenyedia($this);
         $dasar = [
             'Jenis' => 'Email', 'Lingkungan' => 'Staging', 'Penyedia' => 'SendGrid',
-            'Pengaturan' => ['Host' => 'smtp.sendgrid.net', 'Port' => 587, 'Enkripsi' => 'Tls', 'NamaPengguna' => 'apikey', 'AlamatPengirim' => 'noreply@contoh.id', 'NamaPengirim' => 'PAYOU'],
+            'Pengaturan' => ['Host' => 'smtp.sendgrid.net', 'Port' => 587, 'Enkripsi' => 'Tls', 'NamaPengguna' => 'apikey', 'AlamatPengirim' => 'noreply@contoh.id', 'NamaPengirim' => 'Payoung'],
             'Kredensial' => ['KataSandi' => 'SG.kunci-sendgrid-rahasia-1234'], 'RotasiSetiapHari' => 90,
         ];
         $this->post(BantuanPengelola::Url('/integrasi'), $dasar)->assertSessionHasNoErrors();

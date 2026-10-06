@@ -144,7 +144,7 @@ export default function HalamanDetailImpor({
                     {Pratinjau.DiblokirBatasSku ? (
                         <Pemberitahuan jenis="bahaya" judul="Impor melebihi batas produk paket">
                             {Pratinjau.DiblokirBatasSku}{' '}
-                            <AjakanTambahBatas teksLisensi="Minta berkas lisensi dengan batas lebih besar ke penjual lisensi PAYOU.">
+                            <AjakanTambahBatas teksLisensi="Minta berkas lisensi dengan batas lebih besar ke penjual lisensi Payoung.">
                                 <Link href="/kelola/langganan" className="font-semibold text-brand underline">
                                     Buka menu Langganan
                                 </Link>

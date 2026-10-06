@@ -25,7 +25,7 @@ async function RekamVideo() {
   const hurufSiap = await halaman.evaluate(() => document.fonts.check('800 40px "Atkinson Hyperlegible Next"'));
   if (!hurufSiap) throw new Error('Font Atkinson Hyperlegible belum termuat; rekaman dibatalkan.');
 
-  const folderSementara = mkdtempSync(join(tmpdir(), 'rekam-payou-'));
+  const folderSementara = mkdtempSync(join(tmpdir(), 'rekam-payoung-'));
   const pathAudio = join(folderSementara, 'Audio.wav');
   writeFileSync(pathAudio, Buffer.from(await halaman.evaluate(() => window.EksporWav()), 'base64'));
 

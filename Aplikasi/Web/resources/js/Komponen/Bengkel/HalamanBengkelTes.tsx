@@ -81,7 +81,7 @@ function BuatPerintahKerja(ubah: Partial<PerintahKerja> = {}): PerintahKerja {
             KmTerakhir: 18250,
         },
         Persetujuan: {
-            Tautan: 'https://dashboard.payou.id/bengkel-jaya/servis/' + 'a'.repeat(40),
+            Tautan: 'https://dashboard.payoung.id/bengkel-jaya/servis/' + 'a'.repeat(40),
             KedaluwarsaPada: '2026-10-20T02:30:00Z',
             DikirimPada: null,
             DiputuskanPada: null,
@@ -201,7 +201,7 @@ describe('Bengkel (§9.10)', () => {
         expect(screen.getByText(/servis\/a{40}/)).toBeTruthy();
 
         fireEvent.click(screen.getByRole('button', { name: 'Salin tautan' }));
-        expect(Tulis).toHaveBeenCalledWith(`https://dashboard.payou.id/bengkel-jaya/servis/${'a'.repeat(40)}`);
+        expect(Tulis).toHaveBeenCalledWith(`https://dashboard.payoung.id/bengkel-jaya/servis/${'a'.repeat(40)}`);
 
         fireEvent.click(screen.getByRole('button', { name: 'Kirim ulang lewat WhatsApp' }));
         expect(tiruanRouter.post).toHaveBeenCalledWith(
@@ -352,7 +352,7 @@ describe('Bengkel (§9.10)', () => {
         const pk = BuatPerintahKerja();
         const props: PropsPersetujuanServis = {
             NamaToko: 'Bengkel Jaya Motor',
-            AlamatDasar: `https://dashboard.payou.id/bengkel-jaya/servis/${'a'.repeat(40)}`,
+            AlamatDasar: `https://dashboard.payoung.id/bengkel-jaya/servis/${'a'.repeat(40)}`,
             PerintahKerja: {
                 Nomor: pk.Nomor,
                 Status: 'MenungguPersetujuan',

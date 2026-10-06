@@ -1,4 +1,4 @@
-# Video promosi PAYOU (30 detik)
+# Video promosi Payoung (30 detik)
 
 Motion graphic HTML untuk video promosi awal: 1920×1080 (16:9), 30 detik, dengan musik latar dan efek suara.
 Memakai logo dari `../Sumber/`, palet merek D-15, dan font Atkinson Hyperlegible (§17.5, disimpan lokal di `Huruf/`, lisensi SIL OFL).
@@ -11,10 +11,10 @@ Tagline resmi: **Smart Choice Your Business Partner**. Untuk animasi masuk, tagl
 | Detik | Adegan | Pesan |
 |---|---|---|
 | 0–4,9 | Masalah | "Jualan lagi ramai… internet malah mati." Wi-Fi putus, stok selisih, rekap manual |
-| 4,9–9,2 | Pengenalan | Bintang merek terbang ke logo, logo PAYOU tersapu masuk, tagline muncul, lalu logo mengecil ke sudut |
-| 9,2–15,6 | 01 Kasir offline-first | Tablet PAYOU POS: luring, keranjang, bayar berhasil, lalu tersinkron tanpa dobel |
+| 4,9–9,2 | Pengenalan | Bintang merek terbang ke logo, logo Payoung tersapu masuk, tagline muncul, lalu logo mengecil ke sudut |
+| 9,2–15,6 | 01 Kasir offline-first | Tablet Payoung POS: luring, keranjang, bayar berhasil, lalu tersinkron tanpa dobel |
 | 15,6–21,0 | 02 Stok & akuntansi otomatis | Penjualan → mutasi stok → jurnal seimbang (D = K) → laporan laba rugi |
-| 21,0–26,3 | 03 Aplikasi PAYOU Owner | Omzet 3 outlet, grafik, stok menipis, persetujuan void dari HP |
+| 21,0–26,3 | 03 Aplikasi Payoung Owner | Omzet 3 outlet, grafik, stok menipis, persetujuan void dari HP |
 | 26,3–30 | Penutup | Logo + tagline, "Daftar gratis sekarang", Android · iPad & iPhone · Windows · Web |
 
 ## Suara

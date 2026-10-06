@@ -23,7 +23,7 @@ const pengumuman: PengumumanPlatform[] = [
         Isi: 'Lihat tab Saran restock di laporan stok.',
         Jenis: 'YangBaru',
         LabelJenis: 'Yang baru',
-        Tautan: 'https://bantuan.payou.id/restock',
+        Tautan: 'https://bantuan.payoung.id/restock',
         BolehDitutup: true,
         PemeliharaanMulai: null,
         PemeliharaanSelesai: null,
@@ -38,12 +38,12 @@ describe('P-10 PGL-19 banner pengumuman back-office', () => {
     it('menampilkan jadwal pemeliharaan; hanya Yang baru/Info bisa ditutup dan diingat di peramban', () => {
         render(<BannerPengumuman pengumuman={pengumuman} />);
 
-        expect(screen.getByRole('region', { name: 'Pengumuman PAYOU' })).toBeTruthy();
+        expect(screen.getByRole('region', { name: 'Pengumuman Payoung' })).toBeTruthy();
         expect(screen.getByText('Pemeliharaan terjadwal: Pemeliharaan server Sabtu malam')).toBeTruthy();
         expect(screen.getByText(/^Jadwal:/)).toBeTruthy();
         expect(screen.queryByRole('button', { name: 'Tutup pengumuman Pemeliharaan server Sabtu malam' })).toBeNull();
         expect(screen.getByRole('link', { name: 'Selengkapnya' }).getAttribute('href')).toBe(
-            'https://bantuan.payou.id/restock',
+            'https://bantuan.payoung.id/restock',
         );
 
         fireEvent.click(screen.getByRole('button', { name: 'Tutup pengumuman Laporan restock baru' }));

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Membuat turunan aset merek PAYOU dari file di `Spesifikasi/Merek/Sumber/`.
+"""Membuat turunan aset merek Payoung dari file di `Spesifikasi/Merek/Sumber/`.
 
-Jalankan ulang setiap kali logo sumber diganti:
+Jalankan ulang setiap kali logo sumber diganti (sumber dibuat oleh `BuatSumberLogo.py`):
 
     pip install pillow
+    python3 Spesifikasi/Merek/BuatSumberLogo.py
     python3 Spesifikasi/Merek/BuatTurunanAset.py
 
 Hasil (ditimpa):
-- Web: `Aplikasi/Web/public/favicon.ico`, `public/apple-touch-icon.png`, `public/ikon-pwa-{192,512}.png`, `resources/js/Aset/Merek/*.png`
+- Web: `Aplikasi/Web/public/favicon.ico`, `public/apple-touch-icon.png`, `public/ikon-pwa-{192,512}.png`, `resources/js/Aset/Merek/*` (WebP, kecuali `IkonMerekPutih.png`)
 - Flutter: ikon Android (legacy + adaptive), iOS AppIcon, Windows `app_icon.ico` untuk Kasir & Pemilik,
   serta logo warna/putih dalam aplikasi di `Paket/SistemDesain/assets/merek/`.
 
@@ -74,9 +75,9 @@ def BuatWeb(tanda: Image.Image, logo: Image.Image, tanda_putih: Image.Image, log
     # F-18 bagian 4 (D-37): ikon PWA halaman absensi (porsi kecil supaya aman sebagai ikon "maskable").
     Simpan(TaruhDiTengah(tanda, 192, 0.56, PUTIH).convert("RGB"), web / "public/ikon-pwa-192.png")
     Simpan(TaruhDiTengah(tanda, 512, 0.56, PUTIH).convert("RGB"), web / "public/ikon-pwa-512.png")
-    Simpan(UbahTinggi(logo, 168), web / "resources/js/Aset/Merek/LogoHorizontal.png")
-    Simpan(UbahTinggi(tanda, 96), web / "resources/js/Aset/Merek/IkonMerek.png")
-    Simpan(UbahTinggi(logo_putih, 168), web / "resources/js/Aset/Merek/LogoHorizontalPutih.png")
+    Simpan(UbahTinggi(logo, 168), web / "resources/js/Aset/Merek/LogoHorizontal.webp", format="WEBP", quality=92, method=6)
+    Simpan(UbahTinggi(tanda, 96), web / "resources/js/Aset/Merek/IkonMerek.webp", format="WEBP", quality=92, method=6)
+    Simpan(UbahTinggi(logo_putih, 168), web / "resources/js/Aset/Merek/LogoHorizontalPutih.webp", format="WEBP", quality=92, method=6)
     Simpan(UbahTinggi(tanda_putih, 96), web / "resources/js/Aset/Merek/IkonMerekPutih.png")
 
 
@@ -129,15 +130,7 @@ def BuatSistemDesain(tanda: Image.Image, logo: Image.Image, tanda_putih: Image.I
 
 
 def main() -> None:
-    # Varian putih adalah turunan deterministik sumber warna agar selalu ikut saat logo utama diperbarui.
-    Simpan(
-        JadikanPutih(Image.open(SUMBER / "IkonMerek.png").convert("RGBA")),
-        SUMBER / "IkonMerekPutih.png",
-    )
-    Simpan(
-        JadikanPutih(Image.open(SUMBER / "LogoHorizontal.png").convert("RGBA")),
-        SUMBER / "LogoHorizontalPutih.png",
-    )
+    # Varian putih punya sumber sendiri (rusuk dilubangi, kilau tetap Apricot), dibuat oleh BuatSumberLogo.py.
     tanda = Muat("IkonMerek.png")
     logo = Muat("LogoHorizontal.png")
     tanda_putih = Muat("IkonMerekPutih.png")

@@ -96,7 +96,7 @@ enum PenyediaIntegrasi: string
                 ['Kunci' => 'Enkripsi', 'Label' => 'Enkripsi', 'Jenis' => 'Pilihan', 'Wajib' => true, 'Opsi' => ['Ssl', 'Tls'], 'Bawaan' => $enkripsi],
                 ['Kunci' => 'NamaPengguna', 'Label' => 'Nama pengguna', 'Jenis' => 'Teks', 'Wajib' => true, 'Bawaan' => $pengguna],
                 ['Kunci' => 'AlamatPengirim', 'Label' => 'Alamat pengirim', 'Jenis' => 'Email', 'Wajib' => true, 'Keterangan' => 'Domain pengirim harus sudah diverifikasi di penyedia (SPF/DKIM).'],
-                ['Kunci' => 'NamaPengirim', 'Label' => 'Nama pengirim', 'Jenis' => 'Teks', 'Wajib' => true, 'Bawaan' => 'PAYOU'],
+                ['Kunci' => 'NamaPengirim', 'Label' => 'Nama pengirim', 'Jenis' => 'Teks', 'Wajib' => true, 'Bawaan' => 'Payoung'],
             ];
         }
 
@@ -255,7 +255,7 @@ enum PenyediaIntegrasi: string
             self::Hostinger => '',
             self::Midtrans, self::Xendit, self::Tripay, self::Duitku, self::Ipaymu, self::Doku => $this->AmbilPenyediaGerbang()?->AmbilKeterangan() ?? '',
             self::MetaCloud => 'Resmi dan aman dari pemblokiran. Di luar 24 jam percakapan wajib memakai templat yang disetujui Meta (berbayar per percakapan).',
-            self::MidtransBilling => 'Akun Midtrans milik PAYOU untuk menagih tenant — berbeda dari gerbang QRIS milik toko (D-19), yang akunnya milik tenant masing-masing.',
+            self::MidtransBilling => 'Akun Midtrans milik Payoung untuk menagih tenant — berbeda dari gerbang QRIS milik toko (D-19), yang akunnya milik tenant masing-masing.',
             self::Google => 'Pemilik toko daftar dan masuk dengan akun Google. Masuk dengan Google menggantikan verifikasi dua langkah (2FA). Panduan lengkap: Panduan/LoginGoogle.md.',
             self::Fcm => 'Satu proyek Firebase melayani Android & iOS sekaligus; sertifikat APNs diunggah di Firebase, bukan di sini. Isi berkas akun layanan dari Setelan proyek → Akun layanan → Buat kunci baru.',
             self::Fonnte, self::Wablas, self::StarSender, self::Watzap => 'Tidak resmi (WhatsApp Web): murah dan mudah, tetapi nomor bisa diblokir WhatsApp bila mengirim massal. Pakai nomor khusus, bukan nomor utama usaha.',

@@ -173,8 +173,8 @@ export default function HalamanAbsensi(props: PropsAbsensi) {
                             <ClockIcon aria-hidden="true" className="size-7" />
                         </span>
                         <p className="text-isi text-teks-utama">
-                            Wajah Anda sudah terdaftar dan menunggu persetujuan pengelola. Setelah disetujui, buka
-                            lagi halaman ini untuk absen.
+                            Wajah Anda sudah terdaftar dan menunggu persetujuan pengelola. Setelah disetujui, buka lagi
+                            halaman ini untuk absen.
                         </p>
                     </section>
                 ) : (
@@ -511,12 +511,18 @@ function PanelDaftarWajah({
                             key={nama}
                             aria-current={aktif ? 'step' : undefined}
                             className={`flex items-center gap-2 rounded-panel border p-2 ${
-                                aktif ? 'border-brand bg-brand-lembut text-teks-utama' : 'border-garis text-teks-sekunder'
+                                aktif
+                                    ? 'border-brand bg-brand-lembut text-teks-utama'
+                                    : 'border-garis text-teks-sekunder'
                             }`}
                         >
                             <span
                                 className={`grid size-6 shrink-0 place-items-center rounded-full font-semibold ${
-                                    lewat ? 'bg-sukses text-permukaan' : aktif ? 'bg-brand text-brand-teks' : 'bg-permukaan-sorot'
+                                    lewat
+                                        ? 'bg-sukses text-permukaan'
+                                        : aktif
+                                          ? 'bg-brand text-brand-teks'
+                                          : 'bg-permukaan-sorot'
                                 }`}
                             >
                                 {lewat ? <CheckCircle2Icon aria-hidden="true" className="size-4" /> : nomor}

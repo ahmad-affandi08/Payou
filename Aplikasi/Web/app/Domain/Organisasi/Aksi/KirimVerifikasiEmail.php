@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\URL;
  *
  * **Tanda tangan relatif** (D-20): jalurnya ditandatangani, domain tenant dipasang belakangan — sama seperti tautan
  * pratinjau situs. Tanda tangan absolut ikut menghitung skema & host, sehingga tautan menjadi "Invalid signature"
- * begitu host yang menandatangani berbeda dari host yang melayani (mis. `payou.id` dialihkan ke `dashboard.payou.id`
+ * begitu host yang menandatangani berbeda dari host yang melayani (mis. `payoung.id` dialihkan ke `dashboard.payoung.id`
  * oleh `ArahkanDomainAplikasi`, atau skema terbaca `http` di balik proxy yang tidak dipercaya).
  */
 final class KirimVerifikasiEmail

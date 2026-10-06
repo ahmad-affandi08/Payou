@@ -121,7 +121,7 @@ void main() {
     expect(struk.any((b) => b.startsWith('Berat') && b.endsWith('3,5 kg')), isTrue, reason: struk.join('\n'));
     expect(struk, contains('Catatan: Pisahkan putih'));
     expect(struk, contains('Lacak cucian:'));
-    expect(struk, contains('[QR https://payou.test/s/1a.${hasil.uuid.toUpperCase()}]'));
+    expect(struk, contains('[QR https://payoung.test/s/1a.${hasil.uuid.toUpperCase()}]'));
 
     final nota = TataLetakStruk.KeTeks(
       PenyusunDokumenKasir.SusunNotaLaundry(

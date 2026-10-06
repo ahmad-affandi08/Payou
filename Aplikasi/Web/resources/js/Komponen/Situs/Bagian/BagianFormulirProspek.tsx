@@ -148,7 +148,7 @@ export default function BagianFormulirProspek({
                         </div>
                         <div className="flex flex-col gap-1 sm:col-span-2">
                             <KotakCentang
-                                label="Saya setuju data ini dipakai tim PAYOU untuk menghubungi saya."
+                                label="Saya setuju data ini dipakai tim Payoung untuk menghubungi saya."
                                 nilai={d.Setuju}
                                 saatBerubah={(v) => formulir.setData('Setuju', v)}
                             />

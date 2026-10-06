@@ -76,7 +76,7 @@ function AktifkanFiturWebhook(Tenant $tenant): void
  * @param  list<string>  $peristiwa
  * @return array{Webhook: WebhookTenant, Rahasia: string}
  */
-function DaftarkanWebhookUji(mixed $tes, array $k, array $peristiwa, string $url = 'https://gudang.contoh.co.id/payou'): array
+function DaftarkanWebhookUji(mixed $tes, array $k, array $peristiwa, string $url = 'https://gudang.contoh.co.id/payoung'): array
 {
     BantuanOrganisasi::Masuk($tes, $k['Pemilik'], $k['Tenant']->Id)
         ->post('/kelola/pengaturan/webhook', ['Nama' => 'Sistem gudang', 'Url' => $url, 'Peristiwa' => $peristiwa])
@@ -108,7 +108,7 @@ it('penjualan selesai, void, dan retur terkirim bertanda tangan HMAC dengan IdPe
         $badan = $p->body();
         $data = json_decode($badan, true);
 
-        return $p->url() === 'https://gudang.contoh.co.id/payou'
+        return $p->url() === 'https://gudang.contoh.co.id/payoung'
             && $p->hasHeader('X-Id-Peristiwa', $kiriman->Uuid)
             && $p->hasHeader('X-Peristiwa', 'penjualan.selesai')
             && $p->header('X-Tanda-Tangan')[0] === 'sha256='.hash_hmac('sha256', $p->header('X-Waktu-Kirim')[0].'.'.$badan, $rahasia)
@@ -137,7 +137,7 @@ it('penjualan selesai, void, dan retur terkirim bertanda tangan HMAC dengan IdPe
     BantuanOrganisasi::Masuk($this, $k['Pemilik'], $k['Tenant']->Id)->get('/kelola/pengaturan/webhook')
         ->assertInertia(fn (AssertableInertia $h) => $h->component('Kelola/Pengaturan/Webhook')
             ->where('RahasiaBaru', null)
-            ->where('Webhook.0.Url', 'https://gudang.contoh.co.id/payou')
+            ->where('Webhook.0.Url', 'https://gudang.contoh.co.id/payoung')
             ->missing('Webhook.0.Rahasia')
             ->has('Kiriman', 4)
             ->missing('Kiriman.0.Muatan'));
@@ -204,13 +204,13 @@ it('menolak alamat non-HTTPS, privat, loopback, dan metadata awan; DNS yang beru
     $kirim = fn (string $url) => BantuanOrganisasi::Masuk($this, $k['Pemilik'], $k['Tenant']->Id)
         ->post('/kelola/pengaturan/webhook', ['Nama' => 'Sistem gudang', 'Url' => $url, 'Peristiwa' => ['penjualan.selesai']]);
 
-    $kirim('http://gudang.contoh.co.id/payou')->assertSessionHasErrors();
+    $kirim('http://gudang.contoh.co.id/payoung')->assertSessionHasErrors();
     $kirim('https://169.254.169.254/latest/meta-data')->assertSessionHasErrors();
     $kirim('https://127.0.0.1/hook')->assertSessionHasErrors();
     $kirim('https://localhost/hook')->assertSessionHasErrors();
-    $kirim('https://admin:rahasia@gudang.contoh.co.id/payou')->assertSessionHasErrors();
+    $kirim('https://admin:rahasia@gudang.contoh.co.id/payoung')->assertSessionHasErrors();
     $GLOBALS['IpDnsWebhookUji'] = ['10.1.2.3'];
-    $kirim('https://intranet.contoh.co.id/payou')->assertSessionHasErrors();
+    $kirim('https://intranet.contoh.co.id/payoung')->assertSessionHasErrors();
     BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
     expect(WebhookTenant::query()->count())->toBe(0);
 
@@ -410,7 +410,7 @@ it('penangan webhook integrasi hanya diantrekan bila tenant punya webhook aktif 
     $simpan('Paku Beton 10 cm (1 kg)');
     expect($antreanIntegrasi())->toBe(0);
 
-    DaftarkanWebhookUji($this, $t, ['produk.diubah'], 'https://gudang.contoh.co.id/payou-2');
+    DaftarkanWebhookUji($this, $t, ['produk.diubah'], 'https://gudang.contoh.co.id/payoung-2');
     Queue::fake();
     $simpan('Paku Beton 12 cm (1 kg)');
     expect($antreanIntegrasi())->toBe(1);

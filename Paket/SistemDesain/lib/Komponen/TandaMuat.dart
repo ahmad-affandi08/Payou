@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../Token/TokenWarna.dart';
 
-/// Tanda muat PAYOU (D-58): logo P di lingkaran putih, dikelilingi cincin warna token tanpa jarak yang berputar
+/// Tanda muat Payoung (D-58): logo payung di lingkaran putih, dikelilingi cincin warna token tanpa jarak yang berputar
 /// pelan sementara logo "bernapas". Sama dengan `TandaMuat` di web. Untuk layar penuh dan panel besar; di dalam
 /// tombol atau baris kecil tetap pakai `CircularProgressIndicator`. Bila pengguna mematikan animasi di perangkat,
 /// cincin diam.

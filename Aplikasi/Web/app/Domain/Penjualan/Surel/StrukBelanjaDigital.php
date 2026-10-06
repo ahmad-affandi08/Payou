@@ -11,7 +11,7 @@ use App\Domain\Bersama\Surel\SurelDasar;
  * usaha tenant; alamat pengirim tetap alamat platform dari P-05 (domain yang terverifikasi SPF/DKIM).
  *
  * Sejak D-26 dikirim dua bagian (HTML + teks). **Tetap tanpa gambar dan tanpa piksel pelacak**: tata letak email
- * PAYOU tidak memuat satu pun `<img>`, dijaga `tests/Arsitektur/SurelTes.php`.
+ * Payoung tidak memuat satu pun `<img>`, dijaga `tests/Arsitektur/SurelTes.php`.
  */
 final class StrukBelanjaDigital extends SurelDasar
 {

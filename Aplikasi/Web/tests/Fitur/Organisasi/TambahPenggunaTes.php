@@ -120,7 +120,7 @@ describe('D-22 tambah pengguna langsung di tenant', function (): void {
         $this->get('/kelola')->assertOk();
     });
 
-    it('email yang sudah punya akun PAYOU tidak bisa ditambah langsung (harus lewat undangan)', function (): void {
+    it('email yang sudah punya akun Payoung tidak bisa ditambah langsung (harus lewat undangan)', function (): void {
         ['Tenant' => $tenantA, 'Pemilik' => $pemilikA] = BantuanOrganisasi::BuatTenant('Kopi A');
         ['Pemilik' => $pemilikB] = BantuanOrganisasi::BuatTenant('Kopi B');
 

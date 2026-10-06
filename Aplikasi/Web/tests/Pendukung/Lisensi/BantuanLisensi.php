@@ -8,7 +8,7 @@ use App\Domain\Lisensi\Data\DataLisensi;
 use App\Domain\Lisensi\Layanan\PenandaLisensi;
 
 /**
- * D-35: pasangan kunci uji sekali pakai per proses test (bukan kunci penerbit PAYOU) dan pembuat berkas lisensi.
+ * D-35: pasangan kunci uji sekali pakai per proses test (bukan kunci penerbit Payoung) dan pembuat berkas lisensi.
  */
 final class BantuanLisensi
 {
@@ -29,7 +29,7 @@ final class BantuanLisensi
         config(['lisensi.KunciPublik' => self::Kunci()['KunciPublik']]);
     }
 
-    public static function Data(string $domain = 'localhost', ?int $batasOutlet = 2, ?int $batasPerangkat = 3, ?int $batasPengguna = null, string $nomor = 'PAYOU-L-2026-0001', ?string $pembaruanSampai = null): DataLisensi
+    public static function Data(string $domain = 'localhost', ?int $batasOutlet = 2, ?int $batasPerangkat = 3, ?int $batasPengguna = null, string $nomor = 'PAYOUNG-L-2026-0001', ?string $pembaruanSampai = null): DataLisensi
     {
         return new DataLisensi(
             nomor: $nomor,

@@ -300,7 +300,7 @@ describe('Keamanan akun: tautkan & lepas', function (): void {
         $b = BantuanOrganisasi::TambahAnggota($a['Tenant']->Id, PeranTenantBawaan::Admin);
         $this->flushSession();
         $this->actingAs($b, 'web')->withSession([IdentifikasiTenantSesi::KUNCI_SESI => $a['Tenant']->Id]);
-        MasukLewatGoogleUji($this, ['sub' => 'sub-a'], tujuan: 'tautkan')->assertRedirect(route('kelola.keamanan'))->assertSessionHas('Kilat', 'Akun Google ini sudah ditautkan ke akun PAYOU lain.');
+        MasukLewatGoogleUji($this, ['sub' => 'sub-a'], tujuan: 'tautkan')->assertRedirect(route('kelola.keamanan'))->assertSessionHas('Kilat', 'Akun Google ini sudah ditautkan ke akun Payoung lain.');
         expect($b->refresh()->GoogleSub)->toBeNull();
     });
 

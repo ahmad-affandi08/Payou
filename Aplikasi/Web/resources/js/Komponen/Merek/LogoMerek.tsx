@@ -7,7 +7,7 @@ import { cn } from '@/Komponen/Ui/utils';
 type PropsLogo = { nama: string; className?: string; varian?: 'warna' | 'putih' };
 
 /**
- * Logo horizontal PAYOU beserta tagline (sumber: `Spesifikasi/Merek`). Dipakai di layar masuk/daftar.
+ * Logo horizontal Payoung beserta tagline (sumber: `Spesifikasi/Merek`). Dipakai di layar masuk/daftar.
  * Teks alternatif = nama aplikasi, sehingga pembaca layar tetap membaca nama sistem.
  */
 export function LogoMerek({ nama, className, varian = 'warna' }: PropsLogo) {
@@ -20,7 +20,7 @@ export function LogoMerek({ nama, className, varian = 'warna' }: PropsLogo) {
     );
 }
 
-/** Tanda merek (huruf P) tanpa teks, untuk ruang sempit seperti kepala menu samping. */
+/** Tanda merek (payung) tanpa teks, untuk ruang sempit seperti kepala menu samping. */
 export function IkonMerek({ nama, className, varian = 'warna' }: PropsLogo) {
     return (
         <img

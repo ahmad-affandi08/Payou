@@ -102,7 +102,7 @@ describe('Edisi Lisensi (D-35)', function (): void {
         $langganan = Langganan::query()->where('IdTenant', $tenant->Id)->sole();
         $pengguna = Pengguna::query()->where('Email', 'rina@kopinusantara.id')->sole();
 
-        expect($data->nomor)->toBe('PAYOU-L-2026-0001')
+        expect($data->nomor)->toBe('PAYOUNG-L-2026-0001')
             ->and($tenant->Nama)->toBe('Kopi Nusantara')
             ->and($langganan->Status)->toBe(StatusLangganan::Aktif)
             ->and($langganan->Paket->Kode)->toBe('LISENSI')
@@ -133,7 +133,7 @@ describe('Edisi Lisensi (D-35)', function (): void {
             ->and(TemplateSektorVersi::query()->where('Status', StatusTemplateSektor::Terbit->value)->count())->toBe($templateTerbit);
     });
 
-    it('impor data master PAYOU: tarif sama dilewati, tarif baru mengakhiri yang lama, hari libur & pembatalan; idempoten', function (): void {
+    it('impor data master Payoung: tarif sama dilewati, tarif baru mengakhiri yang lama, hari libur & pembatalan; idempoten', function (): void {
         app(PasangLisensi::class)->Jalankan(BantuanLisensi::Berkas(), 'Kopi Nusantara', PemilikLisensiUji());
         $paket = [
             'Format' => 1,
@@ -187,7 +187,7 @@ describe('Edisi Lisensi (D-35)', function (): void {
         $paket['HariLibur'][0] = ['Tanggal' => '2027-12-25', 'Nama' => 'Hari Raya Natal', 'Jenis' => 'Nasional', 'NomorDasarHukum' => null, 'Dibatalkan' => false];
         file_put_contents($berkas, json_encode($paket));
         $this->artisan('lisensi:impor-data-master', ['berkas' => $berkas])
-            ->expectsOutputToContain('setelah masa pembaruan lisensi PAYOU-L-2026-0001 berakhir (2027-10-02)')
+            ->expectsOutputToContain('setelah masa pembaruan lisensi PAYOUNG-L-2026-0001 berakhir (2027-10-02)')
             ->assertFailed();
         unlink($berkas);
 
@@ -197,10 +197,10 @@ describe('Edisi Lisensi (D-35)', function (): void {
     it('D-36: lisensi:terbitkan memberi masa pembaruan 1 tahun bila tidak diisi', function (): void {
         $folder = sys_get_temp_dir().'/lisensi-'.bin2hex(random_bytes(4));
         mkdir($folder, 0700);
-        file_put_contents("{$folder}/payou.kunci", BantuanLisensi::Kunci()['KunciPrivat']);
+        file_put_contents("{$folder}/payoung.kunci", BantuanLisensi::Kunci()['KunciPrivat']);
         $this->travelTo(CarbonImmutable::parse('2026-10-03 10:00', 'Asia/Jakarta'));
 
-        $this->artisan('lisensi:terbitkan', ['--nomor' => 'PAYOU-L-2026-0009', '--pemegang' => 'CV Toko Uji', '--domain' => 'kasir.tokouji.id', '--kunci-privat' => "{$folder}/payou.kunci", '--keluaran' => "{$folder}/uji.lisensi"])
+        $this->artisan('lisensi:terbitkan', ['--nomor' => 'PAYOUNG-L-2026-0009', '--pemegang' => 'CV Toko Uji', '--domain' => 'kasir.tokouji.id', '--kunci-privat' => "{$folder}/payoung.kunci", '--keluaran' => "{$folder}/uji.lisensi"])
             ->expectsOutputToContain('Pembaruan & dukungan sampai 2027-10-02')
             ->assertSuccessful();
 
@@ -230,13 +230,13 @@ describe('Edisi Lisensi (D-35)', function (): void {
 
     it('ganti lisensi (tambah outlet) tidak membuat usaha baru; satu lisensi tetap satu usaha', function (): void {
         app(PasangLisensi::class)->Jalankan(BantuanLisensi::Berkas(), 'Kopi Nusantara', PemilikLisensiUji());
-        app(PasangLisensi::class)->Jalankan(BantuanLisensi::Berkas(BantuanLisensi::Data(batasOutlet: 5, nomor: 'PAYOU-L-2026-0001-B')));
+        app(PasangLisensi::class)->Jalankan(BantuanLisensi::Berkas(BantuanLisensi::Data(batasOutlet: 5, nomor: 'PAYOUNG-L-2026-0001-B')));
 
         $sumber = app(SumberFiturTenant::class)->Ambil(Tenant::query()->sole()->Id);
 
         expect(Tenant::query()->count())->toBe(1)
             ->and(LisensiTerpasang::query()->count())->toBe(2)
-            ->and(app(LisensiBerlaku::class)->Ambil()?->nomor)->toBe('PAYOU-L-2026-0001-B')
+            ->and(app(LisensiBerlaku::class)->Ambil()?->nomor)->toBe('PAYOUNG-L-2026-0001-B')
             ->and(app(EvaluatorFitur::class)->HitungBatasEfektif($sumber)['BatasOutlet'])->toBe(5);
     });
 

@@ -5,7 +5,7 @@ import { cn } from '@/Komponen/Ui/utils';
 type PropsTandaMuat = { ukuran?: number; className?: string; label?: string };
 
 /**
- * Tanda muat PAYOU (D-58): logo P di lingkaran putih, dikelilingi cincin warna token tanpa jarak yang berputar.
+ * Tanda muat Payoung (D-58): logo payung di lingkaran putih, dikelilingi cincin warna token tanpa jarak yang berputar.
  * Gaya di `Gaya/Muat.css`; `ukuran` dalam px. Untuk layar penuh dan keadaan memuat panel besar, bukan di dalam tombol
  * (tombol memakai `Spinner`).
  */

@@ -89,7 +89,7 @@ function Gerbang(ubah: Partial<GerbangPembayaranTenant> = {}): GerbangPembayaran
         PesanUji: null,
         DiujiPada: null,
         Aktif: false,
-        UrlWebhook: 'https://payou.id/webhook/midtrans/1a-TokenWebhookToko',
+        UrlWebhook: 'https://payoung.id/webhook/midtrans/1a-TokenWebhookToko',
         WebhookDiterimaPada: null,
         WebhookDitolakPada: null,
         ...ubah,
@@ -133,7 +133,7 @@ describe('Gerbang pembayaran toko (v2.06)', () => {
         );
 
         expect(screen.getByText(/Tersimpan ••••7788/)).toBeTruthy();
-        expect(screen.getByText('https://payou.id/webhook/midtrans/1a-TokenWebhookToko')).toBeTruthy();
+        expect(screen.getByText('https://payoung.id/webhook/midtrans/1a-TokenWebhookToko')).toBeTruthy();
         expect((screen.getByRole('button', { name: 'Aktifkan gerbang' }) as HTMLButtonElement).disabled).toBe(true);
         fireEvent.click(screen.getByRole('button', { name: 'Uji koneksi' }));
         expect(uji.router).toEqual(['/kelola/pembayaran/gerbang/uji']);

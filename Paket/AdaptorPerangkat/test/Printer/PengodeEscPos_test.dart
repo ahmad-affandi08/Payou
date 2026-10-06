@@ -44,10 +44,10 @@ void main() {
     });
 
     test('QR: GS ( k simpan data dengan panjang pL pH = data + 3 lalu cetak', () {
-      final byte = PengodeEscPos.KodekanQr('https://payou.id/s/AB12', 6);
-      final simpan = Cari(byte, [0x1D, 0x28, 0x6B, 26, 0x00, 0x31, 0x50, 0x30]);
+      final byte = PengodeEscPos.KodekanQr('https://payoung.id/s/AB12', 6);
+      final simpan = Cari(byte, [0x1D, 0x28, 0x6B, 28, 0x00, 0x31, 0x50, 0x30]);
       expect(simpan, greaterThan(0));
-      expect(utf8.decode(byte.sublist(simpan + 8, simpan + 8 + 23)), 'https://payou.id/s/AB12');
+      expect(utf8.decode(byte.sublist(simpan + 8, simpan + 8 + 25)), 'https://payoung.id/s/AB12');
       expect(byte.sublist(byte.length - 8), [0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x30]);
     });
 
@@ -66,7 +66,7 @@ void main() {
         LebarKertas.Mm58,
       );
       expect(teks, contains('12345678901234567890123456789012'));
-      expect(teks, contains('[QR https://payou.id]'));
+      expect(teks, contains('[QR https://payoung.id]'));
     });
   });
 

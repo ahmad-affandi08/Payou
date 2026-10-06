@@ -207,10 +207,10 @@ jobs:
         run: npm ci && npm run build
       - name: Paket rilis + checksum
         run: |
-          NAMA="payou-web-${GITHUB_SHA}"
+          NAMA="payoung-web-${GITHUB_SHA}"
           # Audit PAY-P2-04: isi artefak adalah daftar putih (bukan "semua kecuali"), supaya berkas pengembangan
           # (tests, .github, sumber JS, README, basis data uji) tidak pernah ikut terkirim ke server.
-          STAGE="$(mktemp -d)/payou"
+          STAGE="$(mktemp -d)/payoung"
           mkdir -p "$STAGE/resources" "$STAGE/storage/app/public" "$STAGE/storage/framework/cache/data" \
             "$STAGE/storage/framework/sessions" "$STAGE/storage/framework/views" "$STAGE/storage/logs"
           rsync -a --exclude='PosSaasTes*' --exclude='*.log' --exclude='public/hot' --exclude='public/storage' \
@@ -223,15 +223,15 @@ jobs:
           tar -czf "../../${NAMA}.tar.gz" -C "$STAGE" .
           cd ../..
           sha256sum "${NAMA}.tar.gz" > "${NAMA}.tar.gz.sha256"
-      # D-36: paket PAYOU Mandiri untuk pembeli lisensi = artefak yang sama, edisi Lisensi ditanam (`.env` EDISI
+      # D-36: paket Payoung Mandiri untuk pembeli lisensi = artefak yang sama, edisi Lisensi ditanam (`.env` EDISI
       # diabaikan) dan rute konsol Platform Pengelola tidak ikut. Tanpa rute itu edisi SaaS bahkan tidak bisa boot.
-      - name: Paket PAYOU Mandiri (edisi Lisensi terkunci) + checksum
+      - name: Paket Payoung Mandiri (edisi Lisensi terkunci) + checksum
         run: |
           cd ../..
-          NAMA="payou-mandiri-${GITHUB_SHA}"
-          STAGE="$(mktemp -d)/payou"
+          NAMA="payoung-mandiri-${GITHUB_SHA}"
+          STAGE="$(mktemp -d)/payoung"
           mkdir -p "$STAGE"
-          tar -xzf "payou-web-${GITHUB_SHA}.tar.gz" -C "$STAGE"
+          tar -xzf "payoung-web-${GITHUB_SHA}.tar.gz" -C "$STAGE"
           printf "<?php\n\ndeclare(strict_types=1);\n\nreturn 'Lisensi';\n" > "$STAGE/bootstrap/EdisiTerkunci.php"
           # D-36: tanggal rilis = tanggal commit (WIB), dibandingkan dengan PembaruanSampai di berkas lisensi.
           TANGGAL="$(TZ=Asia/Jakarta git show -s --date=format-local:%Y-%m-%d --format=%cd HEAD)"
@@ -243,20 +243,20 @@ jobs:
           sha256sum "${NAMA}.tar.gz" > "${NAMA}.tar.gz.sha256"
       - uses: actions/upload-artifact@v4
         with:
-          name: payou-web-${{ github.sha }}
+          name: payoung-web-${{ github.sha }}
           path: |
-            payou-web-${{ github.sha }}.tar.gz
-            payou-web-${{ github.sha }}.tar.gz.sha256
+            payoung-web-${{ github.sha }}.tar.gz
+            payoung-web-${{ github.sha }}.tar.gz.sha256
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
-          name: payou-mandiri-${{ github.sha }}
+          name: payoung-mandiri-${{ github.sha }}
           path: |
-            payou-mandiri-${{ github.sha }}.tar.gz
-            payou-mandiri-${{ github.sha }}.tar.gz.sha256
+            payoung-mandiri-${{ github.sha }}.tar.gz
+            payoung-mandiri-${{ github.sha }}.tar.gz.sha256
           retention-days: 90
 
-      # Hosting payou.id tanpa Node (Panduan/PasangDiHosting.md langkah 5), jadi public/build harus
+      # Hosting payoung.id tanpa Node (Panduan/PasangDiHosting.md langkah 5), jadi public/build harus
       # dibangun di luar server. Artefak Actions di atas kedaluwarsa 30 hari dan hanya bisa diunduh
       # lewat peramban, karena itu berkasnya juga diterbitkan sebagai aset rilis bertag tetap
       # `aset-terbaru` yang bisa diambil server dengan satu perintah curl (repo publik, tanpa token).

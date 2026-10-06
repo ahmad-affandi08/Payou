@@ -14,9 +14,9 @@ use Illuminate\Console\Command;
  */
 final class BuatKunciLisensiPerintah extends Command
 {
-    protected $signature = 'lisensi:buat-kunci {berkasKunciPrivat : Berkas tujuan kunci privat (di luar repo, misal ~/payou-lisensi.kunci)}';
+    protected $signature = 'lisensi:buat-kunci {berkasKunciPrivat : Berkas tujuan kunci privat (di luar repo, misal ~/payoung-lisensi.kunci)}';
 
-    protected $description = 'Membuat pasangan kunci Ed25519 penerbit lisensi PAYOU (D-35).';
+    protected $description = 'Membuat pasangan kunci Ed25519 penerbit lisensi Payoung (D-35).';
 
     public function handle(PenandaLisensi $penanda): int
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Symfony\Component\Finder\Finder;
 
 /*
- * Penjaga email PAYOU (D-26). File penjaga: kalau test ini gagal, perbaiki kodenya, bukan test-nya.
+ * Penjaga email Payoung (D-26). File penjaga: kalau test ini gagal, perbaiki kodenya, bukan test-nya.
  *
  * Latar belakang: badan email tidak pernah diuji sama sekali. Test verifikasi email memeriksa properti
  * `$surel->tautan`, bukan hasil render templat. Akibatnya bug ini lolos ke produksi: badan `text/plain`
@@ -118,7 +118,7 @@ it('badan HTML tidak pernah mengeluarkan nilai mentah tanpa e()', function (): v
 });
 
 it('templat email tidak memuat gambar, jadi tidak ada piksel pelacak dan tidak bergantung gambar', function (): void {
-    // Klien email memblokir gambar secara bawaan; email PAYOU harus utuh tanpa gambar. Sekaligus janji
+    // Klien email memblokir gambar secara bawaan; email Payoung harus utuh tanpa gambar. Sekaligus janji
     // "tanpa piksel pelacak" pada struk digital (K3).
     $pelanggar = [];
 

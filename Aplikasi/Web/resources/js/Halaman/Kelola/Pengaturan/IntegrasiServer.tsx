@@ -61,7 +61,7 @@ const kegunaan: Record<SlotIntegrasiServer['Jenis'], string> = {
 };
 
 /**
- * D-35 edisi Lisensi: Pengaturan › Email & WhatsApp server (khusus Owner). Toko yang memasang PAYOU di servernya
+ * D-35 edisi Lisensi: Pengaturan › Email & WhatsApp server (khusus Owner). Toko yang memasang Payoung di servernya
  * sendiri menghubungkan akun email, WhatsApp, dan penyimpanan berkas miliknya di sini. Kredensial disimpan terenkripsi
  * dan tidak pernah ditampilkan ulang; integrasi baru aktif setelah uji koneksi berhasil.
  */

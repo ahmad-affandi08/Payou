@@ -41,7 +41,7 @@ function DropdownKalender({ options = [], value, onChange, disabled, 'aria-label
 }
 
 /**
- * Kalender PAYOU (§17.6): bahasa Indonesia, minggu dimulai Senin, pilihan bulan & tahun untuk lompat jauh
+ * Kalender Payoung (§17.6): bahasa Indonesia, minggu dimulai Senin, pilihan bulan & tahun untuk lompat jauh
  * (mis. tanggal kedaluwarsa), hari ini ditandai garis bawah, pilihan memakai warna brand, rentang tengah
  * memakai brand lembut. Ukuran sel 32px, ringkas untuk back-office (44px pada layar sentuh) sesuai target sentuh §17.4.4.
  */

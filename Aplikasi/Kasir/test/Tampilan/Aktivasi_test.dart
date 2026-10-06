@@ -136,7 +136,7 @@ void main() {
     await Lepas(tester, u);
   });
 
-  // Layar pertama yang dilihat pemilik toko saat memasang PAYOU: panel merek + kartu isian, dua kolom di layar
+  // Layar pertama yang dilihat pemilik toko saat memasang Payoung: panel merek + kartu isian, dua kolom di layar
   // lega dan satu kolom di HP (PRD §17.2.7, §17.6).
   for (final (nama, ukuran) in [('1280', const Size(1280, 900)), ('360', const Size(360, 740))]) {
     testWidgets('golden layar aktivasi di lebar $nama dp', (tester) async {

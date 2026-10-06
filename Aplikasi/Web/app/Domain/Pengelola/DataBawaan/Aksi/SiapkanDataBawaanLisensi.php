@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\DB;
  * D-35 edisi Lisensi: data master platform tanpa Platform Pengelola. Data bawaan yang ikut rilis (`database/Data`:
  * satuan, wilayah, jenis & tarif pajak, katalog fitur, template sektor) dimuat lalu langsung diterbitkan, karena di
  * server pembeli tidak ada konsol maupun peninjau. Four-eyes (BR-P02.2, BR-P03.5) tetap berlaku di edisi SaaS; di sini
- * yang menjamin isinya adalah rilis PAYOU itu sendiri (berkas data ditinjau sebelum dirilis).
+ * yang menjamin isinya adalah rilis Payoung itu sendiri (berkas data ditinjau sebelum dirilis).
  *
  * Idempoten, dijalankan saat pemasangan pertama dan setelah setiap pembaruan (`lisensi:siapkan-data`):
  * - Tarif pajak berstatus Draf diterbitkan hanya bila jenis pajaknya belum punya tarif terbit (tarif terbit tidak

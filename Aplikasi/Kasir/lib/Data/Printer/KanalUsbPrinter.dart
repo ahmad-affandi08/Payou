@@ -22,7 +22,7 @@ class InfoPerangkatAndroid {
 class KanalUsbPrinter {
   const KanalUsbPrinter([this._kanal = const MethodChannel(namaKanal)]);
 
-  static const String namaKanal = 'id.payou.kasir/usb-printer';
+  static const String namaKanal = 'id.payoung.kasir/usb-printer';
 
   final MethodChannel _kanal;
 

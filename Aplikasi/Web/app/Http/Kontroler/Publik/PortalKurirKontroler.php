@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Throwable;
 
 /**
- * F-10 (v3.49) portal kurir `/{slugTenant}/kurir/{token}`: kurir tanpa akun PAYOU membuka tautan rahasia dari toko,
+ * F-10 (v3.49) portal kurir `/{slugTenant}/kurir/{token}`: kurir tanpa akun Payoung membuka tautan rahasia dari toko,
  * melihat pengiriman yang ditugaskan kepadanya (Dikemas/Dikirim), lalu menandai berangkat, diterima (nama penerima +
  * foto bukti opsional), atau gagal (alasan). Aturan status sama dengan back-office (`UbahStatusPengirimanPesanan`).
  *

@@ -44,7 +44,7 @@ const kolom: KolomTabel<BarisKompatibilitas>[] = [
 ];
 
 /**
- * Daftar kompatibilitas perangkat & printer PAYOU (PRD §17.2.5a HCL, v1.98) untuk calon pengguna: Tersertifikasi (lolos
+ * Daftar kompatibilitas perangkat & printer Payoung (PRD §17.2.5a HCL, v1.98) untuk calon pengguna: Tersertifikasi (lolos
  * uji lab), Kompatibel (lolos Wizard Uji Perangkat di usaha pengguna), Terbatas (ada kendala; lihat catatan).
  */
 export default function HalamanKompatibilitasPerangkatPublik({ Baris }: { Baris: BarisKompatibilitas[] }) {
@@ -58,7 +58,7 @@ export default function HalamanKompatibilitasPerangkatPublik({ Baris }: { Baris:
                 <header className="flex flex-col gap-2">
                     <JudulHalaman>Perangkat &amp; printer yang didukung</JudulHalaman>
                     <p className="max-w-3xl text-isi text-teks-sekunder">
-                        PAYOU berjalan di Android, iPad/iPhone, dan Windows, dengan printer thermal LAN/Wi-Fi,
+                        Payoung berjalan di Android, iPad/iPhone, dan Windows, dengan printer thermal LAN/Wi-Fi,
                         Bluetooth, USB, atau printer bawaan mesin kasir. Daftar ini disusun dari hasil uji perangkat di
                         usaha pengguna dan uji tim kami. Perangkat yang belum ada di daftar tetap bisa dicoba lewat menu
                         Uji perangkat di aplikasi kasir.

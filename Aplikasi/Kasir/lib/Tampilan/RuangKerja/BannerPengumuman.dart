@@ -102,7 +102,7 @@ class _KeadaanBannerPengumuman extends State<BannerPengumuman> {
       final teks = Theme.of(konteks).textTheme;
       final warna = TokenWarna.AmbilDari(konteks);
       return AlertDialog(
-        title: const Text('Pengumuman PAYOU'),
+        title: const Text('Pengumuman Payoung'),
         content: SizedBox(
           width: 520,
           child: SingleChildScrollView(

@@ -73,7 +73,7 @@ describe('Pengaturan layar QR di detail outlet', () => {
     });
 
     it('dengan layar: sakelar wajib QR, buka layar, cabut lewat konfirmasi', () => {
-        const tautan = 'https://dashboard.payou.id/kopi-senja/layar-absen/' + 'b'.repeat(40);
+        const tautan = 'https://dashboard.payoung.id/kopi-senja/layar-absen/' + 'b'.repeat(40);
         RenderUji(
             <LokasiAbsensiOutlet
                 alamatOutlet="/kelola/outlet/O-1"

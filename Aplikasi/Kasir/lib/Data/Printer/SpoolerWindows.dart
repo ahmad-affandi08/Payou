@@ -65,7 +65,7 @@ class TransportSpoolerWindows implements TransportPrinter {
     final printer = PRINTER_HANDLE(pegangan.value);
     try {
       final dokumen = arena<DOC_INFO_1>()
-        ..ref.pDocName = arena.pwstr('Struk PAYOU')
+        ..ref.pDocName = arena.pwstr('Struk Payoung')
         ..ref.pOutputFile = PWSTR(nullptr)
         ..ref.pDatatype = arena.pwstr('RAW');
       if (StartDocPrinter(printer, 1, dokumen) == 0) {

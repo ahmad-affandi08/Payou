@@ -38,7 +38,7 @@ function CekAktif(tautan: string, jalurKini: string): boolean {
 type PropsTataLetakSitus = { judul: string; children: ReactNode; pratinjau?: boolean };
 
 /**
- * Tata letak situs pemasaran (D-21, payou.id): pengumuman, kepala (logo, menu, Masuk & Coba gratis), menu lipat di
+ * Tata letak situs pemasaran (D-21, payoung.id): pengumuman, kepala (logo, menu, Masuk & Coba gratis), menu lipat di
  * layar sempit, kaki (kolom tautan, kontak, media sosial, unduhan), dan tombol WhatsApp melayang. Semua isi dari konsol.
  */
 export default function TataLetakSitus({ judul, children, pratinjau = false }: PropsTataLetakSitus) {

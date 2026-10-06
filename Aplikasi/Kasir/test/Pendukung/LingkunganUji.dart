@@ -114,7 +114,7 @@ Map<String, Object?> DataAwalUji({
       'JamReguler': 48,
       'JamExpress': 24,
       'Parfum': ['Lavender', 'Sakura'],
-      'AwalanLacak': 'https://payou.test/s/1a.',
+      'AwalanLacak': 'https://payoung.test/s/1a.',
     },
   'Pengaturan': {
     'BatasKasKeluar': '200000.00',

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistem_desain/SistemDesain.dart';
 
-/// Tanda muat (D-58): logo P di lingkaran putih + cincin berputar; diam bila animasi dimatikan.
+/// Tanda muat (D-58): logo payung di lingkaran putih + cincin berputar; diam bila animasi dimatikan.
 void main() {
   final cincin = find.descendant(of: find.byType(TandaMuat), matching: find.byType(RotationTransition));
 

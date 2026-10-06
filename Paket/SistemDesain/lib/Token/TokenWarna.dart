@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Token warna semantik (PRD §17.6.3). **Satu-satunya sumber warna** untuk seluruh aplikasi Flutter.
 ///
-/// Palet merek PAYOU (D-15, sumber `Spesifikasi/Merek`). Untuk mengganti warna,
+/// Palet merek Payoung (D-61, Muted Teal & Apricot; sumber `Spesifikasi/Merek`). Untuk mengganti warna,
 /// ubah nilainya **di sini** dan **di `Aplikasi/Web/resources/js/Gaya/Aplikasi.css`** (token `--color-*`,
 /// nama sama dalam kebab-case, mis. `garisInput` = `--color-garis-input`). Test `SumberWarna_test.dart`
 /// memastikan keduanya sama.
@@ -29,19 +29,19 @@ final class TokenWarna extends ThemeExtension<TokenWarna> {
   });
 
   static const TokenWarna bawaan = TokenWarna(
-    latar: Color(0xFFF9FAFB),
+    latar: Color(0xFFF7F9F6),
     permukaan: Color(0xFFFFFFFF),
-    garis: Color(0xFFE5E7EB),
-    garisInput: Color(0xFF7D8799),
-    teksUtama: Color(0xFF0F2747),
-    teksSekunder: Color(0xFF4A5873),
-    brand: Color(0xFF5558E8),
-    brandGelap: Color(0xFF1D29B8),
+    garis: Color(0xFFE8ECE9),
+    garisInput: Color(0xFF7A8F90),
+    teksUtama: Color(0xFF1F3335),
+    teksSekunder: Color(0xFF4F6567),
+    brand: Color(0xFF3B5B5D),
+    brandGelap: Color(0xFF22383A),
     sukses: Color(0xFF2E7D32),
     peringatan: Color(0xFF9A5B00),
     bahaya: Color(0xFFB3261E),
     info: Color(0xFF1F5FAD),
-    aksen: Color(0xFFFBBF24),
+    aksen: Color(0xFFF4A261),
   );
 
   final Color latar;
@@ -57,7 +57,7 @@ final class TokenWarna extends ThemeExtension<TokenWarna> {
   final Color bahaya;
   final Color info;
 
-  /// Accent Yellow (D-15) sebagai token sejak D-25. **Hanya untuk situs pemasaran `payou.id`**,
+  /// Aksen Apricot (D-61) sebagai token sejak D-25. **Hanya untuk situs pemasaran `payoung.id`**,
   /// bukan penanda status, dan tidak dipakai di aplikasi Flutter mana pun; ada di sini hanya agar
   /// palet web dan Flutter tetap satu sumber (dijaga `SumberWarna_test.dart`).
   final Color aksen;

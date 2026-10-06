@@ -70,7 +70,7 @@ final class MasukDenganGoogle
         $dipakai = Pengguna::query()->where('GoogleSub', $identitas->sub)->where('Id', '!=', $pengguna->Id)->exists();
 
         if ($dipakai) {
-            throw new PelanggaranAturanBisnis('GoogleSudahDipakai', 'Akun Google ini sudah ditautkan ke akun PAYOU lain.');
+            throw new PelanggaranAturanBisnis('GoogleSudahDipakai', 'Akun Google ini sudah ditautkan ke akun Payoung lain.');
         }
 
         if ($pengguna->CekGoogleTertaut()) {

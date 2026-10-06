@@ -76,7 +76,7 @@ describe('F-17 QR pesan sendiri di halaman outlet', () => {
                 json: () =>
                     Promise.resolve({
                         NamaMeja: '7',
-                        Url: 'https://payou.id/kedai-kopi/meja/TokenMejaTujuhAcak32KarakterAbcd',
+                        Url: 'https://payoung.id/kedai-kopi/meja/TokenMejaTujuhAcak32KarakterAbcd',
                         QrSvg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
                     }),
             }),
@@ -94,7 +94,7 @@ describe('F-17 QR pesan sendiri di halaman outlet', () => {
         fireEvent.keyDown(screen.getByRole('button', { name: 'Aksi meja 7' }), { key: 'Enter' });
         fireEvent.click(screen.getByRole('menuitem', { name: 'QR pesan sendiri' }));
         await waitFor(() => expect(screen.getByRole('img', { name: 'QR pesan sendiri meja 7' })).toBeTruthy());
-        expect(screen.getByText('https://payou.id/kedai-kopi/meja/TokenMejaTujuhAcak32KarakterAbcd')).toBeTruthy();
+        expect(screen.getByText('https://payoung.id/kedai-kopi/meja/TokenMejaTujuhAcak32KarakterAbcd')).toBeTruthy();
 
         fireEvent.click(screen.getByRole('button', { name: 'Buat ulang QR' }));
         expect(screen.getByText(/QR lama di meja 7 langsung tidak bisa dipakai/)).toBeTruthy();
@@ -133,16 +133,22 @@ describe('F-17 QR pesan sendiri di halaman outlet', () => {
                         Uuid: 'M-7',
                         Nama: '7',
                         NamaArea: 'Teras',
-                        Url: 'https://payou.id/k/meja/A',
+                        Url: 'https://payoung.id/k/meja/A',
                         QrSvg: '<svg></svg>',
                     },
-                    { Uuid: 'M-9', Nama: '9', NamaArea: null, Url: 'https://payou.id/k/meja/B', QrSvg: '<svg></svg>' },
+                    {
+                        Uuid: 'M-9',
+                        Nama: '9',
+                        NamaArea: null,
+                        Url: 'https://payoung.id/k/meja/B',
+                        QrSvg: '<svg></svg>',
+                    },
                 ]}
             />,
         );
         expect(screen.getByRole('listitem', { name: 'QR meja 7' })).toBeTruthy();
         expect(screen.getByText('Meja 9')).toBeTruthy();
-        expect(screen.getByText('https://payou.id/k/meja/B')).toBeTruthy();
+        expect(screen.getByText('https://payoung.id/k/meja/B')).toBeTruthy();
         expect(screen.getByText('Pesan sendiri belum aktif')).toBeTruthy();
     });
 });

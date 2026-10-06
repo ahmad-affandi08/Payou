@@ -142,13 +142,13 @@ class KlienUniversalBle implements KlienBle {
     try {
       await UniversalBle.requestPermissions();
     } on Object {
-      return 'Izin Bluetooth ditolak. Izinkan PAYOU POS memakai Bluetooth di pengaturan perangkat, lalu coba lagi.';
+      return 'Izin Bluetooth ditolak. Izinkan Payoung POS memakai Bluetooth di pengaturan perangkat, lalu coba lagi.';
     }
     return switch (await UniversalBle.getBluetoothAvailabilityState()) {
       AvailabilityState.poweredOn => null,
       AvailabilityState.poweredOff => 'Bluetooth mati. Nyalakan Bluetooth, lalu coba lagi.',
       AvailabilityState.unauthorized =>
-        'Izin Bluetooth ditolak. Izinkan PAYOU POS memakai Bluetooth di pengaturan perangkat, lalu coba lagi.',
+        'Izin Bluetooth ditolak. Izinkan Payoung POS memakai Bluetooth di pengaturan perangkat, lalu coba lagi.',
       AvailabilityState.unsupported => 'Perangkat ini tidak mendukung Bluetooth LE. Pakai printer LAN/Wi-Fi.',
       _ => 'Bluetooth belum siap. Tunggu sebentar, lalu coba lagi.',
     };

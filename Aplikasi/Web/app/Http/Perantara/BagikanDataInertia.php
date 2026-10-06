@@ -127,7 +127,7 @@ final class BagikanDataInertia extends Middleware
                 $idTenant = app(KonteksTenant::class)->Ambil();
                 $akses = $pengguna instanceof Pengguna && $idTenant !== null ? app(AksesPengguna::class)->Ambil($idTenant, $pengguna->Id) : null;
 
-                // D-35: izin yang halamannya tidak ada di edisi Lisensi (langganan & tiket bantuan PAYOU) dimatikan
+                // D-35: izin yang halamannya tidak ada di edisi Lisensi (langganan & tiket bantuan Payoung) dimatikan
                 // juga untuk Pemilik, supaya menu, Pengaturan, dan Ctrl+K tidak menautkan ke halaman 404.
                 $nonaktif = EdisiAplikasi::CekLisensi()
                     ? [IzinTenant::LanggananKelola->value, IzinTenant::BantuanTiketLihat->value, IzinTenant::BantuanTiketKelola->value]

@@ -1,4 +1,4 @@
-/// D-35 edisi Lisensi: alamat server toko yang memasang PAYOU di server & domainnya sendiri, diketik di aplikasi
+/// D-35 edisi Lisensi: alamat server toko yang memasang Payoung di server & domainnya sendiri, diketik di aplikasi
 /// Kasir (aktivasi) atau Pemilik (masuk). `kasir.toko.id` → `https://kasir.toko.id/`.
 ///
 /// Null bila kosong atau tidak sah (skema selain http/https, tanpa host, berisi query/fragmen/info pengguna).

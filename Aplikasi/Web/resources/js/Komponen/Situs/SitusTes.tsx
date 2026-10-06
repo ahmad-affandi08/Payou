@@ -23,7 +23,7 @@ vi.mock('@inertiajs/react', () => ({
 
 function BuatSitus(tambahan: Partial<DataSitus> = {}): DataSitus {
     return {
-        NamaSitus: 'PAYOU',
+        NamaSitus: 'Payoung',
         Slogan: 'Smart Choice Your Business Partner',
         Logo: null,
         Menu: [
@@ -37,16 +37,16 @@ function BuatSitus(tambahan: Partial<DataSitus> = {}): DataSitus {
         Kontak: {
             WhatsApp: '0812-3456-7890',
             TautanWhatsApp: 'https://wa.me/6281234567890',
-            Email: 'halo@payou.id',
+            Email: 'halo@payoung.id',
             Telepon: null,
             Alamat: null,
             JamLayanan: null,
         },
-        MediaSosial: { Instagram: 'https://instagram.com/payou' },
+        MediaSosial: { Instagram: 'https://instagram.com/payoung' },
         Pengumuman: { Teks: 'Diskon 17 Agustus', Tautan: '/harga' },
         TautanUnduh: {},
-        TombolDaftar: { Label: 'Coba gratis', Tautan: 'https://dashboard.payou.id/daftar' },
-        TombolMasuk: { Label: 'Masuk', Tautan: 'https://dashboard.payou.id/masuk' },
+        TombolDaftar: { Label: 'Coba gratis', Tautan: 'https://dashboard.payoung.id/daftar' },
+        TombolMasuk: { Label: 'Masuk', Tautan: 'https://dashboard.payoung.id/masuk' },
         WhatsAppMelayang: true,
         Tahun: 2026,
         ...tambahan,
@@ -132,12 +132,12 @@ describe('Situs pemasaran D-21: utilitas', () => {
         // `## ` tetap h3 seperti sebelum D-28, supaya artikel blog yang sudah terbit tidak berubah tampilannya.
         render(
             <TeksKaya
-                teks={'# Kebijakan Privasi\n\n## 1. Tentang PAYOU\n\n### 1.1 Ruang lingkup\n\n3. tiga\n4. empat'}
+                teks={'# Kebijakan Privasi\n\n## 1. Tentang Payoung\n\n### 1.1 Ruang lingkup\n\n3. tiga\n4. empat'}
             />,
         );
 
         expect(screen.getByRole('heading', { name: 'Kebijakan Privasi', level: 2 })).toBeTruthy();
-        expect(screen.getByRole('heading', { name: '1. Tentang PAYOU', level: 3 })).toBeTruthy();
+        expect(screen.getByRole('heading', { name: '1. Tentang Payoung', level: 3 })).toBeTruthy();
         expect(screen.getByRole('heading', { name: '1.1 Ruang lingkup', level: 4 })).toBeTruthy();
 
         const bernomor = screen.getByRole('list');
@@ -159,12 +159,12 @@ describe('Situs pemasaran D-21: tata letak & blok', () => {
         }
         expect(within(menu).getByRole('link', { name: 'Harga' }).className).toContain('text-brand');
         expect(screen.getByRole('link', { name: 'Coba gratis' }).getAttribute('href')).toBe(
-            'https://dashboard.payou.id/daftar',
+            'https://dashboard.payoung.id/daftar',
         );
         expect(screen.getByRole('link', { name: 'Diskon 17 Agustus' })).toBeTruthy();
         expect(screen.getByRole('link', { name: 'Chat WhatsApp' }).getAttribute('target')).toBe('_blank');
         expect(screen.getByRole('link', { name: 'Instagram' }).getAttribute('rel')).toBe('noopener noreferrer');
-        expect(screen.getByText(/© 2026 PAYOU/)).toBeTruthy();
+        expect(screen.getByText(/© 2026 Payoung/)).toBeTruthy();
     });
 
     it('banner cookie & tombol WhatsApp satu tumpukan, jadi banner tidak menutupi tombolnya (D-28)', () => {
@@ -354,7 +354,7 @@ describe('Situs pemasaran D-21: tata letak & blok', () => {
         expect(judul.className).toContain('sm:text-sorotan-besar');
         expect(judul.className).toContain('text-permukaan');
 
-        // Kuning hanya sah dengan teks Navy (8,98:1); teks putih di atasnya 1,67:1 dan dilarang.
+        // Kuning hanya sah dengan teks Navy (6,4:1); teks putih di atasnya 2,1:1 dan dilarang.
         const label = screen.getByText('Aplikasi kasir');
         expect(label.className).toContain('bg-aksen');
         expect(label.className).toContain('text-teks-utama');
@@ -387,7 +387,7 @@ describe('Situs pemasaran D-21: tata letak & blok', () => {
 
         // Pembaca layar menerima satu kalimat, bukan deretan angka struk.
         const spesimen = screen.getByRole('img');
-        expect(spesimen.getAttribute('aria-label')).toContain('Contoh struk PAYOU');
+        expect(spesimen.getAttribute('aria-label')).toContain('Contoh struk Payoung');
         // Struk memakai font Mono dan angka tabular seperti struk sungguhan (token §17.5).
         expect(spesimen.className).toContain('font-mono');
         expect(spesimen.className).toContain('tabular-nums');

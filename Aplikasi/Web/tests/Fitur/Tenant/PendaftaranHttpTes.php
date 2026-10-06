@@ -186,7 +186,7 @@ describe('Verifikasi email (BR-00.5)', function (): void {
             ->assertSessionHasErrors('Umum');
     });
 
-    it('tautan tetap sah walau dibuka di host lain (D-20: payou.id dialihkan ke domain tenant)', function (): void {
+    it('tautan tetap sah walau dibuka di host lain (D-20: payoung.id dialihkan ke domain tenant)', function (): void {
         // Regresi: tanda tangan absolut ikut menghitung skema & host, sehingga tautan yang ditandatangani di satu
         // domain menjadi "Invalid signature" begitu ArahkanDomainAplikasi mengalihkannya ke domain tenant.
         $pengguna = app(DaftarkanTenant::class)->Jalankan(BantuanPendaftaran::Data())['Pengguna'];

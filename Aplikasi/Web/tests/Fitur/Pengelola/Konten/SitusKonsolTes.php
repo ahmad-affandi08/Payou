@@ -61,7 +61,7 @@ describe('D-21 izin konsol situs', function (): void {
             ->has('Halaman', count(KontenSitusBawaan::AmbilHalaman())));
         $this->get(BantuanPengelola::Url('/situs/pengaturan'))->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
             ->component('Pengelola/Situs/Pengaturan')
-            ->where('Pengaturan.NamaSitus', 'PAYOU'));
+            ->where('Pengaturan.NamaSitus', 'Payoung'));
         $this->get(BantuanPengelola::Url('/situs/gambar'))->assertOk();
     });
 
@@ -156,17 +156,17 @@ describe('D-21 halaman berblok', function (): void {
 describe('D-21 pengaturan situs', function (): void {
     it('menyimpan pengaturan (langsung berlaku) dan menolak tautan & URL berbahaya', function (): void {
         MasukSebagaiKontenSitus($this);
-        $isian = [...PengaturanSitusBerlaku::AmbilBawaan(), 'NamaSitus' => 'PAYOU Indonesia'];
+        $isian = [...PengaturanSitusBerlaku::AmbilBawaan(), 'NamaSitus' => 'Payoung Indonesia'];
         $isian['Kontak']['WhatsApp'] = '081234567890';
 
         $this->put(BantuanPengelola::Url('/situs/pengaturan'), $isian)->assertSessionHasNoErrors();
-        expect(PengaturanSitus::query()->sole()->Nilai['NamaSitus'])->toBe('PAYOU Indonesia');
-        $this->get(UrlSitusPublik('/'))->assertInertia(fn (AssertableInertia $h) => $h->where('Situs.NamaSitus', 'PAYOU Indonesia'));
+        expect(PengaturanSitus::query()->sole()->Nilai['NamaSitus'])->toBe('Payoung Indonesia');
+        $this->get(UrlSitusPublik('/'))->assertInertia(fn (AssertableInertia $h) => $h->where('Situs.NamaSitus', 'Payoung Indonesia'));
         expect(LogAuditPengelola::query()->where('Aksi', 'situs.pengaturan.ubah')->exists())->toBeTrue();
 
         $buruk = $isian;
         $buruk['Menu'] = [['Label' => 'X', 'Tautan' => 'javascript:alert(1)'], ['Label' => 'Y', 'Tautan' => '//evil.test']];
-        $buruk['MediaSosial']['Instagram'] = 'http://instagram.com/payou';
+        $buruk['MediaSosial']['Instagram'] = 'http://instagram.com/payoung';
         $buruk['VerifikasiGoogle'] = '"><script>';
         $this->put(BantuanPengelola::Url('/situs/pengaturan'), $buruk)
             ->assertSessionHasErrors(['Menu.0.Tautan', 'Menu.1.Tautan', 'MediaSosial.Instagram', 'VerifikasiGoogle']);

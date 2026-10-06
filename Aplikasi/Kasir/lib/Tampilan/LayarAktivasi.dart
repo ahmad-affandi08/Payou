@@ -145,7 +145,7 @@ class _LayarAktivasiState extends ConsumerState<LayarAktivasi> {
               decoration: InputDecoration(
                 labelText: 'Alamat server toko',
                 hintText: 'https://kasir.tokoanda.com',
-                helperText: 'Untuk toko yang memasang PAYOU di server sendiri.',
+                helperText: 'Untuk toko yang memasang Payoung di server sendiri.',
                 errorText: _galatAlamat,
               ),
               onSubmitted: (_) => _Aktifkan(),

@@ -13,7 +13,7 @@ class AplikasiPemilik extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PAYOU Owner',
+      title: 'Payoung Owner',
       debugShowCheckedModeBanner: false,
       // Hanya tema terang, tanpa darkTheme (D-14).
       theme: BuatTema(),

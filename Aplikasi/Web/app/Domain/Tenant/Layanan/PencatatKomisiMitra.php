@@ -16,7 +16,7 @@ use Brick\Math\BigDecimal;
 /**
  * P-12 langkah 4 (BR-P12.1): komisi mitra dihitung otomatis saat tagihan langganan **lunas**, di transaksi pelunasan
  * yang sama (`PelunasTagihanLangganan`). Dasar komisi = Subtotal − Diskon (tanpa PPN, karena PPN bukan pendapatan
- * PAYOU); jumlah = dasar × `PersenKomisi` %, dibulatkan setengah ke atas per rupiah sen. Mitra non-berulang (referral)
+ * Payoung); jumlah = dasar × `PersenKomisi` %, dibulatkan setengah ke atas per rupiah sen. Mitra non-berulang (referral)
  * hanya berkomisi dari tagihan lunas pertama tenant itu. Tidak berkomisi bila tenant tidak dirujuk, mitra
  * ditangguhkan, persen 0, atribusi sudah berakhir, atau dasarnya nol. Idempoten per tagihan.
  */

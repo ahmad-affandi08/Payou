@@ -1,6 +1,6 @@
-# Memasang PAYOU Mandiri (Edisi Lisensi) di Server Pembeli
+# Memasang Payoung Mandiri (Edisi Lisensi) di Server Pembeli
 
-Panduan untuk pembeli lisensi **PAYOU Mandiri** (D-35, D-36, PRD §13.10): dashboard toko dipasang di **server dan domain milik
+Panduan untuk pembeli lisensi **Payoung Mandiri** (D-35, D-36, PRD §13.10): dashboard toko dipasang di **server dan domain milik
 pembeli sendiri**. Satu lisensi = satu usaha, semua fitur, berlaku selamanya. Tidak ada konsol pengelola, situs
 pemasaran, pendaftaran publik, maupun tagihan langganan.
 
@@ -14,15 +14,15 @@ domain**. Bagian di bawah hanya menuliskan yang berbeda.
 | Server | PHP 8.3+ dengan ekstensi `gd`, `sodium`, `pdo_mysql`, `mbstring`, `intl`, `zip`; Composer; cron tiap menit |
 | Basis data | MySQL 8 (disarankan) atau MariaDB 11.8 |
 | Domain | Satu domain/subdomain dengan SSL, misal `kasir.tokoanda.com`, **sama persis** dengan yang tertulis di berkas lisensi |
-| Dari PAYOU | Berkas lisensi `*.lisensi` (nomor, nama pemegang, domain, batas outlet/perangkat/pengguna) dan paket rilis `payou-mandiri-….tar.gz` (+ `.sha256`) |
+| Dari Payoung | Berkas lisensi `*.lisensi` (nomor, nama pemegang, domain, batas outlet/perangkat/pengguna) dan paket rilis `payoung-mandiri-….tar.gz` (+ `.sha256`) |
 
-Paket PAYOU Mandiri sudah terkunci di edisi Lisensi: isian `EDISI` di `.env` tidak dibaca. Lisensi berlaku selamanya;
+Paket Payoung Mandiri sudah terkunci di edisi Lisensi: isian `EDISI` di `.env` tidak dibaca. Lisensi berlaku selamanya;
 pembaruan rilis, berkas tarif pajak & hari libur, dan dukungan gratis 1 tahun sejak lisensi terbit, sesudahnya lewat
 pemeliharaan tahunan (opsional). Tanpa pemeliharaan, toko tetap berjalan dengan rilis terakhir yang dimiliki.
 
 ## 1. Pasang kode & `.env`
 
-Periksa checksum (`sha256sum -c payou-mandiri-….tar.gz.sha256`), ekstrak paket di luar `public_html`, lalu ikuti
+Periksa checksum (`sha256sum -c payoung-mandiri-….tar.gz.sha256`), ekstrak paket di luar `public_html`, lalu ikuti
 `PasangDiHosting.md` langkah 0–3 (buat database, `.env`; `vendor/` sudah ada di paket). Bedanya di `.env`:
 
 ```
@@ -84,7 +84,7 @@ trial, dan Platform Pengelola tidak berjalan; tutup harian, draf PO, penyusutan,
 
 ## 6. Aplikasi Kasir & Pemilik
 
-Pakai aplikasi PAYOU yang sama (Play Store / berkas instalasi dari PAYOU), lalu arahkan ke server toko:
+Pakai aplikasi Payoung yang sama (Play Store / berkas instalasi dari Payoung), lalu arahkan ke server toko:
 
 - **Kasir:** di back-office menu Perangkat, buat kode aktivasi. QR-nya sudah membawa alamat server
   (`https://kasir.tokoanda.com/aktivasi-perangkat?kode=…`), jadi cukup dipindai. Tanpa kamera (Windows): ketuk
@@ -109,11 +109,11 @@ php artisan up
 
 ## 7a. Tarif pajak & hari libur baru
 
-Saat tarif pajak berubah atau pemerintah menetapkan/membatalkan hari libur, PAYOU membagikan berkas data master
-(`payou-data-master-AAAA-BB-HH.json`). Jalankan:
+Saat tarif pajak berubah atau pemerintah menetapkan/membatalkan hari libur, Payoung membagikan berkas data master
+(`payoung-data-master-AAAA-BB-HH.json`). Jalankan:
 
 ```
-php artisan lisensi:impor-data-master /path/ke/payou-data-master.json
+php artisan lisensi:impor-data-master /path/ke/payoung-data-master.json
 ```
 
 Aman dijalankan berulang: data yang sudah ada dilewati. Tarif lama tidak diubah, hanya ditutup tanggal berlakunya saat
@@ -121,12 +121,12 @@ tarif penggantinya terbit.
 
 ## 8. Menambah outlet/perangkat atau pindah domain
 
-Minta berkas lisensi baru ke PAYOU, lalu jalankan `php artisan lisensi:pasang /path/ke/berkas-baru.lisensi`. Data
+Minta berkas lisensi baru ke Payoung, lalu jalankan `php artisan lisensi:pasang /path/ke/berkas-baru.lisensi`. Data
 usaha tidak disentuh; hanya batas/domain yang berubah. Untuk pindah domain, ganti juga `APP_URL`.
 
 **Masa pembaruan.** `php artisan lisensi:info` menampilkan "Pembaruan & dukungan sampai". Berkas tarif pajak & hari
 libur yang dibuat setelah tanggal itu ditolak, dan `lisensi:info`/`lisensi:siapkan-data` memperingatkan bila rilis
-yang terpasang terbit setelahnya. Aplikasi tetap berjalan. Setelah memperpanjang pemeliharaan, PAYOU mengirim berkas
+yang terpasang terbit setelahnya. Aplikasi tetap berjalan. Setelah memperpanjang pemeliharaan, Payoung mengirim berkas
 lisensi baru bernomor sama; pasang dengan `lisensi:pasang` seperti di atas.
 
 ## Catatan keamanan
@@ -137,23 +137,23 @@ lisensi baru bernomor sama; pasang dengan `lisensi:pasang` seperti di atas.
 - Pembeli adalah penyelenggara sistem elektronik untuk tokonya sendiri: kebijakan privasi, persetujuan pelanggan
   (UU PDP), dan kewajiban pajak (e-Faktur/Coretax) menjadi tanggung jawab pembeli.
 
-## Untuk PAYOU: paket rilis & menerbitkan lisensi
+## Untuk Payoung: paket rilis & menerbitkan lisensi
 
-Paket pembeli diambil dari artefak CI `payou-mandiri-{sha}` (job `rilis` di `main`, disimpan 90 hari), **bukan**
-artefak `payou-web-{sha}` yang tidak terkunci.
+Paket pembeli diambil dari artefak CI `payoung-mandiri-{sha}` (job `rilis` di `main`, disimpan 90 hari), **bukan**
+artefak `payoung-web-{sha}` yang tidak terkunci.
 
 
-Sekali saja, di komputer pemilik produk (bukan server): `php artisan lisensi:buat-kunci ~/payou-lisensi.kunci`,
+Sekali saja, di komputer pemilik produk (bukan server): `php artisan lisensi:buat-kunci ~/payoung-lisensi.kunci`,
 tempel kunci publik yang dicetak ke `Aplikasi/Web/config/lisensi.php`, commit, dan cadangkan berkas kunci privat.
 Per pembeli:
 
 ```
-php artisan lisensi:terbitkan --nomor=PAYOU-L-2026-0001 --pemegang="PT Toko Anda" --domain=kasir.tokoanda.com \
-  --batas-outlet=3 --batas-perangkat=5 --kunci-privat=~/payou-lisensi.kunci --keluaran=tokoanda.lisensi
+php artisan lisensi:terbitkan --nomor=PAYOUNG-L-2026-0001 --pemegang="PT Toko Anda" --domain=kasir.tokoanda.com \
+  --batas-outlet=3 --batas-perangkat=5 --kunci-privat=~/payoung-lisensi.kunci --keluaran=tokoanda.lisensi
 ```
 
 Masa pembaruan & dukungan otomatis 1 tahun sejak terbit (D-36). Perpanjangan pemeliharaan: terbitkan ulang dengan
 nomor sama dan `--pembaruan-sampai=YYYY-MM-DD`, simpan dengan nama berkas baru.
 
-Berkas data master untuk pembeli (dijalankan di server SaaS PAYOU, berisi tarif & hari libur yang sudah terbit di
-konsol): `php artisan lisensi:ekspor-data-master storage/app/payou-data-master.json`.
+Berkas data master untuk pembeli (dijalankan di server SaaS Payoung, berisi tarif & hari libur yang sudah terbit di
+konsol): `php artisan lisensi:ekspor-data-master storage/app/payoung-data-master.json`.

@@ -53,7 +53,7 @@ class _BagianLayarPelangganState extends ConsumerState<BagianLayarPelanggan> {
     final layar = ref.read(penyediaLayarPelanggan);
     final galat = await ref
         .read(penyediaLayarPelanggan.notifier)
-        .Tampilkan(PenyusunLayarPelanggan.Siaga(layar.namaToko.isEmpty ? 'PAYOU' : layar.namaToko));
+        .Tampilkan(PenyusunLayarPelanggan.Siaga(layar.namaToko.isEmpty ? 'Payoung' : layar.namaToko));
     if (mounted) {
       setState(() {
         _pesan = galat ?? 'Contoh dikirim. Pastikan layar pelanggan menampilkan "Selamat datang".';

@@ -15,14 +15,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 /**
- * Gerbang pembayaran untuk **tagihan langganan PAYOU sendiri** (P-08 langkah 3, BR-P08.11): akun Midtrans milik
+ * Gerbang pembayaran untuk **tagihan langganan Payoung sendiri** (P-08 langkah 3, BR-P08.11): akun Midtrans milik
  * platform, dikonfigurasi di konsol pengelola sebagai integrasi `GerbangBilling` (P-05).
  *
  * Sengaja terpisah dari `Domain\Integrasi\GerbangPembayaran` (QRIS milik toko, D-19): di sana akun dan kredensialnya
- * milik tenant dan dipakai menagih pembeli, di sini akunnya milik PAYOU dan dipakai menagih tenant. Keduanya bisa
+ * milik tenant dan dipakai menagih pembeli, di sini akunnya milik Payoung dan dipakai menagih tenant. Keduanya bisa
  * aktif bersamaan dengan penyedia yang sama tanpa saling memakai kredensial.
  *
- * Alurnya Snap: PAYOU membuat transaksi lalu tenant membayar di popup Snap.js. Pelunasan tagihan **tidak** pernah
+ * Alurnya Snap: Payoung membuat transaksi lalu tenant membayar di popup Snap.js. Pelunasan tagihan **tidak** pernah
  * dari respons popup (bisa dipalsukan peramban), hanya dari notifikasi webhook bertanda tangan.
  */
 final class GerbangBillingPlatform
@@ -131,7 +131,7 @@ final class GerbangBillingPlatform
 
     /**
      * Notifikasi HTTP Midtrans: `signature_key = SHA512(order_id + status_code + gross_amount + ServerKey)`.
-     * Tanda tangan tidak sah, nomor pesanan bukan milik PAYOU, atau gerbang belum aktif = null.
+     * Tanda tangan tidak sah, nomor pesanan bukan milik Payoung, atau gerbang belum aktif = null.
      */
     public function UraiNotifikasi(Request $permintaan): ?NotifikasiBilling
     {

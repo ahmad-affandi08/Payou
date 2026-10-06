@@ -200,7 +200,7 @@ Aplikasi POS **bukan kumpulan layar**, melainkan **ruang kerja** tempat kasir be
 
 | Bagian | Isi | Catatan |
 |---|---|---|
-| **Bilah atas** | **Logo PAYOU di tengah**; outlet · perangkat di kiri; nama kasir, jam, tombol **Kunci** di kanan. Latar `BrandGelap`, isi putih (D-29) | Ketuk nama kasir → ganti kasir (PIN) tanpa menutup shift. Di HP (< 600dp) diringkas: ikon merek, kasir & kunci sebagai tombol ikon, tanpa jam |
+| **Bilah atas** | **Logo Payoung di tengah**; outlet · perangkat di kiri; nama kasir, jam, tombol **Kunci** di kanan. Latar `BrandGelap`, isi putih (D-29) | Ketuk nama kasir → ganti kasir (PIN) tanpa menutup shift. Di HP (< 600dp) diringkas: ikon merek, kasir & kunci sebagai tombol ikon, tanpa jam |
 | **Rel navigasi** (kiri; di HP menjadi bilah bawah) | Jual (beranda) · Order tersimpan · Meja* · Riwayat transaksi · Kas · Pelanggan* · Shift · Pengaturan | Ikon + label, maksimal 8 item, item hanya muncul bila modul/izin aktif (*). Bisa diciutkan menjadi ikon saja. Latar `BrandGelap` sama dengan bilah atas, ikon & label putih, penanda aktif putih 18% (D-29) |
 | **Area kerja** | Layar aktif (Jual: katalog + keranjang, §17.2.3) | Tugas rutin (kas masuk/keluar, cari pelanggan, catatan item, diskon) dibuka sebagai **panel samping atau lembar** di atas area kerja, bukan pindah halaman, sehingga keranjang tidak hilang. **Kecuali langkah bayar (D-31):** Bayar, Transaksi selesai, dan Pre-order adalah halaman sendiri yang memakai seluruh area kerja |
 | **Bilah status** (bawah) | Koneksi, transaksi tertunda sinkron, printer, shift (jam buka) | Selalu terlihat; ketuk untuk detail (§17.6.6) |
@@ -696,7 +696,7 @@ Format `ukuran/tinggi baris` dalam px (web) atau logical pixel (Flutter). KDS me
 
 **Aturan pemakaian:**
 - Semua angka uang dan jumlah memakai **angka tabular** dan rata kanan di tabel.
-- Hierarki dari ukuran dan ketebalan, bukan warna. Maksimal 6 token di atas, tidak membuat ukuran baru di luar token. **Pengecualian D-25:** situs pemasaran `payou.id` menambah `SorotanBesar` 64/70 dan `SorotanBesarHp` 40/46 khusus judul hero, tidak dipakai klien lain.
+- Hierarki dari ukuran dan ketebalan, bukan warna. Maksimal 6 token di atas, tidak membuat ukuran baru di luar token. **Pengecualian D-25:** situs pemasaran `payoung.id` menambah `SorotanBesar` 64/70 dan `SorotanBesarHp` 40/46 khusus judul hero, tidak dipakai klien lain.
 - *Sentence case* ("Tambah produk", bukan "Tambah Produk" atau "TAMBAH PRODUK"). Huruf kapital penuh hanya untuk label status pendek bila perlu.
 - Tidak memakai letter-spacing negatif pada judul, dan tidak memakai teks bergradien.
 - **Anti-referensi** (tidak dipakai di UI {{APP}}): Inter, Geist, Plus Jakarta Sans, DM Sans, Manrope, Outfit, Poppins, Space Grotesk.
@@ -739,34 +739,34 @@ Token font menjadi bagian dari `Spesifikasi/TokenDesain/Token.json` sehingga web
 
 #### 17.6.3 Warna
 
-**Aturan 90/10:** sekitar 90% permukaan memakai warna netral. Warna brand hanya untuk **aksi utama** (Bayar, Simpan, Setujui) dan **penanda posisi aktif** (menu terpilih, tab aktif). Warna semantik hanya untuk **status**. **Pengecualian D-25:** di situs pemasaran `payou.id` blok boleh berlatar penuh `BrandGelap`, `TeksUtama`, atau `Aksen`; warna semantik di situs pemasaran pun tetap hanya untuk status.
+**Aturan 90/10:** sekitar 90% permukaan memakai warna netral. Warna brand hanya untuk **aksi utama** (Bayar, Simpan, Setujui) dan **penanda posisi aktif** (menu terpilih, tab aktif). Warna semantik hanya untuk **status**. **Pengecualian D-25:** di situs pemasaran `payoung.id` blok boleh berlatar penuh `BrandGelap`, `TeksUtama`, atau `Aksen`; warna semantik di situs pemasaran pun tetap hanya untuk status.
 
-**Palet merek PAYOU (D-15, sumber `Spesifikasi/Merek/`):** Primary Indigo `#6366F1`, Indigo Gelap `#1D29B8` (diambil dari kelompok warna gelap gradasi logo P), Navy `#0F2747`, Accent Yellow `#FBBF24`, Warm Neutral `#F9FAFB`, Cool Gray `#E5E7EB`. Warna merek dipakai utuh di logo dan ikon aplikasi. Di UI, warna dipetakan ke token berikut; Indigo digelapkan sedikit menjadi `#5558E8` karena teks putih di atas `#6366F1` hanya 4,47:1 (di bawah WCAG AA). Kuning aksen menjadi token `Aksen` **sejak D-25**, tetapi hanya boleh dipakai di situs pemasaran `payou.id` dan tidak pernah menandai status, agar tidak tertukar dengan `Peringatan` (sebelum D-25 kuning tidak menjadi token UI sama sekali).
+**Palet merek Payoung (D-61, sumber `Spesifikasi/Merek/`; menggantikan palet indigo/kuning D-15):** **Muted Teal & Apricot**: Utama Slate Teal `#3B5B5D`, Aksen Apricot `#F4A261`, Pendukung Sage `#E8ECE9`, Dasar Cream `#F7F9F6`. Warna merek dipakai utuh di logo (payung) dan ikon aplikasi. Di UI, warna dipetakan ke token berikut; teal tinta `#1F3335` dan teal gelap `#22383A` adalah turunan teal yang dibutuhkan untuk teks dan sidebar. Apricot menjadi token `Aksen` (sejak D-25 untuk kuning; sejak D-61 sebagai warna aksen merek di seluruh aplikasi, tetap **bukan** penanda status).
 
-**Token warna (final, diperbarui v1.71):**
+**Token warna (final, diperbarui D-61):**
 
 | Token | Nilai | Fungsi |
 |---|---|---|
-| `Latar` | `#F9FAFB` (Warm Neutral) | Latar halaman |
+| `Latar` | `#F7F9F6` (Dasar Cream) | Latar halaman |
 | `Permukaan` | `#FFFFFF` | Panel, tabel, dialog |
-| `Garis` | `#E5E7EB` (Cool Gray) | Pemisah dekoratif |
-| `GarisInput` | `#7D8799` | Tepi input & kontrol (kontras 3,5:1 terhadap `Latar`) |
-| `TeksUtama` | `#0F2747` (Navy) | Teks utama (14,3:1) |
-| `TeksSekunder` | `#4A5873` | Keterangan, label sekunder (6,9:1) |
-| `Brand` | `#5558E8` (Indigo) | Aksi utama, penanda aktif (teks putih 5,3:1) |
-| `BrandGelap` | `#1D29B8` (Indigo Gelap) | Latar seluruh sidebar Web (menu aktif `Brand`, teks putih) dan header merek; permukaan brand kuat (teks putih 10,2:1) |
+| `Garis` | `#E8ECE9` (Pendukung Sage) | Pemisah dekoratif |
+| `GarisInput` | `#7A8F90` | Tepi input & kontrol (kontras 3,2:1 terhadap `Latar`, 3,4:1 terhadap `Permukaan`) |
+| `TeksUtama` | `#1F3335` (Teal Tinta) | Teks utama (12,5:1) |
+| `TeksSekunder` | `#4F6567` | Keterangan, label sekunder (5,9:1 terhadap `Latar`, 6,2:1 terhadap `Permukaan`) |
+| `Brand` | `#3B5B5D` (Utama Slate Teal) | Aksi utama, penanda aktif (teks putih 7,4:1) |
+| `BrandGelap` | `#22383A` (Slate Teal gelap) | Latar seluruh sidebar Web (menu aktif `Brand`, teks putih) dan header merek; permukaan brand kuat (teks putih 12:1) |
 | `Sukses` | `#2E7D32` | Lunas, berhasil, tersinkron |
 | `Peringatan` | `#9A5B00` | Menunggu, tertunda, stok menipis |
 | `Bahaya` | `#B3261E` | Void, gagal, selisih kas, offline lama |
 | `Info` | `#1F5FAD` | Informasi netral, tautan |
-| `Aksen` | `#FBBF24` (Accent Yellow) | **Hanya situs pemasaran `payou.id`** (D-25): aksen grafis (garis bawah judul, lencana paket tersorot, blok kutipan). Bukan penanda status. Wajib berteks `TeksUtama` (8,98:1); teks putih di atasnya hanya 1,67:1 |
+| `Aksen` | `#F4A261` (Aksen Apricot) | Aksen merek: bintang logo, cincin tanda muat, sorotan situs pemasaran `payoung.id`, halaman absensi HP, toko online. Bukan penanda status. Wajib berteks `TeksUtama` (6,4:1); teks putih di atasnya hanya 2,1:1 |
 
 Semua pasangan teks di atas `Permukaan`/`Latar` memenuhi **WCAG AA** (≥ 4,5:1, dihitung saat penyusunan). Teks putih di atas `Brand` dan `Bahaya` juga ≥ 4,5:1. Setiap warna semantik punya varian latar lembut (misal `SuksesLatar`) untuk lencana dan baris tabel.
 
 **Aturan warna:**
 - **Status tidak pernah hanya warna.** Selalu disertai teks atau ikon ("Lunas", "Tertunda 3"), agar tetap jelas bagi pengguna buta warna dan di layar murah.
 - Makna warna **sama di semua klien**: hijau selalu lunas/berhasil, merah selalu void/gagal, dan seterusnya.
-- **`Aksen` tidak punya makna status** dan terbatas pada situs pemasaran `payou.id` (D-25). Dilarang di back-office, Platform Pengelola, aplikasi kasir, KDS, dan Aplikasi Pemilik; dijaga test. Karena kontrasnya rendah, `Aksen` adalah warna **latar dan grafis**, bukan warna teks: teks di atasnya wajib `TeksUtama` (8,98:1) dan **tidak boleh putih** (1,67:1); sebagai teks, `Aksen` hanya sah di atas `BrandGelap` (6,10:1) dan tidak pernah di atas `Permukaan`/`Latar` (1,67:1).
+- **`Aksen` tidak punya makna status.** Pemakaian utilitas `*-aksen` di antarmuka dibatasi daftar jalur di `tests/Arsitektur/DesainSitusPemasaranTes.php` (situs pemasaran, tanda muat, absensi HP, toko online; D-61). Karena kontrasnya rendah, `Aksen` adalah warna **latar dan grafis**, bukan warna teks: teks di atasnya wajib `TeksUtama` (6,4:1) dan **tidak boleh putih** (2,1:1); sebagai teks, `Aksen` hanya sah di atas `BrandGelap` (5,1:1) dan tidak pernah di atas `Permukaan`/`Latar` (2,1:1).
 - Tanpa gradien, efek kaca, atau warna dekoratif, kecuali gradasi merek terbatas `BrandGelap` → `Brand` pada kepala sidebar (D-15).
 - **Tanpa mode gelap di semua klien, termasuk KDS** (D-14). KDS memakai tema terang berkontras tinggi dengan huruf besar.
 - **Satu sumber warna:** web di `Aplikasi/Web/resources/js/Gaya/Aplikasi.css` (bagian "UBAH WARNA DI SINI"; variabel shadcn/ui hanya merujuk token), Flutter di `Paket/SistemDesain/lib/Token/TokenWarna.dart`. Halaman & komponen hanya memakai token; literal warna di luar dua file itu ditolak test penjaga.
@@ -780,8 +780,8 @@ Semua pasangan teks di atas `Permukaan`/`Latar` memenuhi **WCAG AA** (≥ 4,5:1,
 | Pemisah | Garis 1px (`Garis`). Bayangan hanya untuk elemen melayang (popover, dialog, menu) |
 | Spasi | Kelipatan 4 (4, 8, 12, 16, 24, 32) |
 | Ikon | Satu set: **Lucide** (web & Flutter), garis 1,5–2px, ukuran 16/20/24. Ikon hanya bila membantu mengenali. Tanpa emoji di UI |
-| Ilustrasi | Tidak memakai ilustrasi 3D/blob sebagai gaya UI. Foto produk nyata di katalog. Tampilan kosong: teks + tombol aksi; daftar utama back-office yang belum berisi data memakai **ilustrasi keadaan kosong PAYOU** (D-18: datar 2D, palet merek, 160–192 px, dekoratif `alt=""`) lewat `KeadaanKosong`/`TabelData` `kosong.ilustrasi`, satu per halaman. Di tablet/desktop kepala kolom tabel tetap tampil dan keadaan kosong menjadi satu baris selebar tabel tanpa bingkai sendiri. Hasil cari/saring kosong dan tabel di halaman detail tanpa ilustrasi |
-| Animasi | Singkat (100–200 ms) dan fungsional (umpan balik tekan, masuk/keluar panel). Hormati pengaturan "kurangi gerakan". **Pengecualian D-25** di situs pemasaran `payou.id`: animasi masuk saat gulir 200–400 ms (pudar + geser ≤ 16px) dan transisi angka harga. Isi wajib dirender penuh di HTML (animasi hanya lapisan CSS, halaman tetap lengkap tanpa JavaScript), `prefers-reduced-motion: reduce` mematikan seluruhnya, dan dilarang parallax, gerakan berulang tanpa henti, atau elemen yang bergerak saat sedang dibaca |
+| Ilustrasi | Tidak memakai ilustrasi 3D/blob sebagai gaya UI. Foto produk nyata di katalog. Tampilan kosong: teks + tombol aksi; daftar utama back-office yang belum berisi data memakai **ilustrasi keadaan kosong Payoung** (D-18: datar 2D, palet merek, 160–192 px, dekoratif `alt=""`) lewat `KeadaanKosong`/`TabelData` `kosong.ilustrasi`, satu per halaman. Di tablet/desktop kepala kolom tabel tetap tampil dan keadaan kosong menjadi satu baris selebar tabel tanpa bingkai sendiri. Hasil cari/saring kosong dan tabel di halaman detail tanpa ilustrasi |
+| Animasi | Singkat (100–200 ms) dan fungsional (umpan balik tekan, masuk/keluar panel). Hormati pengaturan "kurangi gerakan". **Pengecualian D-25** di situs pemasaran `payoung.id`: animasi masuk saat gulir 200–400 ms (pudar + geser ≤ 16px) dan transisi angka harga. Isi wajib dirender penuh di HTML (animasi hanya lapisan CSS, halaman tetap lengkap tanpa JavaScript), `prefers-reduced-motion: reduce` mematikan seluruhnya, dan dilarang parallax, gerakan berulang tanpa henti, atau elemen yang bergerak saat sedang dibaca |
 
 **Dua mode kepadatan** (terhubung dengan skala tipografi §17.5):
 

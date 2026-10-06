@@ -105,7 +105,7 @@ describe('Penulis Excel laporan (D-43)', function (): void {
         expect($sheet)->toContain('<v>40000.60</v>')->and($sheet)->toContain('<v>4.5</v>')->and($sheet)->toContain('Jumlah');
     });
 
-    it('menyisipkan logo usaha dan logo PAYOU sebagai gambar bila tersedia', function (): void {
+    it('menyisipkan logo usaha dan logo Payoung sebagai gambar bila tersedia', function (): void {
         $gambar = imagecreatetruecolor(200, 100);
         ob_start();
         imagepng($gambar);
@@ -159,7 +159,7 @@ describe('Penulis Excel laporan (D-43)', function (): void {
     });
 
     it('menolak lembar terlalu besar dan membersihkan folder sementara', function (): void {
-        $sebelum = glob(sys_get_temp_dir().'/payou-laporan-*') ?: [];
+        $sebelum = glob(sys_get_temp_dir().'/payoung-laporan-*') ?: [];
         $definisi = BuatDefinisiUji(function (): iterable {
             for ($i = 0; $i < 1_100_000; $i++) {
                 yield ['x', null, 'y', '1', '1.00'];
@@ -167,7 +167,7 @@ describe('Penulis Excel laporan (D-43)', function (): void {
         });
 
         expect(fn () => PenulisXlsxLaporan::Tulis($definisi))->toThrow(RuntimeException::class);
-        expect(glob(sys_get_temp_dir().'/payou-laporan-*') ?: [])->toBe($sebelum);
+        expect(glob(sys_get_temp_dir().'/payoung-laporan-*') ?: [])->toBe($sebelum);
     })->group('lambat');
 
     it('mengalirkan berkas dengan header unduhan yang benar dan menghapus berkas sementara', function (): void {
@@ -182,7 +182,7 @@ describe('Penulis Excel laporan (D-43)', function (): void {
         $respons->sendContent();
         $isi = (string) ob_get_clean();
         expect(substr($isi, 0, 2))->toBe('PK');
-        expect(glob(sys_get_temp_dir().'/payou-laporan-*') ?: [])->toBe([]);
+        expect(glob(sys_get_temp_dir().'/payoung-laporan-*') ?: [])->toBe([]);
     });
 });
 

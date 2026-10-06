@@ -63,7 +63,7 @@ function BuatTokenUji(mixed $tes, array $k, array $cakupan): string
         ->assertSessionHasNoErrors();
     $token = session('TokenApiBaru')['Token'] ?? null;
     BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
-    expect($token)->toBeString()->toMatch('/^payou_\d+_[A-Za-z0-9]{40}$/');
+    expect($token)->toBeString()->toMatch('/^payoung_\d+_[A-Za-z0-9]{40}$/');
 
     return (string) $token;
 }
@@ -78,7 +78,7 @@ it('paket tanpa api.publik tidak bisa membuat token; Owner dengan fitur membuat 
     $token = BuatTokenUji($this, $k, ['produk:baca']);
     $baris = TokenApiTenant::query()->sole();
     expect($baris->HashToken)->not->toContain($token)
-        ->and($baris->Prefiks)->toStartWith("payou_{$k['Tenant']->Id}_")
+        ->and($baris->Prefiks)->toStartWith("payoung_{$k['Tenant']->Id}_")
         ->and($baris->Cakupan)->toBe(['produk:baca']);
 
     BantuanOrganisasi::Masuk($this, $k['Pemilik'], $k['Tenant']->Id)->get('/kelola/pengaturan/api')
@@ -115,13 +115,13 @@ it('token membaca produk & stok dengan kursor; tanpa cakupan 403; token tenant l
     expect(collect($stok)->firstWhere('UuidProduk', $beras->Uuid))->toMatchArray(['JumlahTersedia' => '40.0000', 'NamaGudang' => $k['Gudang']->Nama]);
 
     $api('/api/v1/penjualan?dari=2026-10-01&sampai=2026-10-05')->assertForbidden()->assertJsonPath('Galat.Kode', 'CakupanTidakCukup');
-    $this->withToken('payou_1_salah'.str_repeat('x', 30))->getJson('/api/v1/produk')->assertUnauthorized()->assertJsonPath('Galat.Kode', 'TokenApiTidakValid');
+    $this->withToken('payoung_1_salah'.str_repeat('x', 30))->getJson('/api/v1/produk')->assertUnauthorized()->assertJsonPath('Galat.Kode', 'TokenApiTidakValid');
 
     // Token berbentuk sah tetapi rahasia tenant lain: tidak bisa membuka tenant ini.
     $lain = BantuanPenjualan::Siapkan($this, 'Toko Lain Karanganyar');
     AktifkanApiPublik($lain['Tenant']);
     $tokenLain = BuatTokenUji($this, $lain, ['produk:baca']);
-    $palsu = preg_replace('/^payou_\d+_/', "payou_{$k['Tenant']->Id}_", $tokenLain);
+    $palsu = preg_replace('/^payoung_\d+_/', "payoung_{$k['Tenant']->Id}_", $tokenLain);
     $this->withToken((string) $palsu)->getJson('/api/v1/produk')->assertUnauthorized();
     expect(collect($api('/api/v1/produk', $tokenLain)->json('Data'))->pluck('Nama'))->not->toContain('Beras Pandan Wangi Karung 5 kg');
 });
@@ -201,7 +201,7 @@ it('X7 bagian 4 stok:tulis: penyesuaian stok dari sistem lain langsung diposting
     BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
     expect($saldo())->toBe('197.0000')->and(PenyesuaianStok::query()->count())->toBe(1);
     $audit = LogAudit::query()->where('Peristiwa', 'penyesuaian-stok.posting')->sole();
-    expect($audit->IdPengguna)->toBe($k['Pemilik']->Id)->and($audit->AgenPengguna)->toContain('Token API payou_');
+    expect($audit->IdPengguna)->toBe($k['Pemilik']->Id)->and($audit->AgenPengguna)->toContain('Token API payoung_');
 
     // Di atas batas (20 × 52.000): menunggu persetujuan di back-office, stok belum bergerak.
     $besar = $kirim($tulis, $badan(['Alasan' => 'Hilang', 'Baris' => [['UuidProduk' => $semen->Uuid, 'Jumlah' => '-20']]]))->assertCreated()->json('Data');

@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Autentikasi token API publik untuk `/api/v1/*` (X7, PRD §16.1 lapisan Publik): Bearer `payou_{IdTenant}_{rahasia}`
+ * Autentikasi token API publik untuk `/api/v1/*` (X7, PRD §16.1 lapisan Publik): Bearer `payoung_{IdTenant}_{rahasia}`
  * yang belum dicabut/kedaluwarsa menetapkan tenant aktif. Paket tenant wajib masih punya fitur `api.publik` (turun
  * paket = 403 `FiturTidakTersedia`). Parameter perantara = cakupan yang diwajibkan rute (403 `CakupanTidakCukup`).
  */

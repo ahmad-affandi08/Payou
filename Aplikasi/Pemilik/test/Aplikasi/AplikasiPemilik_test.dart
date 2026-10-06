@@ -16,7 +16,7 @@ void main() {
 
   testWidgets('menampilkan penanda lingkungan selain produksi', (tester) async {
     await Pasang(tester, Lingkungan.Staging);
-    expect(find.text('Masuk ke PAYOU Owner'), findsOneWidget);
+    expect(find.text('Masuk ke Payoung Owner'), findsOneWidget);
     expect(find.byType(Banner), findsOneWidget);
   });
 
@@ -35,7 +35,7 @@ void main() {
     expect(aplikasi.highContrastDarkTheme, isNull);
     expect(aplikasi.themeMode, ThemeMode.light);
 
-    final tema = Theme.of(tester.element(find.text('Masuk ke PAYOU Owner')));
+    final tema = Theme.of(tester.element(find.text('Masuk ke Payoung Owner')));
     expect(tema.brightness, Brightness.light);
     expect(tema.extension<TokenWarna>(), TokenWarna.bawaan);
   });

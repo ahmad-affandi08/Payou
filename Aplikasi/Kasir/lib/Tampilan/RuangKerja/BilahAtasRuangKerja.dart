@@ -7,12 +7,12 @@ import '../../Aplikasi/Penyedia.dart';
 import '../../Domain/Sesi/StafLokal.dart';
 import 'JamRuangKerja.dart';
 
-/// Bilah atas ruang kerja (PRD §17.2.7): logo PAYOU di tengah, outlet | perangkat di kiri, lalu identitas kasir,
+/// Bilah atas ruang kerja (PRD §17.2.7): logo Payoung di tengah, outlet | perangkat di kiri, lalu identitas kasir,
 /// jam, dan tombol Kunci di kanan.
 ///
 /// Latarnya memakai warna merek gelap, bukan permukaan putih: bingkai ruang kerja adalah satu-satunya bagian layar
 /// yang tidak berganti sepanjang shift, jadi ia yang memberi aplikasi ini identitas. Yang dipakai `brandGelap`
-/// (#1D29B8), bukan `brand` (#5558E8), karena teks putih di atasnya berkontras ±10:1 dibanding ±4,9:1 — nama outlet
+/// (#22383a), bukan `brand` (#3b5b5d), karena teks putih di atasnya berkontras ±10:1 dibanding ±4,9:1 — nama outlet
 /// dan jam harus terbaca dari jarak berdiri kasir, bukan hanya dari dekat.
 class BilahAtasRuangKerja extends ConsumerWidget {
   const BilahAtasRuangKerja({super.key, required this.kasir, required this.saatGantiKasir, required this.saatKunci});

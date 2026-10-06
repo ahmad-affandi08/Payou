@@ -139,7 +139,7 @@ export default function HalamanGerbangPembayaran({
                         ))}
                     </ol>
                     <p className="mt-2">
-                        Uang pelanggan langsung masuk ke rekening toko Anda, tidak lewat PAYOU. Pilihan bayar
+                        Uang pelanggan langsung masuk ke rekening toko Anda, tidak lewat Payoung. Pilihan bayar
                         &quot;QRIS&quot; di kasir dibuat otomatis saat QRIS diaktifkan. Biaya MDR mengikuti ketentuan
                         Bank Indonesia dan ditagih penyedia ke toko.
                     </p>
@@ -248,7 +248,7 @@ export default function HalamanGerbangPembayaran({
                     <CardContent>
                         {DaftarPenyedia.length === 0 ? (
                             <Pemberitahuan jenis="peringatan">
-                                Belum ada penyedia gerbang pembayaran yang tersedia. Hubungi dukungan PAYOU.
+                                Belum ada penyedia gerbang pembayaran yang tersedia. Hubungi dukungan Payoung.
                             </Pemberitahuan>
                         ) : (
                             <form onSubmit={Simpan} className="grid gap-3 sm:grid-cols-2" noValidate>

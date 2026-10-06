@@ -7,7 +7,7 @@ import 'package:pemilik/Data/PenyimpanSesi.dart';
 import '../test/Pendukung/PasangPemilik.dart';
 import 'DataDemoPemilik.dart';
 
-/// Penghasil foto produk untuk situs pemasaran `payou.id` (bukan test regresi; di luar `test/` agar tidak ikut CI):
+/// Penghasil foto produk untuk situs pemasaran `payoung.id` (bukan test regresi; di luar `test/` agar tidak ikut CI):
 /// Beranda aplikasi Pemilik asli di ukuran HP dengan data contoh dua outlet kafe.
 ///
 /// ```

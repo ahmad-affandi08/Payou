@@ -36,9 +36,9 @@ it('WhatsApp Cloud API: teks biasa dan templat dengan parameter', function (): v
         ->and($pengirim->Kirim(new PesanWhatsapp('0812345', 'Halo'))->idPesan)->toBe('wamid.1');
     Http::assertSent(fn (PermintaanHttp $r) => $r->url() === 'https://graph.facebook.com/v21.0/1099/messages' && $r['type'] === 'text' && $r['to'] === '62812345' && $r->hasHeader('Authorization', 'Bearer EAAG'));
 
-    $pengirim->Kirim(new PesanWhatsapp('0812345', 'Halo', 'struk_digital', ['Kopi Senja', 'Rp 25.000', 'https://payou.id/s/abc']));
+    $pengirim->Kirim(new PesanWhatsapp('0812345', 'Halo', 'struk_digital', ['Kopi Senja', 'Rp 25.000', 'https://payoung.id/s/abc']));
     Http::assertSent(fn (PermintaanHttp $r) => $r['type'] === 'template' && $r['template']['name'] === 'struk_digital'
-        && $r['template']['language'] === ['code' => 'id'] && $r['template']['components'][0]['parameters'][2]['text'] === 'https://payou.id/s/abc');
+        && $r['template']['language'] === ['code' => 'id'] && $r['template']['components'][0]['parameters'][2]['text'] === 'https://payoung.id/s/abc');
 });
 
 it('Fonnte, Wablas, StarSender, Watzap: kirim teks sesuai format tiap penyedia', function (): void {

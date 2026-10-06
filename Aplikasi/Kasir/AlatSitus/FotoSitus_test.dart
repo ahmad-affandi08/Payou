@@ -12,7 +12,7 @@ import '../test/Pendukung/MuatFont.dart';
 import '../test/Pendukung/PasangAplikasi.dart';
 import 'DataDemoKafe.dart';
 
-/// Penghasil foto produk untuk situs pemasaran `payou.id` (bukan test regresi; sengaja di luar `test/` agar tidak
+/// Penghasil foto produk untuk situs pemasaran `payoung.id` (bukan test regresi; sengaja di luar `test/` agar tidak
 /// ikut CI). Layar Jual asli aplikasi Kasir dirender dengan katalog contoh kafe, lalu disimpan sebagai PNG:
 ///
 /// ```
@@ -49,8 +49,7 @@ void main() {
     };
     await PasangAplikasi(tester, u, ukuran: const Size(1280, 800));
     await Tunggu(tester, const Duration(milliseconds: 600));
-    await tester.tap(find.text('Rina Wulandari'));
-    await tester.pump();
+    await PilihKasir(tester, 'Rina Wulandari');
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
     await Tunggu(tester);
     online = false;

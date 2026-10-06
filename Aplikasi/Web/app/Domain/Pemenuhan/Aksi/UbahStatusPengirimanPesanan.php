@@ -26,7 +26,7 @@ final class UbahStatusPengirimanPesanan
     ) {}
 
     /**
-     * `$idPengguna` null = pelaku di luar pengguna PAYOU, yaitu kurir lewat portal kurir (v3.49); siapa kurirnya
+     * `$idPengguna` null = pelaku di luar pengguna Payoung, yaitu kurir lewat portal kurir (v3.49); siapa kurirnya
      * tercatat di `IdKurir` pengiriman dan alasan riwayat status. `PathBukti` = foto bukti serah terima (Diterima).
      *
      * @param  array<string, mixed>  $data

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Bersama\Web;
 
 /**
- * Alamat lintas domain produksi (D-20): pemasaran (`domain.Pemasaran`, misal `payou.id`) dan tenant (`domain.Tenant`,
- * misal `dashboard.payou.id`). Bila salah satu belum diatur (pengembangan & test), jalur dikembalikan relatif.
+ * Alamat lintas domain produksi (D-20): pemasaran (`domain.Pemasaran`, misal `payoung.id`) dan tenant (`domain.Tenant`,
+ * misal `dashboard.payoung.id`). Bila salah satu belum diatur (pengembangan & test), jalur dikembalikan relatif.
  */
 final class AlamatDomain
 {

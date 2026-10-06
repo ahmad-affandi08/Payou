@@ -4,7 +4,7 @@ import { TutupLayarMuat } from '@/Pustaka/LayarMuat';
 import { TandaMuat } from '@/Komponen/Umpan/TandaMuat';
 
 describe('TandaMuat (D-58)', () => {
-    it('berperan status "Memuat" dengan logo P di dalam lingkaran dan ukuran dari prop', () => {
+    it('berperan status "Memuat" dengan logo payung di dalam lingkaran dan ukuran dari prop', () => {
         const { container } = render(<TandaMuat ukuran={48} />);
 
         const tanda = screen.getByRole('status', { name: 'Memuat' });

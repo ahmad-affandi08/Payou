@@ -228,7 +228,7 @@ export type ProfilPratinjauStruk = {
     Npwp: string | null;
     NamaOutlet: string | null;
     TautanLogo: string | null;
-    /** Paket tanpa fitur `struk.tanpa-watermark`: struk diberi baris "Dibuat dengan PAYOU". */
+    /** Paket tanpa fitur `struk.tanpa-watermark`: struk diberi baris "Dibuat dengan Payoung". */
     TandaAir: boolean;
 };
 

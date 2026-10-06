@@ -9,14 +9,14 @@ use App\Domain\Pengelola\DataBawaan\Aksi\ImporDataMasterLisensi;
 use Illuminate\Console\Command;
 
 /**
- * D-35 edisi Lisensi: memasang paket data master dari PAYOU (tarif pajak & hari libur yang sudah terbit di konsol).
+ * D-35 edisi Lisensi: memasang paket data master dari Payoung (tarif pajak & hari libur yang sudah terbit di konsol).
  * Aman dijalankan berulang.
  */
 final class ImporDataMasterLisensiPerintah extends Command
 {
-    protected $signature = 'lisensi:impor-data-master {berkas : Berkas JSON dari PAYOU}';
+    protected $signature = 'lisensi:impor-data-master {berkas : Berkas JSON dari Payoung}';
 
-    protected $description = 'Memasang paket tarif pajak & hari libur dari PAYOU di server edisi Lisensi (D-35).';
+    protected $description = 'Memasang paket tarif pajak & hari libur dari Payoung di server edisi Lisensi (D-35).';
 
     public function handle(ImporDataMasterLisensi $impor): int
     {

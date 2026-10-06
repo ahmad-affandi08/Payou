@@ -60,12 +60,12 @@ void main() {
       final penjagaLayar = PenjagaLayarTiruan();
       final u = await MasukRuangKerja(tester, ukuran: ukuran, penjagaLayar: penjagaLayar);
 
-      // Bilah atas: logo PAYOU di tengah, outlet | perangkat di kiri, kasir & tombol kunci di kanan.
+      // Bilah atas: logo Payoung di tengah, outlet | perangkat di kiri, kasir & tombol kunci di kanan.
       // Di HP (< 600dp) bilahnya diringkas: nama kasir pindah ke petunjuk tombol (dan tetap ada di layar Shift),
       // jam mengikuti jam sistem yang persis di atasnya — supaya logo bisa berada di tengah tanpa memotong
       // nama outlet.
       final lega = ukuran.width >= 600;
-      expect(find.byType(LogoMerek), findsOneWidget, reason: 'Logo PAYOU ada di bilah atas di setiap lebar.');
+      expect(find.byType(LogoMerek), findsOneWidget, reason: 'Logo Payoung ada di bilah atas di setiap lebar.');
       expect(find.text('Kopi Senja Solo Baru | POS-001'), findsOneWidget);
       expect(find.byTooltip('Ganti kasir'), findsOneWidget);
       expect(find.text('Rina Wulandari'), lega ? findsOneWidget : findsNothing);

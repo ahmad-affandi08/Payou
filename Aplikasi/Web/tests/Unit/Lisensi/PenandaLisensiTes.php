@@ -19,7 +19,7 @@ describe('Berkas lisensi bertanda tangan (D-35)', function (): void {
         $berkas = json_decode(BantuanLisensi::Berkas(), true);
         $padat = json_encode($berkas, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-        expect(app(PenandaLisensi::class)->Baca((string) $padat, BantuanLisensi::Kunci()['KunciPublik'])->nomor)->toBe('PAYOU-L-2026-0001');
+        expect(app(PenandaLisensi::class)->Baca((string) $padat, BantuanLisensi::Kunci()['KunciPublik'])->nomor)->toBe('PAYOUNG-L-2026-0001');
     });
 
     it('menolak berkas yang batasnya dinaikkan sendiri, domainnya diganti, atau kunci publiknya lain', function (): void {

@@ -104,7 +104,7 @@ export default function HalamanSektor({ Progres, Template, TemplateTerpilih, Sek
                         <EmptyDescription className="text-isi text-teks-sekunder">
                             Belum ada template yang bisa dipilih. Tekan Lanjutkan untuk menyiapkan toko tanpa template;
                             template bisa diterapkan nanti dari Pengaturan.{' '}
-                            <AjakanTambahBatas teksLisensi="Hubungi penjual lisensi PAYOU untuk paket data template sektor.">
+                            <AjakanTambahBatas teksLisensi="Hubungi penjual lisensi Payoung untuk paket data template sektor.">
                                 Hubungi tim kami lewat menu{' '}
                                 <Link href="/kelola/bantuan" className="font-semibold text-brand underline">
                                     Bantuan

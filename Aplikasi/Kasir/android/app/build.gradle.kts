@@ -9,7 +9,7 @@ plugins {
 
 // Audit F-04: build rilis wajib ditandatangani kunci unggah produksi (Play App Signing), bukan kunci debug.
 // Sumber kunci: android/key.properties (tidak di-commit, lihat .gitignore) atau variabel lingkungan CI
-// PAYOU_KEYSTORE_FILE, PAYOU_KEYSTORE_PASSWORD, PAYOU_KEY_ALIAS, PAYOU_KEY_PASSWORD.
+// PAYOUNG_KEYSTORE_FILE, PAYOUNG_KEYSTORE_PASSWORD, PAYOUNG_KEY_ALIAS, PAYOUNG_KEY_PASSWORD.
 val propertiKunci = Properties().apply {
     val berkas = rootProject.file("key.properties")
     if (berkas.exists()) {
@@ -20,10 +20,10 @@ val propertiKunci = Properties().apply {
 fun nilaiKunci(properti: String, lingkungan: String): String? =
     (propertiKunci.getProperty(properti) ?: System.getenv(lingkungan))?.takeIf { it.isNotBlank() }
 
-val berkasKeystore = nilaiKunci("storeFile", "PAYOU_KEYSTORE_FILE")
+val berkasKeystore = nilaiKunci("storeFile", "PAYOUNG_KEYSTORE_FILE")
 
 android {
-    namespace = "id.payou.kasir"
+    namespace = "id.payoung.kasir"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -34,7 +34,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "id.payou.kasir"
+        applicationId = "id.payoung.kasir"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -51,9 +51,9 @@ android {
         if (berkasKeystore != null) {
             create("rilis") {
                 storeFile = file(berkasKeystore)
-                storePassword = nilaiKunci("storePassword", "PAYOU_KEYSTORE_PASSWORD")
-                keyAlias = nilaiKunci("keyAlias", "PAYOU_KEY_ALIAS")
-                keyPassword = nilaiKunci("keyPassword", "PAYOU_KEY_PASSWORD")
+                storePassword = nilaiKunci("storePassword", "PAYOUNG_KEYSTORE_PASSWORD")
+                keyAlias = nilaiKunci("keyAlias", "PAYOUNG_KEY_ALIAS")
+                keyPassword = nilaiKunci("keyPassword", "PAYOUNG_KEY_PASSWORD")
             }
         }
     }
@@ -82,7 +82,7 @@ gradle.taskGraph.whenReady {
     if (berkasKeystore == null && minta) {
         throw GradleException(
             "Build rilis butuh kunci penandatangan produksi: isi android/key.properties " +
-                "(storeFile, storePassword, keyAlias, keyPassword) atau variabel PAYOU_KEYSTORE_*.",
+                "(storeFile, storePassword, keyAlias, keyPassword) atau variabel PAYOUNG_KEYSTORE_*.",
         )
     }
 }

@@ -8,7 +8,7 @@ use App\Domain\Pengelola\DataBawaan\Aksi\EksporDataMasterLisensi;
 use Illuminate\Console\Command;
 
 /**
- * D-35: dijalankan di server SaaS PAYOU untuk membuat paket data master (tarif pajak & hari libur terbit) bagi server
+ * D-35: dijalankan di server SaaS Payoung untuk membuat paket data master (tarif pajak & hari libur terbit) bagi server
  * edisi Lisensi. Kirim berkasnya ke pembeli bersama rilis; pembeli memasangnya dengan `lisensi:impor-data-master`.
  */
 final class EksporDataMasterLisensiPerintah extends Command
