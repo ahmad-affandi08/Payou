@@ -47,7 +47,7 @@ final class StrukDigitalPenjualan
     {
         $p = Penjualan::query()->where('Uuid', $uuid)->first();
         $outlet = $p === null ? null : $this->outlet->Ambil($p->IdOutlet, $p->IdPerangkat);
-        $struk = $this->pengaturan->Ambil($idTenant, $outlet?->idMerek);
+        $struk = $this->pengaturan->Ambil($idTenant, $outlet?->idOutlet);
         $laundry = $p === null ? null : $this->laundry->AmbilUntukPenjualan($p->Id);
 
         if ($p === null || (! $struk->tampilkanStrukDigital && $laundry === null)) {
@@ -63,7 +63,7 @@ final class StrukDigitalPenjualan
         }
 
         return [
-            'NamaUsaha' => $struk->namaDicetak ?? $outlet?->namaOutlet ?? $outlet?->namaMerek ?? $tenant['Nama'],
+            'NamaUsaha' => $struk->namaDicetak ?? $outlet->namaOutlet ?? $tenant['Nama'],
             'TeksKepala' => $struk->teksKepala,
             'NamaOutlet' => $outlet?->namaOutlet,
             'Alamat' => $struk->tampilkanAlamat ? $outlet?->alamat : null,

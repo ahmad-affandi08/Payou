@@ -21,7 +21,7 @@ final class LogoStrukKontroler extends Kontroler
     public function Unduh(Request $permintaan, PengaturanStrukTenant $pengaturan, PenyimpanLogoTenant $penyimpan, OutletPenjualan $outlet): StreamedResponse
     {
         $perangkat = AutentikasiPerangkat::AmbilPerangkat($permintaan);
-        $path = $pengaturan->AmbilPathLogo($perangkat->IdTenant, $outlet->Ambil($perangkat->IdOutlet, $perangkat->Id)?->idMerek);
+        $path = $pengaturan->AmbilPathLogo($perangkat->IdTenant, $outlet->Ambil($perangkat->IdOutlet, $perangkat->Id)?->idOutlet);
         abort_if($path === null, 404);
 
         return $penyimpan->Unduh($path);

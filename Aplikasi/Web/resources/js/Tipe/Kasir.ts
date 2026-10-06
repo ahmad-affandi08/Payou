@@ -236,11 +236,11 @@ export type ProfilPratinjauStruk = {
 export type PropsPengaturanStruk = {
     Pengaturan: PengaturanStruk;
     Profil: ProfilPratinjauStruk;
-    /** D-70: daftar merek (kosong bila tenant hanya punya satu merek) dan merek yang sedang diatur. */
-    Merek?: { Uuid: string; Nama: string }[];
-    UuidMerek?: string | null;
-    /** Merek punya logo struk sendiri (bukan logo usaha). */
-    LogoMerekKhusus?: boolean;
+    /** D-76: daftar outlet (kosong bila tenant hanya punya satu outlet aktif) dan outlet yang sedang diatur. */
+    Outlet?: { Uuid: string; Nama: string }[];
+    UuidOutlet?: string | null;
+    /** Outlet punya logo struk sendiri (bukan logo usaha). */
+    LogoOutletKhusus?: boolean;
 };
 
 /** F-15 tutup harian: peringatan yang boleh diabaikan dengan konfirmasi. */

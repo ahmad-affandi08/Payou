@@ -16,22 +16,22 @@ final class PengaturanStrukTenant
 {
     public function __construct(private readonly KonteksTenant $konteks) {}
 
-    /** Kunci saklar tampil yang boleh berbeda per merek (D-70); teks isian tetap satu untuk tenant. */
-    public const SAKLAR_MEREK = [
+    /** Kunci saklar tampil yang boleh berbeda per outlet (D-76); teks isian tetap satu untuk tenant. */
+    public const SAKLAR_OUTLET = [
         'TampilkanLogo', 'TampilkanAlamat', 'TampilkanTelepon', 'TampilkanNpwp',
         'TampilkanKasir', 'TampilkanPelanggan', 'TampilkanHemat', 'TampilkanStrukDigital',
     ];
 
     /**
-     * Pengaturan struk tenant; dengan `$idMerek`, saklar tampil merek itu menimpa saklar tenant (D-70), teks tidak.
+     * Pengaturan struk tenant; dengan `$idOutlet`, saklar tampil outlet itu menimpa saklar tenant (D-76, menggantikan D-70 per merek), teks tidak.
      */
-    public function Ambil(?int $idTenant = null, ?int $idMerek = null): DataPengaturanStruk
+    public function Ambil(?int $idTenant = null, ?int $idOutlet = null): DataPengaturanStruk
     {
         $pengaturan = Tenant::query()->whereKey($idTenant ?? $this->konteks->Wajib())->firstOrFail()->Pengaturan ?? [];
         $struk = is_array($pengaturan['Struk'] ?? null) ? $pengaturan['Struk'] : [];
 
-        foreach (self::AmbilTimpaanMerek($pengaturan, $idMerek) as $kunci => $nilai) {
-            if (in_array($kunci, self::SAKLAR_MEREK, true) && is_bool($nilai)) {
+        foreach (self::AmbilTimpaanOutlet($pengaturan, $idOutlet) as $kunci => $nilai) {
+            if (in_array($kunci, self::SAKLAR_OUTLET, true) && is_bool($nilai)) {
                 $struk[$kunci] = $nilai;
             }
         }
@@ -57,29 +57,29 @@ final class PengaturanStrukTenant
      * Path logo usaha yang dicetak di struk: null bila tenant tanpa logo atau logo dimatikan di pengaturan struk.
      * Dipakai `data-awal` (`AdaLogo`) dan `GET /api/pos/v1/logo-struk` agar keduanya selalu sepakat.
      */
-    public function AmbilPathLogo(int $idTenant, ?int $idMerek = null): ?string
+    public function AmbilPathLogo(int $idTenant, ?int $idOutlet = null): ?string
     {
-        if (! $this->Ambil($idTenant, $idMerek)->tampilkanLogo) {
+        if (! $this->Ambil($idTenant, $idOutlet)->tampilkanLogo) {
             return null;
         }
 
         $pengaturan = Tenant::query()->whereKey($idTenant)->firstOrFail()->Pengaturan ?? [];
-        $logoMerek = self::AmbilTimpaanMerek($pengaturan, $idMerek)['PathLogo'] ?? null;
+        $logoOutlet = self::AmbilTimpaanOutlet($pengaturan, $idOutlet)['PathLogo'] ?? null;
 
-        if (is_string($logoMerek) && $logoMerek !== '') {
-            return $logoMerek;
+        if (is_string($logoOutlet) && $logoOutlet !== '') {
+            return $logoOutlet;
         }
 
         return is_string($pengaturan['PathLogo'] ?? null) ? $pengaturan['PathLogo'] : null;
     }
 
     /**
-     * Path logo struk khusus merek (null = merek memakai logo usaha). Untuk halaman pengaturan.
+     * Path logo struk khusus outlet (null = outlet memakai logo usaha). Untuk halaman pengaturan.
      */
-    public function AmbilPathLogoMerek(int $idTenant, int $idMerek): ?string
+    public function AmbilPathLogoOutlet(int $idTenant, int $idOutlet): ?string
     {
         $pengaturan = Tenant::query()->whereKey($idTenant)->firstOrFail()->Pengaturan ?? [];
-        $path = self::AmbilTimpaanMerek($pengaturan, $idMerek)['PathLogo'] ?? null;
+        $path = self::AmbilTimpaanOutlet($pengaturan, $idOutlet)['PathLogo'] ?? null;
 
         return is_string($path) && $path !== '' ? $path : null;
     }
@@ -88,12 +88,12 @@ final class PengaturanStrukTenant
      * @param  array<string, mixed>  $pengaturan
      * @return array<string, mixed>
      */
-    private static function AmbilTimpaanMerek(array $pengaturan, ?int $idMerek): array
+    private static function AmbilTimpaanOutlet(array $pengaturan, ?int $idOutlet): array
     {
-        $semua = $pengaturan['StrukMerek'] ?? null;
-        $milikMerek = $idMerek === null || ! is_array($semua) ? null : ($semua[(string) $idMerek] ?? null);
+        $semua = $pengaturan['StrukOutlet'] ?? null;
+        $milikOutlet = $idOutlet === null || ! is_array($semua) ? null : ($semua[(string) $idOutlet] ?? null);
 
-        return is_array($milikMerek) ? $milikMerek : [];
+        return is_array($milikOutlet) ? $milikOutlet : [];
     }
 
     private static function AmbilTeks(mixed $nilai, int $panjangMaksimal): ?string

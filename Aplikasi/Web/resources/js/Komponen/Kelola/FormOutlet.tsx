@@ -107,14 +107,17 @@ export default function FormOutlet({ awal, uuid, kodeTerkunci = false, merek, ko
                             kode
                             required
                         />
-                        <BidangPilihan
-                            label="Merek"
-                            nilai={formulir.data.Merek}
-                            opsi={merek}
-                            saatBerubah={(nilai) => formulir.setData('Merek', nilai)}
-                            galat={formulir.errors.Merek}
-                            required
-                        />
+                        {/* D-76: merek hanya ditanya bila tenant punya lebih dari satu; selain itu terisi otomatis. */}
+                        {merek.length > 1 ? (
+                            <BidangPilihan
+                                label="Merek"
+                                nilai={formulir.data.Merek}
+                                opsi={merek}
+                                saatBerubah={(nilai) => formulir.setData('Merek', nilai)}
+                                galat={formulir.errors.Merek}
+                                required
+                            />
+                        ) : null}
                         <BidangTeks
                             label="Alamat (opsional)"
                             nilai={formulir.data.Alamat}

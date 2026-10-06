@@ -8,7 +8,6 @@ use App\Domain\Organisasi\Aksi\AturPinSendiri;
 use App\Domain\Organisasi\Aksi\CabutPerangkat;
 use App\Domain\Organisasi\Enum\PeranTenantBawaan;
 use App\Domain\Organisasi\Layanan\VerifierPinOffline;
-use App\Domain\Organisasi\Model\Merek;
 use App\Domain\Organisasi\Model\Outlet;
 use App\Domain\Organisasi\Model\OutletPengguna;
 use App\Domain\Organisasi\Model\Perangkat;
@@ -226,21 +225,21 @@ describe('Judul struk = nama outlet (D-75)', function (): void {
     });
 });
 
-describe('Pengaturan struk per merek (D-70)', function (): void {
-    it('saklar & logo disimpan khusus merek: merek lain dan tenant tidak berubah, teks isian tetap bersama', function (): void {
+describe('Pengaturan struk per outlet (D-76)', function (): void {
+    it('saklar & logo disimpan khusus outlet: outlet lain dan tenant tidak berubah, teks isian tetap bersama', function (): void {
         $k = BantuanKasir::Siapkan($this, 'Budi Santoso');
         Storage::fake((string) config('tenant.DiskLogo'));
-        $merekA = Merek::query()->whereKey(Outlet::query()->whereKey($k['Outlet']->Id)->value('IdMerek'))->firstOrFail();
-        $merekB = Merek::query()->create(['Nama' => 'Brewland']);
+        $outletA = $k['Outlet'];
+        $outletB = BantuanJurnal::BuatOutlet();
         BantuanPersediaan::MasukSebagai($this, $k['Tenant']->Id, PeranTenantBawaan::Admin);
 
-        $this->put('/kelola/kasir/struk', [
-            'UuidMerek' => $merekA->Uuid,
+        $isian = [
+            'UuidOutlet' => $outletA->Uuid,
             'TampilkanLogo' => true, 'TampilkanAlamat' => true, 'TampilkanTelepon' => true, 'TampilkanNpwp' => true,
             'TampilkanKasir' => false, 'TampilkanPelanggan' => true, 'TampilkanHemat' => true,
             'NamaDicetak' => null, 'TeksKepala' => ['@bersama'], 'CatatanKaki' => null, 'TeksPenutup' => null,
-            'Logo' => UploadedFile::fake()->image('logo-a.png', 100, 100),
-        ])->assertRedirect();
+        ];
+        $this->put('/kelola/kasir/struk', [...$isian, 'Logo' => UploadedFile::fake()->image('logo-a.png', 100, 100)])->assertRedirect();
 
         $struk = $this->withToken($k['Token'])->getJson('/api/pos/v1/data-awal')->assertOk()->json('Struk');
         expect($struk['TampilkanKasir'])->toBeFalse()
@@ -250,17 +249,12 @@ describe('Pengaturan struk per merek (D-70)', function (): void {
 
         $pengaturan = app(PengaturanStrukTenant::class);
         expect($pengaturan->Ambil($k['Tenant']->Id)->tampilkanKasir)->toBeTrue()
-            ->and($pengaturan->Ambil($k['Tenant']->Id, (int) $merekB->Id)->tampilkanKasir)->toBeTrue()
-            ->and($pengaturan->AmbilPathLogo($k['Tenant']->Id, (int) $merekB->Id))->toBeNull()
-            ->and($pengaturan->Ambil($k['Tenant']->Id, (int) $merekB->Id)->teksKepala)->toBe(['@bersama']);
+            ->and($pengaturan->Ambil($k['Tenant']->Id, (int) $outletB->Id)->tampilkanKasir)->toBeTrue()
+            ->and($pengaturan->AmbilPathLogo($k['Tenant']->Id, (int) $outletB->Id))->toBeNull()
+            ->and($pengaturan->Ambil($k['Tenant']->Id, (int) $outletB->Id)->teksKepala)->toBe(['@bersama']);
 
-        $this->put('/kelola/kasir/struk', [
-            'UuidMerek' => $merekA->Uuid, 'HapusLogo' => 1,
-            'TampilkanLogo' => true, 'TampilkanAlamat' => true, 'TampilkanTelepon' => true, 'TampilkanNpwp' => true,
-            'TampilkanKasir' => false, 'TampilkanPelanggan' => true, 'TampilkanHemat' => true,
-            'NamaDicetak' => null, 'TeksKepala' => ['@bersama'], 'CatatanKaki' => null, 'TeksPenutup' => null,
-        ])->assertRedirect();
-        expect($pengaturan->AmbilPathLogoMerek($k['Tenant']->Id, (int) $merekA->Id))->toBeNull();
+        $this->put('/kelola/kasir/struk', [...$isian, 'HapusLogo' => 1])->assertRedirect();
+        expect($pengaturan->AmbilPathLogoOutlet($k['Tenant']->Id, (int) $outletA->Id))->toBeNull();
     });
 });
 

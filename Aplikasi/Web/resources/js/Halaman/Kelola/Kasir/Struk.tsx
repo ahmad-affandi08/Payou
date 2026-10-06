@@ -98,9 +98,9 @@ function DaftarSaklar({
 function IsiPengaturanStruk({
     Pengaturan,
     Profil,
-    Merek = [],
-    UuidMerek = null,
-    LogoMerekKhusus = false,
+    Outlet = [],
+    UuidOutlet = null,
+    LogoOutletKhusus = false,
 }: PropsPengaturanStruk) {
     const { props } = usePage<PropsBersamaAplikasi>();
     const galat = props.errors;
@@ -109,7 +109,7 @@ function IsiPengaturanStruk({
     const [memproses, AturMemproses] = useState(false);
     const [logoBaru, AturLogoBaru] = useState<File | null>(null);
     const [hapusLogo, AturHapusLogo] = useState(false);
-    const adaMerek = Merek.length > 1 && UuidMerek !== null;
+    const adaPilihanOutlet = Outlet.length > 1 && UuidOutlet !== null;
     const pengaturan = KePengaturan(isian);
     const berubah =
         JSON.stringify(pengaturan) !== JSON.stringify(KePengaturan(KeIsian(Pengaturan))) ||
@@ -130,16 +130,16 @@ function IsiPengaturanStruk({
             },
         };
 
-        if (!adaMerek) {
+        if (!adaPilihanOutlet) {
             router.put(alamat, pengaturan, pilihan);
 
             return;
         }
 
-        // D-70: dengan merek terpilih, logo ikut terkirim sebagai berkas (POST + _method=put).
+        // D-76: dengan outlet terpilih, logo ikut terkirim sebagai berkas (POST + _method=put).
         router.post(
             alamat,
-            { ...pengaturan, _method: 'put', UuidMerek, Logo: logoBaru, HapusLogo: hapusLogo ? 1 : 0 },
+            { ...pengaturan, _method: 'put', UuidOutlet, Logo: logoBaru, HapusLogo: hapusLogo ? 1 : 0 },
             { ...pilihan, forceFormData: true },
         );
     };
@@ -165,34 +165,34 @@ function IsiPengaturanStruk({
                     className="flex min-w-0 flex-col gap-4"
                     noValidate
                 >
-                    {adaMerek ? (
+                    {adaPilihanOutlet ? (
                         <Panel
-                            judul="Merek"
-                            idJudul="judul-merek-struk"
-                            keterangan="Saklar tampil dan logo di bawah berlaku untuk merek yang dipilih. Isian teks (nama, kepala, catatan kaki, penutup) dipakai bersama."
+                            judul="Outlet"
+                            idJudul="judul-outlet-struk"
+                            keterangan="Saklar tampil dan logo di bawah berlaku untuk outlet yang dipilih. Isian teks (nama, kepala, catatan kaki, penutup) dipakai bersama."
                         >
                             <BidangPilihan
-                                label="Atur struk untuk merek"
-                                nilai={UuidMerek}
-                                opsi={Merek.map((m) => ({ Nilai: m.Uuid, Label: m.Nama }))}
-                                saatBerubah={(uuid) => router.get(alamat, { Merek: uuid })}
+                                label="Atur struk untuk outlet"
+                                nilai={UuidOutlet}
+                                opsi={Outlet.map((o) => ({ Nilai: o.Uuid, Label: o.Nama }))}
+                                saatBerubah={(uuid) => router.get(alamat, { Outlet: uuid })}
                             />
                             <BidangGambar
-                                label="Logo struk merek ini"
+                                label="Logo struk outlet ini"
                                 berkas={logoBaru}
                                 saatBerubah={(berkas) => {
                                     AturLogoBaru(berkas);
                                     AturHapusLogo(false);
                                 }}
                                 tautanSaatIni={hapusLogo ? null : (Profil.TautanLogo ?? null)}
-                                {...(LogoMerekKhusus
+                                {...(LogoOutletKhusus
                                     ? { saatHapusSaatIni: () => AturHapusLogo(true), labelHapus: 'Pakai logo usaha' }
                                     : {})}
                                 ukuranMaksimalKb={1024}
                                 ekstensi={['png', 'jpg', 'jpeg', 'webp']}
                                 keterangan={
-                                    LogoMerekKhusus
-                                        ? 'Logo khusus merek ini.'
+                                    LogoOutletKhusus
+                                        ? 'Logo khusus outlet ini.'
                                         : 'Belum ada logo khusus; memakai logo usaha. Unggah untuk menggantinya.'
                                 }
                                 galat={galat.Logo}
@@ -306,7 +306,7 @@ function IsiPengaturanStruk({
     );
 }
 
-/** Berganti merek memuat ulang isian dari server, jadi isian lokal dibuat baru per merek (D-70). */
+/** Berganti outlet memuat ulang isian dari server, jadi isian lokal dibuat baru per outlet (D-76). */
 export default function HalamanPengaturanStruk(props: PropsPengaturanStruk) {
-    return <IsiPengaturanStruk key={props.UuidMerek ?? 'tenant'} {...props} />;
+    return <IsiPengaturanStruk key={props.UuidOutlet ?? 'tenant'} {...props} />;
 }

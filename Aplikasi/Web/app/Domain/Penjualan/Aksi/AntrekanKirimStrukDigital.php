@@ -62,7 +62,7 @@ final class AntrekanKirimStrukDigital
             throw new PelanggaranAturanBisnis('PenjualanBelumTersinkron', 'Penjualan belum tersinkron ke server. Sinkronkan dulu, lalu kirim ulang struk.', 'Umum', 404);
         }
 
-        if (! $this->pengaturanStruk->Ambil($idTenant, $this->outletPenjualan->Ambil($idOutlet, $idPerangkat)?->idMerek)->tampilkanStrukDigital) {
+        if (! $this->pengaturanStruk->Ambil($idTenant, $this->outletPenjualan->Ambil($idOutlet, $idPerangkat)?->idOutlet)->tampilkanStrukDigital) {
             throw new PelanggaranAturanBisnis('StrukDigitalNonaktif', 'Struk digital dimatikan di pengaturan struk.', 'Umum', 409);
         }
 

@@ -106,7 +106,7 @@ final class DataAwalKasir
                 // v3.55 (aditif, §9.3): barcode timbangan EAN-13 `AA PPPPP NNNNN C` (berat gram atau harga Rupiah).
                 'BarcodeTimbangan' => $this->barcodeTimbangan->Ambil(),
             ],
-            'Struk' => $this->AmbilStruk($perangkat, $profil->pkp ?? false, $outlet?->namaOutlet ?? $outlet?->namaMerek, $outlet?->idMerek),
+            'Struk' => $this->AmbilStruk($perangkat, $profil->pkp ?? false, $outlet?->namaOutlet, $outlet?->idOutlet),
             'Outlet' => $outlet === null ? null : [
                 'Uuid' => $outlet->uuidOutlet,
                 'Kode' => $outlet->kodeOutlet,
@@ -167,17 +167,17 @@ final class DataAwalKasir
     /**
      * @return array<string, mixed>
      */
-    private function AmbilStruk(Perangkat $perangkat, bool $pkp, ?string $namaMerek, ?int $idMerek): array
+    private function AmbilStruk(Perangkat $perangkat, bool $pkp, ?string $namaOutlet, ?int $idOutlet): array
     {
         $tenant = $this->profilTenant->Ambil($perangkat->IdTenant);
-        $struk = $this->pengaturanStruk->Ambil($perangkat->IdTenant, $idMerek);
+        $struk = $this->pengaturanStruk->Ambil($perangkat->IdTenant, $idOutlet);
 
         return [
             ...$struk->KeLarik(),
             // D-75: judul struk = nama outlet (identitas yang dilihat pelanggan), bukan nama usaha/akun pemilik.
-            'NamaUsaha' => $namaMerek ?? $tenant['Nama'],
+            'NamaUsaha' => $namaOutlet ?? $tenant['Nama'],
             'Npwp' => $pkp ? $tenant['Npwp'] : null,
-            'AdaLogo' => $this->pengaturanStruk->AmbilPathLogo($perangkat->IdTenant, $idMerek) !== null,
+            'AdaLogo' => $this->pengaturanStruk->AmbilPathLogo($perangkat->IdTenant, $idOutlet) !== null,
             'TandaAir' => ! $this->fitur->CekAktif($perangkat->IdTenant, 'struk.tanpa-watermark'),
             // POS-11: awalan tautan struk digital; aplikasi menambah Uuid penjualan. Null = struk digital dimatikan.
             'AwalanStrukDigital' => $struk->tampilkanStrukDigital ? KodeStrukDigital::AmbilAwalan($perangkat->IdTenant) : null,

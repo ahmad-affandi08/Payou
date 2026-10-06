@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Mengubah pengaturan struk tenant (PLT-06, PRD v1.79): ditulis ke `Tenant.Pengaturan.Struk`; saklar tampil & logo
- * boleh berbeda per merek di `Tenant.Pengaturan.StrukMerek.{IdMerek}` (D-70). Berlaku di struk berikutnya setelah perangkat kasir memperbarui data. Tanpa perubahan =
+ * boleh berbeda per outlet di `Tenant.Pengaturan.StrukOutlet.{IdOutlet}` (D-76). Berlaku di struk berikutnya setelah perangkat kasir memperbarui data. Tanpa perubahan =
  * tidak ada yang ditulis. Audit `struk.pengaturan.ubah`.
  */
 final class UbahPengaturanStruk
@@ -31,27 +31,27 @@ final class UbahPengaturanStruk
     ) {}
 
     /**
-     * Tanpa `$idMerek`: seluruh pengaturan ke tenant (perilaku lama). Dengan `$idMerek` (D-70): saklar tampil & logo
-     * disimpan khusus merek itu, teks isian tetap ke tenant. `$logo` mengganti logo merek, `$hapusLogo` mengembalikannya
+     * Tanpa `$idOutlet`: seluruh pengaturan ke tenant (perilaku lama). Dengan `$idOutlet` (D-70): saklar tampil & logo
+     * disimpan khusus outlet itu, teks isian tetap ke tenant. `$logo` mengganti logo outlet, `$hapusLogo` mengembalikannya
      * ke logo usaha.
      */
-    public function Jalankan(DataPengaturanStruk $baru, ?int $idMerek = null, ?UploadedFile $logo = null, bool $hapusLogo = false): void
+    public function Jalankan(DataPengaturanStruk $baru, ?int $idOutlet = null, ?UploadedFile $logo = null, bool $hapusLogo = false): void
     {
         self::Validasi($baru);
-        $pathBaru = $idMerek !== null && $logo !== null ? $this->penyimpanLogo->Simpan($this->konteks->Wajib(), $logo) : null;
+        $pathBaru = $idOutlet !== null && $logo !== null ? $this->penyimpanLogo->Simpan($this->konteks->Wajib(), $logo) : null;
         $pathDihapus = null;
 
         try {
-            DB::transaction(function () use ($baru, $idMerek, $pathBaru, $hapusLogo, &$pathDihapus): void {
+            DB::transaction(function () use ($baru, $idOutlet, $pathBaru, $hapusLogo, &$pathDihapus): void {
                 $tenant = $this->penguncian->Kunci($this->konteks->Wajib());
                 $pengaturan = $tenant->Pengaturan ?? [];
                 $lamaTenant = $this->pengaturan->Ambil($tenant->Id)->KeLarik();
                 $nilaiBaru = $baru->KeLarik();
-                $lamaMerek = $idMerek === null ? null : $this->pengaturan->Ambil($tenant->Id, $idMerek)->KeLarik();
-                $logoLama = $idMerek === null ? null : $this->pengaturan->AmbilPathLogoMerek($tenant->Id, $idMerek);
+                $lamaOutlet = $idOutlet === null ? null : $this->pengaturan->Ambil($tenant->Id, $idOutlet)->KeLarik();
+                $logoLama = $idOutlet === null ? null : $this->pengaturan->AmbilPathLogoOutlet($tenant->Id, $idOutlet);
                 $perubahanLogo = $pathBaru !== null || ($hapusLogo && $logoLama !== null);
 
-                if ($idMerek === null) {
+                if ($idOutlet === null) {
                     if ($lamaTenant === $nilaiBaru) {
                         return;
                     }
@@ -62,16 +62,16 @@ final class UbahPengaturanStruk
                     return;
                 }
 
-                $teksBaru = array_diff_key($nilaiBaru, array_flip(PengaturanStrukTenant::SAKLAR_MEREK));
-                $saklarBaru = array_intersect_key($nilaiBaru, array_flip(PengaturanStrukTenant::SAKLAR_MEREK));
+                $teksBaru = array_diff_key($nilaiBaru, array_flip(PengaturanStrukTenant::SAKLAR_OUTLET));
+                $saklarBaru = array_intersect_key($nilaiBaru, array_flip(PengaturanStrukTenant::SAKLAR_OUTLET));
                 $strukTenantBaru = [...$lamaTenant, ...$teksBaru];
-                $saklarLama = array_intersect_key($lamaMerek ?? [], $saklarBaru);
+                $saklarLama = array_intersect_key($lamaOutlet ?? [], $saklarBaru);
 
                 if ($strukTenantBaru === $lamaTenant && $saklarLama === $saklarBaru && ! $perubahanLogo) {
                     return;
                 }
 
-                $timpaan = is_array($pengaturan['StrukMerek'][(string) $idMerek] ?? null) ? $pengaturan['StrukMerek'][(string) $idMerek] : [];
+                $timpaan = is_array($pengaturan['StrukOutlet'][(string) $idOutlet] ?? null) ? $pengaturan['StrukOutlet'][(string) $idOutlet] : [];
                 $timpaan = [...$timpaan, ...$saklarBaru];
 
                 if ($pathBaru !== null) {
@@ -83,12 +83,12 @@ final class UbahPengaturanStruk
                 }
 
                 $pengaturan['Struk'] = $strukTenantBaru;
-                $pengaturan['StrukMerek'] = [...(is_array($pengaturan['StrukMerek'] ?? null) ? $pengaturan['StrukMerek'] : []), (string) $idMerek => $timpaan];
+                $pengaturan['StrukOutlet'] = [...(is_array($pengaturan['StrukOutlet'] ?? null) ? $pengaturan['StrukOutlet'] : []), (string) $idOutlet => $timpaan];
                 $this->Simpan(
                     $tenant,
                     $pengaturan,
-                    [...$lamaTenant, 'IdMerek' => $idMerek, ...$saklarLama, 'Logo' => $logoLama],
-                    [...$strukTenantBaru, 'IdMerek' => $idMerek, ...$saklarBaru, 'Logo' => $timpaan['PathLogo'] ?? null],
+                    [...$lamaTenant, 'IdOutlet' => $idOutlet, ...$saklarLama, 'Logo' => $logoLama],
+                    [...$strukTenantBaru, 'IdOutlet' => $idOutlet, ...$saklarBaru, 'Logo' => $timpaan['PathLogo'] ?? null],
                 );
             });
         } catch (\Throwable $galat) {

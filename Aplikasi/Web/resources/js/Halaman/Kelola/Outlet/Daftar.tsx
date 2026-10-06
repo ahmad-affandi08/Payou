@@ -57,9 +57,6 @@ const kolom: KolomTabel<Outlet>[] = [
                 <Link href={`/kelola/outlet/${outlet.Uuid}`} className="font-semibold text-brand underline">
                     {outlet.Nama}
                 </Link>
-                {outlet.NamaMerek ? (
-                    <span className="block text-keterangan text-teks-sekunder">{outlet.NamaMerek}</span>
-                ) : null}
             </>
         ),
     },
@@ -147,7 +144,8 @@ export default function HalamanDaftarOutlet({ Outlet, Merek, BatasOutlet }: Prop
                 }}
             />
 
-            <BagianMerek merek={Merek} bolehKelola={bolehKelola} />
+            {/* D-76: merek disembunyikan selama tenant hanya punya satu (bawaan dari sistem). */}
+            {Merek.length > 1 ? <BagianMerek merek={Merek} bolehKelola={bolehKelola} /> : null}
         </TataLetakAplikasi>
     );
 }
