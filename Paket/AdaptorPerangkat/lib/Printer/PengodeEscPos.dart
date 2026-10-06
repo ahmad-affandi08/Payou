@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:qr/qr.dart';
+
 import 'DokumenStruk.dart';
 import 'TataLetakStruk.dart';
 
@@ -59,11 +61,12 @@ abstract final class PengodeEscPos {
           if (besar) keluaran.add(PerintahEscPos.ukuranNormal);
           if (tebal) keluaran.add(PerintahEscPos.tebalMati);
         case BarisCetakQr(:final data, :final ukuranModul):
+          // Raster, bukan perintah QR bawaan `GS ( k`: printer thermal murah tidak mengenal perintah itu dan mencetak
+          // isi QR sebagai teks (tautan struk digital tampil sebagai tulisan, bukan kode QR).
           keluaran
-            ..add(PerintahEscPos.rataTengah)
-            ..add(KodekanQr(data, ukuranModul))
-            ..addByte(PerintahEscPos.barisBaru)
-            ..add(PerintahEscPos.rataKiri);
+            ..add(PerintahEscPos.rataKiri)
+            ..add(KodekanQrRaster(data, ukuranModul, lebar))
+            ..addByte(PerintahEscPos.barisBaru);
         case BarisCetakGambar(:final gambar):
           keluaran
             ..add(PerintahEscPos.rataTengah)
@@ -80,6 +83,35 @@ abstract final class PengodeEscPos {
   /// Hanya pulsa laci (tombol "Buka laci" tanpa mencetak).
   static Uint8List KodekanBukaLaci() =>
       Uint8List.fromList([...PerintahEscPos.inisialisasi, ...PerintahEscPos.bukaLaci]);
+
+  /// QR sebagai gambar raster selebar kertas (QR di tengah, zona tenang 2 modul): jalan di semua printer ESC/POS
+  /// yang bisa mencetak gambar `GS v 0`, termasuk yang tidak mengenal perintah QR bawaan. Ukuran modul mengecil
+  /// otomatis bila QR terlalu lebar untuk kertas.
+  static List<int> KodekanQrRaster(String data, int ukuranModul, LebarKertas lebar) {
+    final qr = QrImage(QrCode.fromData(data: data, errorCorrectLevel: QrErrorCorrectLevel.M));
+    final jumlah = qr.moduleCount;
+    const zonaTenang = 2;
+    final modulMaksimal = lebar.titik ~/ (jumlah + 2 * zonaTenang);
+    final modulDiminta = ukuranModul.clamp(1, 16);
+    final modul = modulMaksimal < 1 ? 1 : (modulDiminta > modulMaksimal ? modulMaksimal : modulDiminta);
+    final sisi = (jumlah + 2 * zonaTenang) * modul;
+    final lebarGambar = lebar.titik;
+    final kiri = (lebarGambar - sisi) ~/ 2 < 0 ? 0 : (lebarGambar - sisi) ~/ 2;
+    final titik = Uint8List(lebarGambar * sisi);
+    for (var y = 0; y < sisi; y++) {
+      final baris = y ~/ modul - zonaTenang;
+      if (baris < 0 || baris >= jumlah) {
+        continue;
+      }
+      for (var x = 0; x < sisi; x++) {
+        final kolom = x ~/ modul - zonaTenang;
+        if (kolom >= 0 && kolom < jumlah && qr.isDark(baris, kolom) && kiri + x < lebarGambar) {
+          titik[y * lebarGambar + kiri + x] = 1;
+        }
+      }
+    }
+    return KodekanGambar(GambarMonokrom(lebarGambar, sisi, titik), lebar);
+  }
 
   /// QR model 2, koreksi galat M: `GS ( k` fungsi 165 (model), 167 (ukuran), 169 (koreksi), 180 (simpan), 181 (cetak).
   static List<int> KodekanQr(String data, int ukuranModul) {
