@@ -11,7 +11,6 @@ import '../Penjualan/KonteksPenjualan.dart';
 import '../Penjualan/LayananPenjualan.dart';
 import '../Penjualan/Racikan.dart';
 import 'IdentitasStruk.dart';
-import 'NomorStruk.dart';
 
 /// Isi satu penjualan untuk dicetak (dari tabel lokal, jadi bisa offline dan dicetak ulang).
 class DataStrukPenjualan {
@@ -81,7 +80,7 @@ abstract final class PenyusunStrukPenjualan {
     final waktu = jual.DibuatPada.toLocal();
     baris
       ..add(const BarisGaris())
-      ..add(BarisTeks(PendekkanNomorStruk(jual.Nomor)))
+      ..add(BarisTeks(jual.Nomor))
       ..add(
         BarisDuaKolom(
           '${waktu.day} ${_bulan[waktu.month - 1]} ${waktu.year}',

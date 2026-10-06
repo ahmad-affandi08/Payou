@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Domain\Organisasi\Enum\PeranTenantBawaan;
 use App\Domain\Penjualan\Layanan\KodeStrukDigital;
-use App\Domain\Penjualan\Layanan\NomorStruk;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
 use Tests\Pendukung\Kasir\BantuanKasir;
@@ -26,7 +25,7 @@ describe('POS-11 struk digital /s/{kodeStruk}', function (): void {
 
         $this->get('/s/'.$kode)->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
             ->component('Publik/StrukDigital')
-            ->where('Struk.Nomor', NomorStruk::Pendekkan($p->Nomor))
+            ->where('Struk.Nomor', $p->Nomor)
             ->where('Struk.NamaUsaha', 'Toko Kelontong Berkah Solo')
             ->where('Struk.TotalAkhir', '77000.00')
             ->where('Struk.Dibatalkan', false)
