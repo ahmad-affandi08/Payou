@@ -1,11 +1,13 @@
 import { Link, router } from '@inertiajs/react';
 import {
+    ArrowLeft,
     CalendarClock,
     Copy,
     Eye,
     EyeOff,
     ExternalLink,
     History,
+    Layers,
     LayoutPanelLeft,
     MoreHorizontal,
     Monitor,
@@ -21,6 +23,8 @@ import Tombol from '@/Komponen/Formulir/Tombol';
 import { DaftarSaranTautan } from '@/Komponen/Pengelola/Situs/BidangTautan';
 import { BuatNilaiKosong } from '@/Komponen/Pengelola/Situs/EditorBlok';
 import DaftarBlok from '@/Komponen/Pengelola/Situs/EditorVisual/DaftarBlok';
+import GaleriBlok from '@/Komponen/Pengelola/Situs/EditorVisual/GaleriBlok';
+import InspektorBlok from '@/Komponen/Pengelola/Situs/EditorVisual/InspektorBlok';
 import DialogJadwalTerbit from '@/Komponen/Pengelola/Situs/EditorVisual/DialogJadwalTerbit';
 import DialogTambahBlok from '@/Komponen/Pengelola/Situs/EditorVisual/DialogTambahBlok';
 import PanelPengaturanHalaman from '@/Komponen/Pengelola/Situs/EditorVisual/PanelPengaturanHalaman';
@@ -37,7 +41,6 @@ import {
 import { useRiwayat } from '@/Komponen/Pengelola/Situs/EditorVisual/useRiwayat';
 import { useSimpanOtomatis } from '@/Komponen/Pengelola/Situs/EditorVisual/useSimpanOtomatis';
 import { usePratinjauLangsung } from '@/Komponen/Pengelola/Situs/EditorVisual/usePratinjauLangsung';
-import TabSitus from '@/Komponen/Pengelola/Situs/TabSitus';
 import type { NilaiBlok, SkemaBlok } from '@/Komponen/Pengelola/Situs/Tipe';
 import DialogKonfirmasi from '@/Komponen/Tindakan/DialogKonfirmasi';
 import {
@@ -49,7 +52,6 @@ import {
 } from '@/Komponen/Ui/dropdown-menu';
 import LabelStatus from '@/Komponen/Umpan/LabelStatus';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
-import { FormatTanggalWaktu } from '@/Pustaka/FormatWaktu';
 import TataLetakPengelola from '@/TataLetak/TataLetakPengelola';
 
 import { AmbilStatusHalaman, type RingkasHalamanSitus } from './Daftar';
@@ -129,7 +131,8 @@ export default function HalamanUbahHalamanSitus({
     const galat = { ...pratinjau.galat, ...simpan.galat };
     const [terbukaId, AturTerbukaId] = useState<string | null>(null);
     const [perangkat, AturPerangkat] = useState<Perangkat>('komputer');
-    const [tab, AturTab] = useState<'susun' | 'pratinjau'>('susun');
+    const [tab, AturTab] = useState<'lapisan' | 'kanvas' | 'properti'>('kanvas');
+    const [panelKiri, AturPanelKiri] = useState<'lapisan' | 'tambah'>('lapisan');
     const [dialogBlok, AturDialogBlok] = useState<{ sisipSetelah: number | null } | null>(null);
     const [panelHalaman, AturPanelHalaman] = useState(false);
     const [konfirmasi, AturKonfirmasi] = useState<'terbit' | 'hapus' | null>(null);
@@ -202,15 +205,15 @@ export default function HalamanUbahHalamanSitus({
 
             if (blok) {
                 AturTerbukaId(blok._id);
-                AturTab('susun');
+                AturTab('properti');
             }
         },
         [draf.Bagian],
     );
 
-    const TambahBlok = (jenis: string) => {
+    const TambahBlok = (jenis: string, sisipSetelah: number | null | undefined = undefined) => {
         const skema = Skema[jenis];
-        const sisip = dialogBlok?.sisipSetelah ?? null;
+        const sisip = sisipSetelah === undefined ? (dialogBlok?.sisipSetelah ?? null) : sisipSetelah;
 
         if (!skema) {
             return;
@@ -224,7 +227,7 @@ export default function HalamanUbahHalamanSitus({
         });
         AturTerbukaId(baru._id);
         AturDialogBlok(null);
-        AturTab('susun');
+        AturTab('properti');
     };
 
     const HapusBlok = (indeks: number) => {
@@ -337,78 +340,13 @@ export default function HalamanUbahHalamanSitus({
             ? `${LABEL_SIMPAN.tersimpan} otomatis ${Jam(simpan.disimpanPada)}`
             : LABEL_SIMPAN[simpan.status];
 
+    const jenisKiri = panelKiri;
+    const blokTerpilih = terpilihIndeks >= 0 ? (draf.Bagian[terpilihIndeks] ?? null) : null;
+    const terbitNonaktif = simpan.status === 'galat' || (!simpan.kotor && !adaPerubahanServer && halaman.Terbit);
+    const KelasPanel = (nama: 'lapisan' | 'kanvas' | 'properti') => (tab === nama ? 'flex' : 'hidden');
+
     return (
-        <TataLetakPengelola
-            judul={draf.Judul === '' ? halaman.Judul : draf.Judul}
-            aksi={
-                <div className="flex flex-wrap items-center gap-2">
-                    <Tombol varian="sekunder" onClick={() => void BukaTabBaru()}>
-                        Buka di tab baru <ExternalLink className="size-4" aria-hidden />
-                    </Tombol>
-                    {Izin.Kelola ? (
-                        <Tombol
-                            memproses={memproses && konfirmasi === 'terbit'}
-                            disabled={
-                                simpan.status === 'galat' || (!simpan.kotor && !adaPerubahanServer && halaman.Terbit)
-                            }
-                            title={
-                                simpan.status === 'galat'
-                                    ? 'Perbaiki isian yang ditandai merah dulu'
-                                    : !simpan.kotor && !adaPerubahanServer && halaman.Terbit
-                                      ? 'Tidak ada perubahan untuk diterbitkan'
-                                      : undefined
-                            }
-                            onClick={() => void MintaTerbit()}
-                        >
-                            Terbitkan
-                        </Tombol>
-                    ) : null}
-                    {Izin.Kelola ? (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button
-                                    type="button"
-                                    aria-label="Aksi lain halaman"
-                                    className="inline-flex size-8 items-center justify-center rounded-kontrol border border-garis-input text-teks-utama outline-none hover:bg-permukaan-sorot focus-visible:ring-2 focus-visible:ring-brand pointer-coarse:size-11"
-                                >
-                                    <MoreHorizontal className="size-4" aria-hidden />
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onSelect={() => AturPanelRiwayat(true)}>
-                                    <History aria-hidden /> Riwayat versi
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => AturDialogJadwal(true)}>
-                                    <CalendarClock aria-hidden />{' '}
-                                    {JadwalTerbitPada === null ? 'Jadwalkan terbit' : 'Ubah jadwal terbit'}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => Kirim('gandakan')}>
-                                    <Copy aria-hidden /> Gandakan halaman
-                                </DropdownMenuItem>
-                                {halaman.Terbit && halaman.Slug !== 'beranda' ? (
-                                    <DropdownMenuItem onSelect={() => Kirim('aktif', { Aktif: !halaman.Aktif })}>
-                                        {halaman.Aktif ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
-                                        {halaman.Aktif ? 'Sembunyikan dari situs' : 'Tampilkan lagi'}
-                                    </DropdownMenuItem>
-                                ) : null}
-                                {!halaman.Bawaan ? (
-                                    <>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                            variant="destructive"
-                                            onSelect={() => AturKonfirmasi('hapus')}
-                                        >
-                                            <Trash2 aria-hidden /> Hapus halaman
-                                        </DropdownMenuItem>
-                                    </>
-                                ) : null}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : null}
-                </div>
-            }
-        >
-            <TabSitus />
+        <TataLetakPengelola judul={draf.Judul === '' ? halaman.Judul : draf.Judul}>
             <DaftarSaranTautan />
             {konfirmasi === 'terbit' ? (
                 <DialogKonfirmasi
@@ -480,203 +418,365 @@ export default function HalamanUbahHalamanSitus({
                 bolehUbah={Izin.Kelola}
             />
 
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-panel border border-garis bg-permukaan px-3 py-2">
-                <Link href="/situs/halaman" className="text-label font-semibold text-brand underline">
-                    Semua halaman
-                </Link>
-                <LabelStatus jenis={status.jenis} teks={status.teks} />
-                <span className="font-mono text-keterangan text-teks-sekunder">
-                    {AlamatSitus.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                    {draf.Slug === 'beranda' ? '' : `/${draf.Slug}`}
-                </span>
-                {JadwalTerbitPada ? (
-                    <LabelStatus jenis="netral" teks={`Terbit terjadwal ${FormatTanggalWaktu(JadwalTerbitPada)}`} />
-                ) : null}
-                {halaman.DiterbitkanPada ? (
-                    <span className="text-keterangan text-teks-sekunder">
-                        Terbit {FormatTanggalWaktu(halaman.DiterbitkanPada)}
-                    </span>
-                ) : null}
-                <span
-                    role="status"
-                    aria-live="polite"
-                    className={`ml-auto text-keterangan font-medium ${
-                        simpan.status === 'galat' ? 'text-bahaya' : 'text-teks-sekunder'
-                    }`}
-                >
-                    {labelSimpan}
-                </span>
-                {Izin.Kelola ? (
-                    <div className="flex items-center gap-1">
-                        <button
-                            type="button"
-                            aria-label="Urungkan (Ctrl+Z)"
-                            title="Urungkan (Ctrl+Z)"
-                            disabled={!riwayat.bisaUrungkan}
-                            onClick={riwayat.urungkan}
-                            className="inline-flex size-8 items-center justify-center rounded-kontrol text-teks-utama outline-none hover:bg-permukaan-sorot focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-40 pointer-coarse:size-11"
-                        >
-                            <Undo2 className="size-4" aria-hidden />
-                        </button>
-                        <button
-                            type="button"
-                            aria-label="Ulangi (Ctrl+Y)"
-                            title="Ulangi (Ctrl+Y)"
-                            disabled={!riwayat.bisaUlangi}
-                            onClick={riwayat.ulangi}
-                            className="inline-flex size-8 items-center justify-center rounded-kontrol text-teks-utama outline-none hover:bg-permukaan-sorot focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-40 pointer-coarse:size-11"
-                        >
-                            <Redo2 className="size-4" aria-hidden />
-                        </button>
-                    </div>
-                ) : null}
-                <Tombol varian="sekunder" onClick={() => AturPanelHalaman(true)}>
-                    <Settings2 aria-hidden /> Pengaturan halaman
-                </Tombol>
-            </div>
-            {simpan.status === 'galat' && simpan.pesan ? (
-                <Pemberitahuan jenis="bahaya">{simpan.pesan}</Pemberitahuan>
-            ) : null}
-            {terhapus ? (
-                <Pemberitahuan jenis="info">
-                    Blok {terhapus} dihapus.{' '}
-                    <button
-                        type="button"
-                        className="font-semibold text-brand underline"
-                        onClick={() => {
-                            riwayat.urungkan();
-                            AturTerhapus(null);
-                        }}
-                    >
-                        Urungkan
-                    </button>{' '}
-                    <button type="button" className="text-teks-sekunder underline" onClick={() => AturTerhapus(null)}>
-                        Tutup
-                    </button>
-                </Pemberitahuan>
-            ) : null}
-
             <div
-                className="flex gap-1 rounded-kontrol bg-permukaan-redup p-1 lg:hidden"
-                role="tablist"
-                aria-label="Tampilan editor"
+                data-studio
+                className="fixed inset-0 z-40 flex flex-col bg-latar"
+                role="region"
+                aria-label="Studio halaman situs"
             >
-                {(
-                    [
-                        ['susun', 'Susun blok'],
-                        ['pratinjau', 'Pratinjau'],
-                    ] as const
-                ).map(([kunci, label]) => (
-                    <button
-                        key={kunci}
-                        type="button"
-                        role="tab"
-                        aria-selected={tab === kunci}
-                        onClick={() => AturTab(kunci)}
-                        className={`h-9 flex-1 rounded-kontrol text-label font-semibold ${
-                            tab === kunci ? 'bg-permukaan text-teks-utama shadow-sm' : 'text-teks-sekunder'
+                <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-garis bg-permukaan px-3 py-2">
+                    <Link
+                        href="/situs/halaman"
+                        className="inline-flex h-9 items-center gap-1.5 rounded-kontrol px-2 text-label font-semibold text-teks-utama outline-none hover:bg-permukaan-sorot focus-visible:ring-2 focus-visible:ring-brand"
+                    >
+                        <ArrowLeft className="size-4" aria-hidden /> Semua halaman
+                    </Link>
+                    <div className="flex min-w-0 flex-col">
+                        <span className="truncate text-isi font-semibold text-teks-utama">
+                            {draf.Judul === '' ? halaman.Judul : draf.Judul}
+                        </span>
+                        <span className="truncate font-mono text-keterangan text-teks-sekunder">
+                            {AlamatSitus.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                            {draf.Slug === 'beranda' ? '' : `/${draf.Slug}`}
+                        </span>
+                    </div>
+                    <LabelStatus jenis={status.jenis} teks={status.teks} />
+                    <div
+                        className="mx-auto flex gap-1 rounded-kontrol bg-permukaan-redup p-1"
+                        role="group"
+                        aria-label="Ukuran layar kanvas"
+                    >
+                        {OPSI_PERANGKAT.map(({ kunci, label, ikon: IkonPerangkat }) => (
+                            <button
+                                key={kunci}
+                                type="button"
+                                aria-pressed={perangkat === kunci}
+                                onClick={() => AturPerangkat(kunci)}
+                                className={`inline-flex h-8 items-center gap-1.5 rounded-kontrol px-2.5 text-label font-semibold ${
+                                    perangkat === kunci
+                                        ? 'bg-permukaan text-teks-utama shadow-sm'
+                                        : 'text-teks-sekunder'
+                                }`}
+                            >
+                                <IkonPerangkat className="size-4" aria-hidden />
+                                <span className="hidden xl:inline">{label}</span>
+                            </button>
+                        ))}
+                    </div>
+                    <span
+                        role="status"
+                        aria-live="polite"
+                        className={`text-keterangan font-medium ${
+                            simpan.status === 'galat' ? 'text-bahaya' : 'text-teks-sekunder'
                         }`}
                     >
-                        {label}
-                    </button>
-                ))}
-            </div>
-
-            <div className="grid items-start gap-4 lg:grid-cols-[minmax(340px,430px)_minmax(0,1fr)]">
-                <section
-                    aria-label="Blok halaman"
-                    className={`${tab === 'susun' ? 'flex' : 'hidden'} flex-col gap-3 lg:flex`}
-                >
-                    <div className="flex items-center justify-between gap-2">
-                        <h2 className="text-subjudul font-semibold text-teks-utama">
-                            Blok halaman ({draf.Bagian.length})
-                        </h2>
-                        {Izin.Kelola ? (
-                            <Tombol onClick={() => AturDialogBlok({ sisipSetelah: null })}>
-                                <Plus aria-hidden /> Tambah blok
-                            </Tombol>
-                        ) : null}
-                    </div>
-                    {galat.Bagian ? <Pemberitahuan jenis="bahaya">{galat.Bagian}</Pemberitahuan> : null}
-                    {draf.Bagian.length === 0 ? (
-                        <div className="flex flex-col items-center gap-3 rounded-panel border border-dashed border-garis-input bg-permukaan px-4 py-10 text-center">
-                            <LayoutPanelLeft className="size-8 text-teks-sekunder" aria-hidden />
-                            <p className="text-isi text-teks-sekunder">
-                                Halaman ini masih kosong. Mulai dengan blok pembuka, lalu tambahkan isinya.
-                            </p>
-                            {Izin.Kelola ? (
-                                <Tombol onClick={() => AturDialogBlok({ sisipSetelah: null })}>
-                                    <Plus aria-hidden /> Tambah blok pertama
-                                </Tombol>
-                            ) : null}
+                        {labelSimpan}
+                    </span>
+                    {Izin.Kelola ? (
+                        <div className="flex items-center gap-1">
+                            <button
+                                type="button"
+                                aria-label="Urungkan (Ctrl+Z)"
+                                title="Urungkan (Ctrl+Z)"
+                                disabled={!riwayat.bisaUrungkan}
+                                onClick={riwayat.urungkan}
+                                className="inline-flex size-8 items-center justify-center rounded-kontrol text-teks-utama outline-none hover:bg-permukaan-sorot focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-40 pointer-coarse:size-11"
+                            >
+                                <Undo2 className="size-4" aria-hidden />
+                            </button>
+                            <button
+                                type="button"
+                                aria-label="Ulangi (Ctrl+Y)"
+                                title="Ulangi (Ctrl+Y)"
+                                disabled={!riwayat.bisaUlangi}
+                                onClick={riwayat.ulangi}
+                                className="inline-flex size-8 items-center justify-center rounded-kontrol text-teks-utama outline-none hover:bg-permukaan-sorot focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-40 pointer-coarse:size-11"
+                            >
+                                <Redo2 className="size-4" aria-hidden />
+                            </button>
                         </div>
-                    ) : (
-                        <DaftarBlok
-                            bagian={draf.Bagian}
-                            skema={Skema}
-                            labelBlok={LabelBlok}
-                            ikon={Ikon}
-                            galat={galat}
-                            bolehUbah={Izin.Kelola}
-                            terbukaId={terbukaId}
-                            terpilihId={terbukaId}
-                            saatToggle={(id) => AturTerbukaId((lama) => (lama === id ? null : id))}
-                            saatUbahBlok={(i, blok) =>
-                                Ubah((d) => ({ ...d, Bagian: d.Bagian.map((x, j) => (j === i ? blok : x)) }), true)
+                    ) : null}
+                    <Tombol varian="sekunder" onClick={() => AturPanelHalaman(true)}>
+                        <Settings2 aria-hidden /> <span className="hidden md:inline">Pengaturan</span>
+                    </Tombol>
+                    <Tombol varian="sekunder" onClick={() => void BukaTabBaru()}>
+                        <ExternalLink aria-hidden /> <span className="hidden md:inline">Tab baru</span>
+                    </Tombol>
+                    {Izin.Kelola ? (
+                        <Tombol
+                            memproses={memproses && konfirmasi === 'terbit'}
+                            disabled={terbitNonaktif}
+                            title={
+                                simpan.status === 'galat'
+                                    ? 'Perbaiki isian yang ditandai merah dulu'
+                                    : terbitNonaktif
+                                      ? 'Tidak ada perubahan untuk diterbitkan'
+                                      : undefined
                             }
-                            saatUrutUlang={(baru) => Ubah((d) => ({ ...d, Bagian: baru }))}
-                            saatGandakan={GandakanBlok}
-                            saatHapus={HapusBlok}
-                            saatSisipkan={(i) => AturDialogBlok({ sisipSetelah: i })}
-                        />
-                    )}
-                </section>
-
-                <section
-                    aria-label="Pratinjau halaman"
-                    className={`${tab === 'pratinjau' ? 'flex' : 'hidden'} flex-col gap-2 lg:sticky lg:top-3 lg:flex lg:h-[calc(100dvh-2rem)]`}
-                >
-                    <div className="flex items-center justify-between gap-2">
-                        <h2 className="text-subjudul font-semibold text-teks-utama">Pratinjau</h2>
-                        <div
-                            className="flex gap-1 rounded-kontrol bg-permukaan-redup p-1"
-                            role="group"
-                            aria-label="Ukuran layar pratinjau"
+                            onClick={() => void MintaTerbit()}
                         >
-                            {OPSI_PERANGKAT.map(({ kunci, label, ikon: Ikon }) => (
+                            Terbitkan
+                        </Tombol>
+                    ) : null}
+                    {Izin.Kelola ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    type="button"
+                                    aria-label="Aksi lain halaman"
+                                    className="inline-flex size-8 items-center justify-center rounded-kontrol border border-garis-input text-teks-utama outline-none hover:bg-permukaan-sorot focus-visible:ring-2 focus-visible:ring-brand pointer-coarse:size-11"
+                                >
+                                    <MoreHorizontal className="size-4" aria-hidden />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => AturPanelRiwayat(true)}>
+                                    <History aria-hidden /> Riwayat versi
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => AturDialogJadwal(true)}>
+                                    <CalendarClock aria-hidden />{' '}
+                                    {JadwalTerbitPada === null ? 'Jadwalkan terbit' : 'Ubah jadwal terbit'}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => Kirim('gandakan')}>
+                                    <Copy aria-hidden /> Gandakan halaman
+                                </DropdownMenuItem>
+                                {halaman.Terbit && halaman.Slug !== 'beranda' ? (
+                                    <DropdownMenuItem onSelect={() => Kirim('aktif', { Aktif: !halaman.Aktif })}>
+                                        {halaman.Aktif ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+                                        {halaman.Aktif ? 'Sembunyikan dari situs' : 'Tampilkan lagi'}
+                                    </DropdownMenuItem>
+                                ) : null}
+                                {!halaman.Bawaan ? (
+                                    <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            variant="destructive"
+                                            onSelect={() => AturKonfirmasi('hapus')}
+                                        >
+                                            <Trash2 aria-hidden /> Hapus halaman
+                                        </DropdownMenuItem>
+                                    </>
+                                ) : null}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : null}
+                </header>
+                {simpan.status === 'galat' && simpan.pesan ? (
+                    <div className="px-3 pt-2">
+                        <Pemberitahuan jenis="bahaya">{simpan.pesan}</Pemberitahuan>
+                    </div>
+                ) : null}
+                {terhapus ? (
+                    <div className="px-3 pt-2">
+                        <Pemberitahuan jenis="info">
+                            Blok {terhapus} dihapus.{' '}
+                            <button
+                                type="button"
+                                className="font-semibold text-brand underline"
+                                onClick={() => {
+                                    riwayat.urungkan();
+                                    AturTerhapus(null);
+                                }}
+                            >
+                                Urungkan
+                            </button>{' '}
+                            <button
+                                type="button"
+                                className="text-teks-sekunder underline"
+                                onClick={() => AturTerhapus(null)}
+                            >
+                                Tutup
+                            </button>
+                        </Pemberitahuan>
+                    </div>
+                ) : null}
+
+                <div className="flex min-h-0 flex-1">
+                    <aside
+                        aria-label="Lapisan dan pustaka blok"
+                        className={`${KelasPanel('lapisan')} min-h-0 w-full shrink-0 flex-col border-r border-garis bg-permukaan lg:flex lg:w-80`}
+                    >
+                        <div className="flex gap-1 border-b border-garis p-2" role="tablist" aria-label="Panel kiri">
+                            {(
+                                [
+                                    ['lapisan', 'Lapisan', Layers],
+                                    ['tambah', 'Tambah blok', Plus],
+                                ] as const
+                            ).map(([kunci, label, IkonTab]) => (
                                 <button
                                     key={kunci}
                                     type="button"
-                                    aria-pressed={perangkat === kunci}
-                                    onClick={() => AturPerangkat(kunci)}
-                                    className={`inline-flex h-8 items-center gap-1.5 rounded-kontrol px-2.5 text-label font-semibold ${
-                                        perangkat === kunci
-                                            ? 'bg-permukaan text-teks-utama shadow-sm'
-                                            : 'text-teks-sekunder'
+                                    role="tab"
+                                    aria-selected={jenisKiri === kunci}
+                                    onClick={() => AturPanelKiri(kunci)}
+                                    className={`inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-kontrol text-label font-semibold ${
+                                        jenisKiri === kunci
+                                            ? 'bg-brand-lembut text-brand'
+                                            : 'text-teks-sekunder hover:bg-permukaan-sorot'
                                     }`}
                                 >
-                                    <Ikon className="size-4" aria-hidden />
-                                    <span className="hidden sm:inline">{label}</span>
+                                    <IkonTab className="size-4" aria-hidden /> {label}
                                 </button>
                             ))}
                         </div>
-                    </div>
-                    <div className="min-h-0 flex-1">
-                        <PanelPratinjau
-                            urlBingkai={UrlPratinjauEditor}
-                            halaman={pratinjau.halaman}
-                            memuat={pratinjau.memuat}
-                            terpilih={terpilihIndeks >= 0 ? terpilihIndeks : null}
-                            perangkat={perangkat}
-                            saatKlikBlok={PilihBlokDariPratinjau}
+                        <div className="min-h-0 flex-1 overflow-y-auto p-2">
+                            {jenisKiri === 'tambah' ? (
+                                <GaleriBlok
+                                    jenis={jenisTersedia}
+                                    label={LabelBlok}
+                                    bolehUbah={Izin.Kelola}
+                                    keterangan={
+                                        terpilihIndeks >= 0
+                                            ? `Blok baru masuk di bawah blok ${String(terpilihIndeks + 1)}.`
+                                            : 'Blok baru masuk di bagian paling bawah halaman.'
+                                    }
+                                    saatPilih={(jenis) =>
+                                        TambahBlok(jenis, terpilihIndeks >= 0 ? terpilihIndeks : null)
+                                    }
+                                />
+                            ) : (
+                                <div className="flex flex-col gap-2">
+                                    {galat.Bagian ? <Pemberitahuan jenis="bahaya">{galat.Bagian}</Pemberitahuan> : null}
+                                    {draf.Bagian.length === 0 ? (
+                                        <div className="flex flex-col items-center gap-3 rounded-panel border border-dashed border-garis-input px-4 py-8 text-center">
+                                            <LayoutPanelLeft className="size-8 text-teks-sekunder" aria-hidden />
+                                            <p className="text-isi text-teks-sekunder">
+                                                Halaman ini masih kosong. Mulai dengan blok pembuka.
+                                            </p>
+                                            {Izin.Kelola ? (
+                                                <Tombol onClick={() => AturPanelKiri('tambah')}>
+                                                    <Plus aria-hidden /> Tambah blok pertama
+                                                </Tombol>
+                                            ) : null}
+                                        </div>
+                                    ) : (
+                                        <DaftarBlok
+                                            tampilan="lapisan"
+                                            bagian={draf.Bagian}
+                                            skema={Skema}
+                                            labelBlok={LabelBlok}
+                                            ikon={Ikon}
+                                            galat={galat}
+                                            bolehUbah={Izin.Kelola}
+                                            terbukaId={terbukaId}
+                                            terpilihId={terbukaId}
+                                            saatToggle={(id) => {
+                                                AturTerbukaId(id);
+                                                AturTab('properti');
+                                            }}
+                                            saatUbahBlok={(i, blok) =>
+                                                Ubah(
+                                                    (d) => ({
+                                                        ...d,
+                                                        Bagian: d.Bagian.map((x, j) => (j === i ? blok : x)),
+                                                    }),
+                                                    true,
+                                                )
+                                            }
+                                            saatUrutUlang={(baru) => Ubah((d) => ({ ...d, Bagian: baru }))}
+                                            saatGandakan={GandakanBlok}
+                                            saatHapus={HapusBlok}
+                                            saatSisipkan={(i) => AturDialogBlok({ sisipSetelah: i })}
+                                        />
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </aside>
+
+                    <main
+                        aria-label="Kanvas halaman"
+                        className={`${KelasPanel('kanvas')} min-h-0 min-w-0 flex-1 flex-col gap-2 bg-permukaan-redup p-3 lg:flex`}
+                    >
+                        <div className="min-h-0 flex-1">
+                            <PanelPratinjau
+                                urlBingkai={UrlPratinjauEditor}
+                                halaman={pratinjau.halaman}
+                                memuat={pratinjau.memuat}
+                                terpilih={terpilihIndeks >= 0 ? terpilihIndeks : null}
+                                perangkat={perangkat}
+                                saatKlikBlok={PilihBlokDariPratinjau}
+                            />
+                        </div>
+                        <p className="flex items-center gap-1.5 text-keterangan text-teks-sekunder">
+                            <Monitor className="size-3.5 shrink-0" aria-hidden /> Klik bagian mana pun di kanvas untuk
+                            menyuntingnya. Perubahan tersimpan otomatis sebagai draf; pengunjung baru melihatnya setelah
+                            Terbitkan.
+                        </p>
+                    </main>
+
+                    <aside
+                        aria-label="Properti blok"
+                        className={`${KelasPanel('properti')} min-h-0 w-full shrink-0 flex-col border-l border-garis bg-permukaan lg:flex lg:w-96`}
+                    >
+                        <InspektorBlok
+                            blok={blokTerpilih}
+                            indeks={terpilihIndeks}
+                            jumlah={draf.Bagian.length}
+                            skema={blokTerpilih ? Skema[String(blokTerpilih.Jenis)] : undefined}
+                            label={
+                                blokTerpilih
+                                    ? (LabelBlok[String(blokTerpilih.Jenis)] ?? String(blokTerpilih.Jenis))
+                                    : ''
+                            }
+                            ikon={Ikon}
+                            galat={galat}
+                            bolehUbah={Izin.Kelola}
+                            saatBerubah={(blok) =>
+                                Ubah(
+                                    (d) => ({
+                                        ...d,
+                                        Bagian: d.Bagian.map((x, j) => (j === terpilihIndeks ? blok : x)),
+                                    }),
+                                    true,
+                                )
+                            }
+                            saatPindah={(arah) =>
+                                Ubah((d) => ({
+                                    ...d,
+                                    Bagian: d.Bagian.map((_, j, semua) =>
+                                        j === terpilihIndeks
+                                            ? (semua[j + arah] as BlokDraf)
+                                            : j === terpilihIndeks + arah
+                                              ? (semua[terpilihIndeks] as BlokDraf)
+                                              : (semua[j] as BlokDraf),
+                                    ),
+                                }))
+                            }
+                            saatGandakan={() => GandakanBlok(terpilihIndeks)}
+                            saatHapus={() => HapusBlok(terpilihIndeks)}
+                            saatSisipkan={() => AturDialogBlok({ sisipSetelah: terpilihIndeks })}
+                            saatPengaturanHalaman={() => AturPanelHalaman(true)}
                         />
-                    </div>
-                    <p className="flex items-center gap-1.5 text-keterangan text-teks-sekunder">
-                        <Monitor className="size-3.5" aria-hidden /> Klik bagian mana pun di pratinjau untuk
-                        menyuntingnya. Perubahan tersimpan otomatis sebagai draf; pengunjung baru melihatnya setelah
-                        Terbitkan.
-                    </p>
-                </section>
+                    </aside>
+                </div>
+
+                <nav
+                    aria-label="Panel studio"
+                    className="flex gap-1 border-t border-garis bg-permukaan p-1 lg:hidden"
+                    role="tablist"
+                >
+                    {(
+                        [
+                            ['lapisan', 'Lapisan'],
+                            ['kanvas', 'Kanvas'],
+                            ['properti', 'Properti'],
+                        ] as const
+                    ).map(([kunci, label]) => (
+                        <button
+                            key={kunci}
+                            type="button"
+                            role="tab"
+                            aria-selected={tab === kunci}
+                            onClick={() => AturTab(kunci)}
+                            className={`h-10 flex-1 rounded-kontrol text-label font-semibold ${
+                                tab === kunci ? 'bg-brand-lembut text-brand' : 'text-teks-sekunder'
+                            }`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </nav>
             </div>
         </TataLetakPengelola>
     );

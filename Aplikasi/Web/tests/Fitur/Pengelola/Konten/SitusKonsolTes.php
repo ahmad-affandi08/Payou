@@ -170,9 +170,21 @@ describe('D-63 penyunting visual halaman situs', function (): void {
 
         $this->get($url)->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
             ->component('Pengelola/Situs/Halaman/Ubah')
-            ->where('UrlPratinjauEditor', fn ($u) => is_string($u) && str_contains($u, 'signature='))
+            ->where('UrlPratinjauEditor', fn ($u) => is_string($u) && str_ends_with($u, '/kanvas') && ! str_contains($u, 'signature='))
             ->has('NamaSitus')
             ->has('AlamatSitus'));
+    });
+
+    it('kanvas editor dilayani dari asal konsol yang sama dan menandai pratinjau (D-73)', function (): void {
+        MasukSebagaiKontenSitus($this);
+        [, $url] = BuatHalamanEditor($this);
+
+        $this->get("{$url}/kanvas")->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
+            ->component('Situs/Halaman')
+            ->where('Halaman.Pratinjau', true)
+            ->where('Halaman.AsalEditor', fn ($asal) => is_string($asal) && $asal !== '' && str_starts_with(url('/'), $asal))
+            ->has('Halaman.Bagian')
+            ->has('Situs'));
     });
 
     it('pratinjau langsung menerima blok belum lengkap sebagai penanda, bukan galat', function (): void {

@@ -191,6 +191,8 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
             Route::get('/halaman', [SitusKontroler::class, 'DaftarHalaman'])->name('pengelola.situs.halaman.daftar');
             Route::get('/halaman/{halamanSitus}', [SitusKontroler::class, 'UbahHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.ubah');
             Route::post('/halaman/{halamanSitus}/pratinjau-langsung', [SitusKontroler::class, 'PratinjauLangsung'])->where('halamanSitus', $ulidSitus)->middleware('throttle:240,1')->name('pengelola.situs.halaman.pratinjau-langsung');
+            // D-73: kanvas editor dilayani dari asal konsol yang sama (bukan domain pemasaran), jadi tanpa tanda tangan, TTL, atau CSP lintas asal.
+            Route::get('/halaman/{halamanSitus}/kanvas', [SitusKontroler::class, 'Kanvas'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.kanvas');
             Route::get('/halaman/{halamanSitus}/pratinjau', [SitusKontroler::class, 'PratinjauHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.pratinjau');
             Route::get('/gambar', [SitusKontroler::class, 'DaftarGambar'])->name('pengelola.situs.gambar.daftar');
             Route::get('/prospek', [ProspekSitusKontroler::class, 'Daftar'])->name('pengelola.situs.prospek.daftar');

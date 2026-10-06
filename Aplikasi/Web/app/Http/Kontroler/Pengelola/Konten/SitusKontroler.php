@@ -22,6 +22,7 @@ use App\Domain\Pengelola\Konten\Kueri\PratinjauLangsungHalamanSitus;
 use App\Domain\Pengelola\Konten\Layanan\TemplatHalamanSitus;
 use App\Domain\Pengelola\TimInternal\Enum\IzinPengelola;
 use App\Domain\Situs\Kueri\PengaturanSitusBerlaku;
+use App\Domain\Situs\Kueri\PenyusunHalamanSitus;
 use App\Domain\Situs\Layanan\KontenSitusBawaan;
 use App\Domain\Situs\Layanan\SkemaBagianSitus;
 use App\Domain\Situs\Model\GambarSitus;
@@ -125,7 +126,7 @@ final class SitusKontroler extends Kontroler
             'AlamatSitus' => AlamatDomain::BuatUrlAbsolutPemasaran('/'),
             'JadwalTerbitPada' => $halamanSitus->JadwalTerbitPada?->toIso8601ZuluString(),
             'Revisi' => $daftar->AmbilRevisi($halamanSitus),
-            'UrlPratinjauEditor' => $this->BuatUrlPratinjau($halamanSitus, (int) config('situs.MenitPratinjauEditor')),
+            'UrlPratinjauEditor' => route('pengelola.situs.halaman.kanvas', ['halamanSitus' => $halamanSitus->Uuid], false),
             'Izin' => $this->AmbilIzin(),
         ]);
     }
@@ -207,6 +208,22 @@ final class SitusKontroler extends Kontroler
     }
 
     /** Tautan pratinjau draf bertanda tangan di domain pemasaran (berlaku `situs.MenitPratinjau` menit). */
+    /**
+     * Kanvas editor visual (D-73): halaman situs dirender dengan bundle situs tetapi dilayani dari asal konsol, supaya
+     * bingkainya sama-asal dengan editor (tanpa tanda tangan, kedaluwarsa, CSP lintas asal, atau cookie pihak ketiga).
+     * Asal pesan diambil dari permintaan ini, bukan konfigurasi, sehingga tetap cocok di host mana pun konsol dibuka.
+     */
+    public function Kanvas(Request $permintaan, HalamanSitus $halamanSitus, PenyusunHalamanSitus $penyusun): Response
+    {
+        Inertia::setRootView('Situs');
+        Inertia::share('Situs', fn (): array => $penyusun->AmbilDataBersama());
+        Inertia::share('ProspekTerkirim', false);
+
+        return Inertia::render('Situs/Halaman', [
+            'Halaman' => [...$penyusun->AmbilDraf($halamanSitus), 'AsalEditor' => $permintaan->getSchemeAndHttpHost()],
+        ]);
+    }
+
     public function PratinjauHalaman(HalamanSitus $halamanSitus): RedirectResponse
     {
         return redirect()->away($this->BuatUrlPratinjau($halamanSitus, (int) config('situs.MenitPratinjau')));

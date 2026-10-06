@@ -46,10 +46,21 @@ export default function Halaman() {
             }
         };
 
+        // Di kanvas editor tidak ada tautan yang boleh membawa bingkai keluar dari halaman yang sedang disunting.
+        const CegahTautan = (peristiwa: MouseEvent) => {
+            if ((peristiwa.target as HTMLElement | null)?.closest('a[href]')) {
+                peristiwa.preventDefault();
+            }
+        };
+
         window.addEventListener('message', SaatPesan);
+        document.addEventListener('click', CegahTautan, true);
         window.parent.postMessage({ tipe: 'payoung:siap' }, asal);
 
-        return () => window.removeEventListener('message', SaatPesan);
+        return () => {
+            window.removeEventListener('message', SaatPesan);
+            document.removeEventListener('click', CegahTautan, true);
+        };
     }, [asal, awal]);
 
     const penyunting = useMemo(

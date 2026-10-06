@@ -57,6 +57,7 @@ type PropsKartu = {
     label: string;
     terbuka: boolean;
     terpilih: boolean;
+    lapisan: boolean;
     galat: Record<string, string>;
     ikon: string[];
     bolehUbah: boolean;
@@ -76,6 +77,7 @@ function KartuBlok({
     label,
     terbuka,
     terpilih,
+    lapisan,
     galat,
     ikon,
     bolehUbah,
@@ -135,7 +137,7 @@ function KartuBlok({
                 ) : null}
                 <button
                     type="button"
-                    aria-expanded={terbuka}
+                    {...(lapisan ? { 'aria-pressed': terpilih } : { 'aria-expanded': terbuka })}
                     onClick={saatToggle}
                     className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-kontrol py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-brand"
                 >
@@ -151,10 +153,12 @@ function KartuBlok({
                             {ringkas === '' ? 'Belum ada judul' : ringkas}
                         </span>
                     </span>
-                    <ChevronDown
-                        className={`size-4 shrink-0 text-teks-sekunder transition-transform ${terbuka ? 'rotate-180' : ''}`}
-                        aria-hidden
-                    />
+                    {lapisan ? null : (
+                        <ChevronDown
+                            className={`size-4 shrink-0 text-teks-sekunder transition-transform ${terbuka ? 'rotate-180' : ''}`}
+                            aria-hidden
+                        />
+                    )}
                 </button>
                 {bolehUbah ? (
                     <DropdownMenu>
@@ -188,7 +192,7 @@ function KartuBlok({
                     </DropdownMenu>
                 ) : null}
             </div>
-            {terbuka ? (
+            {terbuka && !lapisan ? (
                 <div className="border-t border-garis p-4">
                     {galat[awalan] ? (
                         <p className="mb-3 text-keterangan font-semibold text-bahaya">{galat[awalan]}</p>
@@ -217,6 +221,8 @@ type PropsDaftarBlok = {
     bolehUbah: boolean;
     terbukaId: string | null;
     terpilihId: string | null;
+    /** `lapisan`: baris ringkas untuk panel samping studio (klik = pilih blok, isian ada di inspektor). */
+    tampilan?: 'akordeon' | 'lapisan';
     saatToggle: (id: string) => void;
     saatUbahBlok: (indeks: number, blok: BlokDraf) => void;
     saatUrutUlang: (baru: BlokDraf[]) => void;
@@ -235,6 +241,7 @@ export default function DaftarBlok({
     bolehUbah,
     terbukaId,
     terpilihId,
+    tampilan = 'akordeon',
     saatToggle,
     saatUbahBlok,
     saatUrutUlang,
@@ -281,6 +288,7 @@ export default function DaftarBlok({
                                 label={labelBlok[jenis] ?? jenis}
                                 terbuka={terbukaId === blok._id}
                                 terpilih={terpilihId === blok._id}
+                                lapisan={tampilan === 'lapisan'}
                                 galat={galat}
                                 ikon={ikon}
                                 bolehUbah={bolehUbah}
