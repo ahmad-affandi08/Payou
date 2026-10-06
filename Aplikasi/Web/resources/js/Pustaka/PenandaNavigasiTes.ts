@@ -89,3 +89,13 @@ describe('PenandaNavigasi (D-58, D-62)', () => {
         expect(Bilah()?.dataset.keadaan).toBe('selesai');
     });
 });
+
+describe('PenandaNavigasi tirai layar penuh (D-65)', () => {
+    it('memasang tirai yang membungkus tanda muat di tengah', () => {
+        const Lepas = PasangPenandaNavigasi();
+        const bilah = document.querySelector<HTMLElement>('.penanda-navigasi');
+
+        expect(bilah?.querySelector('.penanda-navigasi__kotak .tanda-muat')).not.toBeNull();
+        Lepas();
+    });
+});

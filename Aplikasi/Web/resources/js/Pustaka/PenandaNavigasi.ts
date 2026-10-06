@@ -9,7 +9,7 @@ export const TAMPIL_MINIMAL_MS = 400;
 export const BATAS_TAMPIL_MS = 20000;
 
 /**
- * Tanda muat logo payung bercincin (sama dengan `TandaMuat`) melayang di tengah layar saat pindah halaman Inertia;
+ * Tanda muat logo payung bercincin (sama dengan `TandaMuat`) di atas tirai gelap tipis yang menutupi seluruh layar saat pindah halaman Inertia;
  * menggantikan progress bawaan Inertia (`progress: false`) dan bilah garis (dibuang di D-62).
  * Mengembalikan fungsi pelepas. Aman dipanggil sekali per entry point.
  */
@@ -18,7 +18,7 @@ export function PasangPenandaNavigasi(): () => void {
     bilah.className = 'penanda-navigasi';
     bilah.setAttribute('role', 'status');
     bilah.setAttribute('aria-label', 'Memuat');
-    bilah.innerHTML = `<div class="tanda-muat" style="--u:44px"><span class="tanda-muat__isi"><img src="${gambarIkon}" alt=""></span></div>`;
+    bilah.innerHTML = `<div class="penanda-navigasi__kotak"><div class="tanda-muat" style="--u:56px"><span class="tanda-muat__isi"><img src="${gambarIkon}" alt=""></span></div></div>`;
     document.body.appendChild(bilah);
 
     let aktif = 0;
