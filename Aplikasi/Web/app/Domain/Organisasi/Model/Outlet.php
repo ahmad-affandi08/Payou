@@ -42,6 +42,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $NomorKendaraan plat nomor kendaraan kanvas, misal "AD 1234 XY"
  * @property bool $PesanSendiriAktif F-17: tamu boleh memesan lewat QR meja (juga butuh fitur `kanal.self-order`)
  * @property bool $TokoOnlineAktif
+ * @property bool $KiosAktif F-17 bagian 4: kios pesan sendiri di layar sentuh outlet (juga butuh fitur `kanal.self-order`)
+ * @property string|null $TokenKios token rahasia di URL kios; null sampai pertama kali diaktifkan
  * @property bool $AmbilSendiriAktif
  * @property bool $KirimAktif
  * @property string|null $Lintang F-18 bagian 4 (D-37): titik lokasi absensi web (derajat desimal, 7 angka)
@@ -77,6 +79,8 @@ final class Outlet extends ModelDasar
         'NomorKendaraan' => null,
         'PesanSendiriAktif' => false,
         'TokoOnlineAktif' => false,
+        'KiosAktif' => false,
+        'TokenKios' => null,
         'AmbilSendiriAktif' => true,
         'KirimAktif' => false,
         'KodeDikunciPada' => null,
@@ -90,7 +94,7 @@ final class Outlet extends ModelDasar
     ];
 
     /** @var list<string> */
-    protected $hidden = ['TokenLayarAbsen', 'HashTokenLayarAbsen'];
+    protected $hidden = ['TokenLayarAbsen', 'HashTokenLayarAbsen', 'TokenKios'];
 
     /**
      * @return BelongsTo<Merek, $this>
@@ -120,6 +124,7 @@ final class Outlet extends ModelDasar
             'Kanvas' => 'boolean',
             'PesanSendiriAktif' => 'boolean',
             'TokoOnlineAktif' => 'boolean',
+            'KiosAktif' => 'boolean',
             'AmbilSendiriAktif' => 'boolean',
             'KirimAktif' => 'boolean',
             'KodeDikunciPada' => 'datetime',

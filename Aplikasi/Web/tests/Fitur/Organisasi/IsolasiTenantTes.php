@@ -58,7 +58,7 @@ describe('Isolasi tenant F-02 (§13.4): ID tebakan lintas tenant diperlakukan se
         $masukA()->post('/kelola/outlet', ['Nama' => 'Cabang', 'Kode' => 'CBG1', 'Merek' => $merekB->Uuid, 'ZonaWaktu' => 'WIB', 'JamTutupBuku' => '04:00'])->assertSessionHasErrors('Merek');
 
         BantuanOrganisasi::AturKonteks($tenantB->Id);
-        expect($outletB->refresh()->Nama)->toBe('Outlet Utama')
+        expect($outletB->refresh()->Nama)->toBe('Toko Budi')
             ->and($merekB->refresh()->Nama)->toBe('Toko Budi')
             ->and(Peran::query()->whereKey($peranB->Id)->exists())->toBeTrue()
             ->and($undanganB->refresh()->DibatalkanPada)->toBeNull();

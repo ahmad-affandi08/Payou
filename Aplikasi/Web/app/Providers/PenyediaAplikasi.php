@@ -175,6 +175,17 @@ final class PenyediaAplikasi extends ServiceProvider
             });
         }
 
+        // F-17 bagian 4 (kios pesan sendiri): satu tablet outlet di balik satu IP memanggil rute ini terus-menerus, jadi
+        // kuncinya per rute + token kios + IP dengan batas lebih longgar dari QR meja.
+        foreach ([30, 120, 600] as $perMenit) {
+            RateLimiter::for("kios-{$perMenit}", static function (Request $permintaan) use ($perMenit): Limit {
+                $rute = $permintaan->route();
+                $token = $rute?->parameter('tokenKios');
+
+                return Limit::perMinute($perMenit)->by($rute?->getName().'|'.(is_string($token) ? $token : '').'|'.$permintaan->ip());
+            });
+        }
+
         // API Pemilik (OWN-01): batas per rute per pengguna (token); sebelum masuk per IP.
         foreach ([30, 60] as $perMenit) {
             RateLimiter::for("pemilik-{$perMenit}", static function (Request $permintaan) use ($perMenit): Limit {

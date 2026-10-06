@@ -8,8 +8,10 @@ use App\Domain\Bersama\Model\ModelDasar;
 use App\Domain\Bersama\Nilai\Uang;
 use App\Domain\Bersama\Tenant\MilikTenant;
 use App\Domain\Penjualan\Enum\JenisPemenuhanOnline;
+use App\Domain\Penjualan\Enum\JenisSantapKios;
 use App\Domain\Penjualan\Enum\MetodePembayaranOnline;
 use App\Domain\Penjualan\Enum\StatusPesananOnline;
+use App\Domain\Penjualan\Enum\SumberPesananOnline;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -27,6 +29,9 @@ use LogicException;
  * @property MetodePembayaranOnline $MetodePembayaran
  * @property string $NamaPelanggan
  * @property string $NoHp
+ * @property SumberPesananOnline $Sumber
+ * @property JenisSantapKios|null $JenisSantap
+ * @property int|null $NomorAntrian
  * @property string|null $Email
  * @property string|null $Alamat
  * @property string|null $KodePos
@@ -70,6 +75,7 @@ final class PesananOnline extends ModelDasar
     protected $hidden = ['KodeAkses', 'NoHp', 'Email', 'Alamat', 'HashNoHp', 'HashIp'];
 
     protected $attributes = [
+        'Sumber' => 'Web', 'JenisSantap' => null, 'NomorAntrian' => null,
         'IdPelanggan' => null, 'Email' => null, 'Alamat' => null, 'Kelurahan' => null, 'Kecamatan' => null,
         'Kota' => null, 'Provinsi' => null, 'KodePos' => null, 'IdZonaPengiriman' => null, 'Catatan' => null,
         'Diskon' => '0.00', 'BiayaLayanan' => '0.00', 'Pajak' => '0.00', 'Ongkir' => '0.00', 'DiskonOngkir' => '0.00',
@@ -118,6 +124,8 @@ final class PesananOnline extends ModelDasar
     {
         return [
             'JenisPemenuhan' => JenisPemenuhanOnline::class,
+            'Sumber' => SumberPesananOnline::class,
+            'JenisSantap' => JenisSantapKios::class,
             'MetodePembayaran' => MetodePembayaranOnline::class,
             'NoHp' => 'encrypted', 'Email' => 'encrypted', 'Alamat' => 'encrypted',
             'Subtotal' => 'decimal:2', 'Diskon' => 'decimal:2', 'BiayaLayanan' => 'decimal:2', 'Pajak' => 'decimal:2',

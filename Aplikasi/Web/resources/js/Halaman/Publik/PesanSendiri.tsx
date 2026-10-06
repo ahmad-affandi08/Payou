@@ -513,13 +513,13 @@ function useHitungKeranjang(alamat: string, token: string, keranjang: BarisKeran
     });
 }
 
-type PropsLembarPilihan = {
+export type PropsLembarPilihan = {
     produk: ProdukMenu;
     saatTutup: () => void;
     saatTambah: (baris: BarisKeranjang) => void;
 };
 
-function LembarPilihan({ produk, saatTutup, saatTambah }: PropsLembarPilihan) {
+export function LembarPilihan({ produk, saatTutup, saatTambah }: PropsLembarPilihan) {
     const [dipilih, AturDipilih] = useState<string[]>([]);
     const [jumlah, AturJumlah] = useState(1);
     const [catatan, AturCatatan] = useState('');
@@ -657,7 +657,7 @@ function LembarPilihan({ produk, saatTutup, saatTambah }: PropsLembarPilihan) {
     );
 }
 
-function PengaturJumlah({
+export function PengaturJumlah({
     label,
     jumlah,
     saatUbah,

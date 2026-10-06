@@ -76,7 +76,7 @@ describe('F-18 data karyawan', function (): void {
         $this->post('/kelola/karyawan', ['Nama' => 'Pak Joko Tukang Parkir', 'GajiPokok' => '1,5'])->assertSessionHasErrors('GajiPokok');
         $this->post('/kelola/karyawan', ['Nama' => 'Pak Joko Tukang Parkir'])->assertSessionHasNoErrors();
 
-        $rina = Karyawan::query()->where('Nama', 'Rina Wulandari')->sole();
+        $rina = Karyawan::query()->where('IdPengguna', $k['Kasir']->Id)->sole();
         expect($rina->IdPengguna)->toBe($k['Kasir']->Id)
             ->and((string) $rina->GajiPokok)->toBe('3500000.00')
             ->and($rina->IdOutlet)->toBe($k['Outlet']->Id);
@@ -88,7 +88,7 @@ describe('F-18 data karyawan', function (): void {
             ->and(LogAudit::query()->where('Peristiwa', 'karyawan.nonaktifkan')->count())->toBe(1)
             ->and(LogAudit::query()->where('Peristiwa', 'karyawan.tambah')->value('NilaiBaru'))->not->toContain('3500000');
 
-        $this->getJson('/kelola/karyawan?cari=rina')->assertOk()->assertJsonPath('Meta.Total', 1)->assertJsonPath('Data.0.Jabatan', 'Kepala Barista');
+        $this->getJson('/kelola/karyawan?cari='.urlencode($rina->Nama))->assertOk()->assertJsonPath('Meta.Total', 1)->assertJsonPath('Data.0.Jabatan', 'Kepala Barista');
         $this->post("/kelola/karyawan/{$rina->Uuid}/aktifkan")->assertSessionHasNoErrors();
         $this->put("/kelola/karyawan/{$rina->Uuid}", ['Nama' => 'Rina Wulandari', 'GajiPokok' => '4000000'])->assertSessionHasNoErrors();
 

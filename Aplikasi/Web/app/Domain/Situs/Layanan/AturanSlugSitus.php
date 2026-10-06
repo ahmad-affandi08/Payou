@@ -32,8 +32,8 @@ final class AturanSlugSitus
 
         // F-07 mode service: `/{slugToko}/reservasi` adalah halaman reservasi online toko; bengkel (§9.10):
         // `/{slugToko}/servis/{token}` adalah halaman persetujuan estimasi servis; F-18 bagian 4: `/{slugToko}/absen/{token}`
-        // adalah halaman absensi web karyawan, `/{slugToko}/layar-absen/{token}` layar QR absensi outlet.
-        if (in_array(explode('/', $slug)[1] ?? null, ['reservasi', 'servis', 'absen', 'layar-absen'], true)) {
+        // adalah halaman absensi web karyawan, `/{slugToko}/layar-absen/{token}` layar QR absensi outlet; F-17 bagian 4: `/{slugToko}/kios/{token}` kios pesan sendiri.
+        if (in_array(explode('/', $slug)[1] ?? null, ['reservasi', 'servis', 'absen', 'layar-absen', 'kios'], true)) {
             return 'Slug ini dipakai sistem. Pilih slug lain.';
         }
 

@@ -60,6 +60,10 @@ function JalurBolehD25(): array
         'Gaya/Muat.css',
         'Halaman/Publik/Absensi.tsx',
         'Halaman/Publik/TokoOnline.tsx',
+        // D-80: kios pesan sendiri dan layar antrian adalah papan yang dibaca dari jarak jauh (nomor antrian, judul layar
+        // sambutan), jadi memakai skala besar yang sama dengan hero; tetap bukan bagian back-office atau halaman tenant biasa.
+        'Halaman/Publik/Kios.tsx',
+        'Halaman/Publik/AntrianKios.tsx',
     ];
 }
 

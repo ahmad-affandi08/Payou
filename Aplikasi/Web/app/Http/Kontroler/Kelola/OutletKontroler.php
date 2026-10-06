@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Kontroler\Kelola;
 
 use App\Domain\Organisasi\Aksi\AturJenisPesananOutlet;
+use App\Domain\Organisasi\Aksi\AturKiosOutlet;
 use App\Domain\Organisasi\Aksi\AturLayarAbsensiOutlet;
 use App\Domain\Organisasi\Aksi\AturLokasiAbsensiOutlet;
 use App\Domain\Organisasi\Aksi\AturWajibQrAbsensi;
@@ -21,6 +22,7 @@ use App\Domain\Organisasi\Layanan\PenjagaModeMeja;
 use App\Domain\Organisasi\Model\Gudang;
 use App\Domain\Organisasi\Model\Merek;
 use App\Domain\Organisasi\Model\Outlet;
+use App\Domain\Penjualan\Model\PengaturanTokoOnline;
 use App\Domain\Referensi\Enum\ZonaWaktu;
 use App\Domain\Referensi\Kueri\WilayahKota;
 use App\Domain\Tenant\Kueri\ProfilTenant;
@@ -28,6 +30,7 @@ use App\Domain\Tenant\Layanan\PastikanBatasPaket;
 use App\Domain\Tenant\Layanan\PemeriksaFiturTenant;
 use App\Http\Permintaan\Kelola\AturJenisPesananOutletPermintaan;
 use App\Http\Permintaan\Kelola\AturLokasiAbsensiOutletPermintaan;
+use App\Http\Permintaan\Kelola\AturPesanSendiriOutletPermintaan;
 use App\Http\Permintaan\Kelola\AturWajibQrAbsensiPermintaan;
 use App\Http\Permintaan\Kelola\SimpanOutletPermintaan;
 use Illuminate\Http\RedirectResponse;
@@ -192,7 +195,33 @@ final class OutletKontroler extends DasarKelolaKontroler
                 'FiturAktif' => $fitur->CekAktifDiOutlet($baris->IdTenant, $baris->Id, PemeriksaFiturTenant::KUNCI_PESAN_SENDIRI),
                 'Aktif' => $baris->PesanSendiriAktif,
             ],
+            // F-17 bagian 4: kios pesan sendiri di layar sentuh outlet (tautan rahasia per outlet).
+            'Kios' => [
+                'FiturAktif' => $fitur->CekAktifDiOutlet($baris->IdTenant, $baris->Id, PemeriksaFiturTenant::KUNCI_PESAN_SENDIRI),
+                'Aktif' => $baris->KiosAktif,
+                'Tautan' => is_string($baris->TokenKios) ? url('/'.$profil->AmbilSlug($baris->IdTenant)."/kios/{$baris->TokenKios}") : null,
+                'TautanAntrian' => is_string($baris->TokenKios) ? url('/'.$profil->AmbilSlug($baris->IdTenant)."/kios/{$baris->TokenKios}/antrian") : null,
+                'QrisTersedia' => PengaturanTokoOnline::query()->value('QrisAktif') === true,
+            ],
         ]);
+    }
+
+    /** F-17 bagian 4: hidupkan/matikan kios pesan sendiri outlet; tautan rahasia dibuat saat pertama kali dihidupkan. */
+    public function AturKios(string $outlet, AturPesanSendiriOutletPermintaan $permintaan, AturKiosOutlet $atur): RedirectResponse
+    {
+        $baris = $atur->Jalankan($this->CariOutlet($outlet), $permintaan->boolean('Aktif'));
+
+        return back()->with('Kilat', $baris->KiosAktif
+            ? "Kios pesan sendiri aktif di {$baris->Nama}. Buka tautannya di tablet outlet."
+            : "Kios pesan sendiri dimatikan di {$baris->Nama}.");
+    }
+
+    /** Tautan lama langsung mati (misal tablet hilang); tablet outlet harus membuka tautan yang baru. */
+    public function BuatUlangKios(string $outlet, AturKiosOutlet $atur): RedirectResponse
+    {
+        $baris = $atur->BuatUlangToken($this->CariOutlet($outlet));
+
+        return back()->with('Kilat', "Tautan kios {$baris->Nama} dibuat ulang. Tautan lama tidak berlaku lagi; buka tautan baru di tablet outlet.");
     }
 
     public function Simpan(SimpanOutletPermintaan $permintaan, SimpanOutlet $simpan): RedirectResponse

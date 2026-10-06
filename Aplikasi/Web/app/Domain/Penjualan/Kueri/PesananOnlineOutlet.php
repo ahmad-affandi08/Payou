@@ -6,6 +6,7 @@ namespace App\Domain\Penjualan\Kueri;
 
 use App\Domain\Organisasi\Kueri\TanggalBisnisOutlet;
 use App\Domain\Pelanggan\Kueri\CariPelangganPos;
+use App\Domain\Penjualan\Aksi\BuatPesananKios;
 use App\Domain\Penjualan\Enum\JenisMetodePembayaran;
 use App\Domain\Penjualan\Enum\StatusPesananOnline;
 use App\Domain\Penjualan\Model\MetodePembayaran;
@@ -72,6 +73,9 @@ final class PesananOnlineOutlet
                 'JenisPemenuhan' => $p->JenisPemenuhan->value, 'MetodePembayaran' => $p->MetodePembayaran->value,
                 'Status' => $p->Status->value, 'Subtotal' => $p->Subtotal, 'Ongkir' => $p->Ongkir, 'DiskonOngkir' => $p->DiskonOngkir, 'Total' => $p->Total,
                 'Catatan' => $p->Catatan, 'DibuatPada' => $p->DibuatPada?->toIso8601ZuluString(),
+                // F-17 bagian 4 (aditif): pesanan kios membawa nomor antrian (K001) dan pilihan makan di sini/bawa pulang.
+                'Sumber' => $p->Sumber->value, 'JenisSantap' => $p->JenisSantap?->value,
+                'NomorAntrian' => $p->NomorAntrian === null ? null : BuatPesananKios::LabelAntrian($p->NomorAntrian),
                 'SudahDibayar' => $p->DibayarPada !== null, 'SisaUangMuka' => $p->AmbilSisaUangMuka()->KeString(),
                 'Pelanggan' => $p->IdPelanggan === null ? null : ($pelanggan[$p->IdPelanggan] ?? null),
                 // v3.46 (aditif): voucher checkout yang sudah dipesan untuk pesanan; kasir memuatnya tanpa memesan ulang.

@@ -8,6 +8,7 @@ import Tombol from '@/Komponen/Formulir/Tombol';
 import BagianMeja, { type ModeMejaOutlet } from '@/Komponen/Kelola/BagianMeja';
 import FormOutlet from '@/Komponen/Kelola/FormOutlet';
 import JenisPesananOutlet, { type JenisPesananOutletData } from '@/Komponen/Kelola/JenisPesananOutlet';
+import KiosOutlet, { type KiosOutletData } from '@/Komponen/Kelola/KiosOutlet';
 import LokasiAbsensiOutlet, { type LokasiAbsensiOutletData } from '@/Komponen/Kelola/LokasiAbsensiOutlet';
 import type { PesanSendiriOutlet } from '@/Komponen/Kelola/PesanSendiriMeja';
 import DialogFormulir from '@/Komponen/Tindakan/DialogFormulir';
@@ -51,6 +52,8 @@ type PropsDetail = {
     PesanSendiri: PesanSendiriOutlet;
     JenisPesanan: JenisPesananOutletData;
     LokasiAbsensi: LokasiAbsensiOutletData;
+    /** F-17 bagian 4: kios pesan sendiri; opsional supaya halaman lama tanpa data kios tetap terbuka. */
+    Kios?: KiosOutletData;
 };
 
 /** Profil outlet, lokasi stok (F-02 langkah 1–2, BR-02.2, BR-02.4), meja (F-10a), dan QR pesan sendiri (F-17). */
@@ -65,6 +68,7 @@ export default function HalamanDetailOutlet({
     PesanSendiri,
     JenisPesanan,
     LokasiAbsensi,
+    Kios,
 }: PropsDetail) {
     const { props } = usePage<PropsBersamaAplikasi>();
     const bolehKelola = PunyaIzinTenant(props.Akses, IzinTenant.OutletKelola);
@@ -165,6 +169,10 @@ export default function HalamanDetailOutlet({
                 bolehKelola={bolehKelola && Outlet.Status === 'Aktif'}
                 pesanSendiri={PesanSendiri}
             />
+
+            {Kios ? (
+                <KiosOutlet alamatOutlet={alamat} data={Kios} bolehKelola={bolehKelola && Outlet.Status === 'Aktif'} />
+            ) : null}
         </TataLetakAplikasi>
     );
 }

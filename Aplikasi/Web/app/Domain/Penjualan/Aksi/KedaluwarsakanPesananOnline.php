@@ -8,6 +8,7 @@ use App\Domain\Bersama\Audit\Layanan\PencatatAudit;
 use App\Domain\Bersama\Dokumen\Layanan\PencatatRiwayatStatus;
 use App\Domain\Penjualan\Enum\PeristiwaPesananOnline;
 use App\Domain\Penjualan\Enum\StatusPesananOnline;
+use App\Domain\Penjualan\Enum\SumberPesananOnline;
 use App\Domain\Penjualan\Layanan\PemberitahuPesananOnline;
 use App\Domain\Penjualan\Model\PengaturanTokoOnline;
 use App\Domain\Penjualan\Model\PesananOnline;
@@ -38,6 +39,9 @@ final class KedaluwarsakanPesananOnline
     /** Tenggang setelah QR tidak berlaku, supaya notifikasi gerbang yang sedikit terlambat tetap menang. */
     public const MENIT_TENGGANG_BAYAR = 10;
 
+    /** F-17 bagian 4: pesanan kios yang tidak pernah dijawab kasir hangus lebih cepat; stoknya ikut dicadangkan. */
+    public const MENIT_KEDALUWARSA_KIOS = 30;
+
     public function __construct(
         private readonly PencatatRiwayatStatus $riwayat,
         private readonly PencatatAudit $audit,
@@ -50,24 +54,30 @@ final class KedaluwarsakanPesananOnline
     public function Jalankan(): int
     {
         $menit = PengaturanTokoOnline::query()->value('MenitKedaluwarsa');
-
-        if ($menit === null) {
-            return 0;
-        }
-
         $jumlah = 0;
 
         foreach (self::BATAS as $status => $hitungMenit) {
-            $batas = now()->subMinutes($hitungMenit === null ? (int) $menit : $hitungMenit);
-            $pesanan = PesananOnline::query()
-                ->where('Status', $status)
-                ->whereNull('DibayarPada')
-                ->where('DibuatPada', '<', $batas)
-                ->orderBy('Id')
-                ->get();
+            // Toko online memakai batas dari pengaturan toko; kios punya batas sendiri dan tidak butuh toko online aktif.
+            $menitWeb = $hitungMenit ?? ($menit === null ? null : (int) $menit);
+            $menitKios = $hitungMenit ?? self::MENIT_KEDALUWARSA_KIOS;
 
-            foreach ($pesanan as $satu) {
-                $jumlah += $this->Hanguskan($satu->Id, $batas);
+            foreach ([[SumberPesananOnline::Web, $menitWeb], [SumberPesananOnline::Kios, $menitKios]] as [$sumber, $hitung]) {
+                if ($hitung === null) {
+                    continue;
+                }
+
+                $batas = now()->subMinutes($hitung);
+                $pesanan = PesananOnline::query()
+                    ->where('Status', $status)
+                    ->where('Sumber', $sumber->value)
+                    ->whereNull('DibayarPada')
+                    ->where('DibuatPada', '<', $batas)
+                    ->orderBy('Id')
+                    ->get();
+
+                foreach ($pesanan as $satu) {
+                    $jumlah += $this->Hanguskan($satu->Id, $batas);
+                }
             }
         }
 

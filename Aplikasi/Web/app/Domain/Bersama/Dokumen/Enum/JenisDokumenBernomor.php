@@ -68,6 +68,9 @@ enum JenisDokumenBernomor: string
     /** Sektor Bengkel bagian 1 (§9.10): perintah kerja `WO/{OUTLET}/{YYMM}/{SEQ4}` per outlet. */
     case PerintahKerja = 'PerintahKerja';
 
+    /** F-17 bagian 4: nomor antrian kios, urut harian per outlet (ditampilkan sebagai K001, bukan nomor dokumen). */
+    case AntrianKios = 'AntrianKios';
+
     public function AmbilAwalan(): string
     {
         return match ($this) {
@@ -97,6 +100,7 @@ enum JenisDokumenBernomor: string
             self::PembayaranKonsinyasi => 'BK',
             self::BiayaTambahanPembelian => 'BY',
             self::PerintahKerja => 'WO',
+            self::AntrianKios => 'KI',
         };
     }
 
@@ -107,6 +111,7 @@ enum JenisDokumenBernomor: string
             self::StokOpname => 3,
             self::Jurnal => 6,
             self::PesananPembelian, self::PenerimaanBarang, self::FakturPembelian, self::PembayaranHutang, self::ReturPembelian, self::PembayaranPiutang, self::PesananSendiri, self::PesananOnline, self::Reservasi, self::PesananGrosir, self::SuratJalan, self::FakturPenjualan, self::ReturGrosir, self::Pencairan, self::AsetTetap, self::DokumenKonsinyasi, self::PembayaranKonsinyasi, self::BiayaTambahanPembelian, self::PerintahKerja => 4,
+            self::AntrianKios => 3,
         };
     }
 

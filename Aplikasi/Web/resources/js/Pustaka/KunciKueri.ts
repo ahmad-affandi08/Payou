@@ -51,6 +51,14 @@ export const KunciKueri = {
         Status: (token: string, uuid: string) => ['PesanSendiri', 'Status', token, uuid] as const,
         QrMeja: (uuidMeja: string) => ['PesanSendiri', 'QrMeja', uuidMeja] as const,
     },
+    // F-17 bagian 4: kios pesan sendiri di layar sentuh outlet (menu per pilihan makan di sini/bawa pulang, harga keranjang
+    // dari server, status pesanan, layar antrian).
+    Kios: {
+        Menu: (token: string, santap: string) => ['Kios', 'Menu', token, santap] as const,
+        Hitung: (token: string, santap: string, tanda: string) => ['Kios', 'Hitung', token, santap, tanda] as const,
+        Status: (token: string, kodeAkses: string) => ['Kios', 'Status', token, kodeAkses] as const,
+        Antrian: (token: string) => ['Kios', 'Antrian', token] as const,
+    },
     // F-07 mode service: slot reservasi kosong (back-office & halaman publik) per outlet/layanan/tanggal/staf.
     Reservasi: {
         Slot: (alamat: string, outlet: string, layanan: string, tanggal: string, staf: string) =>

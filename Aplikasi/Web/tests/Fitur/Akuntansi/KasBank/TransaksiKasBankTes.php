@@ -101,7 +101,7 @@ describe('F-13a transaksi kas & bank (FIN-03, PRD "Rincian F-13a")', function ()
             ->where('Transaksi.AkunSumber', '1-1100 Kas Outlet')
             ->where('Transaksi.AkunTujuan', '6-2000 Beban Sewa, Listrik, Air, Internet')
             ->where('Transaksi.Jumlah', '1250000.00')
-            ->where('Transaksi.NamaOutlet', 'Outlet Utama')
+            ->where('Transaksi.NamaOutlet', 'Toko Sembako Berkah Jaya')
             ->has('Jurnal', 1)
             ->missing('Transaksi.PathLampiran'));
     });

@@ -7,6 +7,7 @@ use App\Domain\Organisasi\Enum\IzinTenant;
 use App\Domain\Organisasi\Kueri\MejaPesanSendiri;
 use App\Domain\Pelanggan\Layanan\TautanBerhentiLangganan;
 use App\Domain\Penjualan\Layanan\KodeStrukDigital;
+use App\Domain\Penjualan\Layanan\PenentuKonteksKios;
 use App\Domain\Situs\Layanan\AturanSlugSitus;
 use App\Domain\Situs\Model\ArtikelSitus;
 use App\Http\Kontroler\Autentikasi\KataSandiKontroler;
@@ -26,6 +27,7 @@ use App\Http\Kontroler\Publik\AbsensiWebKontroler;
 use App\Http\Kontroler\Publik\AkunTokoOnlineKontroler;
 use App\Http\Kontroler\Publik\BerhentiLanggananKontroler;
 use App\Http\Kontroler\Publik\DokumenLegalPublikKontroler;
+use App\Http\Kontroler\Publik\KiosKontroler;
 use App\Http\Kontroler\Publik\KompatibilitasPerangkatKontroler as KompatibilitasPerangkatPublikKontroler;
 use App\Http\Kontroler\Publik\LayarAbsensiKontroler;
 use App\Http\Kontroler\Publik\PengembangKontroler;
@@ -318,6 +320,27 @@ Route::middleware([TolakDomainPengelola::class, ArahkanDomainAplikasi::class, Ba
                 ->withoutMiddleware(ValidateCsrfToken::class)
                 ->middleware('throttle:pesan-sendiri-20')
                 ->name('publik.pesan-sendiri.pesan');
+        });
+
+    // F-17 bagian 4: kios pesan sendiri di layar sentuh outlet (tanpa login, tanpa data pribadi) + layar antrian.
+    // Tautan rahasia per outlet (`Outlet.TokenKios`); `kios` dicadangkan di `AturanSlugSitus`.
+    Route::prefix('/{slugTenant}/kios/{tokenKios}')
+        ->where(['slugTenant' => '[a-z0-9]+(?:-[a-z0-9]+)*', 'tokenKios' => PenentuKonteksKios::POLA_TOKEN])
+        ->group(function (): void {
+            Route::get('/', [KiosKontroler::class, 'Tampilkan'])->middleware('throttle:kios-120')->name('publik.kios');
+            Route::get('/menu', [KiosKontroler::class, 'Menu'])->middleware('throttle:kios-120')->name('publik.kios.menu');
+            Route::get('/gambar/{produk}', [KiosKontroler::class, 'Gambar'])
+                ->where('produk', '[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}')->middleware('throttle:kios-600')->name('publik.kios.gambar');
+            Route::get('/antrian', [KiosKontroler::class, 'Antrian'])->middleware('throttle:kios-120')->name('publik.kios.antrian');
+            Route::get('/antrian/data', [KiosKontroler::class, 'DataAntrian'])->middleware('throttle:kios-120')->name('publik.kios.antrian.data');
+            Route::post('/hitung', [KiosKontroler::class, 'Hitung'])->withoutMiddleware(ValidateCsrfToken::class)->middleware('throttle:kios-120')->name('publik.kios.hitung');
+            Route::post('/pesan', [KiosKontroler::class, 'Pesan'])->withoutMiddleware(ValidateCsrfToken::class)->middleware('throttle:kios-30')->name('publik.kios.pesan');
+            Route::get('/pesanan/{kodeAkses}', [KiosKontroler::class, 'Status'])
+                ->where('kodeAkses', '[A-Za-z0-9]{16}')->middleware('throttle:kios-120')->name('publik.kios.status');
+            Route::post('/pesanan/{kodeAkses}/bayar', [KiosKontroler::class, 'Bayar'])
+                ->where('kodeAkses', '[A-Za-z0-9]{16}')->withoutMiddleware(ValidateCsrfToken::class)->middleware('throttle:kios-30')->name('publik.kios.bayar');
+            Route::get('/pesanan/{kodeAkses}/status-bayar', [KiosKontroler::class, 'StatusBayar'])
+                ->where('kodeAkses', '[A-Za-z0-9]{16}')->middleware('throttle:kios-120')->name('publik.kios.status-bayar');
         });
 
     // Bengkel (§9.10): persetujuan estimasi servis tanpa akun lewat tautan rahasia (WhatsApp) dari bengkel. Slug
