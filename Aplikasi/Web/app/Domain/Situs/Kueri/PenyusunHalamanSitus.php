@@ -53,7 +53,32 @@ final class PenyusunHalamanSitus
      */
     public function AmbilDraf(HalamanSitus $halaman): array
     {
-        return [...$this->Susun($halaman->Slug, $halaman->Judul, $halaman->JudulSeo, $halaman->DeskripsiSeo, $halaman->UuidGambarOg, $halaman->BagianDraf), 'Pratinjau' => true];
+        return [...$this->Susun($halaman->Slug, $halaman->Judul, $halaman->JudulSeo, $halaman->DeskripsiSeo, $halaman->UuidGambarOg, $halaman->BagianDraf), 'Pratinjau' => true, 'AsalEditor' => self::AmbilAsalEditor()];
+    }
+
+    /**
+     * Pratinjau langsung editor visual: draf yang belum disimpan (blok sudah diperiksa pemanggil).
+     *
+     * @param  list<array<string, mixed>>  $bagian
+     * @return array<string, mixed>
+     */
+    public function AmbilDrafSementara(string $slug, string $judul, ?string $judulSeo, ?string $deskripsiSeo, ?string $uuidGambarOg, array $bagian): array
+    {
+        return [...$this->Susun($slug, $judul, $judulSeo, $deskripsiSeo, $uuidGambarOg, $bagian), 'Pratinjau' => true, 'AsalEditor' => self::AmbilAsalEditor()];
+    }
+
+    /**
+     * Asal (skema + host) konsol pengelola; satu-satunya pihak yang boleh membingkai pratinjau dan mengirim isi
+     * langsung lewat `postMessage` (editor visual).
+     */
+    public static function AmbilAsalEditor(): string
+    {
+        $url = AlamatDomain::BuatUrl((string) config('pengelola.Domain'), '/');
+        $skema = (string) parse_url($url, PHP_URL_SCHEME);
+        $host = (string) parse_url($url, PHP_URL_HOST);
+        $port = parse_url($url, PHP_URL_PORT);
+
+        return $skema.'://'.$host.(is_int($port) ? ':'.$port : '');
     }
 
     /**

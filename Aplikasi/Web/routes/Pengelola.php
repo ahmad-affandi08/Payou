@@ -190,6 +190,7 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
             Route::get('/pengaturan', [SitusKontroler::class, 'Pengaturan'])->name('pengelola.situs.pengaturan');
             Route::get('/halaman', [SitusKontroler::class, 'DaftarHalaman'])->name('pengelola.situs.halaman.daftar');
             Route::get('/halaman/{halamanSitus}', [SitusKontroler::class, 'UbahHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.ubah');
+            Route::post('/halaman/{halamanSitus}/pratinjau-langsung', [SitusKontroler::class, 'PratinjauLangsung'])->where('halamanSitus', $ulidSitus)->middleware('throttle:240,1')->name('pengelola.situs.halaman.pratinjau-langsung');
             Route::get('/halaman/{halamanSitus}/pratinjau', [SitusKontroler::class, 'PratinjauHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.pratinjau');
             Route::get('/gambar', [SitusKontroler::class, 'DaftarGambar'])->name('pengelola.situs.gambar.daftar');
             Route::get('/prospek', [ProspekSitusKontroler::class, 'Daftar'])->name('pengelola.situs.prospek.daftar');
@@ -198,6 +199,7 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
             Route::middleware($izin(IzinPengelola::SitusKelola))->group(function () use ($ulidSitus): void {
                 Route::put('/pengaturan', [SitusKontroler::class, 'SimpanPengaturan'])->name('pengelola.situs.pengaturan.simpan');
                 Route::post('/halaman', [SitusKontroler::class, 'BuatHalaman'])->name('pengelola.situs.halaman.buat');
+                Route::put('/halaman/{halamanSitus}/draf-otomatis', [SitusKontroler::class, 'SimpanOtomatis'])->where('halamanSitus', $ulidSitus)->middleware('throttle:60,1')->name('pengelola.situs.halaman.simpan-otomatis');
                 Route::put('/halaman/{halamanSitus}', [SitusKontroler::class, 'SimpanHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.simpan');
                 Route::post('/halaman/{halamanSitus}/terbitkan', [SitusKontroler::class, 'TerbitkanHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.terbitkan');
                 Route::post('/halaman/{halamanSitus}/aktif', [SitusKontroler::class, 'UbahAktifHalaman'])->where('halamanSitus', $ulidSitus)->name('pengelola.situs.halaman.aktif');

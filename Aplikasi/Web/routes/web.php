@@ -42,6 +42,7 @@ use App\Http\Perantara\BagikanDataInertia;
 use App\Http\Perantara\BagikanDataSitus;
 use App\Http\Perantara\BatasiTenantDitangguhkan;
 use App\Http\Perantara\IdentifikasiTenantSesi;
+use App\Http\Perantara\PasangBingkaiPratinjau;
 use App\Http\Perantara\Pengelola\BagikanDataInertiaPengelola;
 use App\Http\Perantara\Pengelola\CatatAuditPengelola;
 use App\Http\Perantara\Pengelola\TolakDomainPengelola;
@@ -84,7 +85,7 @@ if ($saas) {
         Route::get('/pratinjau-situs/{halamanSitus}', [SitusKontroler::class, 'Pratinjau'])
             ->where('halamanSitus', '[0-9A-HJKMNP-TV-Z]{26}')
             // Tanda tangan relatif: konsol menandatangani jalur lalu memasang domain pemasaran (D-20).
-            ->middleware('signed:relative')
+            ->middleware(['signed:relative', PasangBingkaiPratinjau::class])
             ->name('situs.pratinjau');
         // Bagian B: formulir kontak/minta demo (perangkap bot + batas per nomor di Aksi).
         Route::post('/prospek', [ProspekSitusKontroler::class, 'Kirim'])->middleware('throttle:5,1')->name('situs.prospek.kirim');

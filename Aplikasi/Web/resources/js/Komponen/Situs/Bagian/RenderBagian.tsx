@@ -1,5 +1,8 @@
+import type { ReactNode } from 'react';
+
 import type { BagianSitus } from '@/Tipe/Situs';
 
+import BagianBelumLengkap from './BagianBelumLengkap';
 import BagianFormulirProspek from './BagianFormulirProspek';
 import BagianHarga from './BagianHarga';
 import BagianHero from './BagianHero';
@@ -92,9 +95,50 @@ export function HitungIrama(bagian: BagianSitus[]): IramaBagian[] {
     return hasil;
 }
 
+/** Mode penyunting editor visual (D-63): blok bisa diklik untuk memilihnya di editor. */
+export type PenyuntingBlok = { terpilih: number | null; saatPilih: (indeks: number) => void };
+
+/** Pembungkus blok di pratinjau editor: sorot saat disorot/dipilih, klik memilih blok (tautan & formulir dimatikan). */
+function BlokPenyunting({
+    indeks,
+    penyunting,
+    children,
+}: {
+    indeks: number;
+    penyunting: PenyuntingBlok;
+    children: ReactNode;
+}) {
+    const terpilih = penyunting.terpilih === indeks;
+
+    return (
+        <div
+            data-blok={indeks}
+            className={`relative cursor-pointer outline-offset-[-3px] transition-[outline-color] hover:outline-3 hover:outline-brand/40 ${
+                terpilih ? 'outline-3 outline-aksen hover:outline-aksen' : ''
+            }`}
+            onClickCapture={(p) => {
+                p.preventDefault();
+                p.stopPropagation();
+                penyunting.saatPilih(indeks);
+            }}
+            onSubmitCapture={(p) => p.preventDefault()}
+        >
+            {children}
+        </div>
+    );
+}
+
 /** Render daftar blok halaman situs (D-21). Blok Hero pertama memakai `<h1>`. */
-export default function RenderBagian({ bagian }: { bagian: BagianSitus[] }) {
+export default function RenderBagian({ bagian, penyunting }: { bagian: BagianSitus[]; penyunting?: PenyuntingBlok }) {
     const irama = HitungIrama(bagian);
+    const Bungkus = (i: number, isi: ReactNode) =>
+        penyunting ? (
+            <BlokPenyunting key={`p-${i}`} indeks={i} penyunting={penyunting}>
+                {isi}
+            </BlokPenyunting>
+        ) : (
+            isi
+        );
 
     return (
         <>
@@ -104,35 +148,58 @@ export default function RenderBagian({ bagian }: { bagian: BagianSitus[] }) {
 
                 switch (b.Jenis) {
                     case 'Hero':
-                        return <BagianHero key={kunci} bagian={b} utama={i === 0} />;
+                        return Bungkus(i, <BagianHero key={kunci} bagian={b} utama={i === 0} />);
                     case 'Keunggulan':
-                        return <BagianKeunggulan key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(
+                            i,
+                            <BagianKeunggulan key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />,
+                        );
                     case 'Sektor':
-                        return <BagianSektor key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(i, <BagianSektor key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />);
                     case 'GambarTeks':
-                        return <BagianGambarTeks key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(
+                            i,
+                            <BagianGambarTeks key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />,
+                        );
                     case 'Statistik':
-                        return <BagianStatistik key={kunci} bagian={b} />;
+                        return Bungkus(i, <BagianStatistik key={kunci} bagian={b} />);
                     case 'Testimoni':
-                        return <BagianTestimoni key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(
+                            i,
+                            <BagianTestimoni key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />,
+                        );
                     case 'Harga':
-                        return <BagianHarga key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(i, <BagianHarga key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />);
                     case 'Faq':
-                        return <BagianFaq key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(i, <BagianFaq key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />);
                     case 'Cta':
-                        return <BagianCta key={kunci} bagian={b} />;
+                        return Bungkus(i, <BagianCta key={kunci} bagian={b} />);
                     case 'TeksBebas':
-                        return <BagianTeksBebas key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(
+                            i,
+                            <BagianTeksBebas key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />,
+                        );
                     case 'LogoMitra':
-                        return <BagianLogoMitra key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(
+                            i,
+                            <BagianLogoMitra key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />,
+                        );
                     case 'Video':
-                        return <BagianVideo key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(i, <BagianVideo key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />);
                     case 'UnduhAplikasi':
-                        return <BagianUnduhAplikasi key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(
+                            i,
+                            <BagianUnduhAplikasi key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />,
+                        );
                     case 'Kontak':
-                        return <BagianKontak key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(i, <BagianKontak key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />);
                     case 'FormulirProspek':
-                        return <BagianFormulirProspek key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />;
+                        return Bungkus(
+                            i,
+                            <BagianFormulirProspek key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />,
+                        );
+                    case 'BelumLengkap':
+                        return Bungkus(i, <BagianBelumLengkap key={kunci} label={b.Label} />);
                     default:
                         return null;
                 }

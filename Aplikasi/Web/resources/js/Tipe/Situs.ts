@@ -121,6 +121,7 @@ export type BagianSitus =
     | ({ Jenis: 'Video' } & JudulBagian & { UrlYoutube: string; IdYoutube: string | null })
     | ({ Jenis: 'UnduhAplikasi' } & JudulBagian)
     | ({ Jenis: 'Kontak' } & JudulBagian)
+    | { Jenis: 'BelumLengkap'; Label: string }
     | ({ Jenis: 'FormulirProspek' } & JudulBagian & {
               JenisProspek: 'Kontak' | 'Demo' | null;
               TeksTombol: string | null;
@@ -132,6 +133,8 @@ export type HalamanSitus = {
     Bagian: BagianSitus[];
     Seo: { Judul: string; Deskripsi: string };
     Pratinjau?: boolean;
+    /** Editor visual (D-63): asal konsol yang boleh membingkai & mengirim isi langsung. */
+    AsalEditor?: string;
 };
 
 export type PropsHalamanSitus = { Halaman: HalamanSitus; Situs: DataSitus };

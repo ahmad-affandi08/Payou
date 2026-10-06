@@ -346,6 +346,57 @@ function TombolIkon({
     );
 }
 
+type PropsIsiBlok = {
+    awalan: string;
+    blok: NilaiBlok;
+    skema: SkemaBlok;
+    galat: Record<string, string>;
+    ikon: string[];
+    bolehUbah: boolean;
+    saatBerubah: (blok: NilaiBlok) => void;
+};
+
+/** Bidang-bidang satu blok menurut skemanya (dipakai editor lipat lama dan editor visual D-63). */
+export function IsiBlok({ awalan, blok, skema, galat, ikon, bolehUbah, saatBerubah }: PropsIsiBlok) {
+    return (
+        <div className="grid gap-4 sm:grid-cols-2">
+            {galat[awalan] ? (
+                <p className="text-keterangan font-semibold text-bahaya sm:col-span-2">{galat[awalan]}</p>
+            ) : null}
+            {blok.Jenis === 'Harga' ? (
+                <p className="rounded-kontrol bg-info-lembut p-3 text-isi text-teks-utama sm:col-span-2">
+                    Daftar paket & harga diambil otomatis dari Katalog → Paket dan Harga paket (harga terbit yang
+                    berlaku hari ini).
+                </p>
+            ) : null}
+            {blok.Jenis === 'FormulirProspek' ? (
+                <p className="rounded-kontrol bg-info-lembut p-3 text-isi text-teks-utama sm:col-span-2">
+                    Pengunjung mengisi nama, nomor WhatsApp, dan pesan. Isian masuk ke tab Prospek dan dikirim ke email
+                    notifikasi prospek (tab Pengaturan).
+                </p>
+            ) : null}
+            {blok.Jenis === 'UnduhAplikasi' || blok.Jenis === 'Kontak' ? (
+                <p className="rounded-kontrol bg-info-lembut p-3 text-isi text-teks-utama sm:col-span-2">
+                    Isinya diambil dari tab Pengaturan ({blok.Jenis === 'Kontak' ? 'kontak' : 'tautan unduh aplikasi'}).
+                </p>
+            ) : null}
+            {Object.entries(skema).map(([bidang, aturan]) => (
+                <BidangSkema
+                    key={bidang}
+                    bidang={bidang}
+                    aturan={aturan}
+                    nilai={blok[bidang]}
+                    saatBerubah={(v) => saatBerubah({ ...blok, [bidang]: v })}
+                    galat={galat}
+                    jalur={`${awalan}.${bidang}`}
+                    ikon={ikon}
+                    bolehUbah={bolehUbah}
+                />
+            ))}
+        </div>
+    );
+}
+
 type PropsEditorBlok = {
     indeks: number;
     jumlah: number;
@@ -415,41 +466,16 @@ export default function EditorBlok({
                     </span>
                 ) : null}
             </summary>
-            <div className="grid gap-4 border-t border-garis p-4 sm:grid-cols-2">
-                {galat[awalan] ? (
-                    <p className="text-keterangan font-semibold text-bahaya sm:col-span-2">{galat[awalan]}</p>
-                ) : null}
-                {blok.Jenis === 'Harga' ? (
-                    <p className="rounded-kontrol bg-info-lembut p-3 text-isi text-teks-utama sm:col-span-2">
-                        Daftar paket & harga diambil otomatis dari Katalog → Paket dan Harga paket (harga terbit yang
-                        berlaku hari ini).
-                    </p>
-                ) : null}
-                {blok.Jenis === 'FormulirProspek' ? (
-                    <p className="rounded-kontrol bg-info-lembut p-3 text-isi text-teks-utama sm:col-span-2">
-                        Pengunjung mengisi nama, nomor WhatsApp, dan pesan. Isian masuk ke tab Prospek dan dikirim ke
-                        email notifikasi prospek (tab Pengaturan).
-                    </p>
-                ) : null}
-                {blok.Jenis === 'UnduhAplikasi' || blok.Jenis === 'Kontak' ? (
-                    <p className="rounded-kontrol bg-info-lembut p-3 text-isi text-teks-utama sm:col-span-2">
-                        Isinya diambil dari tab Pengaturan (
-                        {blok.Jenis === 'Kontak' ? 'kontak' : 'tautan unduh aplikasi'}).
-                    </p>
-                ) : null}
-                {Object.entries(skema).map(([bidang, aturan]) => (
-                    <BidangSkema
-                        key={bidang}
-                        bidang={bidang}
-                        aturan={aturan}
-                        nilai={blok[bidang]}
-                        saatBerubah={(v) => saatBerubah({ ...blok, [bidang]: v })}
-                        galat={galat}
-                        jalur={`${awalan}.${bidang}`}
-                        ikon={ikon}
-                        bolehUbah={bolehUbah}
-                    />
-                ))}
+            <div className="border-t border-garis p-4">
+                <IsiBlok
+                    awalan={awalan}
+                    blok={blok}
+                    skema={skema}
+                    galat={galat}
+                    ikon={ikon}
+                    bolehUbah={bolehUbah}
+                    saatBerubah={saatBerubah}
+                />
             </div>
         </details>
     );

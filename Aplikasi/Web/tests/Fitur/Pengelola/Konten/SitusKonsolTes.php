@@ -153,6 +153,71 @@ describe('D-21 halaman berblok', function (): void {
     });
 });
 
+describe('D-63 penyunting visual halaman situs', function (): void {
+    function BuatHalamanEditor(TestCase $tes): array
+    {
+        $tes->post(BantuanPengelola::Url('/situs/halaman'), ['Slug' => 'editor-uji', 'Judul' => 'Editor uji']);
+        $halaman = HalamanSitus::query()->where('Slug', 'editor-uji')->sole();
+
+        return [$halaman, BantuanPengelola::Url("/situs/halaman/{$halaman->Uuid}")];
+    }
+
+    it('membuka penyunting dengan alamat pratinjau bertanda tangan', function (): void {
+        MasukSebagaiKontenSitus($this);
+        [, $url] = BuatHalamanEditor($this);
+
+        $this->get($url)->assertOk()->assertInertia(fn (AssertableInertia $h) => $h
+            ->component('Pengelola/Situs/Halaman/Ubah')
+            ->where('UrlPratinjauEditor', fn ($u) => is_string($u) && str_contains($u, 'signature='))
+            ->has('NamaSitus')
+            ->has('AlamatSitus'));
+    });
+
+    it('pratinjau langsung menerima blok belum lengkap sebagai penanda, bukan galat', function (): void {
+        MasukSebagaiKontenSitus($this);
+        [, $url] = BuatHalamanEditor($this);
+
+        $bagian = [...BagianUjiSitus(), ['Jenis' => 'Hero', 'Judul' => '']];
+        $respons = $this->postJson("{$url}/pratinjau-langsung", ['Judul' => 'Editor uji', 'Bagian' => $bagian])->assertOk();
+
+        $respons->assertJsonPath('Halaman.Bagian.0.Judul', 'Kasir untuk warung kopi')
+            ->assertJsonPath('Halaman.Bagian.2.Jenis', 'BelumLengkap');
+        expect($respons->json('Galat'))->not->toBeEmpty();
+    });
+
+    it('simpan otomatis menyimpan draf tanpa menerbitkan dan menolak blok tidak sah', function (): void {
+        MasukSebagaiKontenSitus($this);
+        [$halaman, $url] = BuatHalamanEditor($this);
+
+        $this->putJson("{$url}/draf-otomatis", ['Slug' => 'editor-uji', 'Judul' => 'Editor uji', 'Bagian' => BagianUjiSitus('Otomatis')])
+            ->assertOk()->assertJsonStructure(['DisimpanPada', 'AdaPerubahan']);
+        expect($halaman->refresh()->BagianDraf[0]['Judul'])->toBe('Otomatis');
+        $this->get(UrlSitusPublik('/editor-uji'))->assertNotFound();
+
+        $this->putJson("{$url}/draf-otomatis", ['Slug' => 'editor-uji', 'Judul' => 'Editor uji', 'Bagian' => [['Jenis' => 'Hero', 'Judul' => '']]])
+            ->assertUnprocessable();
+    });
+
+    it('izin: yang hanya boleh melihat tidak bisa simpan otomatis', function (): void {
+        MasukSebagaiKontenSitus($this);
+        [, $url] = BuatHalamanEditor($this);
+        MasukSebagaiKontenSitus($this, PeranPengelolaBawaan::Dukungan);
+
+        $this->putJson("{$url}/draf-otomatis", ['Slug' => 'editor-uji', 'Judul' => 'x', 'Bagian' => []])->assertForbidden();
+    });
+
+    it('tautan pratinjau hanya boleh dibingkai oleh konsol', function (): void {
+        MasukSebagaiKontenSitus($this);
+        [$halaman] = BuatHalamanEditor($this);
+
+        $lokasi = (string) $this->get(BantuanPengelola::Url("/situs/halaman/{$halaman->Uuid}/pratinjau"))->headers->get('Location');
+        $respons = $this->get($lokasi)->assertOk();
+
+        expect((string) $respons->headers->get('Content-Security-Policy'))->toContain('frame-ancestors')->not->toContain('*')
+            ->and((string) $respons->headers->get('Cache-Control'))->toContain('no-store');
+    });
+});
+
 describe('D-21 pengaturan situs', function (): void {
     it('menyimpan pengaturan (langsung berlaku) dan menolak tautan & URL berbahaya', function (): void {
         MasukSebagaiKontenSitus($this);
