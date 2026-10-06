@@ -53,6 +53,39 @@ class KanalBluetoothKlasik(private val aktivitas: Activity, messenger: BinaryMes
         pekerja.shutdown()
     }
 
+    /** Jawaban galat selalu lewat utas utama dan paling banyak sekali per panggilan. */
+    private fun KirimGalat(result: MethodChannel.Result, kode: String, pesan: String, rincian: String?) {
+        utama.post {
+            try {
+                result.error(kode, pesan, rincian)
+            } catch (_: IllegalStateException) {
+                // Jawaban sudah terkirim.
+            }
+        }
+    }
+
+    private fun KirimBerhasil(result: MethodChannel.Result) {
+        utama.post {
+            try {
+                result.success(null)
+            } catch (_: IllegalStateException) {
+                // Jawaban sudah terkirim.
+            }
+        }
+    }
+
+    private fun GalatKeKode(galat: Throwable): String = when (galat) {
+        is SecurityException -> "IzinDitolak"
+        is IOException -> "GagalMengirim"
+        else -> "GalatTakTerduga"
+    }
+
+    private fun PesanGalat(galat: Throwable): String = when (galat) {
+        is SecurityException -> "Izinkan akses Perangkat di sekitar agar printer Bluetooth bisa dipakai."
+        is IOException -> "Struk gagal terkirim ke printer Bluetooth. Coba cetak lagi."
+        else -> "Printer Bluetooth tidak bisa dipakai. Pastikan printer menyala dan sudah di-pair, lalu coba lagi."
+    }
+
     private fun AmbilAdaptor(): BluetoothAdapter? =
         (aktivitas.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)?.adapter
 
@@ -61,6 +94,15 @@ class KanalBluetoothKlasik(private val aktivitas: Activity, messenger: BinaryMes
             aktivitas.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
+        // Galat tak terduga (mis. SecurityException dari izin yang dicabut) jadi jawaban galat ke Dart, bukan aplikasi tertutup.
+        try {
+            TanganiPanggilan(call, result)
+        } catch (galat: Throwable) {
+            KirimGalat(result, GalatKeKode(galat), PesanGalat(galat), galat.message)
+        }
+    }
+
+    private fun TanganiPanggilan(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "Status" -> {
                 val adaptor = AmbilAdaptor()
@@ -118,7 +160,7 @@ class KanalBluetoothKlasik(private val aktivitas: Activity, messenger: BinaryMes
         if (!adaptor.isEnabled) {
             return result.error("BluetoothMati", "Bluetooth mati. Nyalakan Bluetooth, lalu coba lagi.", null)
         }
-        val daftar = adaptor.bondedDevices
+        val daftar = (adaptor.bondedDevices ?: emptySet())
             .filter { it.type != BluetoothDevice.DEVICE_TYPE_LE }
             .map { mapOf("Nama" to (it.name ?: it.address), "Alamat" to it.address) }
             .sortedBy { it["Nama"] }
@@ -137,41 +179,68 @@ class KanalBluetoothKlasik(private val aktivitas: Activity, messenger: BinaryMes
         if (!BluetoothAdapter.checkBluetoothAddress(alamat)) {
             return result.error("PrinterTidakDitemukan", "Alamat printer Bluetooth tidak valid. Pilih ulang printer.", null)
         }
-        pekerja.execute {
+        try {
+            pekerja.execute { KerjakanCetak(adaptor, alamat, data, result) }
+        } catch (galat: java.util.concurrent.RejectedExecutionException) {
+            result.error("GagalMengirim", "Printer Bluetooth sedang ditutup. Coba cetak lagi.", galat.message)
+        }
+    }
+
+    /** Berjalan di utas pekerja: apa pun yang terlempar di sini harus berakhir sebagai jawaban galat, tidak pernah menjatuhkan aplikasi. */
+    @SuppressLint("MissingPermission")
+    private fun KerjakanCetak(adaptor: BluetoothAdapter, alamat: String, data: ByteArray, result: MethodChannel.Result) {
+        var soket: BluetoothSocket? = null
+        try {
             val perangkat = adaptor.getRemoteDevice(alamat)
-            // Pemindaian yang berjalan memperlambat dan menggagalkan sambungan RFCOMM.
+            BatalkanPemindaian(adaptor)
+            soket = try {
+                BukaSoket(perangkat)
+            } catch (galat: IOException) {
+                KirimGalat(
+                    result,
+                    "GagalTersambung",
+                    "Printer Bluetooth tidak tersambung. Pastikan printer menyala, sudah di-pair, dan tidak sedang dipakai perangkat lain.",
+                    galat.message,
+                )
+                return
+            }
+            val keluaran = soket.outputStream
+            keluaran.write(data)
+            keluaran.flush()
+            // Beri waktu printer menarik data dari buffer radio sebelum soket ditutup (printer murah memotong
+            // struk bila sambungan diputus terlalu cepat): ±1 detik per 8 KB, minimal 300 ms.
+            Thread.sleep(300L + data.size / 8L)
+            KirimBerhasil(result)
+        } catch (galat: InterruptedException) {
+            Thread.currentThread().interrupt()
+            KirimGalat(result, "GagalMengirim", "Pencetakan dibatalkan. Coba cetak lagi.", galat.message)
+        } catch (galat: Throwable) {
+            KirimGalat(result, GalatKeKode(galat), PesanGalat(galat), galat.message)
+        } finally {
+            try {
+                soket?.close()
+            } catch (_: Throwable) {
+            }
+        }
+    }
+
+    /**
+     * Pemindaian yang berjalan memperlambat dan menggagalkan sambungan RFCOMM. Di Android 12+ membatalkannya butuh izin
+     * BLUETOOTH_SCAN yang tidak diminta aplikasi (printer sudah di-pair, tidak perlu memindai), jadi tanpa izin itu
+     * dilewati: memanggilnya tanpa izin melempar SecurityException.
+     */
+    @SuppressLint("MissingPermission")
+    private fun BatalkanPemindaian(adaptor: BluetoothAdapter) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            aktivitas.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        try {
             if (adaptor.isDiscovering) {
                 adaptor.cancelDiscovery()
             }
-            val soket = try {
-                BukaSoket(perangkat)
-            } catch (galat: IOException) {
-                utama.post {
-                    result.error(
-                        "GagalTersambung",
-                        "Printer Bluetooth tidak tersambung. Pastikan printer menyala, sudah di-pair, dan tidak sedang dipakai perangkat lain.",
-                        galat.message,
-                    )
-                }
-                return@execute
-            }
-            try {
-                soket.outputStream.write(data)
-                soket.outputStream.flush()
-                // Beri waktu printer menarik data dari buffer radio sebelum soket ditutup (printer murah memotong
-                // struk bila sambungan diputus terlalu cepat): ±1 detik per 8 KB, minimal 300 ms.
-                Thread.sleep(300L + data.size / 8L)
-                utama.post { result.success(null) }
-            } catch (galat: IOException) {
-                utama.post {
-                    result.error("GagalMengirim", "Struk gagal terkirim ke printer Bluetooth. Coba cetak lagi.", galat.message)
-                }
-            } finally {
-                try {
-                    soket.close()
-                } catch (_: IOException) {
-                }
-            }
+        } catch (_: SecurityException) {
         }
     }
 
@@ -200,6 +269,8 @@ class KanalBluetoothKlasik(private val aktivitas: Activity, messenger: BinaryMes
                 } catch (_: IOException) {
                 }
             } catch (galat: ReflectiveOperationException) {
+                galatTerakhir = IOException(galat)
+            } catch (galat: IllegalArgumentException) {
                 galatTerakhir = IOException(galat)
             }
         }

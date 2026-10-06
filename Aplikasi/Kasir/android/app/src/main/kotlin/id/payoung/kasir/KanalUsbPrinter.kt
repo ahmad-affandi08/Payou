@@ -159,41 +159,55 @@ class KanalUsbPrinter(private val aktivitas: Activity, messenger: BinaryMessenge
 
     private fun KirimDenganIzin(manajer: UsbManager, perangkat: UsbDevice, data: ByteArray, result: MethodChannel.Result) {
         pekerja.execute {
-            val (antarmuka, endpoint) = CariEndpointKeluar(perangkat) ?: run {
-                utama.post { result.error("PrinterTidakDitemukan", "Perangkat USB ini bukan printer yang dikenali.", null) }
-                return@execute
-            }
-            val sambungan = manajer.openDevice(perangkat) ?: run {
-                utama.post {
-                    result.error("GagalTersambung", "Printer USB tidak bisa dibuka. Cabut lalu pasang lagi kabel USB-nya.", null)
-                }
-                return@execute
-            }
+            // Apa pun yang terlempar di utas pekerja harus jadi jawaban galat, bukan aplikasi tertutup.
             try {
-                if (!sambungan.claimInterface(antarmuka, true)) {
-                    utama.post {
-                        result.error("GagalTersambung", "Printer USB sedang dipakai aplikasi lain. Tutup aplikasi itu, lalu coba lagi.", null)
+                KerjakanKirim(manajer, perangkat, data, result)
+            } catch (galat: Throwable) {
+                utama.post {
+                    try {
+                        result.error("GagalMengirim", "Struk gagal terkirim ke printer USB. Cabut lalu pasang lagi kabelnya, lalu coba lagi.", galat.message)
+                    } catch (_: IllegalStateException) {
                     }
-                    return@execute
                 }
-                var posisi = 0
-                while (posisi < data.size) {
-                    // bulkTransfer dengan offset baru ada di API 28; salin potongan agar jalan di Android lama.
-                    val potongan = data.copyOfRange(posisi, minOf(posisi + UKURAN_POTONGAN, data.size))
-                    val terkirim = sambungan.bulkTransfer(endpoint, potongan, potongan.size, BATAS_WAKTU_MS)
-                    if (terkirim <= 0) {
-                        utama.post {
-                            result.error("GagalMengirim", "Struk gagal terkirim ke printer USB. Cek kertas & kabel, lalu cetak lagi.", null)
-                        }
-                        return@execute
-                    }
-                    posisi += terkirim
-                }
-                utama.post { result.success(null) }
-            } finally {
-                sambungan.releaseInterface(antarmuka)
-                sambungan.close()
             }
+        }
+    }
+
+    private fun KerjakanKirim(manajer: UsbManager, perangkat: UsbDevice, data: ByteArray, result: MethodChannel.Result) {
+        val (antarmuka, endpoint) = CariEndpointKeluar(perangkat) ?: run {
+            utama.post { result.error("PrinterTidakDitemukan", "Perangkat USB ini bukan printer yang dikenali.", null) }
+            return
+        }
+        val sambungan = manajer.openDevice(perangkat) ?: run {
+            utama.post {
+                result.error("GagalTersambung", "Printer USB tidak bisa dibuka. Cabut lalu pasang lagi kabel USB-nya.", null)
+            }
+            return
+        }
+        try {
+            if (!sambungan.claimInterface(antarmuka, true)) {
+                utama.post {
+                    result.error("GagalTersambung", "Printer USB sedang dipakai aplikasi lain. Tutup aplikasi itu, lalu coba lagi.", null)
+                }
+                return
+            }
+            var posisi = 0
+            while (posisi < data.size) {
+                // bulkTransfer dengan offset baru ada di API 28; salin potongan agar jalan di Android lama.
+                val potongan = data.copyOfRange(posisi, minOf(posisi + UKURAN_POTONGAN, data.size))
+                val terkirim = sambungan.bulkTransfer(endpoint, potongan, potongan.size, BATAS_WAKTU_MS)
+                if (terkirim <= 0) {
+                    utama.post {
+                        result.error("GagalMengirim", "Struk gagal terkirim ke printer USB. Cek kertas & kabel, lalu cetak lagi.", null)
+                    }
+                    return
+                }
+                posisi += terkirim
+            }
+            utama.post { result.success(null) }
+        } finally {
+            sambungan.releaseInterface(antarmuka)
+            sambungan.close()
         }
     }
 }
