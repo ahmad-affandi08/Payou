@@ -55,6 +55,7 @@ class _EditorProfilPrinterState extends ConsumerState<EditorProfilPrinter> {
   var _lebar = LebarKertas.Mm58;
   var _cetakOtomatis = true;
   var _bukaLaci = true;
+  var _umpanAkhir = PerintahEscPos.umpanAkhirBawaan;
   var _sibuk = false;
   var _mencari = false;
   List<PrinterDitemukan>? _hasilCari;
@@ -79,6 +80,7 @@ class _EditorProfilPrinterState extends ConsumerState<EditorProfilPrinter> {
     _lebar = profil?.lebar ?? (widget.opsiStruk ? LebarKertas.Mm58 : LebarKertas.Mm80);
     _cetakOtomatis = profil?.cetakOtomatis ?? true;
     _bukaLaci = profil?.bukaLaciTunai ?? true;
+    _umpanAkhir = profil?.umpanAkhir ?? PerintahEscPos.umpanAkhirBawaan;
   }
 
   @override
@@ -149,6 +151,7 @@ class _EditorProfilPrinterState extends ConsumerState<EditorProfilPrinter> {
       lebar: _lebar,
       cetakOtomatis: _cetakOtomatis,
       bukaLaciTunai: _bukaLaci && _jenis != JenisTransport.CetakSistem,
+      umpanAkhir: _umpanAkhir,
     );
   }
 
@@ -330,6 +333,22 @@ class _EditorProfilPrinterState extends ConsumerState<EditorProfilPrinter> {
           selected: {_lebar},
           onSelectionChanged: (pilihan) => setState(() => _lebar = pilihan.single),
         ),
+        if (_jenis != JenisTransport.CetakSistem) ...[
+          const SizedBox(height: TokenJarak.jarak8),
+          Text('Kertas kosong di ujung struk: $_umpanAkhir baris', style: teks.labelLarge),
+          Slider(
+            key: const ValueKey('UmpanAkhir'),
+            value: _umpanAkhir.toDouble(),
+            max: PerintahEscPos.umpanAkhirMaksimal.toDouble(),
+            divisions: PerintahEscPos.umpanAkhirMaksimal,
+            label: '$_umpanAkhir',
+            onChanged: (nilai) => setState(() => _umpanAkhir = nilai.round()),
+          ),
+          Text(
+            'Kurangi bila kertas di bawah tulisan terakhir terlalu panjang; naikkan bila tulisan ikut terpotong.',
+            style: teks.bodySmall,
+          ),
+        ],
         const SizedBox(height: TokenJarak.jarak8),
         if (widget.opsiStruk) ...[
           SwitchListTile(

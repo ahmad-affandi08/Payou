@@ -310,6 +310,11 @@ void main() {
     await profil.copyWith(lebar: LebarKertas.Mm80, port: 9101).Simpan(u.repositori);
     final dimuat = (await ProfilPrinter.Muat(u.repositori))!;
     expect((dimuat.alamat, dimuat.port, dimuat.lebar), ('192.168.1.50', 9101, LebarKertas.Mm80));
+    expect(dimuat.umpanAkhir, PerintahEscPos.umpanAkhirBawaan);
+    await profil.copyWith(umpanAkhir: 1).Simpan(u.repositori);
+    expect((await ProfilPrinter.Muat(u.repositori))!.umpanAkhir, 1);
+    // Profil lama tanpa kunci UmpanAkhir memakai bawaan baru (lebih pendek dari 4 baris dulu).
+    expect(ProfilPrinter.DariJson({...profil.KeJson()}..remove('UmpanAkhir'))!.umpanAkhir, PerintahEscPos.umpanAkhirBawaan);
     await u.repositori.SimpanPengaturan(KunciPengaturan.profilPrinter, '{rusak');
     expect(await ProfilPrinter.Muat(u.repositori), isNull);
     await ProfilPrinter.Hapus(u.repositori);

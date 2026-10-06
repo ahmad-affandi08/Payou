@@ -18,6 +18,7 @@ class ProfilPrinter {
     this.lebar = LebarKertas.Mm58,
     this.cetakOtomatis = true,
     this.bukaLaciTunai = true,
+    this.umpanAkhir = PerintahEscPos.umpanAkhirBawaan,
   });
 
   /// Alamat profil printer sistem (v1.97): printer dipilih di dialog cetak sistem.
@@ -46,6 +47,9 @@ class ProfilPrinter {
   /// Buka laci kas (lewat printer) saat pembayaran memuat tunai.
   final bool bukaLaciTunai;
 
+  /// Baris kosong sebelum kertas dipotong/disobek (0–8). Kurangi bila kertas kosong di ujung struk terlalu panjang.
+  final int umpanAkhir;
+
   String get label => switch (jenis) {
     JenisTransport.Jaringan => 'LAN/Wi-Fi $alamat:$port | ${lebar.label}',
     JenisTransport.CetakSistem => 'Printer sistem (PDF/AirPrint/driver) | ${lebar.label}',
@@ -73,7 +77,14 @@ class ProfilPrinter {
     return angka == null || angka < 1 || angka > 65535 ? 'Port berupa angka 1 sampai 65535, biasanya 9100.' : null;
   }
 
-  ProfilPrinter copyWith({String? alamat, int? port, LebarKertas? lebar, bool? cetakOtomatis, bool? bukaLaciTunai}) =>
+  ProfilPrinter copyWith({
+    String? alamat,
+    int? port,
+    LebarKertas? lebar,
+    bool? cetakOtomatis,
+    bool? bukaLaciTunai,
+    int? umpanAkhir,
+  }) =>
       ProfilPrinter(
         alamat: alamat ?? this.alamat,
         jenis: jenis,
@@ -82,6 +93,7 @@ class ProfilPrinter {
         lebar: lebar ?? this.lebar,
         cetakOtomatis: cetakOtomatis ?? this.cetakOtomatis,
         bukaLaciTunai: bukaLaciTunai ?? this.bukaLaciTunai,
+        umpanAkhir: umpanAkhir ?? this.umpanAkhir,
       );
 
   Map<String, Object?> KeJson() => {
@@ -92,6 +104,7 @@ class ProfilPrinter {
     'Lebar': lebar.name,
     'CetakOtomatis': cetakOtomatis,
     'BukaLaciTunai': bukaLaciTunai,
+    'UmpanAkhir': umpanAkhir,
   };
 
   static ProfilPrinter? DariJson(Object? json) {
@@ -113,6 +126,9 @@ class ProfilPrinter {
       lebar: LebarKertas.values.where((l) => l.name == json['Lebar']).firstOrNull ?? LebarKertas.Mm58,
       cetakOtomatis: json['CetakOtomatis'] != false,
       bukaLaciTunai: json['BukaLaciTunai'] != false,
+      umpanAkhir: json['UmpanAkhir'] is int
+          ? (json['UmpanAkhir']! as int).clamp(0, PerintahEscPos.umpanAkhirMaksimal)
+          : PerintahEscPos.umpanAkhirBawaan,
     );
   }
 

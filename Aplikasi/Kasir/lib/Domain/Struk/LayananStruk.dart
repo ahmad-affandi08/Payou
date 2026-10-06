@@ -66,7 +66,7 @@ class LayananStruk {
       cetakUlang: cetakUlang,
       bukaLaci: laci,
     );
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).Cetak(dokumen);
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).Cetak(dokumen);
   }
 
   /// Bukti void [uuidPenjualan] (cetak struk bagian 3b). [bukaLaci] untuk refund tunai dari laci.
@@ -78,7 +78,7 @@ class LayananStruk {
       throw const GalatKasir('VoidTidakDitemukan', 'Void transaksi ini tidak ada di perangkat.');
     }
     final laci = bukaLaci && profil.bukaLaciTunai && !Uang.Dari(dokumen.RefundTunai).BernilaiNol();
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).Cetak(
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).Cetak(
       PenyusunDokumenKasir.SusunVoid(
         await IdentitasStruk.Muat(repositori),
         jual,
@@ -97,7 +97,7 @@ class LayananStruk {
       throw const GalatKasir('ReturTidakDitemukan', 'Retur ini tidak ada di perangkat.');
     }
     final laci = bukaLaci && profil.bukaLaciTunai && !Uang.Dari(retur.RefundTunai).BernilaiNol();
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).Cetak(
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).Cetak(
       PenyusunDokumenKasir.SusunRetur(
         await IdentitasStruk.Muat(repositori),
         retur,
@@ -114,7 +114,7 @@ class LayananStruk {
   /// bila [bukaLaci] (cetak otomatis pertama), profil mengizinkan, dan uang muka tunai.
   Future<void> CetakPreOrder(PreOrderTersimpan preOrder, {bool cetakUlang = false, bool bukaLaci = false}) async {
     final profil = await _WajibProfil();
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).Cetak(
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).Cetak(
       PenyusunDokumenKasir.SusunPreOrder(
         await IdentitasStruk.Muat(repositori),
         preOrder,
@@ -146,12 +146,12 @@ class LayananStruk {
       namaKasir: namaKasir,
       jumlahTamu: jumlahTamu,
     );
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).Cetak(dokumen);
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).Cetak(dokumen);
   }
 
   Future<void> CetakNotaLaundry(TiketLaundryPos tiket) async {
     final profil = await _WajibProfil();
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).Cetak(
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).Cetak(
       PenyusunDokumenKasir.SusunNotaLaundry(
         await IdentitasStruk.Muat(repositori),
         tiket,
@@ -164,7 +164,7 @@ class LayananStruk {
   /// (cetak otomatis pertama), profil mengizinkan, dan dibayar tunai.
   Future<void> CetakIsiDeposit(IsiDepositTersimpan isi, {bool cetakUlang = false, bool bukaLaci = false}) async {
     final profil = await _WajibProfil();
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).Cetak(
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).Cetak(
       PenyusunDokumenKasir.SusunIsiDeposit(
         await IdentitasStruk.Muat(repositori),
         isi,
@@ -176,7 +176,7 @@ class LayananStruk {
 
   Future<void> CetakLaporanShift(LaporanShift laporan, {bool tampilkanKasSeharusnya = true}) async {
     final profil = await _WajibProfil();
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).Cetak(
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).Cetak(
       PenyusunDokumenKasir.SusunLaporanShift(
         await IdentitasStruk.Muat(repositori),
         laporan,
@@ -200,18 +200,18 @@ class LayananStruk {
   /// Cetak [dokumen] ke printer [profil] (null = printer struk perangkat ini); dipakai tiket dapur (bagian 4c).
   Future<void> CetakDokumenKe(ProfilPrinter? profil, DokumenStruk dokumen) async {
     final tujuan = profil ?? await _WajibProfil();
-    await PrinterStruk(pembuatTransport(tujuan), tujuan.lebar).Cetak(dokumen);
+    await PrinterStruk(pembuatTransport(tujuan), tujuan.lebar, umpanAkhir: tujuan.umpanAkhir).Cetak(dokumen);
   }
 
   /// Kirim pulsa laci (ESC p) lewat printer tanpa mencetak. Dipanggil `LayananBukaLaci` yang mencatat log-nya.
   Future<void> BukaLaci() async {
     final profil = await _WajibProfil();
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).BukaLaci();
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).BukaLaci();
   }
 
   Future<void> CetakUji(ProfilPrinter profil) async {
     final identitas = await IdentitasStruk.Muat(repositori);
-    await PrinterStruk(pembuatTransport(profil), profil.lebar).CetakUji(
+    await PrinterStruk(pembuatTransport(profil), profil.lebar, umpanAkhir: profil.umpanAkhir).CetakUji(
       namaUsaha: identitas.pengaturan.namaDicetak ?? identitas.namaUsaha,
       keterangan: 'Printer ${profil.alamat}:${profil.port}',
     );

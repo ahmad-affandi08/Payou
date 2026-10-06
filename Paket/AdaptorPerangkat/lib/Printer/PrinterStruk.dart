@@ -4,15 +4,18 @@ import 'TransportPrinter.dart';
 
 /// Port printer struk (PRD §17.2.5a `PortPrinter`): cetak dokumen, cetak uji, dan buka laci lewat satu transport.
 class PrinterStruk {
-  const PrinterStruk(this.transport, this.lebar);
+  const PrinterStruk(this.transport, this.lebar, {this.umpanAkhir = PerintahEscPos.umpanAkhirBawaan});
 
   final TransportPrinter transport;
   final LebarKertas lebar;
 
+  /// Baris kosong sebelum potong/sobek (atur per printer: pisau dan printer tanpa pisau berbeda).
+  final int umpanAkhir;
+
   /// Printer sistem ([TransportDokumen]) menerima dokumen utuh; laci tidak ikut dibuka.
   Future<void> Cetak(DokumenStruk dokumen) => switch (transport) {
     final TransportDokumen sistem => sistem.CetakDokumen(dokumen, lebar),
-    _ => transport.Kirim(PengodeEscPos.Kodekan(dokumen, lebar)),
+    _ => transport.Kirim(PengodeEscPos.Kodekan(dokumen, lebar, umpanAkhir: umpanAkhir)),
   };
 
   Future<void> BukaLaci() => transport is TransportDokumen

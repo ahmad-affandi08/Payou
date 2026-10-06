@@ -37,6 +37,20 @@ void main() {
       expect(byte.sublist(byte.length - PerintahEscPos.potongKertas.length), PerintahEscPos.potongKertas);
     });
 
+    test('umpan sebelum potong bisa diatur; 0 = tanpa umpan; bawaan tidak lagi 4 baris', () {
+      expect(PerintahEscPos.potongKertas.sublist(0, 3), [0x1B, 0x64, PerintahEscPos.umpanAkhirBawaan]);
+      expect(PerintahEscPos.umpanAkhirBawaan, lessThan(4));
+      expect(PerintahEscPos.PotongKertas(0), [0x1D, 0x56, 0x42, 0x00]);
+      expect(PerintahEscPos.PotongKertas(99).sublist(0, 3), [0x1B, 0x64, PerintahEscPos.umpanAkhirMaksimal]);
+
+      final byte = PengodeEscPos.Kodekan(
+        const DokumenStruk([BarisTeks('A')]),
+        LebarKertas.Mm58,
+        umpanAkhir: 5,
+      );
+      expect(byte.sublist(byte.length - 7), [0x1B, 0x64, 0x05, 0x1D, 0x56, 0x42, 0x00]);
+    });
+
     test('tanpa laci & tanpa potong: tidak ada pulsa laci maupun pemotong', () {
       final byte = PengodeEscPos.Kodekan(const DokumenStruk([BarisKosong()], potong: false), LebarKertas.Mm80);
       expect(Cari(byte, PerintahEscPos.bukaLaci), -1);

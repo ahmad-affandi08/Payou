@@ -17,14 +17,33 @@ abstract final class PerintahEscPos {
   /// `ESC p 0 t1 t2`: pulsa laci kas di pin 2 (50 ms nyala, 500 ms jeda).
   static const List<int> bukaLaci = [0x1B, 0x70, 0x00, 0x19, 0xFA];
 
-  /// `ESC d 4` lalu `GS V 66 0`: dorong kertas melewati pisau, potong sebagian.
-  static const List<int> potongKertas = [0x1B, 0x64, 0x04, 0x1D, 0x56, 0x42, 0x00];
+  /// Baris kosong bawaan sebelum potong/sobek. Dulu 4 baris, terlalu panjang: `GS V 66 0` sendiri sudah mendorong
+  /// kertas ke posisi pisau, jadi umpan tambahan hanya menambah kertas kosong.
+  static const int umpanAkhirBawaan = 2;
+
+  /// Umpan terbanyak yang bisa diatur (baris).
+  static const int umpanAkhirMaksimal = 8;
+
+  /// `ESC d n` (n baris kosong; dilewati bila 0) lalu `GS V 66 0`: dorong kertas ke pisau, potong sebagian.
+  static List<int> PotongKertas([int umpan = umpanAkhirBawaan]) => [
+    if (umpan > 0) ...[0x1B, 0x64, umpan.clamp(0, umpanAkhirMaksimal)],
+    0x1D,
+    0x56,
+    0x42,
+    0x00,
+  ];
+
+  static List<int> get potongKertas => PotongKertas();
   static const int barisBaru = 0x0A;
 }
 
 /// Mengubah [DokumenStruk] menjadi byte ESC/POS. Teks melewati [TataLetakStruk] (sudah ASCII & selebar kertas).
 abstract final class PengodeEscPos {
-  static Uint8List Kodekan(DokumenStruk dokumen, LebarKertas lebar) {
+  static Uint8List Kodekan(
+    DokumenStruk dokumen,
+    LebarKertas lebar, {
+    int umpanAkhir = PerintahEscPos.umpanAkhirBawaan,
+  }) {
     final keluaran = BytesBuilder(copy: false)..add(PerintahEscPos.inisialisasi);
     if (dokumen.bukaLaci) {
       keluaran.add(PerintahEscPos.bukaLaci);
@@ -53,7 +72,7 @@ abstract final class PengodeEscPos {
       }
     }
     if (dokumen.potong) {
-      keluaran.add(PerintahEscPos.potongKertas);
+      keluaran.add(PerintahEscPos.PotongKertas(umpanAkhir));
     }
     return keluaran.takeBytes();
   }
