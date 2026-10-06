@@ -6,8 +6,9 @@
     Tailwind. Nilai hex di sini disalin dari token `Gaya/Aplikasi.css` dan dijaga `tests/Arsitektur/SurelTes.php`.
 
     Struktur email memakai tabel `role="presentation"` karena klien email tidak bisa diandalkan untuk
-    flexbox/grid. Tanpa gambar: gambar diblokir bawaan di banyak klien, jadi merek dibawa lewat teks
-    berwarna, bukan berkas logo.
+    flexbox/grid. Satu-satunya gambar adalah logo merek (D-74) dari `public/surel/logo-payoung.png`, dengan
+    `alt` bernama merek dan ukuran tetap supaya tata letak tidak bergeser saat gambar diblokir; tanpa piksel
+    pelacak. `SurelTes` menjaga bahwa hanya tata letak ini yang boleh memuat gambar.
 
     Bagian yang diisi templat anak:
     - `Pratinjau`  : satu baris teks cuplikan di kotak masuk (wajib, kalau kosong klien memakai isi email).
@@ -33,11 +34,11 @@
         /* Klien yang mendukung <style> memakai ini; sisanya tetap benar karena semua gaya juga inline. */
         body { margin: 0; padding: 0; width: 100% !important; }
         a { color: #3b5b5d; }
-        .Kartu { border-radius: 0 0 10px 10px; }
+        .Kartu { border-radius: 12px; }
         @media only screen and (max-width: 600px) {
             .Bingkai { width: 100% !important; }
-            .Sisi { padding-left: 20px !important; padding-right: 20px !important; }
-            .JudulKartu { font-size: 20px !important; line-height: 26px !important; }
+            .Sisi { padding-left: 22px !important; padding-right: 22px !important; }
+            .JudulKartu { font-size: 22px !important; line-height: 29px !important; }
         }
     </style>
 </head>
@@ -50,43 +51,50 @@
 
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f7f9f6;">
     <tr>
-        <td align="center" style="padding:24px 12px 40px 12px;">
+        <td align="center" style="padding:32px 12px 48px 12px;">
 
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" class="Bingkai" style="width:600px; max-width:600px;">
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="560" class="Bingkai" style="width:560px; max-width:560px;">
 
-                {{-- Kepala merek: wordmark di atas latar Slate Teal gelap, digarisi Apricot aksen dari logo. --}}
+                {{-- Satu panel putih berbingkai tipis: logo, judul, isi, lalu kaki. Tanpa pita warna dan tanpa garis aksen. --}}
                 <tr>
-                    <td class="Sisi" style="background-color:#22383a; border-radius:10px 10px 0 0; padding:22px 32px;">
-                        <span style="font-family:'Atkinson Hyperlegible Next','Atkinson Hyperlegible',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:20px; line-height:26px; font-weight:bold; letter-spacing:3px; color:#ffffff; text-transform:uppercase;">{{ config('app.name') }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="background-color:#f4a261; line-height:4px; font-size:4px; height:4px;">&nbsp;</td>
-                </tr>
-
-                {{-- Kartu isi --}}
-                <tr>
-                    <td class="Kartu" style="background-color:#ffffff; border-left:1px solid #e8ece9; border-right:1px solid #e8ece9; border-bottom:1px solid #e8ece9; border-radius:0 0 10px 10px;">
+                    <td class="Kartu" style="background-color:#ffffff; border:1px solid #e8ece9; border-radius:12px;">
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                             <tr>
-                                <td class="Sisi" style="padding:32px;">
-                                    <h1 class="JudulKartu" style="margin:0 0 16px 0; font-family:'Atkinson Hyperlegible Next','Atkinson Hyperlegible',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:24px; line-height:30px; font-weight:bold; color:#1f3335;">@yield('Judul')</h1>
+                                <td class="Sisi" style="padding:36px 40px 0 40px;">
+                                    <img src="{{ asset('surel/logo-payoung.png') }}" width="120" height="28" alt="{{ config('app.name') }}" style="display:block; border:0; outline:none; text-decoration:none; width:120px; height:28px; font-family:'Atkinson Hyperlegible Next','Atkinson Hyperlegible',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:20px; line-height:28px; font-weight:bold; color:#22383a;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="Sisi" style="padding:28px 40px 0 40px;">
+                                    <div style="border-top:1px solid #e8ece9; line-height:1px; font-size:1px;">&nbsp;</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="Sisi" style="padding:20px 40px 36px 40px;">
+                                    <h1 class="JudulKartu" style="margin:0 0 20px 0; font-family:'Atkinson Hyperlegible Next','Atkinson Hyperlegible',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:26px; line-height:34px; font-weight:bold; letter-spacing:-0.3px; color:#1f3335;">@yield('Judul')</h1>
                                     @yield('Isi')
                                 </td>
                             </tr>
+                            @hasSection('CatatanKaki')
+                                <tr>
+                                    <td class="Sisi" style="padding:0 40px 32px 40px;">
+                                        <div style="border-top:1px solid #e8ece9; line-height:1px; font-size:1px;">&nbsp;</div>
+                                        <p style="margin:16px 0 0 0; font-family:'Atkinson Hyperlegible Next','Atkinson Hyperlegible',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#4f6567;">@yield('CatatanKaki')</p>
+                                    </td>
+                                </tr>
+                            @endif
                         </table>
                     </td>
                 </tr>
 
-                {{-- Kaki bersama, di luar kartu --}}
+                {{-- Kaki bersama, di luar panel --}}
                 <tr>
-                    <td class="Sisi" style="padding:24px 32px 0 32px; font-family:'Atkinson Hyperlegible Next','Atkinson Hyperlegible',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#4f6567;">
-                        @hasSection('CatatanKaki')
-                            <p style="margin:0 0 12px 0;">@yield('CatatanKaki')</p>
-                        @endif
+                    <td class="Sisi" style="padding:24px 8px 0 8px; font-family:'Atkinson Hyperlegible Next','Atkinson Hyperlegible',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:19px; color:#4f6567; text-align:center;">
+                        <p style="margin:0 0 6px 0;">
+                            <strong style="color:#1f3335;">{{ config('app.name') }}</strong> &nbsp;|&nbsp; kasir, stok, dan pembukuan dalam satu aplikasi
+                        </p>
                         <p style="margin:0;">
-                            {{ config('app.name') }} &mdash; kasir, stok, dan pembukuan dalam satu aplikasi.<br />
-                            Butuh bantuan? Balas email ini atau hubungi <a href="mailto:{{ config('mail.from.address') }}" style="color:#3b5b5d; text-decoration:underline;">{{ config('mail.from.address') }}</a>.
+                            Butuh bantuan? Balas email ini atau hubungi <a href="mailto:{{ config('mail.from.address') }}" style="color:#3b5b5d; text-decoration:underline;">{{ config('mail.from.address') }}</a>
                         </p>
                     </td>
                 </tr>

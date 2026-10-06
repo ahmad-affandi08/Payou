@@ -117,18 +117,32 @@ it('badan HTML tidak pernah mengeluarkan nilai mentah tanpa e()', function (): v
     expect($pelanggar)->toBe([]);
 });
 
-it('templat email tidak memuat gambar, jadi tidak ada piksel pelacak dan tidak bergantung gambar', function (): void {
-    // Klien email memblokir gambar secara bawaan; email Payoung harus utuh tanpa gambar. Sekaligus janji
-    // "tanpa piksel pelacak" pada struk digital (K3).
+it('hanya tata letak bersama yang boleh memuat gambar, dan hanya logo merek tanpa piksel pelacak (D-74)', function (): void {
+    // Janji "tanpa piksel pelacak" pada struk digital (K3) tetap: satu-satunya `<img>` yang sah adalah logo merek
+    // milik sendiri di `TataLetak`, dengan ukuran tetap dan `alt`. Templat lain tidak boleh memuat gambar apa pun.
     $pelanggar = [];
 
     foreach (BerkasSurel() as $berkas) {
-        if (preg_match('/<img\b/i', (string) $berkas->getContents()) === 1) {
+        $isi = (string) $berkas->getContents();
+        $jumlah = preg_match_all('/<img\b[^>]*>/i', $isi, $cocok);
+
+        if ($berkas->getFilename() === 'TataLetak.blade.php') {
+            $sah = $jumlah === 1
+                && str_contains($cocok[0][0], "asset('surel/logo-payoung.png')")
+                && preg_match('/\salt="[^"]+"/', $cocok[0][0]) === 1
+                && preg_match('/\swidth="\d{2,3}"/', $cocok[0][0]) === 1
+                && preg_match('/\sheight="\d{2,3}"/', $cocok[0][0]) === 1;
+
+            if (! $sah) {
+                $pelanggar[] = $berkas->getRelativePathname().' (logo tidak sah atau lebih dari satu gambar)';
+            }
+        } elseif ($jumlah > 0) {
             $pelanggar[] = $berkas->getRelativePathname();
         }
     }
 
-    expect($pelanggar)->toBe([]);
+    expect($pelanggar)->toBe([])
+        ->and(is_file(public_path('surel/logo-payoung.png')))->toBeTrue();
 });
 
 it('warna di templat email memakai nilai token, bukan hex lepas', function (): void {
