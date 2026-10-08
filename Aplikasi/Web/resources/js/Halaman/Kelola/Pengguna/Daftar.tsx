@@ -5,6 +5,7 @@ import AjakanTambahBatas from '@/Komponen/Kelola/AjakanTambahBatas';
 import AksiHalaman from '@/Komponen/Kelola/AksiHalaman';
 import Tombol from '@/Komponen/Formulir/Tombol';
 import FormAksesPengguna from '@/Komponen/Kelola/FormAksesPengguna';
+import FormPin from '@/Komponen/Kelola/FormPin';
 import TabPengguna from '@/Komponen/Kelola/TabPengguna';
 import AksiMassalPengguna from '@/Komponen/Organisasi/AksiMassalPengguna';
 import TabelData, { type KonteksAksiMassal } from '@/Komponen/TabelData/TabelData';
@@ -66,7 +67,7 @@ type PropsDaftar = {
     BolehCatatKaryawan?: boolean;
 };
 
-type Pilihan = { jenis: 'akses' | 'nonaktifkan'; anggota: Anggota } | null;
+type Pilihan = { jenis: 'akses' | 'nonaktifkan' | 'pin'; anggota: Anggota } | null;
 
 /** Kolom daftar pengguna; kode outlet & akun sendiri dari props halaman. */
 function BuatKolom(namaOutlet: Map<string, string>, uuidSaya: string): KolomTabel<Anggota>[] {
@@ -191,6 +192,7 @@ export default function HalamanDaftarPengguna({
     const bolehUndang = PunyaIzinTenant(akses, IzinTenant.PenggunaUndang);
     const bolehUbah = PunyaIzinTenant(akses, IzinTenant.PenggunaUbah);
     const bolehNonaktifkan = PunyaIzinTenant(akses, IzinTenant.PenggunaNonaktifkan);
+    const bolehAturPin = PunyaIzinTenant(akses, IzinTenant.PenggunaPinAtur);
     const sayaPemilik = akses?.Pemilik ?? false;
     const [pilihan, AturPilihan] = useState<Pilihan>(null);
     const penuh = CekBatasPenuh(BatasPengguna);
@@ -217,6 +219,10 @@ export default function HalamanDaftarPengguna({
         }
         if (anggota.Status === 'Aktif' && bolehUbah) {
             aksi.push({ label: 'Ubah akses', saatPilih: () => AturPilihan({ jenis: 'akses', anggota }) });
+        }
+        // Kasir yang lupa PIN: atur PIN baru dari sini (sebelumnya hanya lewat Keamanan akun › PIN kasir).
+        if (anggota.Status === 'Aktif' && bolehAturPin) {
+            aksi.push({ label: 'Atur ulang PIN', saatPilih: () => AturPilihan({ jenis: 'pin', anggota }) });
         }
         if (anggota.Status === 'Aktif' && bolehNonaktifkan) {
             aksi.push({
@@ -290,6 +296,20 @@ export default function HalamanDaftarPengguna({
                         tombol="Simpan akses"
                         saatSelesai={() => AturPilihan(null)}
                         saatBatal={() => AturPilihan(null)}
+                    />
+                </DialogFormulir>
+            ) : null}
+            {pilihan?.jenis === 'pin' ? (
+                <DialogFormulir
+                    judul={`Atur ulang PIN ${pilihan.anggota.Nama}`}
+                    keterangan="PIN lama tidak bisa dilihat. Isi PIN baru 6 angka, lalu beritahukan langsung kepada yang bersangkutan. PIN baru berlaku di perangkat kasir setelah perangkat tersinkron."
+                    saatTutup={() => AturPilihan(null)}
+                >
+                    <FormPin
+                        key={pilihan.anggota.Uuid}
+                        alamat={`/kelola/pengguna/${pilihan.anggota.Uuid}/pin`}
+                        labelTombol="Simpan PIN baru"
+                        saatSelesai={() => AturPilihan(null)}
                     />
                 </DialogFormulir>
             ) : null}

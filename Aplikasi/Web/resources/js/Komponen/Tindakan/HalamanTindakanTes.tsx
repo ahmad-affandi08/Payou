@@ -201,6 +201,35 @@ describe('Kelola/Pengguna: aksi baris & konfirmasi nonaktifkan (F-02, BR-02.1)',
         ]);
     });
 
+    it('atur ulang PIN kasir langsung dari menu baris: dialog 6 angka lalu PUT ke /pengguna/{uuid}/pin', () => {
+        AturPropsAplikasi([], true);
+        RenderDenganKueri(<HalamanDaftarPengguna {...props} />);
+
+        BukaMenu(screen.getByRole('button', { name: 'Aksi untuk Budi Santoso' }));
+        fireEvent.click(screen.getByRole('menuitem', { name: 'Atur ulang PIN' }));
+        const dialog = screen.getByRole('dialog', { name: 'Atur ulang PIN Budi Santoso' });
+        fireEvent.change(within(dialog).getByLabelText(/PIN baru/, { selector: 'input' }), {
+            target: { value: '482915' },
+        });
+        fireEvent.change(within(dialog).getByLabelText(/Ulangi PIN/, { selector: 'input' }), {
+            target: { value: '482915' },
+        });
+        fireEvent.click(within(dialog).getByRole('button', { name: 'Simpan PIN baru' }));
+
+        expect(AmbilKiriman()).toEqual([
+            { metode: 'put', url: '/kelola/pengguna/U-2/pin', data: { Pin: '482915', KonfirmasiPin: '482915' } },
+        ]);
+    });
+
+    it('tanpa izin atur PIN, menu baris tidak menawarkan "Atur ulang PIN"', () => {
+        AturPropsAplikasi(['pengguna.ubah'], false);
+        RenderDenganKueri(<HalamanDaftarPengguna {...props} />);
+
+        BukaMenu(screen.getByRole('button', { name: 'Aksi untuk Budi Santoso' }));
+        expect(screen.getByRole('menuitem', { name: 'Ubah akses' })).toBeTruthy();
+        expect(screen.queryByRole('menuitem', { name: 'Atur ulang PIN' })).toBeNull();
+    });
+
     it('D-46: kolom Karyawan terlihat; "Catat sebagai karyawan" hanya untuk akun tanpa karyawan', () => {
         AturPropsAplikasi([], true);
         const dengan = [
