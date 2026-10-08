@@ -170,6 +170,11 @@ Route::middleware([TolakDomainPengelola::class, ArahkanDomainAplikasi::class, Ba
         ->middleware('signed:relative')
         ->name('verifikasi-email');
 
+    // BR-00.5: konfirmasi ganti email (alamat baru disandikan di jalur, ditandatangani).
+    Route::get('/ganti-email/{pengguna}/{hash}/{email}', [VerifikasiEmailKontroler::class, 'GantiEmail'])
+        ->middleware('signed:relative')
+        ->name('ganti-email');
+
     // Auth tenant: AuthenticateSession mengakhiri sesi lain setelah kata sandi diatur ulang (BR-00.9).
     Route::middleware(['auth:web', AuthenticateSession::class])->group(function () use ($izin, $saas): void {
         Route::post('/keluar', [SesiKontroler::class, 'Keluar'])->name('keluar');
@@ -216,6 +221,7 @@ Route::middleware([TolakDomainPengelola::class, ArahkanDomainAplikasi::class, Ba
                 Route::post('/keamanan/dua-faktor', [KeamananAkunKontroler::class, 'AktifkanDuaFaktor'])->name('kelola.keamanan.dua-faktor.aktifkan');
                 Route::delete('/keamanan/dua-faktor', [KeamananAkunKontroler::class, 'NonaktifkanDuaFaktor'])->name('kelola.keamanan.dua-faktor.nonaktifkan');
                 // D-57: lepas tautan akun Google (menautkan lewat /masuk/google?tujuan=tautkan).
+                Route::post('/keamanan/email', [KeamananAkunKontroler::class, 'GantiEmail'])->middleware('throttle:10,1')->name('kelola.keamanan.email.ganti');
                 Route::delete('/keamanan/google', [KeamananAkunKontroler::class, 'LepasGoogle'])->middleware('throttle:10,1')->name('kelola.keamanan.google.lepas');
                 Route::get('/persetujuan-legal', [PersetujuanLegalKontroler::class, 'Tampilkan'])->name('kelola.persetujuan-legal');
                 Route::post('/persetujuan-legal', [PersetujuanLegalKontroler::class, 'Setujui'])->name('kelola.persetujuan-legal.setujui');

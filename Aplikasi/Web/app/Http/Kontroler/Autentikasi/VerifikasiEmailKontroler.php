@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Kontroler\Autentikasi;
 
 use App\Domain\Organisasi\Aksi\KirimVerifikasiEmail;
+use App\Domain\Organisasi\Aksi\TerapkanGantiEmail;
 use App\Domain\Organisasi\Aksi\VerifikasiEmailPengguna;
 use App\Domain\Organisasi\Model\Pengguna;
 use App\Http\Kontroler\Kontroler;
@@ -25,6 +26,15 @@ final class VerifikasiEmailKontroler extends Kontroler
 
         return redirect()->route($permintaan->user('web') === null ? 'masuk' : 'kelola.beranda')
             ->with('Kilat', 'Email Anda sudah terverifikasi.');
+    }
+
+    /** BR-00.5: konfirmasi ganti email dari tautan yang dikirim ke alamat baru. */
+    public function GantiEmail(Request $permintaan, Pengguna $pengguna, string $hash, string $email, TerapkanGantiEmail $terapkan): RedirectResponse
+    {
+        $terapkan->Jalankan($pengguna, $hash, $email);
+
+        return redirect()->route($permintaan->user('web') === null ? 'masuk' : 'kelola.keamanan')
+            ->with('Kilat', 'Email akun Anda sudah diganti dan terverifikasi.');
     }
 
     public function KirimUlang(Request $permintaan, KirimVerifikasiEmail $kirim): RedirectResponse

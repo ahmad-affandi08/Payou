@@ -22,6 +22,9 @@ return [
     // BR-00.5: masa berlaku tautan verifikasi email.
     'JamBerlakuVerifikasiEmail' => 24,
 
+    // BR-00.5: tolak email yang domainnya tidak punya server surat (cek DNS). Mati di lingkungan test (tanpa jaringan).
+    'PeriksaDnsEmail' => (bool) env('TENANT_PERIKSA_DNS_EMAIL', env('APP_ENV') !== 'testing'),
+
     // BR-00.2: slug yang bentrok dengan rute sistem (§13.6).
     'SlugTerlarang' => [
         'daftar', 'masuk', 'keluar', 'lupa-kata-sandi', 'verifikasi-email', 'pilih-tenant', 'kelola', 'unduh',
@@ -32,6 +35,8 @@ return [
         'atur-ulang-kata-sandi',
         // F-02: tautan undangan anggota.
         'undangan',
+        // BR-00.5: tautan konfirmasi ganti email.
+        'ganti-email',
     ],
 
     // F-01 langkah 1: logo usaha di disk privat (tanpa storage:link, tidak bisa di-hotlink).

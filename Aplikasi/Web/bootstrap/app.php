@@ -91,29 +91,35 @@ return Application::configure(basePath: dirname(__DIR__))
         // Tautan verifikasi email kedaluwarsa/rusak adalah kejadian normal (berlaku terbatas, sekali pakai), jadi
         // jangan ditampilkan sebagai "403 Invalid signature" mentah yang tidak bisa ditindaklanjuti pengguna.
         $exceptions->render(function (InvalidSignatureException $galat, Request $request) {
-            if (! $request->routeIs('verifikasi-email')) {
+            if (! $request->routeIs('verifikasi-email', 'ganti-email')) {
                 return null;
             }
 
             // Tanda tangan salah dan tanda tangan kedaluwarsa sama-sama melempar galat ini. Keduanya dipisah agar
             // pesannya benar, dan agar penyebab salah tanda tangan bisa ditelusuri dari log alih-alih ditebak.
+            // Ganti email (BR-00.5) memakai tanda tangan yang sama; tautan barunya diminta dari Keamanan akun.
+            $gantiEmail = $request->routeIs('ganti-email');
+            $mintaBaru = $gantiEmail
+                ? 'Masuk lalu minta tautan baru dari halaman Keamanan akun.'
+                : 'Masuk lalu minta tautan baru lewat tombol kirim ulang.';
+            $nama = $gantiEmail ? 'ganti email' : 'verifikasi';
             $tandaTanganBenar = URL::hasCorrectSignature($request, absolute: false);
             $belumKedaluwarsa = URL::signatureHasNotExpired($request);
 
             if ($tandaTanganBenar && ! $belumKedaluwarsa) {
-                $pesan = 'Tautan verifikasi sudah lewat masa berlakunya. Masuk lalu minta tautan baru lewat tombol kirim ulang.';
+                $pesan = "Tautan {$nama} sudah lewat masa berlakunya. {$mintaBaru}";
             } else {
                 // Cocok sebagai tanda tangan absolut = tautan dibuat kode/cache rute lama (sebelum D-20 relatif).
                 $gayaLama = URL::hasCorrectSignature($request, absolute: true);
-                Log::warning('Tanda tangan tautan verifikasi email tidak cocok.', [
+                Log::warning('Tanda tangan tautan verifikasi/ganti email tidak cocok.', [
                     'Jalur' => $request->path(),
                     'Host' => $request->getHost(),
                     'Skema' => $request->getScheme(),
                     'CocokSebagaiAbsolut' => $gayaLama,
                 ]);
                 $pesan = $gayaLama
-                    ? 'Tautan ini dibuat versi lama aplikasi. Masuk lalu minta tautan baru lewat tombol kirim ulang.'
-                    : 'Tautan verifikasi tidak dikenali. Masuk lalu minta tautan baru lewat tombol kirim ulang.';
+                    ? "Tautan ini dibuat versi lama aplikasi. {$mintaBaru}"
+                    : "Tautan {$nama} tidak dikenali. {$mintaBaru}";
             }
 
             return redirect()->route($request->user('web') === null ? 'masuk' : 'kelola.beranda')

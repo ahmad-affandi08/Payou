@@ -85,6 +85,12 @@ describe('lengkapi pendaftaran Google', () => {
 });
 
 describe('Keamanan akun: panel Google', () => {
+    const akun = {
+        Email: 'rina@kopinusantara.id',
+        EmailTerverifikasi: true,
+        EmailDiverifikasiPada: '2026-10-01T01:00:00Z',
+        BisaGantiEmail: true,
+    };
     const duaFaktor = { Aktif: false, AktifPada: null, SisaKodePemulihan: 0, Wajib: false };
     const google = {
         Tersedia: true,
@@ -97,7 +103,13 @@ describe('Keamanan akun: panel Google', () => {
     it('belum tertaut: tombol tautkan mengarah ke alur tujuan=tautkan', () => {
         AturHalamanUji({}, '/kelola/keamanan');
         RenderUji(
-            <HalamanKeamananAkun DuaFaktor={duaFaktor} Aktivasi={null} KodePemulihanBaru={null} Google={google} />,
+            <HalamanKeamananAkun
+                Akun={akun}
+                DuaFaktor={duaFaktor}
+                Aktivasi={null}
+                KodePemulihanBaru={null}
+                Google={google}
+            />,
         );
 
         expect(screen.getByText('Status: Belum ditautkan')).toBeTruthy();
@@ -110,6 +122,7 @@ describe('Keamanan akun: panel Google', () => {
         AturHalamanUji({}, '/kelola/keamanan');
         RenderUji(
             <HalamanKeamananAkun
+                Akun={akun}
                 DuaFaktor={duaFaktor}
                 Aktivasi={null}
                 KodePemulihanBaru={null}
@@ -127,6 +140,7 @@ describe('Keamanan akun: panel Google', () => {
         kirimanForm.length = 0;
         RenderUji(
             <HalamanKeamananAkun
+                Akun={akun}
                 DuaFaktor={duaFaktor}
                 Aktivasi={null}
                 KodePemulihanBaru={null}
@@ -142,6 +156,7 @@ describe('Keamanan akun: panel Google', () => {
         AturHalamanUji({}, '/kelola/keamanan');
         RenderUji(
             <HalamanKeamananAkun
+                Akun={akun}
                 DuaFaktor={duaFaktor}
                 Aktivasi={null}
                 KodePemulihanBaru={null}

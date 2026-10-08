@@ -5,6 +5,7 @@ import { useState, type MouseEvent, type ReactNode } from 'react';
 import JudulHalaman from '@/Komponen/Umpan/JudulHalaman';
 import IkonNavigasi, { type NamaIkonNavigasi } from '@/Komponen/Navigasi/IkonNavigasi';
 import Tombol from '@/Komponen/Formulir/Tombol';
+import { Button } from '@/Komponen/Ui/button';
 import DialogNaikPaket from '@/Komponen/Langganan/DialogNaikPaket';
 import { CekButirSesuaiEdisi, daftarPengaturan, type GrupPengaturan } from '@/Pustaka/DaftarPengaturan';
 import { CekSesuaiSektor } from '@/Pustaka/Sektor';
@@ -956,12 +957,19 @@ export default function TataLetakAplikasi({ judul, jejak = [], children }: Props
                         <Pemberitahuan jenis="peringatan" judul="Verifikasi email Anda">
                             <p>
                                 Kami mengirim tautan verifikasi ke {props.Pengguna.Email}. Buka tautan itu untuk
-                                mengamankan akun.
+                                mengamankan akun. Emailnya salah ketik? Ganti di Keamanan akun.
                             </p>
-                            <div className="mt-2">
+                            <div className="mt-2 flex flex-wrap gap-2">
                                 <Tombol varian="sekunder" memproses={mengirim} onClick={KirimUlangVerifikasi}>
                                     Kirim ulang tautan
                                 </Tombol>
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="h-8 pointer-coarse:h-11 border-garis-input text-label font-semibold"
+                                >
+                                    <Link href="/kelola/keamanan#email">Ganti email</Link>
+                                </Button>
                             </div>
                         </Pemberitahuan>
                     ) : null}

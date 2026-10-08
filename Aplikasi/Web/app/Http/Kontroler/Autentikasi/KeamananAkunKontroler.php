@@ -7,6 +7,7 @@ namespace App\Http\Kontroler\Autentikasi;
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Integrasi\MasukGoogle\KonfigurasiGoogle;
 use App\Domain\Organisasi\Aksi\AktifkanDuaFaktorPengguna;
+use App\Domain\Organisasi\Aksi\KirimTautanGantiEmail;
 use App\Domain\Organisasi\Aksi\MasukDenganGoogle;
 use App\Domain\Organisasi\Aksi\NonaktifkanDuaFaktorPengguna;
 use App\Domain\Organisasi\Layanan\DuaFaktorPengguna;
@@ -14,6 +15,7 @@ use App\Domain\Organisasi\Layanan\PenentuWajibDuaFaktor;
 use App\Domain\Organisasi\Model\Pengguna;
 use App\Http\Kontroler\Kontroler;
 use App\Http\Perantara\SesiAutentikasiTenant;
+use App\Http\Permintaan\Autentikasi\GantiEmailPermintaan;
 use App\Http\Permintaan\Autentikasi\KodeDuaFaktorPermintaan;
 use App\Http\Permintaan\Autentikasi\NonaktifkanDuaFaktorPermintaan;
 use Illuminate\Http\RedirectResponse;
@@ -59,6 +61,13 @@ final class KeamananAkunKontroler extends Kontroler
         $kodeBaru = $sesi->get(SesiAutentikasiTenant::KODE_PEMULIHAN_BARU);
 
         return Inertia::render('Autentikasi/KeamananAkun', [
+            'Akun' => [
+                'Email' => $pengguna->Email,
+                'EmailTerverifikasi' => $pengguna->EmailDiverifikasiPada !== null,
+                'EmailDiverifikasiPada' => $pengguna->EmailDiverifikasiPada?->toIso8601String(),
+                // Akun buatan Google belum punya kata sandi: atur dulu agar konfirmasi ganti email punya jaminan.
+                'BisaGantiEmail' => ! $pengguna->KataSandiOtomatis,
+            ],
             'DuaFaktor' => [
                 'Aktif' => $pengguna->CekDuaFaktorAktif(),
                 'AktifPada' => $pengguna->DuaFaktorAktifPada?->toIso8601String(),
@@ -105,6 +114,17 @@ final class KeamananAkunKontroler extends Kontroler
         $nonaktifkan->Jalankan($pengguna, $permintaan->string('KataSandi')->toString());
 
         return redirect()->route('kelola.keamanan')->with('Kilat', 'Verifikasi dua langkah dinonaktifkan.');
+    }
+
+    /** BR-00.5: kirim tautan konfirmasi ke email baru; email akun berganti setelah tautan dibuka. */
+    public function GantiEmail(GantiEmailPermintaan $permintaan, KirimTautanGantiEmail $kirim): RedirectResponse
+    {
+        $pengguna = $this->PenggunaMasuk($permintaan);
+        $this->BatasiPercobaan('keamanan-email-ganti:'.$pengguna->Id, 'KataSandi');
+        $email = $permintaan->string('Email')->toString();
+        $kirim->Jalankan($pengguna, $email, $permintaan->string('KataSandi')->toString());
+
+        return redirect()->route('kelola.keamanan')->with('Kilat', 'Jika alamat itu bisa dipakai, tautan konfirmasi sudah dikirim ke '.mb_strtolower(trim($email)).'. Email akun berganti setelah tautannya dibuka.');
     }
 
     public function LepasGoogle(Request $permintaan, MasukDenganGoogle $masuk): RedirectResponse

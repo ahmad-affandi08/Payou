@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Permintaan\Autentikasi;
 
 use App\Domain\Organisasi\Data\DataPemilikBaru;
+use App\Domain\Organisasi\Layanan\PemeriksaAlamatEmail;
 use App\Domain\Tenant\Data\DataPendaftaran;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -21,7 +23,14 @@ final class DaftarPermintaan extends FormRequest
     {
         return [
             'Nama' => ['required', 'string', 'max:150'],
-            'Email' => ['required', 'string', 'email:rfc', 'max:191'],
+            // BR-00.5: tolak email asal-asalan (typo penyedia, domain contoh/sekali pakai, domain tanpa server surat).
+            'Email' => ['required', 'string', 'email:rfc', 'max:191', static function (string $atribut, mixed $nilai, Closure $gagal): void {
+                $alasan = app(PemeriksaAlamatEmail::class)->AmbilAlasanTolak(mb_strtolower(trim((string) $nilai)));
+
+                if ($alasan !== null) {
+                    $gagal($alasan);
+                }
+            }],
             'NoHp' => ['required', 'string', 'regex:'.self::POLA_NO_HP],
             'KataSandi' => ['required', 'string', Password::min(8)->letters()->numbers(), 'max:100'],
             'KonfirmasiKataSandi' => ['required', 'same:KataSandi'],
