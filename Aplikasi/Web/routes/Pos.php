@@ -31,6 +31,7 @@ use App\Http\Kontroler\Pos\V1\RingkasanHarianKontroler;
 use App\Http\Kontroler\Pos\V1\SalesmanKontroler;
 use App\Http\Kontroler\Pos\V1\ShiftKontroler;
 use App\Http\Kontroler\Pos\V1\SinkronKontroler;
+use App\Http\Kontroler\Pos\V1\StokTersediaKontroler;
 use App\Http\Kontroler\Pos\V1\TagihanQrisKontroler;
 use App\Http\Kontroler\Pos\V1\VoucherKontroler;
 use App\Http\Perantara\AutentikasiPerangkat;
@@ -184,6 +185,8 @@ Route::middleware([AutentikasiPerangkat::class, IdempotensiPos::class])->group(f
         Route::get('/produk/{produk}/batch', [BatchProdukKontroler::class, 'Ambil'])
             ->middleware('throttle:pos-120')->where('produk', $ulid)->name('pos.produk.batch');
         Route::get('/produk-habis', [KetersediaanProdukKontroler::class, 'Ambil'])->middleware('throttle:pos-30')->name('pos.produk-habis');
+        // F-07 + BR-05.2: sisa stok Toko outlet untuk produk yang tidak boleh minus (kasir menahan jual saat kosong).
+        Route::get('/stok-tersedia', [StokTersediaKontroler::class, 'Ambil'])->middleware('throttle:pos-30')->name('pos.stok-tersedia');
         Route::post('/produk/{produk}/habis', [KetersediaanProdukKontroler::class, 'Ubah'])
             ->middleware('throttle:pos-60')->where('produk', $ulid)->name('pos.produk.habis');
         Route::get('/pesan-sendiri', [PesanSendiriKontroler::class, 'Ambil'])->middleware('throttle:pos-30')->name('pos.pesan-sendiri');
