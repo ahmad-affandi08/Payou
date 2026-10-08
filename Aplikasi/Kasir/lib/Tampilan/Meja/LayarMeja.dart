@@ -78,7 +78,15 @@ class _LayarMejaState extends ConsumerState<LayarMeja> {
   }
 
   void _PasangPesanan(PesananMeja pesanan) {
-    ref.read(penyediaKeranjang.notifier).Ganti(Keranjang(pesananMeja: KonteksPesananMeja.DariPesanan(pesanan)));
+    final draf = ref.read(penyediaKeranjang);
+    // Pesanan yang sama sudah di keranjang: pertahankan item draf yang belum dikirim, hanya perbarui isi tersimpannya.
+    ref
+        .read(penyediaKeranjang.notifier)
+        .Ganti(
+          draf.pesananMeja?.uuid == pesanan.uuid
+              ? draf.Salin(pesananMeja: () => KonteksPesananMeja.DariPesanan(pesanan))
+              : Keranjang(pesananMeja: KonteksPesananMeja.DariPesanan(pesanan)),
+        );
     widget.saatBukaPesanan();
   }
 

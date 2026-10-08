@@ -127,6 +127,12 @@ class LayananSinkron {
             await perangkat.CabutLokal();
             return RingkasanSinkron(terkirim: terkirim, ditolak: ditolak, perangkatDicabut: true, tersambung: true);
           }
+          if (galat.CekGalatPerantara()) {
+            // 4xx dari proxy/WAF/nginx (tanpa badan `Galat` dari server) atau pembatasan laju: bukan salah isi item,
+            // jadi jangan menandai seluruh antrean "Perlu tindakan"; coba lagi nanti.
+            await repositori.JadwalkanUlang(batch, _jam(), galat.pesan);
+            return RingkasanSinkron(terkirim: terkirim, ditolak: ditolak, tersambung: true);
+          }
           // Batch ditolak utuh (bentuk permintaan salah): tandai semua agar antrean berikutnya tidak tertahan.
           for (final b in batch) {
             await repositori.TandaiPerluTindakan(b.Uuid, galat.kode, galat.pesan);

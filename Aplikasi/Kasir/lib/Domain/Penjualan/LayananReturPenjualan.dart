@@ -173,6 +173,15 @@ class LayananReturPenjualan {
       }
       throw GalatKasir(galat.kode, galat.pesan);
     }
+    // Struk yang sudah di-void di perangkat ini tetapi void-nya belum sampai di server masih "Lunas" menurut server;
+    // retur atasnya akan ditolak saat sinkron padahal refund tunainya sudah tercatat di kas shift.
+    final lokal = await repositoriPenjualan.CariPenjualan(hasil.penjualan.uuid);
+    if (lokal != null && lokal.Status == StatusPenjualanLokal.divoid) {
+      throw GalatKasir(
+        'SudahDivoid',
+        'Struk ${hasil.penjualan.nomor} sudah di-void di perangkat ini sehingga tidak bisa diretur.',
+      );
+    }
     if (await repositoriPenjualan.CekReturBelumTerkirim(hasil.penjualan.uuid)) {
       throw GalatKasir(
         'ReturSebelumnyaBelumTerkirim',

@@ -6,6 +6,7 @@ import 'package:kasir/Data/BasisData/BasisDataKasir.dart';
 import 'package:kasir/Data/RepositoriKasir.dart';
 import 'package:kasir/Domain/GalatKasir.dart';
 import 'package:kasir/Domain/Katalog/KatalogLokal.dart';
+import 'package:kasir/Domain/Meja/KonteksPesananMeja.dart';
 import 'package:kasir/Domain/Penjualan/Keranjang.dart';
 import 'package:kasir/Domain/Penjualan/KonteksPenjualan.dart';
 import 'package:kasir/Domain/Penjualan/LayananPenjualan.dart';
@@ -165,6 +166,18 @@ void main() {
       expect(barcode.satuan!.nama, 'Lusin');
       expect(katalog.CariKode('amr-01')!.produk.nama, 'Americano Panas');
       expect(katalog.CariKode('0000'), isNull);
+    });
+
+    test('menghapus baris terakhir keranjang meja tetap terikat pesanan; keranjang biasa kembali kosong', () async {
+      await Siapkan(bukaShift: false);
+      final biasa = Keranjang(baris: [u.penjualan.BuatBaris(katalog, k, Produk(UuidUji.roti))]);
+      expect(u.penjualan.HapusBaris(biasa, biasa.baris.single.uuid), same(Keranjang.kosong));
+
+      const meja = KonteksPesananMeja(uuid: 'PSN1', nomor: 'PSN-1', uuidMeja: 'MJ1', namaMeja: 'Meja 1', label: null);
+      final terikat = biasa.Salin(pesananMeja: () => meja);
+      final hasil = u.penjualan.HapusBaris(terikat, terikat.baris.single.uuid);
+      expect(hasil.baris, isEmpty);
+      expect(hasil.pesananMeja?.uuid, 'PSN1', reason: 'Konteks meja tidak boleh hilang diam-diam.');
     });
   });
 

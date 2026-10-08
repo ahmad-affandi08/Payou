@@ -179,6 +179,11 @@ class _RuangKerjaState extends ConsumerState<RuangKerja> {
   @override
   void didUpdateWidget(RuangKerja lama) {
     super.didUpdateWidget(lama);
+    // Ganti kasir: isian setengah jadi kasir sebelumnya (kas, tutup shift, void) tidak boleh terbawa dan tersimpan
+    // atas nama kasir baru.
+    if (widget.kasir.uuid != lama.kasir.uuid) {
+      _TutupSemuaPanel();
+    }
     if (widget.kunci == lama.kunci) {
       return;
     }
@@ -281,7 +286,7 @@ class _RuangKerjaState extends ConsumerState<RuangKerja> {
       if (!mounted) {
         return;
       }
-      if (!ref.read(penyediaKeranjang).CekKosong) {
+      if (!ref.read(penyediaKeranjang).CekBebas) {
         _MulaiHitungDiam();
         return;
       }

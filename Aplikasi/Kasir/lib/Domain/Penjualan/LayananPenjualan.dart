@@ -592,7 +592,15 @@ class LayananPenjualan {
 
   Keranjang HapusBaris(Keranjang keranjang, String uuidBaris) {
     final baris = keranjang.baris.where((b) => b.uuid != uuidBaris).toList();
-    return baris.isEmpty ? Keranjang.kosong : keranjang.Salin(baris: baris);
+    // Keranjang yang terikat dokumen (pesanan meja, tukar barang, pre-order, reservasi, perintah kerja) tetap terikat
+    // walau barisnya habis; kalau tidak, konteksnya hilang diam-diam dan kasir menjual biasa.
+    final terikatDokumen =
+        keranjang.pesananMeja != null ||
+        keranjang.tukar != null ||
+        keranjang.praPesan != null ||
+        keranjang.reservasi != null ||
+        keranjang.perintahKerja != null;
+    return baris.isEmpty && !terikatDokumen ? Keranjang.kosong : keranjang.Salin(baris: baris);
   }
 
   Keranjang _UbahBaris(Keranjang keranjang, String uuidBaris, ItemKeranjang Function(ItemKeranjang) ubah) =>

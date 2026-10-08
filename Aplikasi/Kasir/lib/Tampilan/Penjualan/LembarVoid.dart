@@ -86,7 +86,7 @@ class _LembarVoidState extends ConsumerState<LembarVoid> {
           rincian: [(label: 'Alasan', nilai: _alasan.text.trim())],
         ),
       );
-      if (penyetuju == null) {
+      if (penyetuju == null || !mounted) {
         return;
       }
     }

@@ -117,7 +117,23 @@ class _LembarTutupShiftState extends ConsumerState<LembarTutupShift> {
     }
   }
 
+  bool _menutup = false;
+
+  /// Penjaga ketukan ganda: pratinjau laporan (berat) berjalan sebelum `_sibuk` terisi, jadi ketukan kedua pada tombol
+  /// Tutup shift tidak boleh memulai penutupan kedua (atau dialog PIN kedua).
   Future<void> _Tutup() async {
+    if (_menutup) {
+      return;
+    }
+    _menutup = true;
+    try {
+      await _TutupInti();
+    } finally {
+      _menutup = false;
+    }
+  }
+
+  Future<void> _TutupInti() async {
     final kas = MasukanUang.AmbilNilai(_kasAktual);
     if (kas == null) {
       setState(() => _galat = 'Isi kas aktual hasil hitungan laci.');
@@ -161,6 +177,9 @@ class _LembarTutupShiftState extends ConsumerState<LembarTutupShift> {
         for (final e in _nonTunai.entries)
           if (MasukanUang.AmbilNilai(e.value) != null) e.key: MasukanUang.AmbilNilai(e.value)!,
       };
+      // Diambil sebelum await: begitu shift tertutup, gerbang mengganti layar dan widget ini dibuang.
+      final sesi = ref.read(penyediaSesi.notifier);
+      final akar = Navigator.of(context, rootNavigator: true).context;
       await _layanan.TutupShift(
         shift: widget.shift,
         penutup: widget.penutup,
@@ -170,13 +189,8 @@ class _LembarTutupShiftState extends ConsumerState<LembarTutupShift> {
         alasan: _alasan.text,
         penyetuju: penyetuju,
       );
-      if (mounted) {
-        UmpanAksi.Berhasil(
-          Navigator.of(context, rootNavigator: true).context,
-          'Shift ditutup. Laporan tutup shift tersimpan dan dikirim otomatis ke server.',
-        );
-      }
-      await ref.read(penyediaSesi.notifier).Sinkronkan();
+      UmpanAksi.Berhasil(akar, 'Shift ditutup. Laporan tutup shift tersimpan dan dikirim otomatis ke server.');
+      await sesi.Sinkronkan();
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);

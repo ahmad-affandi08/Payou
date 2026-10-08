@@ -60,7 +60,7 @@ class DrafGudang {
 
   final JenisGudang jenis;
   final String uuidDokumen;
-  final String kunciIdempotensi;
+  String kunciIdempotensi;
 
   /// Jumlah isian per `urutan` baris (string desimal; satuan PO untuk penerimaan, satuan dasar lainnya).
   final Map<int, String> jumlah;
@@ -147,6 +147,25 @@ class LayananGudang {
     } on GalatJaringan {
       throw const GalatKasir('PerluOnline', pesanPerluOnline);
     } on GalatApi catch (galat) {
+      throw GalatKasir(galat.kode, galat.pesan);
+    }
+  }
+
+  /// Kirim isi draf. Penolakan server (4xx) tersimpan 24 jam per kunci idempotensi: kirim ulang dengan isi yang sudah
+  /// dikoreksi memakai kunci yang sama akan mentok `409 KunciIdempotensiBentrok`. Jadi setelah ditolak, draf diberi
+  /// kunci baru supaya kasir bisa memperbaiki isian dan mengirim lagi. Gagal jaringan memakai kunci yang sama (kirim
+  /// ulang yang sama tidak menggandakan dokumen).
+  Future<T> _OnlineDraf<T>(DrafGudang draf, Future<T> Function() kerja) async {
+    try {
+      return await kerja();
+    } on GalatJaringan {
+      throw const GalatKasir('PerluOnline', pesanPerluOnline);
+    } on GalatApi catch (galat) {
+      final status = galat.statusHttp;
+      if (status != null && status >= 400 && status < 500) {
+        draf.kunciIdempotensi = 'gudang-${_ulid.Buat()}';
+        await SimpanDraf(draf);
+      }
       throw GalatKasir(galat.kode, galat.pesan);
     }
   }
@@ -269,7 +288,8 @@ class LayananGudang {
       throw const GalatKasir('TidakAdaJumlah', 'Isi jumlah barang yang diterima dulu.');
     }
     final surat = draf.nomorSuratJalan?.trim();
-    final hasil = await _Online(
+    final hasil = await _OnlineDraf(
+      draf,
       () => klien.TerimaBarangGudang(
         uuidPesanan: pesanan.uuid,
         uuidPengguna: staf.uuid,
@@ -302,7 +322,8 @@ class LayananGudang {
     if (baris.isEmpty) {
       throw const GalatKasir('TidakAdaJumlah', 'Isi jumlah barang yang diterima dulu.');
     }
-    final hasil = await _Online(
+    final hasil = await _OnlineDraf(
+      draf,
       () => klien.TerimaTransfer(
         transfer.uuid,
         uuidPengguna: staf.uuid,
@@ -341,7 +362,8 @@ class LayananGudang {
     if (hitung.isEmpty) {
       throw const GalatKasir('TidakAdaJumlah', 'Belum ada hasil hitung yang diisi.');
     }
-    final hasil = await _Online(
+    final hasil = await _OnlineDraf(
+      draf,
       () => klien.SimpanHitungOpname(
         opname.uuid,
         uuidPengguna: staf.uuid,

@@ -17,6 +17,16 @@ http.Response Json(Object isi, int status) =>
     http.Response(jsonEncode(isi), status, headers: {'content-type': 'application/json'});
 
 void main() {
+  test('CekGalatPerantara: 429/413 dan balasan proxy tanpa badan Galat tidak dianggap item salah; Galat server tetap', () {
+    GalatApi Galat(int status, String kode) => GalatApi(kode: kode, pesan: 'x', statusHttp: status);
+
+    expect(Galat(429, 'GalatServer').CekGalatPerantara(), isTrue);
+    expect(Galat(413, 'DataTidakValid').CekGalatPerantara(), isTrue);
+    expect(Galat(403, 'GalatServer').CekGalatPerantara(), isTrue, reason: 'Proxy/WAF tanpa badan Galat.');
+    expect(Galat(422, 'DataTidakValid').CekGalatPerantara(), isFalse);
+    expect(Galat(409, 'ShiftTidakDitemukan').CekGalatPerantara(), isFalse);
+  });
+
   test('aktivasi tanpa token; kode dirapikan; respons dipetakan termasuk kunci PIN offline', () async {
     late http.Request dikirim;
     final klien = BuatKlien((permintaan) async {

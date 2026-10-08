@@ -90,7 +90,12 @@ class LayananPerangkat {
     await repositori.SimpanPengaturan(KunciPengaturan.uuidOutlet, hasil.uuidOutlet);
     await repositori.SimpanPengaturan(KunciPengaturan.namaUsaha, hasil.namaUsaha);
     await repositori.SimpanPengaturan(KunciPengaturan.jenisPerangkat, hasil.jenisPerangkat);
-    await SegarkanDataAwal();
+    try {
+      await SegarkanDataAwal();
+    } on GalatApi {
+      // Aktivasi sudah berhasil (token tersimpan, kode sekali pakai terpakai). Data awal yang gagal diunduh sekarang
+      // (langganan ditangguhkan, 429, 5xx) diulang otomatis di layar pilih kasir; layar aktivasi tidak boleh macet.
+    }
   }
 
   /// Unduh data awal terbaru. Offline = pakai data lokal terakhir (tidak melempar). Perangkat dicabut = lempar

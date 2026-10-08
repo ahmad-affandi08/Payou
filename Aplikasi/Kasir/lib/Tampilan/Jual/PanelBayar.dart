@@ -547,10 +547,26 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
 
   /// Tukar barang: persetujuan retur diminta di sini, satu kali, setelah barang pengganti dipilih dan nilainya pasti.
   /// Dibatalkan = pembayaran tidak dilanjutkan, keranjang tukar tetap utuh.
-  Future<bool> _PastikanPenyetujuTukar() async {
-    final tukar = ref.read(penyediaKeranjangEfektif).tukar;
+  Future<bool> _PastikanPenyetujuTukar(KonteksPenjualan k) async {
+    final keranjang = ref.read(penyediaKeranjangEfektif);
+    final tukar = keranjang.tukar;
     final persetujuan = tukar?.penyetuju;
-    if (tukar == null || persetujuan == null || persetujuan.siap) {
+    if (tukar == null || persetujuan == null) {
+      return true;
+    }
+    // Kewenangan dinilai sekarang dengan kasir yang membayar (bisa berbeda dari yang memulai tukar).
+    persetujuan.kasir = widget.kasir;
+    if (persetujuan.bolehSendiri && widget.kasir.PunyaIzin(persetujuan.izin)) {
+      persetujuan.staf = widget.kasir;
+      return true;
+    }
+    if (persetujuan.siap && persetujuan.staf!.PunyaIzin(persetujuan.izin)) {
+      return true;
+    }
+    // Barang pengganti kurang dari nilai retur tanpa struk akan ditolak layanan dengan pesan yang jelas; PIN tidak
+    // perlu diketik untuk transaksi yang pasti gagal.
+    final total = ref.read(penyediaLayananPenjualan).Hitung(keranjang, k).hasil.totalAkhir;
+    if (tukar.tanpaStruk && tukar.HitungDipakai(total).Bandingkan(tukar.nilai) < 0) {
       return true;
     }
     final staf = await showDialog<StafLokal>(
@@ -571,7 +587,7 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
   }
 
   Future<void> _Selesaikan(KonteksPenjualan k, List<PembayaranMasukan> pembayaran) async {
-    if (!await _PastikanPenyetujuTukar()) {
+    if (!await _PastikanPenyetujuTukar(k)) {
       return;
     }
     setState(() {

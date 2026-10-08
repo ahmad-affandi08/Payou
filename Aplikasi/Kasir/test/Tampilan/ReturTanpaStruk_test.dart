@@ -213,7 +213,8 @@ void main() {
       expect(find.textContaining('Tukar barang tanpa struk'), findsOneWidget);
       expect(find.textContaining('tanpa struk tidak dikembalikan tunai'), findsOneWidget);
       await Ketuk(tester, find.text('Selesaikan pembayaran'));
-      await SetujuiBudi(tester);
+      // Transaksi yang pasti ditolak (pengganti lebih murah) tidak meminta PIN dulu.
+      expect(find.text('Persetujuan retur tukar barang'), findsNothing);
       expect(find.textContaining('Tambah barang pengganti sampai minimal Rp 27.500'), findsOneWidget);
       expect(await Outbox(tester, u), isEmpty);
 
@@ -223,6 +224,7 @@ void main() {
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').last);
       await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Tunai'));
       await Ketuk(tester, find.widgetWithText(FilledButton, 'Uang pas'));
+      await SetujuiBudi(tester);
       expect(find.text('Pembayaran berhasil'), findsOneWidget);
       expect(tester.takeException(), isNull);
       final outbox = await Outbox(tester, u);

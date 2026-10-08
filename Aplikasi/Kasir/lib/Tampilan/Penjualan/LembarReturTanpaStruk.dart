@@ -185,7 +185,7 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
       if (cara == CaraRefundTanpaStruk.Deposit && _pelanggan == null) {
         throw const GalatKasir('DepositTanpaPelanggan', 'Pilih pelanggan penerima deposit.');
       }
-      if (cara == CaraRefundTanpaStruk.Tukar && !ref.read(penyediaKeranjang).CekKosong) {
+      if (cara == CaraRefundTanpaStruk.Tukar && !ref.read(penyediaKeranjang).CekBebas) {
         throw const GalatKasir(
           'KeranjangBerisi',
           'Keranjang masih berisi. Selesaikan atau tahan transaksi itu dulu sebelum tukar barang.',
@@ -286,7 +286,7 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
               simpanRetur: ({required tukar, required tunai}) async => (await layanan.Simpan(
                 baris: baris,
                 alasan: alasan,
-                kasir: kasir,
+                kasir: penyetuju.kasir ?? kasir,
                 penyetuju: penyetuju.staf!,
                 metode: metode,
                 katalog: katalog,

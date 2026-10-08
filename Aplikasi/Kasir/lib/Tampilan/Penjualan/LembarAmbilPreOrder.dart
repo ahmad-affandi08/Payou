@@ -65,7 +65,7 @@ class _LembarAmbilPreOrderState extends ConsumerState<LembarAmbilPreOrder> {
     if (hasil == null) {
       return;
     }
-    if (!ref.read(penyediaKeranjang).CekKosong) {
+    if (!ref.read(penyediaKeranjang).CekBebas) {
       setState(() => _galat = 'Keranjang masih berisi. Selesaikan, tahan, atau batalkan transaksi itu dulu.');
       return;
     }

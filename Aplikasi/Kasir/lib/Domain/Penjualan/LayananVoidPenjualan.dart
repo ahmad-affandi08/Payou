@@ -54,12 +54,20 @@ class LayananVoidPenjualan {
       penjualan.UuidShift == shiftAktif.Uuid &&
       penjualan.Status == StatusPenjualanLokal.lunas;
 
+  /// Pembayaran yang dikembalikan lewat dokumennya sendiri, bukan uang yang harus direfund ke pembeli (sama dengan
+  /// `BUKAN_REFUND` di server): piutang dibatalkan, saldo deposit kembali, uang muka tetap melekat di pesanan, nilai
+  /// tukar barang bisa dipakai lagi, poin & voucher bukan uang yang diterima.
+  static const Set<String> bukanRefund = {'Tempo', 'Deposit', 'UangMuka', 'Tukar', 'Poin', 'Voucher'};
+
   /// Refund tunai bersih & non-tunai dari pembayaran asal (tunai negatif → 0, sama dengan server).
   static RefundVoid HitungRefund(BarisPenjualan penjualan, List<BarisPenjualanPembayaran> pembayaran) {
     var tunai = Uang.Nol();
     var nonTunai = Uang.Nol();
     final metode = <String>[];
     for (final b in pembayaran) {
+      if (bukanRefund.contains(b.Jenis)) {
+        continue;
+      }
       if (b.Jenis == JenisMetodeBayar.tunai) {
         tunai = tunai.Tambah(Uang.Dari(b.Jumlah)).Kurangi(Uang.Dari(penjualan.Kembalian));
       } else {

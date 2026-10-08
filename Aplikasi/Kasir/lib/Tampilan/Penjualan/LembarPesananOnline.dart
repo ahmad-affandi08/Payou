@@ -80,11 +80,15 @@ class _LembarPesananOnlineState extends ConsumerState<LembarPesananOnline> {
       await ref.read(penyediaLayananPesananOnline).UbahStatus(pesanan, status, widget.kasir, alasan: alasan);
       await _Muat();
     } on GalatKasir catch (galat) {
+      // Status bisa sudah diubah staf lain (409): muat ulang daftar supaya kartu basi tidak tampil dengan tombol lama,
+      // lalu tampilkan alasannya (pemuatan ulang menghapus galat sebelumnya).
+      await _Muat();
       if (mounted) {
-        setState(() {
-          _galat = galat.pesan;
-          _sibuk = false;
-        });
+        setState(() => _galat = galat.pesan);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _sibuk = false);
       }
     }
   }
@@ -94,7 +98,7 @@ class _LembarPesananOnlineState extends ConsumerState<LembarPesananOnline> {
     if (hasil == null) {
       return;
     }
-    if (!ref.read(penyediaKeranjang).CekKosong) {
+    if (!ref.read(penyediaKeranjang).CekBebas) {
       setState(() => _galat = 'Keranjang masih berisi. Selesaikan, tahan, atau batalkan transaksi itu dulu.');
       return;
     }

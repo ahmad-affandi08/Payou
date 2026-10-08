@@ -75,6 +75,9 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
   bool _mengirim = false;
   String? _galat;
   String? _pesanPindai;
+
+  /// Baris seri terakhir yang produknya dipindai (penerimaan); tujuan nomor seri yang dipindai sesudahnya.
+  int? _urutanSeriAktif;
   final _cari = TextEditingController();
   final _pindai = TextEditingController();
   final _fokusPindai = FocusNode();
@@ -350,6 +353,8 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
             .firstOrNull;
 
     if (cocok != null && cocok.pelacakan == 'Seri' && widget.jenis == JenisGudang.Penerimaan) {
+      // Nomor seri yang dipindai berikutnya masuk ke baris produk ini, bukan baris seri pertama dokumen.
+      _urutanSeriAktif = cocok.urutan;
       setState(() => _pesanPindai = '${cocok.nama}: sekarang pindai nomor seri di kolom nomor seri barisnya.');
       return;
     }
@@ -369,12 +374,22 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
     final draf = _draf!;
     final barisSeri = dokumen.baris.where((b) => b.pelacakan == 'Seri' && widget.jenis == JenisGudang.Penerimaan);
     if (uuidProduk == null && barisSeri.isNotEmpty) {
-      _TambahSeri(barisSeri.first.urutan, rapi);
+      final aktif = barisSeri.where((b) => b.urutan == _urutanSeriAktif).firstOrNull ?? barisSeri.first;
+      _TambahSeri(aktif.urutan, rapi);
       return;
     }
 
     if (widget.jenis == JenisGudang.Opname && uuidProduk != null) {
       final produk = katalog.CariProduk(uuidProduk)!;
+      if (produk.berBatch || produk.bernomorSeri) {
+        // Hitung opname produk berpelacakan butuh batch/nomor serinya; server menolak seluruh simpan bila kosong.
+        setState(
+          () => _pesanPindai =
+              '${produk.nama} ber-batch atau bernomor seri dan tidak ada di lembar hitung ini. Mulai opname dari '
+              'back-office agar barisnya muncul.',
+        );
+        return;
+      }
       final c = _produkBaru.putIfAbsent(uuidProduk, TextEditingController.new);
       c.text = LayananGudang.TambahJumlah(c.text).replaceAll('.', ',');
       draf.produkBaru[uuidProduk] = c.text;

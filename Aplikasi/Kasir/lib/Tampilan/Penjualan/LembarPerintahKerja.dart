@@ -66,7 +66,7 @@ class _LembarPerintahKerjaState extends ConsumerState<LembarPerintahKerja> {
   }
 
   Future<void> _Tagih(PerintahKerjaPos pk) async {
-    if (!ref.read(penyediaKeranjang).CekKosong) {
+    if (!ref.read(penyediaKeranjang).CekBebas) {
       setState(() => _galat = 'Keranjang masih berisi. Selesaikan, tahan, atau batalkan transaksi itu dulu.');
       return;
     }

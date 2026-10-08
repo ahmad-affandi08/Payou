@@ -110,6 +110,9 @@ class _LayarBukaShiftState extends ConsumerState<LayarBukaShift> {
       _galat = null;
     });
     try {
+      // Diambil sebelum await: begitu shift terbuka, gerbang mengganti layar dan widget ini dibuang.
+      final sesi = ref.read(penyediaSesi.notifier);
+      final akar = Navigator.of(context, rootNavigator: true).context;
       await ref
           .read(penyediaLayananShift)
           .BukaShift(
@@ -117,13 +120,8 @@ class _LayarBukaShiftState extends ConsumerState<LayarBukaShift> {
             kasAwal: kasAwal,
             pecahan: _hitungPecahan ? [for (final e in _pecahan.entries) BarisPecahan(e.key, e.value)] : null,
           );
-      if (mounted) {
-        UmpanAksi.Berhasil(
-          Navigator.of(context, rootNavigator: true).context,
-          'Shift dibuka dengan kas awal ${kasAwal.FormatRupiah()}. Selamat bertugas.',
-        );
-      }
-      await ref.read(penyediaSesi.notifier).Sinkronkan();
+      UmpanAksi.Berhasil(akar, 'Shift dibuka dengan kas awal ${kasAwal.FormatRupiah()}. Selamat bertugas.');
+      await sesi.Sinkronkan();
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);

@@ -69,7 +69,7 @@ class _LembarReservasiState extends ConsumerState<LembarReservasi> {
   }
 
   Future<void> _Layani(ReservasiPos reservasi) async {
-    if (!ref.read(penyediaKeranjang).CekKosong) {
+    if (!ref.read(penyediaKeranjang).CekBebas) {
       setState(() => _galat = 'Keranjang masih berisi. Selesaikan, tahan, atau batalkan transaksi itu dulu.');
       return;
     }

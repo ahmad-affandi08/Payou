@@ -110,6 +110,13 @@ class _PanelTukarPoinState extends ConsumerState<PanelTukarPoin> {
                     kodeTier: pelanggan.kodeTier,
                     namaTier: pelanggan.namaTier,
                     saldoPoin: saldo,
+                    limitKredit: pelanggan.limitKredit,
+                    sisaPiutang: pelanggan.sisaPiutang,
+                    hariLewatJatuhTempo: pelanggan.hariLewatJatuhTempo,
+                    hariLahir: pelanggan.hariLahir,
+                    jumlahTransaksi: pelanggan.jumlahTransaksi,
+                    pemakaianPromo: pelanggan.pemakaianPromo,
+                    pemakaianPada: pelanggan.pemakaianPada,
                   ),
           ),
         );

@@ -307,7 +307,7 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
           nilai: total,
         ),
       );
-      if (penyetuju == null) {
+      if (penyetuju == null || !mounted) {
         return;
       }
     }
@@ -358,7 +358,7 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
       setState(() => _galat = 'Tukar barang belum tersedia. Perbarui data kasir.');
       return;
     }
-    if (!ref.read(penyediaKeranjang).CekKosong) {
+    if (!ref.read(penyediaKeranjang).CekBebas) {
       setState(() => _galat = 'Keranjang masih berisi. Selesaikan atau tahan transaksi itu dulu sebelum tukar barang.');
       return;
     }
@@ -369,7 +369,7 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
     final penyetuju = PenyetujuTukar(
       izin: IzinKasir.penjualanRetur,
       pesan: 'Retur tukar barang ${totalRetur.FormatRupiah()} wajib disetujui. Pilih supervisor yang menyetujui.',
-      perlu: LayananReturPenjualan.AmbilPenyetujuEfektif(kasir, null) == null,
+      bolehSendiri: true,
     );
     ref
         .read(penyediaKeranjang.notifier)
@@ -390,7 +390,7 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
                 refundTukar: tukar,
                 metodeTukar: metode,
                 uuidRetur: uuidRetur,
-                kasir: kasir,
+                kasir: penyetuju.kasir ?? kasir,
                 k: k,
                 penyetuju: penyetuju.staf,
                 katalog: katalog,
@@ -733,7 +733,9 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
         const SizedBox(height: TokenJarak.jarak8),
         Text(
           LayananReturPenjualan.AmbilPenyetujuEfektif(widget.kasir, null) == null
-              ? 'Retur wajib disetujui supervisor dengan PIN.'
+              ? (_cara == CaraRefund.Tukar
+                    ? 'PIN supervisor diminta nanti, saat pembayaran barang pengganti diselesaikan.'
+                    : 'Retur wajib disetujui supervisor dengan PIN.')
               : 'Anda berwenang menyetujui retur ini.',
           style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
         ),

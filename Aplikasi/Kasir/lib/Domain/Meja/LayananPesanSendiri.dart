@@ -54,7 +54,9 @@ class LayananPesanSendiri {
     }
     final draf = [for (final b in pesanan.baris) _BuatBaris(b, katalog, k)];
     final ada = await repositoriMeja.CariPesananDiMeja(meja.Uuid);
-    final uuidTujuan = ada?.uuid ?? _ulid.Buat();
+    // Pesanan baru memakai Uuid pesanan QR itu sendiri: percobaan ulang setelah jawaban server hilang (timeout) tetap
+    // idempoten di server, bukan 409 SudahDiproses dengan pesanan yang tak pernah sampai ke dapur.
+    final uuidTujuan = ada?.uuid ?? pesanan.uuid;
 
     await klien.TerimaPesanSendiri(pesanan.uuid, uuidPengguna: kasir.uuid, uuidPesananTerbuka: uuidTujuan);
 

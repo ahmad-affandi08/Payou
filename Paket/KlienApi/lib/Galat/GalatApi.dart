@@ -18,6 +18,11 @@ class GalatApi implements Exception {
   /// Perangkat sudah tidak berhak (token dicabut/tidak berlaku): aplikasi wajib menghapus data sensitif lokal.
   bool CekPerangkatDitolak() => kode == 'PerangkatDicabut' || kode == 'TokenPerangkatTidakValid';
 
+  /// Balasan 4xx yang bukan penolakan isi permintaan oleh aplikasi server: pembatasan laju/waktu habis (408, 425, 429),
+  /// badan terlalu besar (413), atau balasan proxy/WAF tanpa badan `Galat` (kode cadangan `GalatServer`). Aman dicoba
+  /// lagi nanti; jangan diperlakukan sebagai "item ini salah".
+  bool CekGalatPerantara() => const {408, 413, 425, 429}.contains(statusHttp) || kode == 'GalatServer';
+
   @override
   String toString() => 'GalatApi($statusHttp $kode: $pesan)';
 }

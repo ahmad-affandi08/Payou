@@ -424,7 +424,7 @@ class PraPesananKeranjang {
 /// transaksi sudah pasti), bukan sebelum kasir memilih barang pengganti. [staf] diisi layar Bayar setelah PIN benar dan
 /// dipakai [TukarKeranjang.simpanRetur].
 class PenyetujuTukar {
-  PenyetujuTukar({required this.izin, required this.pesan, this.perlu = true});
+  PenyetujuTukar({required this.izin, required this.pesan, this.bolehSendiri = false});
 
   /// Izin yang harus dimiliki penyetuju (`penjualan.retur` atau `penjualan.retur.tanpa-struk`).
   final String izin;
@@ -432,12 +432,17 @@ class PenyetujuTukar {
   /// Kalimat alasan di dialog PIN.
   final String pesan;
 
-  /// False = kasir sendiri berwenang sehingga tidak perlu PIN.
-  final bool perlu;
+  /// True = kasir yang membayar boleh menyetujui sendiri bila ber-izin [izin] (retur dari struk); false = selalu PIN
+  /// penyetuju (retur tanpa struk). Dinilai saat pembayaran, memakai kasir yang sedang bertugas, bukan yang memulai
+  /// tukar (kasir bisa berganti sebelum bayar).
+  final bool bolehSendiri;
 
   StafLokal? staf;
 
-  bool get siap => !perlu || staf != null;
+  /// Kasir yang membayar; diisi layar Bayar dan dipakai sebagai pelaku retur.
+  StafLokal? kasir;
+
+  bool get siap => staf != null;
 }
 
 /// K-11 tukar barang: barang yang diretur menjadi pembayaran barang pengganti. Retur **belum** disimpan selama kasir
@@ -664,6 +669,11 @@ class Keranjang {
   final Uang diskonKirim;
 
   bool get CekKosong => baris.isEmpty;
+
+  /// Keranjang benar-benar bebas: tanpa baris dan tanpa dokumen yang sedang ditagih (tukar barang, pre-order, reservasi,
+  /// perintah kerja). Dipakai sebelum memuat dokumen lain ke keranjang dan oleh kunci otomatis, supaya keranjang tukar
+  /// yang belum berisi barang pengganti tidak tertimpa atau terkunci diam-diam.
+  bool get CekBebas => baris.isEmpty && tukar == null && praPesan == null && reservasi == null && perintahKerja == null;
 
   /// Ongkir yang benar-benar ditagih (bisa nol karena gratis ongkir, meski [biayaKirim] tidak nol).
   Uang HitungBiayaKirimNetto() => biayaKirim.Kurangi(diskonKirim);

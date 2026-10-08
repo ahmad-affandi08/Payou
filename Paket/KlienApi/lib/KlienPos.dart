@@ -704,7 +704,8 @@ class KlienPos {
 
     final http.Response respons;
     try {
-      respons = await http.Response.fromStream(await _klien.send(permintaan).timeout(batasWaktu));
+      // Batas waktu mencakup pengunduhan badan juga, bukan hanya sampai header diterima.
+      respons = await _klien.send(permintaan).then(http.Response.fromStream).timeout(batasWaktu);
     } on TimeoutException {
       throw const GalatJaringan('Server tidak menjawab. Periksa koneksi internet.');
     } on SocketException {
