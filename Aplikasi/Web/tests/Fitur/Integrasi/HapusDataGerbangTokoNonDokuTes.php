@@ -13,7 +13,7 @@ use Tests\Pendukung\Tenant\BantuanPendaftaran;
  * Migrasi 2026_11_23_000172_HapusDataGerbangTokoNonDoku: seluruh tenant memakai DOKU, jadi data gerbang toko milik
  * Midtrans/Xendit/Tripay/Duitku/iPaymu (gerbang tenant, katalog izin, konfigurasi platform lama) dihapus supaya
  * tidak ada baris dengan nilai penyedia yang tidak dikenal enum. Gerbang DOKU dan gerbang billing platform
- * (`MidtransBilling`) tidak boleh tersentuh. Idempoten dan aman bila tabel kosong.
+ * (jenis `GerbangBilling`) tidak boleh tersentuh oleh migrasi ini (baris billing lama dibersihkan migrasi 000173). Idempoten dan aman bila tabel kosong.
  */
 
 beforeEach(function (): void {

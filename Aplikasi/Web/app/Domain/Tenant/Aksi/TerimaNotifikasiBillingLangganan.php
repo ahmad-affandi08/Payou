@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\Log;
  *
  * - Pelunasannya memakai `PelunasTagihanLangganan`, layanan yang sama dengan verifikasi transfer manual, sehingga
  *   periode & status yang dihasilkan kedua jalur tidak bisa berbeda.
- * - **Idempoten:** Midtrans mengirim notifikasi berulang sampai dijawab 200. Pembayaran yang statusnya bukan lagi
+ * - **Idempoten:** DOKU mengirim notifikasi berulang sampai dijawab 200. Pembayaran yang statusnya bukan lagi
  *   `Menunggu` dijawab "sudah diproses" tanpa menyentuh apa pun, jadi periode langganan tidak pernah diperpanjang
  *   dua kali untuk satu pembayaran.
  * - Kunci berurutan Langganan → Tagihan → Pembayaran, sama dengan jalur manual dan penjadwal tunggakan.
@@ -63,7 +63,7 @@ final class TerimaNotifikasiBillingLangganan
             return false;
         }
 
-        // `pending`, `authorize`, dan `capture` yang masih ditinjau: belum ada uang yang pasti masuk.
+        // `PENDING` dan status lain yang belum final: belum ada uang yang pasti masuk.
         if ($notifikasi->status === StatusPembayaranGerbang::Menunggu) {
             return true;
         }
@@ -117,7 +117,8 @@ final class TerimaNotifikasiBillingLangganan
             throw new PelanggaranAturanBisnis('LanggananTidakAda', 'Langganan tenant ini tidak ditemukan.');
         }
 
-        $diterima = Uang::Dari($notifikasi->jumlah);
+        // Respons status DOKU yang tidak memuat jumlah: transaksi dibuat dengan jumlah tetap dari pembayaran ini.
+        $diterima = $notifikasi->jumlah === '' ? $pembayaran->AmbilJumlah() : Uang::Dari($notifikasi->jumlah);
         $hasil = $this->pelunas->Lunasi(
             $langganan,
             $tagihan,

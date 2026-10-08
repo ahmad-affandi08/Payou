@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Bersama\Audit\Model\LogAudit;
 use App\Domain\Integrasi\Billing\NomorPesananBilling;
+use App\Domain\Integrasi\GerbangPembayaran\ProtokolDoku;
 use App\Domain\Organisasi\Model\Pengguna;
 use App\Domain\Pengelola\Tagihan\Aksi\TerimaPembayaranLangganan;
 use App\Domain\Pengelola\TimInternal\Enum\PeranPengelolaBawaan;
@@ -25,28 +26,23 @@ use Tests\Pendukung\Tenant\BantuanTagihan;
 use Tests\TestCase;
 
 /*
- * BR-P08.11 | P-08 langkah 3 jalur gerbang: tenant membayar tagihan langganan lewat Snap Midtrans (akun platform),
- * dan tagihan menjadi Lunas **hanya** dari notifikasi webhook bertanda tangan.
+ * BR-P08.11 | P-08 langkah 3 jalur gerbang: tenant membayar tagihan langganan lewat DOKU Checkout (akun platform),
+ * dan tagihan menjadi Lunas **hanya** dari notifikasi webhook bertanda tangan yang statusnya terkonfirmasi di API status.
  *
  * Yang dijaga berkas ini: pelunasannya memakai layanan yang sama dengan verifikasi transfer manual
- * (`PelunasTagihanLangganan`), notifikasinya idempoten, dan tanda tangan palsu tidak pernah melunasi apa pun.
+ * (`PelunasTagihanLangganan`), notifikasinya idempoten, dan notifikasi palsu tidak pernah melunasi apa pun.
  */
 
-const KUNCI_SERVER_BILLING = 'SB-Mid-server-kunci-billing-uji';
-
-const TOKEN_SNAP_UJI = 'tok-snap-uji-abcdef';
+const URL_WEBHOOK_BILLING = '/webhook/billing/doku';
 
 function AturGerbangBilling(): void
 {
     config()->set('integrasi.GerbangBilling', [
-        'Penyedia' => 'MidtransBilling',
-        'Pengaturan' => ['Mode' => 'Sandbox', 'KunciKlien' => 'SB-Mid-client-uji'],
-        'Kredensial' => ['KunciServer' => KUNCI_SERVER_BILLING],
+        'Penyedia' => 'DokuBilling',
+        'Pengaturan' => ['Mode' => 'Sandbox', 'IdKlien' => BantuanTagihan::ID_KLIEN_DOKU],
+        'Kredensial' => ['KunciRahasia' => BantuanTagihan::KUNCI_RAHASIA_DOKU],
     ]);
-    Http::fake(['app.sandbox.midtrans.com/snap/v1/transactions' => Http::response([
-        'token' => TOKEN_SNAP_UJI,
-        'redirect_url' => 'https://app.sandbox.midtrans.com/snap/v4/redirection/'.TOKEN_SNAP_UJI,
-    ])]);
+    BantuanTagihan::FakeDoku();
 }
 
 /** Tagihan terbuka untuk tenant ini (paket & siklus dari pilihan Owner, BR-P08.4). */
@@ -60,7 +56,7 @@ function BuatTagihanGerbangUji(TestCase $tes, Pengguna $pemilik, Tenant $tenant,
     return TagihanLangganan::query()->withoutGlobalScopes()->where('IdTenant', $tenant->Id)->latest('Id')->firstOrFail();
 }
 
-/** Owner menekan "Bayar online": transaksi Snap dibuat dan baris pembayaran `Gateway` menunggu notifikasi. */
+/** Owner menekan "Bayar online": transaksi DOKU Checkout dibuat dan baris pembayaran `Gateway` menunggu notifikasi. */
 function MulaiBayarOnlineUji(TestCase $tes, Pengguna $pemilik, Tenant $tenant, TagihanLangganan $tagihan): TestResponse
 {
     $respons = BantuanTagihan::Masuk($tes, $pemilik, $tenant)
@@ -78,26 +74,50 @@ function UnggahBuktiGerbangUji(TestCase $tes, Pengguna $pemilik, Tenant $tenant,
 }
 
 /**
- * Notifikasi HTTP Midtrans. Tanda tangan dihitung dari isi yang sudah digabung, jadi menimpa `gross_amount` atau
- * `status_code` tetap menghasilkan notifikasi yang sah — kecuali `signature_key` ikut ditimpa dengan sengaja.
+ * Notifikasi HTTP DOKU: badan JSON ditandatangani dengan `Request-Target` path webhook. Secara bawaan API status DOKU
+ * juga menjawab sama dengan yang diklaim notifikasi (transaksi benar-benar berstatus itu di DOKU).
  *
- * @param  array<string, string>  $timpa
+ * Opsi: `IdKlien` (Client-Id header), `Kunci` (kunci penanda tangan), `Target` (Request-Target yang ditandatangani),
+ * `BadanKirim` (badan yang sungguh dikirim, beda dari yang ditandatangani), `TanpaTandaTangan`, `Signature` (nilai
+ * mentah), `JawabanStatus` (jawaban API status; `false` = koneksi gagal), `KodeStatus` (HTTP API status).
+ *
+ * @param  array<string, mixed>  $opsi
  */
-function KirimNotifikasiBilling(TestCase $tes, string $nomorPesanan, string $status, string $jumlah, array $timpa = []): TestResponse
+function KirimNotifikasiBilling(TestCase $tes, string $nomorPesanan, string $status, string $jumlah, array $opsi = []): TestResponse
 {
-    $isi = [
-        'order_id' => $nomorPesanan,
-        'status_code' => '200',
-        'gross_amount' => $jumlah,
-        'transaction_status' => $status,
-        'fraud_status' => 'accept',
-        'transaction_id' => 'trx-midtrans-uji-1',
-        ...$timpa,
-    ];
-    $isi['signature_key'] = $timpa['signature_key']
-        ?? hash('sha512', $isi['order_id'].$isi['status_code'].$isi['gross_amount'].KUNCI_SERVER_BILLING);
+    $badan = (string) json_encode([
+        'order' => ['invoice_number' => $nomorPesanan, 'amount' => (int) $jumlah],
+        'transaction' => ['status' => $status, 'original_request_id' => 'req-doku-uji-1'],
+    ], JSON_UNESCAPED_SLASHES);
 
-    return $tes->postJson('/webhook/billing/midtrans', $isi);
+    $jawaban = array_key_exists('JawabanStatus', $opsi)
+        ? ($opsi['JawabanStatus'] === false ? null : $opsi['JawabanStatus'])
+        : BantuanTagihan::JawabanStatusDoku($nomorPesanan, $status, $jumlah);
+    BantuanTagihan::AturJawabanStatusDoku($jawaban, (int) ($opsi['KodeStatus'] ?? 200));
+
+    $idKlien = (string) ($opsi['IdKlien'] ?? BantuanTagihan::ID_KLIEN_DOKU);
+    $idPermintaan = 'req-'.Str::uuid();
+    $waktu = '2026-09-27T03:05:00Z';
+    $tandaTangan = (string) ($opsi['Signature'] ?? ProtokolDoku::Tandatangani(
+        $idKlien,
+        $idPermintaan,
+        $waktu,
+        (string) ($opsi['Target'] ?? URL_WEBHOOK_BILLING),
+        $badan,
+        (string) ($opsi['Kunci'] ?? BantuanTagihan::KUNCI_RAHASIA_DOKU),
+    ));
+    $server = ['CONTENT_TYPE' => 'application/json', 'HTTP_ACCEPT' => 'application/json'];
+
+    if (! ($opsi['TanpaTandaTangan'] ?? false)) {
+        $server += [
+            'HTTP_CLIENT_ID' => $idKlien,
+            'HTTP_REQUEST_ID' => $idPermintaan,
+            'HTTP_REQUEST_TIMESTAMP' => $waktu,
+            'HTTP_SIGNATURE' => $tandaTangan,
+        ];
+    }
+
+    return $tes->call('POST', URL_WEBHOOK_BILLING, [], [], [], $server, (string) ($opsi['BadanKirim'] ?? $badan));
 }
 
 function LanggananGerbangUji(Tenant $tenant): Langganan
@@ -122,13 +142,13 @@ afterEach(function (): void {
 });
 
 describe('BR-P08.11 membuat transaksi di gerbang', function (): void {
-    it('Owner menekan Bayar online: transaksi Snap dibuat dan pembayaran Gateway menunggu notifikasi', function (): void {
+    it('Owner menekan Bayar online: transaksi DOKU Checkout dibuat dengan tanda tangan sah dan pembayaran Gateway menunggu notifikasi', function (): void {
         ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
         $tagihan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
 
         MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan)
             ->assertOk()
-            ->assertJson(['Token' => TOKEN_SNAP_UJI]);
+            ->assertJson(['UrlBayar' => BantuanTagihan::URL_BAYAR_DOKU]);
 
         $pembayaran = PembayaranGerbangUji($tagihan);
         expect($pembayaran->Metode)->toBe(MetodePembayaranLangganan::Gateway)
@@ -137,12 +157,67 @@ describe('BR-P08.11 membuat transaksi di gerbang', function (): void {
             // Nomor pesanan memuat IdTenant + ULID pembayaran, sehingga webhook bisa menetapkan tenant tanpa
             // query lintas tenant dan tagihan tetap terbuka sampai notifikasi datang.
             ->and($pembayaran->RefGateway)->toBe(NomorPesananBilling::Buat($tenant->Id, $pembayaran->Uuid))
+            // Batas DOKU untuk invoice_number adalah 64 karakter.
+            ->and(strlen((string) $pembayaran->RefGateway))->toBeLessThanOrEqual(64)
             ->and($tagihan->refresh()->Status)->toBe(StatusTagihanLangganan::Terbit);
 
-        Http::assertSent(fn ($permintaan): bool => $permintaan->url() === 'https://app.sandbox.midtrans.com/snap/v1/transactions'
-            && $permintaan['transaction_details']['order_id'] === $pembayaran->RefGateway
-            && $permintaan['transaction_details']['gross_amount'] === (int) $tagihan->Total);
+        Http::assertSent(function ($permintaan) use ($pembayaran, $tagihan, $tenant, $pemilik): bool {
+            if ($permintaan->url() !== BantuanTagihan::ALAMAT_DOKU.'/checkout/v1/payment') {
+                return false;
+            }
+
+            $badan = $permintaan->body();
+            // Tanda tangan dihitung ulang di sini dengan rumus DOKU yang ditulis lepas dari kode produksi.
+            $komponen = 'Client-Id:'.BantuanTagihan::ID_KLIEN_DOKU
+                ."\nRequest-Id:".$permintaan->header('Request-Id')[0]
+                ."\nRequest-Timestamp:".$permintaan->header('Request-Timestamp')[0]
+                ."\nRequest-Target:/checkout/v1/payment"
+                ."\nDigest:".base64_encode(hash('sha256', $badan, true));
+            $harapan = 'HMACSHA256='.base64_encode(hash_hmac('sha256', $komponen, BantuanTagihan::KUNCI_RAHASIA_DOKU, true));
+
+            return $permintaan->method() === 'POST'
+                && $permintaan->header('Client-Id') === [BantuanTagihan::ID_KLIEN_DOKU]
+                && $permintaan->header('Signature') === [$harapan]
+                && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $permintaan->header('Request-Timestamp')[0]) === 1
+                && $permintaan->header('Request-Id')[0] !== ''
+                && $permintaan['order']['invoice_number'] === $pembayaran->RefGateway
+                && $permintaan['order']['amount'] === (int) $tagihan->Total
+                && str_ends_with((string) $permintaan['order']['callback_url'], "/kelola/langganan/tagihan/{$tagihan->Uuid}")
+                && $permintaan['order']['auto_redirect'] === true
+                && $permintaan['payment']['payment_due_date'] === 60
+                && $permintaan['customer']['id'] === 'T'.$tenant->Id
+                && $permintaan['customer']['email'] === $pemilik->Email;
+        });
     });
+
+    it('DOKU menolak permintaan dengan pasti (4xx): pembayaran ditutup Ditolak dan pesan tidak membocorkan secret key', function (): void {
+        ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
+        $tagihan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
+        BantuanTagihan::PaksaJawabanCheckoutDoku(400, ['message' => ['Invalid '.BantuanTagihan::KUNCI_RAHASIA_DOKU]]);
+
+        $respons = MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan)
+            ->assertStatus(422)
+            ->assertJsonPath('Galat.Kode', 'GerbangMenolak');
+
+        expect($respons->getContent())->not->toContain(BantuanTagihan::KUNCI_RAHASIA_DOKU);
+        $pembayaran = PembayaranGerbangUji($tagihan);
+        expect($pembayaran->Status)->toBe(StatusPembayaranLangganan::Ditolak)
+            ->and((string) $pembayaran->AlasanTolak)->not->toContain(BantuanTagihan::KUNCI_RAHASIA_DOKU);
+    });
+
+    it('hasil tidak pasti (5xx atau tautan bayar tak terbaca): pembayaran dibiarkan Menunggu supaya webhook susulan masih cocok', function (int $kode, array $badan): void {
+        ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
+        $tagihan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
+        BantuanTagihan::PaksaJawabanCheckoutDoku($kode, $badan);
+
+        MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan)->assertStatus(422)->assertJsonPath('Galat.Kode', 'GerbangMenolak');
+
+        expect(PembayaranGerbangUji($tagihan)->Status)->toBe(StatusPembayaranLangganan::Menunggu);
+    })->with([
+        '503' => [503, []],
+        'sukses tanpa tautan' => [200, ['response' => ['payment' => []]]],
+        'tautan bukan https' => [200, ['response' => ['payment' => ['url' => 'http://sandbox.doku.com/checkout']]]],
+    ]);
 
     it('gerbang billing belum dikonfigurasi: pembayaran online ditolak, transfer manual tetap jalan', function (): void {
         ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
@@ -167,26 +242,32 @@ describe('BR-P08.11 membuat transaksi di gerbang', function (): void {
             ->assertJsonPath('Galat.Kode', 'PembayaranMasihDiverifikasi');
         Http::assertNothingSent();
     });
+
+    it('halaman tagihan tidak lagi membawa kunci atau skrip gerbang ke peramban', function (): void {
+        ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
+        $tagihan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
+
+        $respons = BantuanTagihan::Masuk($this, $pemilik, $tenant)
+            ->get(BantuanTagihan::Url("/kelola/langganan/tagihan/{$tagihan->Uuid}"))
+            ->assertOk()
+            ->assertInertia(fn ($halaman) => $halaman->where('BolehBayarOnline', true)->missing('Gerbang'));
+
+        expect($respons->getContent())->not->toContain(BantuanTagihan::KUNCI_RAHASIA_DOKU);
+    });
 });
 
 describe('BR-P08.11 notifikasi webhook', function (): void {
-    it('notifikasi uji coba (order_id test/sample) tetap wajib bertanda tangan sah (audit PAY-P2-07)', function (): void {
-        // Tanpa tanda tangan sah: ditolak, tidak lagi dibalas "siap menerima".
-        KirimNotifikasiBilling($this, 'test-123', 'settlement', '10000.00', ['signature_key' => 'palsu'])->assertStatus(401);
-        KirimNotifikasiBilling($this, 'sample-1', 'settlement', '10000.00', ['signature_key' => 'palsu'])->assertStatus(401);
-        $this->postJson('/webhook/billing/midtrans', [])->assertStatus(401);
-
-        // Uji dari dasbor Midtrans memakai kunci server yang sama, jadi lolos dan tidak mengubah pembayaran apa pun.
-        KirimNotifikasiBilling($this, 'test-123', 'settlement', '10000.00')->assertOk()->assertJson(['Diterima' => true]);
+    it('route notifikasi Midtrans lama sudah dihapus', function (): void {
+        $this->postJson('/webhook/billing/midtrans', [])->assertNotFound();
     });
 
-    it('settlement melunasi tagihan, mengaktifkan langganan, dan tercatat di audit tanpa pelaku orang', function (): void {
+    it('SUCCESS melunasi tagihan, mengaktifkan langganan, dan tercatat di audit tanpa pelaku orang', function (): void {
         ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
         $tagihan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
         MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan);
         $pembayaran = PembayaranGerbangUji($tagihan);
 
-        KirimNotifikasiBilling($this, (string) $pembayaran->RefGateway, 'settlement', $tagihan->Total)
+        KirimNotifikasiBilling($this, (string) $pembayaran->RefGateway, 'SUCCESS', $tagihan->Total)
             ->assertOk()
             ->assertJson(['Diterima' => true]);
 
@@ -205,7 +286,7 @@ describe('BR-P08.11 notifikasi webhook', function (): void {
         $log = LogAudit::query()->withoutGlobalScopes()->where('Peristiwa', 'langganan.pembayaran-gerbang-lunas')->sole();
         expect($log->IdPengguna)->toBeNull()
             ->and($log->IdTenant)->toBe($tenant->Id)
-            ->and($log->NilaiBaru['IdTransaksiGerbang'])->toBe('trx-midtrans-uji-1');
+            ->and($log->NilaiBaru['IdTransaksiGerbang'])->toBe('req-doku-uji-1');
     });
 
     it('notifikasi diulang berkali-kali tidak memperpanjang periode dua kali (idempoten)', function (): void {
@@ -214,44 +295,99 @@ describe('BR-P08.11 notifikasi webhook', function (): void {
         MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan);
         $nomor = (string) PembayaranGerbangUji($tagihan)->RefGateway;
 
-        KirimNotifikasiBilling($this, $nomor, 'settlement', $tagihan->Total)->assertOk();
+        KirimNotifikasiBilling($this, $nomor, 'SUCCESS', $tagihan->Total)->assertOk();
         $selesaiPertama = LanggananGerbangUji($tenant)->PeriodeSelesai?->toDateTimeString();
 
-        // Midtrans mengulang notifikasi sampai dijawab 200; ulangan harus jadi tanpa efek, bukan perpanjangan baru.
-        KirimNotifikasiBilling($this, $nomor, 'settlement', $tagihan->Total)->assertOk()->assertJson(['Diterima' => true]);
-        KirimNotifikasiBilling($this, $nomor, 'settlement', $tagihan->Total)->assertOk();
+        // DOKU mengulang notifikasi sampai dijawab 200; ulangan harus jadi tanpa efek, bukan perpanjangan baru.
+        KirimNotifikasiBilling($this, $nomor, 'SUCCESS', $tagihan->Total)->assertOk()->assertJson(['Diterima' => true]);
+        KirimNotifikasiBilling($this, $nomor, 'SUCCESS', $tagihan->Total)->assertOk();
 
         expect(LanggananGerbangUji($tenant)->PeriodeSelesai?->toDateTimeString())->toBe($selesaiPertama)
             ->and(PembayaranLangganan::query()->withoutGlobalScopes()->where('Status', StatusPembayaranLangganan::Menunggu->value)->count())->toBe(0)
             ->and(LogAudit::query()->withoutGlobalScopes()->where('Peristiwa', 'langganan.pembayaran-gerbang-lunas')->count())->toBe(1);
     });
 
-    it('tanda tangan tidak sah dijawab 401 dan tidak menyentuh tagihan', function (): void {
+    it('notifikasi tidak sah dijawab 401 dan tidak menyentuh tagihan', function (string $kasus, array $opsi): void {
         ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
         $tagihan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
         MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan);
         $nomor = (string) PembayaranGerbangUji($tagihan)->RefGateway;
 
-        KirimNotifikasiBilling($this, $nomor, 'settlement', $tagihan->Total, ['signature_key' => 'tanda-tangan-palsu'])
+        if ($kasus === 'badan diubah') {
+            // Penyerang mengganti nomor pesanan/jumlah setelah DOKU menandatangani badan aslinya.
+            $opsi['BadanKirim'] = (string) json_encode(['order' => ['invoice_number' => $nomor, 'amount' => 1], 'transaction' => ['status' => 'SUCCESS']]);
+        }
+
+        KirimNotifikasiBilling($this, $nomor, 'SUCCESS', $tagihan->Total, $opsi)
             ->assertStatus(401)
             ->assertJsonPath('Galat.Kode', 'TandaTanganTidakSah');
 
         expect($tagihan->refresh()->Status)->toBe(StatusTagihanLangganan::Terbit)
-            ->and(LanggananGerbangUji($tenant)->Status)->not->toBe(StatusLangganan::Aktif);
+            ->and(PembayaranGerbangUji($tagihan)->Status)->toBe(StatusPembayaranLangganan::Menunggu)
+            ->and(LanggananGerbangUji($tenant)->Status)->not->toBe(StatusLangganan::Aktif)
+            // Ditolak sebelum menyentuh DOKU: endpoint publik ini tidak boleh dipakai memancing panggilan keluar.
+            ->and(BantuanTagihan::JumlahPanggilanStatusDoku())->toBe(0);
+    })->with([
+        'signature palsu' => ['signature palsu', ['Signature' => 'HMACSHA256=tanda-tangan-palsu']],
+        'secret key lain' => ['secret key lain', ['Kunci' => 'secret-milik-pihak-lain']],
+        'Client-Id akun lain' => ['Client-Id akun lain', ['IdKlien' => 'BRN-9999-0000000000000']],
+        'badan diubah' => ['badan diubah', []],
+        'Request-Target lain' => ['Request-Target lain', ['Target' => '/webhook/doku/token-lain']],
+        'tanpa header tanda tangan' => ['tanpa header tanda tangan', ['TanpaTandaTangan' => true]],
+    ]);
+
+    it('gerbang billing belum dikonfigurasi: semua notifikasi ditolak 401', function (): void {
+        ['Tenant' => $tenant] = BantuanTagihan::DaftarTenant();
+        config()->set('integrasi.GerbangBilling', null);
+
+        KirimNotifikasiBilling($this, NomorPesananBilling::Buat($tenant->Id, (string) Str::ulid()), 'SUCCESS', '222000.00')
+            ->assertStatus(401);
     });
 
-    it('nomor pesanan sah tetapi tidak dikenal dijawab 200 tanpa efek, agar gerbang berhenti mengulang', function (): void {
+    it('notifikasi SUCCESS yang tidak terkonfirmasi di API status DOKU tidak melunasi apa pun dan dijawab 503 agar diulang', function (string $kasus, array $opsi): void {
         ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
+        $tagihan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
+        MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan);
+        $pembayaran = PembayaranGerbangUji($tagihan);
+        $nomor = (string) $pembayaran->RefGateway;
+
+        if ($kasus === 'status masih PENDING') {
+            $opsi['JawabanStatus'] = BantuanTagihan::JawabanStatusDoku($nomor, 'PENDING', $tagihan->Total);
+        }
+
+        KirimNotifikasiBilling($this, $nomor, 'SUCCESS', $tagihan->Total, $opsi)
+            ->assertStatus(503)
+            ->assertJsonPath('Galat.Kode', 'StatusBelumTerkonfirmasi');
+
+        expect($pembayaran->refresh()->Status)->toBe(StatusPembayaranLangganan::Menunggu)
+            ->and($tagihan->refresh()->Status)->toBe(StatusTagihanLangganan::Terbit);
+    })->with([
+        'status masih PENDING' => ['status masih PENDING', []],
+        'DOKU tidak terjangkau' => ['DOKU tidak terjangkau', ['JawabanStatus' => false]],
+        'DOKU tidak mengenal invoice' => ['DOKU tidak mengenal invoice', ['JawabanStatus' => ['error' => ['message' => 'not found']], 'KodeStatus' => 404]],
+        'invoice di jawaban beda' => ['invoice di jawaban beda', ['JawabanStatus' => ['order' => ['invoice_number' => 'lain-01'], 'transaction' => ['status' => 'SUCCESS']]]],
+    ]);
+
+    it('nomor pesanan sah tetapi tidak dikenal dijawab 200 tanpa efek, agar gerbang berhenti mengulang', function (): void {
+        ['Tenant' => $tenant] = BantuanTagihan::DaftarTenant();
         $asing = NomorPesananBilling::Buat($tenant->Id, (string) Str::ulid());
 
-        KirimNotifikasiBilling($this, $asing, 'settlement', '222000.00')
+        KirimNotifikasiBilling($this, $asing, 'SUCCESS', '222000.00')
             ->assertOk()
             ->assertJson(['Diterima' => false]);
 
         expect(PembayaranLangganan::query()->withoutGlobalScopes()->count())->toBe(0);
     });
 
-    it('deny & expire menolak pembayaran beralasan, tagihan tetap terbuka supaya bisa dibayar ulang', function (string $status): void {
+    it('invoice_number yang bukan format Payoung (misal notifikasi uji dari dasbor DOKU) dijawab 200 tanpa menghubungi DOKU', function (): void {
+        KirimNotifikasiBilling($this, 'INV-UJI-0001', 'SUCCESS', '10000.00')
+            ->assertOk()
+            ->assertJson(['Diterima' => false]);
+
+        expect(BantuanTagihan::JumlahPanggilanStatusDoku())->toBe(0);
+    });
+
+    it('FAILED & EXPIRED menolak pembayaran beralasan, tagihan tetap terbuka supaya bisa dibayar ulang', function (string $status): void {
         ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
         $tagihan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
         MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan);
@@ -265,15 +401,15 @@ describe('BR-P08.11 notifikasi webhook', function (): void {
             ->and($pembayaran->AlasanTolak)->toContain($status)
             ->and($tagihan->refresh()->Status)->toBe(StatusTagihanLangganan::Terbit)
             ->and(LanggananGerbangUji($tenant)->Status)->not->toBe(StatusLangganan::Aktif);
-    })->with(['deny', 'expire']);
+    })->with(['FAILED', 'EXPIRED']);
 
-    it('capture yang masih ditinjau (fraud challenge) belum melunasi apa pun', function (): void {
+    it('status yang belum final (PENDING) belum melunasi apa pun', function (): void {
         ['Tenant' => $tenant, 'Pengguna' => $pemilik] = BantuanTagihan::DaftarTenant();
         $tagihan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
         MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan);
         $pembayaran = PembayaranGerbangUji($tagihan);
 
-        KirimNotifikasiBilling($this, (string) $pembayaran->RefGateway, 'capture', $tagihan->Total, ['fraud_status' => 'challenge'])
+        KirimNotifikasiBilling($this, (string) $pembayaran->RefGateway, 'PENDING', $tagihan->Total)
             ->assertOk();
 
         expect($pembayaran->refresh()->Status)->toBe(StatusPembayaranLangganan::Menunggu)
@@ -286,7 +422,7 @@ describe('BR-P08.11 notifikasi webhook', function (): void {
         MulaiBayarOnlineUji($this, $pemilik, $tenant, $tagihan);
         $pembayaran = PembayaranGerbangUji($tagihan);
 
-        KirimNotifikasiBilling($this, (string) $pembayaran->RefGateway, 'settlement', '1000.00')
+        KirimNotifikasiBilling($this, (string) $pembayaran->RefGateway, 'SUCCESS', '1000.00')
             ->assertOk()
             ->assertJson(['Diterima' => false]);
 
@@ -305,7 +441,7 @@ describe('BR-P08.11 notifikasi webhook', function (): void {
         // pesanan lalu pencarian lewat scope MilikTenant, pembayaran tenant A tidak terlihat sama sekali dari
         // lingkup tenant B — isolasinya struktural, bukan hasil perbandingan.
         $nomorPalsu = NomorPesananBilling::Buat($tenantB->Id, $pembayaranA->Uuid);
-        KirimNotifikasiBilling($this, $nomorPalsu, 'settlement', $tagihanA->Total)
+        KirimNotifikasiBilling($this, $nomorPalsu, 'SUCCESS', $tagihanA->Total)
             ->assertOk()
             ->assertJson(['Diterima' => false]);
 
@@ -331,7 +467,7 @@ describe('BR-P08.11 jalur gerbang = jalur manual', function (): void {
         Carbon::setTestNow('2026-10-20 04:00:00');
         $perpanjangan = BuatTagihanGerbangUji($this, $pemilik, $tenant);
         MulaiBayarOnlineUji($this, $pemilik, $tenant, $perpanjangan);
-        KirimNotifikasiBilling($this, (string) PembayaranGerbangUji($perpanjangan)->RefGateway, 'settlement', $perpanjangan->Total)->assertOk();
+        KirimNotifikasiBilling($this, (string) PembayaranGerbangUji($perpanjangan)->RefGateway, 'SUCCESS', $perpanjangan->Total)->assertOk();
 
         $langganan = LanggananGerbangUji($tenant);
         expect($perpanjangan->refresh()->Status)->toBe(StatusTagihanLangganan::Lunas)

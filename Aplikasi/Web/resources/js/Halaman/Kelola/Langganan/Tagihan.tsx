@@ -29,17 +29,14 @@ type PropsTagihan = {
     Pembayaran: PembayaranLangganan[];
     BolehBayarOnline: boolean;
     BolehBatalkan: boolean;
-    /** Null bila integrasi gerbang billing platform belum aktif. */
-    Gerbang: { KunciKlien: string; UrlSnapJs: string } | null;
 };
 
-/** Detail tagihan dan pembayaran online gerbang billing platform. */
+/** Detail tagihan dan pembayaran online lewat DOKU Checkout (gerbang billing platform). */
 export default function HalamanTagihanLangganan({
     Tagihan,
     Pembayaran,
     BolehBayarOnline,
     BolehBatalkan,
-    Gerbang,
 }: PropsTagihan) {
     const [membatalkan, AturMembatalkan] = useState(false);
 
@@ -63,13 +60,7 @@ export default function HalamanTagihanLangganan({
                 </Pemberitahuan>
             ) : null}
             <RincianTagihan tagihan={Tagihan} />
-            {BolehBayarOnline && Gerbang !== null ? (
-                <TombolBayarOnline
-                    uuidTagihan={Tagihan.Uuid}
-                    kunciKlien={Gerbang.KunciKlien}
-                    urlSnapJs={Gerbang.UrlSnapJs}
-                />
-            ) : null}
+            {BolehBayarOnline ? <TombolBayarOnline uuidTagihan={Tagihan.Uuid} /> : null}
             <RiwayatPembayaran pembayaran={Pembayaran} />
             {BolehBatalkan ? (
                 <div>

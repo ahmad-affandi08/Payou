@@ -40,7 +40,7 @@ enum JenisIntegrasi: string
             self::GerbangPembayaran => PenyediaIntegrasi::Doku,
             self::Whatsapp => PenyediaIntegrasi::MetaCloud,
             self::Push => PenyediaIntegrasi::Fcm,
-            self::GerbangBilling => PenyediaIntegrasi::MidtransBilling,
+            self::GerbangBilling => PenyediaIntegrasi::DokuBilling,
             self::LoginSosial => PenyediaIntegrasi::Google,
         };
     }

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Mail;
  * transfer manual, karena bagi Owner isinya memang sama — tagihan lunas dan periodenya sampai kapan.
  *
  * Berjalan di antrean setelah commit: notifikasi gerbang harus dijawab cepat, dan SMTP yang lambat atau mati tidak
- * boleh membuat Midtrans mengulang notifikasi yang sudah berhasil dibukukan. Kegagalan kirim muncul sebagai job
+ * boleh membuat DOKU mengulang notifikasi yang sudah berhasil dibukukan. Kegagalan kirim muncul sebagai job
  * gagal di dasbor operasional (P-11).
  */
 final class KirimSurelPelunasanGerbang implements ShouldQueue

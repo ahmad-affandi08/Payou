@@ -12,9 +12,9 @@ namespace App\Domain\Integrasi\Billing;
  * pembayaran dicari lewat scope `MilikTenant` seperti biasa, tanpa query lintas tenant (CLAUDE.md #11).
  *
  * `IdTenant` di sini hanya menentukan lingkup pencarian, bukan bukti kepemilikan: keaslian notifikasi dijamin tanda
- * tangan SHA512 dari server key platform, dan pembayaran hanya ditemukan bila `RefGateway`-nya cocok persis.
+ * tangan HMAC-SHA256 dari secret key DOKU platform, dan pembayaran hanya ditemukan bila `RefGateway`-nya cocok persis.
  *
- * Panjangnya aman untuk batas 50 karakter order id Midtrans: 13 + 1 + 26 (ULID) = 40.
+ * Panjangnya aman untuk batas 64 karakter `invoice_number` DOKU: 13 + 1 + 26 (ULID) = 40, hanya huruf, angka, dan tanda hubung.
  */
 final class NomorPesananBilling
 {

@@ -6,6 +6,7 @@ namespace App\Domain\Integrasi\Billing;
 
 use App\Domain\Bersama\Nilai\Uang;
 use App\Domain\Integrasi\GerbangPembayaran\GalatGerbang;
+use App\Domain\Integrasi\GerbangPembayaran\ProtokolDoku;
 use App\Domain\Integrasi\GerbangPembayaran\StatusPembayaranGerbang;
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
@@ -15,123 +16,108 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 /**
- * Gerbang pembayaran untuk **tagihan langganan Payoung sendiri** (P-08 langkah 3, BR-P08.11): akun Midtrans milik
- * platform, dikonfigurasi di konsol pengelola sebagai integrasi `GerbangBilling` (P-05).
+ * Gerbang pembayaran untuk **tagihan langganan Payoung sendiri** (P-08 langkah 3, BR-P08.11): akun DOKU milik
+ * platform, dikonfigurasi di konsol pengelola sebagai integrasi `GerbangBilling` (P-05, penyedia `DokuBilling`).
  *
  * Sengaja terpisah dari `Domain\Integrasi\GerbangPembayaran` (QRIS milik toko, D-19): di sana akun dan kredensialnya
- * milik tenant dan dipakai menagih pembeli, di sini akunnya milik Payoung dan dipakai menagih tenant. Keduanya bisa
- * aktif bersamaan dengan penyedia yang sama tanpa saling memakai kredensial.
+ * milik tenant dan dipakai menagih pembeli, di sini akunnya milik Payoung dan dipakai menagih tenant. Keduanya memakai
+ * protokol DOKU yang sama (`ProtokolDoku`) tanpa saling memakai kredensial.
  *
- * Alurnya Snap: Payoung membuat transaksi lalu tenant membayar di popup Snap.js. Pelunasan tagihan **tidak** pernah
- * dari respons popup (bisa dipalsukan peramban), hanya dari notifikasi webhook bertanda tangan.
+ * Alurnya DOKU Checkout: Payoung membuat transaksi (`POST /checkout/v1/payment`) lalu peramban tenant diarahkan ke
+ * halaman bayar DOKU. Pelunasan tagihan **tidak** pernah dari peramban (bisa dipalsukan), hanya dari notifikasi
+ * webhook bertanda tangan yang statusnya dikonfirmasi ulang lewat API status DOKU, atau dari rekonsiliasi.
  */
 final class GerbangBillingPlatform
 {
-    private const URL_SANDBOX = 'https://app.sandbox.midtrans.com';
-
-    private const URL_PRODUKSI = 'https://app.midtrans.com';
-
-    private const URL_API_SANDBOX = 'https://api.sandbox.midtrans.com';
-
-    private const URL_API_PRODUKSI = 'https://api.midtrans.com';
-
-    /** Batas bayar satu transaksi Snap; setelahnya tenant membuat transaksi baru dari tagihan yang sama. */
+    /** Batas bayar satu transaksi; setelahnya tenant membuat transaksi baru dari tagihan yang sama. */
     public const MENIT_KEDALUWARSA = 60;
+
+    private const TARGET_BUAT = '/checkout/v1/payment';
+
+    private const TARGET_STATUS = '/orders/v1/status/';
 
     public function CekAktif(): bool
     {
-        return $this->KunciServer() !== '' && $this->KunciKlien() !== '';
+        return $this->IdKlien() !== '' && $this->KunciRahasia() !== '';
     }
 
     public function CekSandbox(): bool
     {
-        return $this->Pengaturan('Mode') !== 'Produksi';
-    }
-
-    public function KunciKlien(): string
-    {
-        return $this->Pengaturan('KunciKlien');
-    }
-
-    /** Alamat Snap.js yang dimuat halaman tagihan; harus sesuai lingkungan agar token dikenali. */
-    public function UrlSnapJs(): string
-    {
-        return $this->AlamatDasar().'/snap/snap.js';
+        return trim((string) config('integrasi.GerbangBilling.Pengaturan.Mode', '')) !== 'Produksi';
     }
 
     /**
+     * @param  string  $urlKembali  halaman yang dibuka DOKU setelah tenant selesai di halaman bayar
+     *
      * @throws GalatGerbang
      */
-    public function BuatTransaksiSnap(
+    public function BuatTransaksi(
         string $nomorPesanan,
         Uang $total,
-        string $namaTagihan,
         string $namaPembayar,
         string $emailPembayar,
-    ): HasilSnap {
-        $jumlah = (int) $total->KeString();
+        string $urlKembali,
+    ): HasilPembayaranBilling {
+        $bagian = NomorPesananBilling::Urai($nomorPesanan);
+        $isi = (string) json_encode([
+            'order' => [
+                'amount' => (int) $total->KeString(),
+                'invoice_number' => $nomorPesanan,
+                'callback_url' => $urlKembali,
+                'auto_redirect' => true,
+            ],
+            'payment' => ['payment_due_date' => self::MENIT_KEDALUWARSA],
+            'customer' => [
+                'id' => $bagian !== null ? 'T'.$bagian['IdTenant'] : 'T0',
+                'name' => mb_substr($namaPembayar, 0, 100),
+                'email' => $emailPembayar,
+            ],
+        ], JSON_UNESCAPED_SLASHES);
 
         try {
             $respons = Http::timeout(15)->acceptJson()
-                ->withBasicAuth($this->KunciServer(), '')
-                ->post($this->AlamatDasar().'/snap/v1/transactions', [
-                    'transaction_details' => ['order_id' => $nomorPesanan, 'gross_amount' => $jumlah],
-                    'item_details' => [['id' => 'LANGGANAN', 'price' => $jumlah, 'quantity' => 1, 'name' => mb_substr($namaTagihan, 0, 50)]],
-                    'customer_details' => ['first_name' => mb_substr($namaPembayar, 0, 50), 'email' => $emailPembayar],
-                    'expiry' => ['unit' => 'minute', 'duration' => self::MENIT_KEDALUWARSA],
-                    'credit_card' => ['secure' => true],
-                ]);
+                ->withHeaders(ProtokolDoku::BuatHeader($this->IdKlien(), $this->KunciRahasia(), self::TARGET_BUAT, $isi))
+                ->withBody($isi, 'application/json')
+                ->post($this->AlamatDasar().self::TARGET_BUAT);
         } catch (ConnectionException) {
-            // Transaksi mungkin sudah terbentuk di Midtrans; pembayaran dibiarkan Menunggu dan webhook tetap berlaku.
+            // Transaksi mungkin sudah terbentuk di DOKU; pembayaran dibiarkan Menunggu dan webhook tetap berlaku.
             throw new GalatGerbang('Gerbang pembayaran tidak bisa dihubungi. Coba lagi sebentar lagi.', tidakPasti: true);
         }
 
-        $token = $respons->json('token');
-        $redirect = $respons->json('redirect_url');
+        $url = $respons->json('response.payment.url');
 
-        if (! $respons->successful() || ! is_string($token) || $token === '' || ! is_string($redirect) || $redirect === '') {
+        if (! $respons->successful() || ! is_string($url) || ! str_starts_with($url, 'https://')) {
             throw new GalatGerbang(
                 $this->Saring("Gerbang pembayaran menolak permintaan (HTTP {$respons->status()}): ".$this->PesanPenyedia($respons)),
                 // Respons sukses yang tidak terbaca berarti transaksinya mungkin ada; 5xx juga belum tentu gagal.
-                tidakPasti: $respons->successful() || $respons->serverError(),
+                tidakPasti: $respons->successful() || $respons->serverError() || in_array($respons->status(), [408, 409, 425, 429], true),
             );
         }
 
-        return new HasilSnap($token, $redirect);
+        return new HasilPembayaranBilling($url);
     }
 
-    /** Midtrans mengirim `error_messages` berupa daftar teks; apa pun bentuk lainnya diringkas jadi pesan umum. */
+    /** DOKU mengirim galat sebagai `message` (daftar teks) atau `error.message`; bentuk lain diringkas jadi pesan umum. */
     private function PesanPenyedia(Response $respons): string
     {
-        $pesan = $respons->json('error_messages');
+        $pesan = $respons->json('message.0') ?? $respons->json('error.message');
 
-        if (! is_array($pesan)) {
-            return 'transaksi tidak dibuat.';
-        }
-
-        $teks = array_filter(array_map(static fn (mixed $baris): string => is_string($baris) ? $baris : '', $pesan));
-
-        return $teks === [] ? 'transaksi tidak dibuat.' : implode('; ', $teks);
-    }
-
-    public function CekTandaTanganSah(Request $permintaan): bool
-    {
-        $kunci = $this->KunciServer();
-        $nomor = (string) $permintaan->input('order_id');
-        $kodeStatus = (string) $permintaan->input('status_code');
-        $jumlah = (string) $permintaan->input('gross_amount');
-        $tanda = (string) $permintaan->input('signature_key');
-
-        if ($kunci === '' || $nomor === '' || $tanda === '') {
-            return false;
-        }
-
-        return hash_equals(hash('sha512', $nomor.$kodeStatus.$jumlah.$kunci), $tanda);
+        return is_string($pesan) && $pesan !== '' ? $pesan : 'transaksi tidak dibuat.';
     }
 
     /**
-     * Notifikasi HTTP Midtrans: `signature_key = SHA512(order_id + status_code + gross_amount + ServerKey)`.
-     * Tanda tangan tidak sah, nomor pesanan bukan milik Payoung, atau gerbang belum aktif = null.
+     * Notifikasi HTTP DOKU sah bila `Client-Id` milik akun platform dan `Signature` cocok untuk path webhook & badan
+     * mentahnya (badan yang diubah sedikit pun membuat tanda tangan tidak cocok). Gerbang belum aktif = tidak sah.
+     */
+    public function CekTandaTanganSah(Request $permintaan): bool
+    {
+        return $this->CekAktif() && ProtokolDoku::CekNotifikasiSah($permintaan, $this->IdKlien(), $this->KunciRahasia());
+    }
+
+    /**
+     * Mengurai badan notifikasi DOKU yang tanda tangannya sudah terbukti sah. Nomor pesanan bukan format Payoung
+     * (misal notifikasi uji dari dasbor DOKU) atau badan tak terbaca = null. **Status di sini belum dipercaya:**
+     * pemanggil wajib mengonfirmasinya lewat `Konfirmasi()` sebelum melunasi apa pun.
      */
     public function UraiNotifikasi(Request $permintaan): ?NotifikasiBilling
     {
@@ -139,35 +125,55 @@ final class GerbangBillingPlatform
             return null;
         }
 
-        $nomor = (string) $permintaan->input('order_id');
-        $jumlah = (string) $permintaan->input('gross_amount');
+        $data = json_decode($permintaan->getContent(), true);
+        $nomor = is_array($data) ? ($data['order']['invoice_number'] ?? null) : null;
+        $bagian = is_string($nomor) ? NomorPesananBilling::Urai($nomor) : null;
 
-        $bagian = NomorPesananBilling::Urai($nomor);
-
-        if ($bagian === null) {
+        if (! is_string($nomor) || $bagian === null) {
             return null;
         }
 
-        $statusAsli = (string) $permintaan->input('transaction_status');
+        $statusAsli = (string) ($data['transaction']['status'] ?? '');
 
         return new NotifikasiBilling(
             nomorPesanan: $nomor,
             idTenant: $bagian['IdTenant'],
             uuidPembayaran: $bagian['Uuid'],
-            status: self::PetakanStatus($statusAsli, (string) $permintaan->input('fraud_status')),
-            jumlah: $jumlah,
-            idTransaksi: (string) $permintaan->input('transaction_id'),
+            status: ProtokolDoku::PetakanStatus($statusAsli),
+            jumlah: self::AmbilTeks($data['order']['amount'] ?? null),
+            idTransaksi: self::AmbilTeks($data['transaction']['original_request_id'] ?? null),
             statusAsli: $statusAsli,
         );
     }
 
     /**
-     * Rekonsiliasi (P-08, v4.06): tanyakan status satu transaksi ke API status Midtrans
-     * (`GET /v2/{order_id}/status`), untuk pembayaran yang notifikasi webhook-nya tidak pernah tiba. Hasilnya dibentuk
-     * sama dengan notifikasi webhook supaya diproses jalur yang sama (`TerimaNotifikasiBillingLangganan`).
+     * Konfirmasi notifikasi webhook ke API status DOKU: isi webhook saja tidak dipercaya untuk melunasi tagihan.
+     * Hasilnya notifikasi bersumber API status; null bila DOKU tidak bisa dihubungi, transaksinya tidak dikenal, atau
+     * statusnya belum sama dengan yang diklaim webhook (pemanggil menjawab "coba lagi" supaya DOKU mengulang).
+     */
+    public function Konfirmasi(NotifikasiBilling $notifikasi): ?NotifikasiBilling
+    {
+        $respons = $this->TanyaStatus($notifikasi->nomorPesanan);
+        $hasil = $respons === null ? null : $this->UraiStatus($notifikasi->nomorPesanan, $respons, $notifikasi->idTransaksi);
+
+        if ($hasil === null || $hasil->status !== $notifikasi->status) {
+            return null;
+        }
+
+        // Jumlah dari webhook bertanda tangan dipakai bila respons status tidak memuatnya.
+        return $hasil->jumlah === '' && $notifikasi->jumlah !== ''
+            ? new NotifikasiBilling($hasil->nomorPesanan, $hasil->idTenant, $hasil->uuidPembayaran, $hasil->status, $notifikasi->jumlah, $hasil->idTransaksi, $hasil->statusAsli)
+            : $hasil;
+    }
+
+    /**
+     * Rekonsiliasi (P-08, v4.06): tanyakan status satu transaksi ke API status DOKU (`GET /orders/v1/status/{invoice}`),
+     * untuk pembayaran yang notifikasi webhook-nya tidak pernah tiba. Hasilnya dibentuk sama dengan notifikasi webhook
+     * supaya diproses jalur yang sama (`TerimaNotifikasiBillingLangganan`).
      *
-     * - Transaksi tidak ada di Midtrans (popup Snap dibuka tetapi tidak pernah dipilih cara bayarnya) dan sudah lewat
-     *   `MENIT_KEDALUWARSA` sejak `$dibuatPada` = `Kedaluwarsa`; sebelum itu = `Menunggu`.
+     * - Transaksi tidak ada di DOKU (halaman bayar dibuka tetapi tidak pernah dipilih cara bayarnya, atau transaksi
+     *   lama milik penyedia sebelum DOKU) dan sudah lewat `MENIT_KEDALUWARSA` sejak `$dibuatPada` = `Kedaluwarsa`;
+     *   sebelum itu = `Menunggu`.
      * - Gagal menghubungi gerbang, respons tak terbaca, atau gerbang belum aktif = null (dicoba lagi putaran berikutnya).
      */
     public function CekStatus(string $nomorPesanan, DateTimeInterface $dibuatPada): ?NotifikasiBilling
@@ -178,17 +184,13 @@ final class GerbangBillingPlatform
             return null;
         }
 
-        try {
-            $respons = Http::timeout(15)->acceptJson()
-                ->withBasicAuth($this->KunciServer(), '')
-                ->get(($this->CekSandbox() ? self::URL_API_SANDBOX : self::URL_API_PRODUKSI).'/v2/'.rawurlencode($nomorPesanan).'/status');
-        } catch (ConnectionException) {
+        $respons = $this->TanyaStatus($nomorPesanan);
+
+        if ($respons === null) {
             return null;
         }
 
-        $kodeStatus = (string) $respons->json('status_code');
-
-        if ($respons->status() === 404 || $kodeStatus === '404') {
+        if ($respons->status() === 404) {
             $lewat = $dibuatPada->getTimestamp() + (self::MENIT_KEDALUWARSA + 15) * 60 < CarbonImmutable::now()->getTimestamp();
 
             return new NotifikasiBilling(
@@ -196,15 +198,39 @@ final class GerbangBillingPlatform
                 idTenant: $bagian['IdTenant'],
                 uuidPembayaran: $bagian['Uuid'],
                 status: $lewat ? StatusPembayaranGerbang::Kedaluwarsa : StatusPembayaranGerbang::Menunggu,
-                jumlah: '0',
+                jumlah: '',
                 idTransaksi: '',
-                statusAsli: $lewat ? 'expire' : 'pending',
+                statusAsli: $lewat ? 'EXPIRED' : 'PENDING',
             );
         }
 
-        $statusAsli = $respons->json('transaction_status');
+        return $this->UraiStatus($nomorPesanan, $respons, '');
+    }
 
-        if (! $respons->successful() || ! is_string($statusAsli) || $statusAsli === '' || $respons->json('order_id') !== $nomorPesanan) {
+    private function TanyaStatus(string $nomorPesanan): ?Response
+    {
+        if (! $this->CekAktif() || NomorPesananBilling::Urai($nomorPesanan) === null) {
+            return null;
+        }
+
+        $target = self::TARGET_STATUS.rawurlencode($nomorPesanan);
+
+        try {
+            return Http::timeout(15)->acceptJson()
+                ->withHeaders(ProtokolDoku::BuatHeader($this->IdKlien(), $this->KunciRahasia(), $target, null))
+                ->get($this->AlamatDasar().$target);
+        } catch (ConnectionException) {
+            return null;
+        }
+    }
+
+    private function UraiStatus(string $nomorPesanan, Response $respons, string $idTransaksi): ?NotifikasiBilling
+    {
+        $bagian = NomorPesananBilling::Urai($nomorPesanan);
+        $statusAsli = $respons->json('transaction.status');
+        $nomorDiJawaban = $respons->json('order.invoice_number');
+
+        if ($bagian === null || ! $respons->successful() || ! is_string($statusAsli) || $statusAsli === '' || ($nomorDiJawaban !== null && $nomorDiJawaban !== $nomorPesanan)) {
             return null;
         }
 
@@ -212,46 +238,36 @@ final class GerbangBillingPlatform
             nomorPesanan: $nomorPesanan,
             idTenant: $bagian['IdTenant'],
             uuidPembayaran: $bagian['Uuid'],
-            status: self::PetakanStatus($statusAsli, (string) $respons->json('fraud_status')),
-            jumlah: (string) $respons->json('gross_amount'),
-            idTransaksi: (string) $respons->json('transaction_id'),
+            status: ProtokolDoku::PetakanStatus($statusAsli),
+            jumlah: self::AmbilTeks($respons->json('order.amount')),
+            idTransaksi: $idTransaksi !== '' ? $idTransaksi : self::AmbilTeks($respons->json('transaction.original_request_id')),
             statusAsli: $statusAsli,
         );
     }
 
-    /**
-     * Berbeda dari adaptor QRIS toko, `capture` di sini hanya dianggap lunas bila `fraud_status` = accept: kartu
-     * kredit bisa berhenti di `challenge` (menunggu tinjauan manual) dan uangnya belum tentu jadi masuk.
-     */
-    private static function PetakanStatus(string $status, string $statusFraud): StatusPembayaranGerbang
+    private static function AmbilTeks(mixed $nilai): string
     {
-        return match ($status) {
-            'settlement' => StatusPembayaranGerbang::Lunas,
-            'capture' => $statusFraud === 'accept' ? StatusPembayaranGerbang::Lunas : StatusPembayaranGerbang::Menunggu,
-            'expire' => StatusPembayaranGerbang::Kedaluwarsa,
-            'cancel', 'deny', 'failure' => StatusPembayaranGerbang::Gagal,
-            default => StatusPembayaranGerbang::Menunggu,
-        };
+        return is_string($nilai) || is_int($nilai) || is_float($nilai) ? trim((string) $nilai) : '';
     }
 
     private function AlamatDasar(): string
     {
-        return $this->CekSandbox() ? self::URL_SANDBOX : self::URL_PRODUKSI;
+        return ProtokolDoku::AmbilAlamatDasar($this->CekSandbox());
     }
 
-    private function KunciServer(): string
+    private function IdKlien(): string
     {
-        return trim((string) config('integrasi.GerbangBilling.Kredensial.KunciServer', ''));
+        return trim((string) config('integrasi.GerbangBilling.Pengaturan.IdKlien', ''));
     }
 
-    private function Pengaturan(string $kunci): string
+    private function KunciRahasia(): string
     {
-        return trim((string) config('integrasi.GerbangBilling.Pengaturan.'.$kunci, ''));
+        return trim((string) config('integrasi.GerbangBilling.Kredensial.KunciRahasia', ''));
     }
 
     private function Saring(string $pesan): string
     {
-        $kunci = $this->KunciServer();
+        $kunci = $this->KunciRahasia();
 
         return mb_substr($kunci !== '' ? str_replace($kunci, '••••', $pesan) : $pesan, 0, 300);
     }

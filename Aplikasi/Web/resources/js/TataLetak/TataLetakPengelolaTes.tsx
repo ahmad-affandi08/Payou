@@ -114,7 +114,7 @@ describe('TataLetakPengelola: menu sesuai izin, penanda lingkungan, banner (P-01
     it('penanda lingkungan selalu tampil dan banner integrasi & operasional ditampilkan', () => {
         propsHalaman = BuatProps([], {
             PeringatanSuperAdmin: true,
-            PeringatanIntegrasi: ['Kunci Midtrans kedaluwarsa.'],
+            PeringatanIntegrasi: ['Kunci DOKU kedaluwarsa.'],
             PeringatanOperasional: ['Antrean tertunda 20 menit.'],
         });
         urlHalaman = '/';
@@ -123,7 +123,7 @@ describe('TataLetakPengelola: menu sesuai izin, penanda lingkungan, banner (P-01
         expect(screen.getByText('Produksi: perubahan berdampak ke tenant sungguhan')).toBeTruthy();
         expect(screen.getByText('Super Admin aktif kurang dari 2')).toBeTruthy();
         expect(screen.getByText('Status integrasi')).toBeTruthy();
-        expect(screen.getByText('Kunci Midtrans kedaluwarsa.')).toBeTruthy();
+        expect(screen.getByText('Kunci DOKU kedaluwarsa.')).toBeTruthy();
         expect(screen.getByText('Masalah operasional')).toBeTruthy();
         expect(screen.getAllByRole('alert')).toHaveLength(3);
     });

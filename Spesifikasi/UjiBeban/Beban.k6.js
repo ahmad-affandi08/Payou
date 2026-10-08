@@ -233,15 +233,20 @@ export function polling() {
 }
 
 export function webhook() {
+  // Notifikasi DOKU palsu: tanpa header Client-Id/Signature yang sah, endpoint billing harus menjawab 401.
   const isi = {
-    order_id: `PYU-1-${ulid()}`,
-    status_code: '200',
-    gross_amount: '100000.00',
-    transaction_status: 'settlement',
-    signature_key: 'tanda-tangan-palsu',
+    order: { invoice_number: `1-${ulid()}`, amount: 100000 },
+    transaction: { status: 'SUCCESS' },
   };
-  const res = http.post(`${base}/webhook/billing/midtrans`, JSON.stringify(isi), {
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+  const res = http.post(`${base}/webhook/billing/doku`, JSON.stringify(isi), {
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'Client-Id': 'BRN-uji-beban',
+      'Request-Id': ulid(),
+      'Request-Timestamp': '2026-01-01T00:00:00Z',
+      Signature: 'HMACSHA256=tanda-tangan-palsu',
+    },
     tags: { jenis: 'webhook' },
     responseCallback: http.expectedStatuses(401, 429),
   });

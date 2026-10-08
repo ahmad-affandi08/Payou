@@ -8,8 +8,8 @@ namespace App\Domain\Integrasi\Enum;
  * Katalog penyedia gerbang pembayaran QRIS dinamis toko (F-08, P-05). Sejak keputusan pemilik produk (menggantikan D-19)
  * seluruh tenant memakai DOKU, sehingga katalog ini hanya berisi `Doku`; Midtrans, Xendit, Tripay, Duitku, dan iPaymu
  * sudah dihapus dari jalur gerbang toko. Nilai enum = kode adaptor `PembuatGerbangPembayaran` dan nilai
- * `PenyediaIntegrasi` (P-05). Gerbang tagihan langganan platform (`PenyediaIntegrasi::MidtransBilling`) adalah jalur lain
- * dan tidak termasuk katalog ini.
+ * `PenyediaIntegrasi` (P-05). Gerbang tagihan langganan platform (`PenyediaIntegrasi::DokuBilling`, akun DOKU milik Payoung) adalah
+ * jalur lain dan tidak termasuk katalog ini.
  *
  * Bidang pengaturan tidak rahasia dan boleh tampil; bidang kredensial disimpan terenkripsi dan tidak pernah ditampilkan
  * ulang (hanya 4 karakter terakhir, BR-P05.1). Mode Sandbox/Produksi tidak termasuk bidang: disimpan di kolom

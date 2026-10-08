@@ -80,21 +80,26 @@ final class LanggananKontroler extends Kontroler
             'Pembayaran' => array_values($pembayaran->map(fn (PembayaranLangganan $baris): array => TagihanLanggananTenant::PetakanPembayaran($baris))->all()),
             'BolehBayarOnline' => $terbuka && $gerbang->CekAktif(),
             'BolehBatalkan' => $terbuka && ! $adaPembayaranMenunggu,
-            'Gerbang' => $gerbang->CekAktif() ? ['KunciKlien' => $gerbang->KunciKlien(), 'UrlSnapJs' => $gerbang->UrlSnapJs()] : null,
         ]);
     }
 
     /**
-     * Membuat transaksi Snap untuk tagihan ini (BR-P08.11). Menjawab JSON, bukan redirect Inertia, karena token-nya
-     * dipakai langsung oleh popup Snap.js di halaman. Tagihan tidak pernah lunas dari sini: pelunasan hanya dari
-     * notifikasi webhook bertanda tangan.
+     * Membuat transaksi DOKU Checkout untuk tagihan ini (BR-P08.11). Menjawab JSON berisi `UrlBayar`; halaman
+     * mengarahkan peramban ke sana. Tagihan tidak pernah lunas dari sini: pelunasan hanya dari notifikasi webhook
+     * bertanda tangan (atau rekonsiliasi status).
      */
     public function BayarOnline(string $tagihan, MulaiPembayaranGerbangLangganan $mulai): JsonResponse
     {
         $pengguna = $this->PenggunaMasuk();
-        $hasil = $mulai->Jalankan($tagihan, $pengguna->Id, $pengguna->Nama, (string) $pengguna->Email);
+        $hasil = $mulai->Jalankan(
+            $tagihan,
+            $pengguna->Id,
+            $pengguna->Nama,
+            (string) $pengguna->Email,
+            route('kelola.langganan.tagihan.tampil', ['tagihan' => $tagihan]),
+        );
 
-        return response()->json(['Token' => $hasil->token, 'UrlRedirect' => $hasil->urlRedirect]);
+        return response()->json(['UrlBayar' => $hasil->urlBayar]);
     }
 
     public function Batalkan(string $tagihan, BatalkanTagihanLanggananPermintaan $permintaan, BatalkanTagihanLangganan $batalkan): RedirectResponse

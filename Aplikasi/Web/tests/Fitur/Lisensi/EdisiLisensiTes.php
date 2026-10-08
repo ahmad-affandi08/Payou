@@ -393,7 +393,7 @@ describe('Edisi Lisensi (D-35)', function (): void {
 
         BantuanOrganisasi::Masuk($this, $admin, $tenant->Id)->get('/kelola/pengaturan/integrasi-server')->assertForbidden();
         BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id)
-            ->post('/kelola/pengaturan/integrasi-server', ['Jenis' => 'GerbangBilling', 'Penyedia' => 'Midtrans', 'Pengaturan' => [], 'Kredensial' => []])
+            ->post('/kelola/pengaturan/integrasi-server', ['Jenis' => 'GerbangBilling', 'Penyedia' => 'DokuBilling', 'Pengaturan' => [], 'Kredensial' => []])
             ->assertSessionHasErrors('Jenis');
         BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id)
             ->post('/kelola/pengaturan/integrasi-server', ['Jenis' => 'Whatsapp', 'Penyedia' => 'Smtp', 'Pengaturan' => [], 'Kredensial' => []])

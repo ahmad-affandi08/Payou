@@ -7,6 +7,7 @@ namespace App\Domain\Integrasi\GerbangPembayaran\Adaptor;
 use App\Domain\Integrasi\GerbangPembayaran\HasilQris;
 use App\Domain\Integrasi\GerbangPembayaran\HasilWebhook;
 use App\Domain\Integrasi\GerbangPembayaran\PermintaanQris;
+use App\Domain\Integrasi\GerbangPembayaran\ProtokolDoku;
 use App\Domain\Integrasi\GerbangPembayaran\StatusPembayaranGerbang;
 use App\Domain\Integrasi\HasilUjiLayanan;
 use Carbon\CarbonImmutable;
@@ -28,7 +29,7 @@ final class AdaptorDoku extends AdaptorDasar
 
     private function AlamatDasar(): string
     {
-        return $this->CekSandbox() ? 'https://api-sandbox.doku.com' : 'https://api.doku.com';
+        return ProtokolDoku::AmbilAlamatDasar($this->CekSandbox());
     }
 
     /**
@@ -36,27 +37,7 @@ final class AdaptorDoku extends AdaptorDasar
      */
     private function Header(string $target, ?string $isi): array
     {
-        $idPermintaan = (string) Str::uuid();
-        $waktu = CarbonImmutable::now()->utc()->format('Y-m-d\TH:i:s\Z');
-        $klien = $this->Pengaturan('IdKlien');
-
-        return [
-            'Client-Id' => $klien,
-            'Request-Id' => $idPermintaan,
-            'Request-Timestamp' => $waktu,
-            'Signature' => $this->Tandatangani($klien, $idPermintaan, $waktu, $target, $isi),
-        ];
-    }
-
-    private function Tandatangani(string $klien, string $idPermintaan, string $waktu, string $target, ?string $isi): string
-    {
-        $komponen = "Client-Id:{$klien}\nRequest-Id:{$idPermintaan}\nRequest-Timestamp:{$waktu}\nRequest-Target:{$target}";
-
-        if ($isi !== null) {
-            $komponen .= "\nDigest:".base64_encode(hash('sha256', $isi, true));
-        }
-
-        return 'HMACSHA256='.base64_encode(hash_hmac('sha256', $komponen, $this->Kredensial('KunciRahasia'), true));
+        return ProtokolDoku::BuatHeader($this->Pengaturan('IdKlien'), $this->Kredensial('KunciRahasia'), $target, $isi);
     }
 
     public function UjiKoneksi(): HasilUjiLayanan
@@ -104,24 +85,16 @@ final class AdaptorDoku extends AdaptorDasar
         $target = '/orders/v1/status/'.rawurlencode($nomorPesanan);
         $respons = $this->Kirim(fn () => $this->Http()->withHeaders($this->Header($target, null))->get($this->AlamatDasar().$target));
 
-        return self::PetakanStatus((string) $respons->json('transaction.status'));
+        return ProtokolDoku::PetakanStatus((string) $respons->json('transaction.status'));
     }
 
     public function UraiWebhook(Request $permintaan): ?HasilWebhook
     {
-        $isi = $permintaan->getContent();
-        $harapan = $this->Tandatangani(
-            (string) $permintaan->header('Client-Id'),
-            (string) $permintaan->header('Request-Id'),
-            (string) $permintaan->header('Request-Timestamp'),
-            '/'.ltrim($permintaan->path(), '/'),
-            $isi,
-        );
-
-        if ($permintaan->header('Client-Id') !== $this->Pengaturan('IdKlien') || ! hash_equals($harapan, (string) $permintaan->header('Signature'))) {
+        if (! ProtokolDoku::CekNotifikasiSah($permintaan, $this->Pengaturan('IdKlien'), $this->Kredensial('KunciRahasia'))) {
             return null;
         }
 
+        $isi = $permintaan->getContent();
         $data = json_decode($isi, true);
         $pesanan = is_array($data) ? ($data['order']['invoice_number'] ?? null) : null;
 
@@ -131,18 +104,8 @@ final class AdaptorDoku extends AdaptorDasar
 
         return new HasilWebhook(
             $pesanan,
-            self::PetakanStatus((string) ($data['transaction']['status'] ?? '')),
+            ProtokolDoku::PetakanStatus((string) ($data['transaction']['status'] ?? '')),
             isset($data['order']['amount']) ? (string) $data['order']['amount'] : null,
         );
-    }
-
-    private static function PetakanStatus(string $status): StatusPembayaranGerbang
-    {
-        return match ($status) {
-            'SUCCESS' => StatusPembayaranGerbang::Lunas,
-            'EXPIRED' => StatusPembayaranGerbang::Kedaluwarsa,
-            'FAILED' => StatusPembayaranGerbang::Gagal,
-            default => StatusPembayaranGerbang::Menunggu,
-        };
     }
 }

@@ -7,7 +7,7 @@ namespace App\Domain\Tenant\Aksi;
 use App\Domain\Bersama\Audit\Layanan\PencatatAudit;
 use App\Domain\Bersama\Galat\PelanggaranAturanBisnis;
 use App\Domain\Integrasi\Billing\GerbangBillingPlatform;
-use App\Domain\Integrasi\Billing\HasilSnap;
+use App\Domain\Integrasi\Billing\HasilPembayaranBilling;
 use App\Domain\Integrasi\Billing\NomorPesananBilling;
 use App\Domain\Integrasi\GerbangPembayaran\GalatGerbang;
 use App\Domain\Tenant\Enum\MetodePembayaranLangganan;
@@ -22,12 +22,13 @@ use Illuminate\Support\Str;
  * Owner membayar tagihan langganan lewat gerbang pembayaran platform (P-08 langkah 3, BR-P08.11).
  *
  * Alurnya dua tahap dan sengaja tidak dibungkus satu transaksi: baris pembayaran dibuat & di-commit lebih dulu,
- * baru transaksi Snap dibuat di Midtrans. Kalau panggilan HTTP ikut di dalam transaksi, kunci baris `Langganan`
- * ditahan selama jaringan lambat — dan yang lebih berbahaya, transaksi bisa dibatalkan **setelah** Midtrans
+ * baru transaksi DOKU Checkout dibuat. Kalau panggilan HTTP ikut di dalam transaksi, kunci baris `Langganan`
+ * ditahan selama jaringan lambat — dan yang lebih berbahaya, transaksi bisa dibatalkan **setelah** DOKU
  * menerimanya, sehingga ada tagihan di gerbang yang tidak punya pasangan baris pembayaran dan uang tenant masuk
  * tanpa bisa dicocokkan.
  *
- * Tagihan hanya lunas dari notifikasi webhook bertanda tangan, bukan dari hasil popup Snap yang dilaporkan peramban.
+ * Tagihan hanya lunas dari notifikasi webhook bertanda tangan (atau rekonsiliasi status), bukan dari kembalinya peramban
+ * tenant dari halaman bayar DOKU.
  */
 final class MulaiPembayaranGerbangLangganan
 {
@@ -36,7 +37,10 @@ final class MulaiPembayaranGerbangLangganan
         private readonly PencatatAudit $audit,
     ) {}
 
-    public function Jalankan(string $uuidTagihan, int $idPengguna, string $namaPengguna, string $emailPengguna): HasilSnap
+    /**
+     * @param  string  $urlKembali  halaman tagihan tenant, tempat DOKU mengarahkan peramban setelah halaman bayar selesai
+     */
+    public function Jalankan(string $uuidTagihan, int $idPengguna, string $namaPengguna, string $emailPengguna, string $urlKembali): HasilPembayaranBilling
     {
         if (! $this->gerbang->CekAktif()) {
             throw new PelanggaranAturanBisnis('GerbangBillingTidakAktif', 'Pembayaran online belum tersedia. Silakan transfer manual dan unggah buktinya.');
@@ -87,23 +91,21 @@ final class MulaiPembayaranGerbangLangganan
             return $pembayaran->setRelation('TagihanLangganan', $tagihan);
         });
 
-        return $this->BuatDiGerbang($pembayaran, $namaPengguna, $emailPengguna);
+        return $this->BuatDiGerbang($pembayaran, $namaPengguna, $emailPengguna, $urlKembali);
     }
 
     /**
      * @throws PelanggaranAturanBisnis
      */
-    private function BuatDiGerbang(PembayaranLangganan $pembayaran, string $namaPengguna, string $emailPengguna): HasilSnap
+    private function BuatDiGerbang(PembayaranLangganan $pembayaran, string $namaPengguna, string $emailPengguna, string $urlKembali): HasilPembayaranBilling
     {
-        $tagihan = $pembayaran->TagihanLangganan;
-
         try {
-            return $this->gerbang->BuatTransaksiSnap(
+            return $this->gerbang->BuatTransaksi(
                 (string) $pembayaran->RefGateway,
                 $pembayaran->AmbilJumlah(),
-                "Langganan Payoung {$tagihan->Nomor}",
                 $namaPengguna,
                 $emailPengguna,
+                $urlKembali,
             );
         } catch (GalatGerbang $galat) {
             // Hanya galat yang pasti tidak membuat apa pun di gerbang boleh ditutup. Yang `tidakPasti` dibiarkan

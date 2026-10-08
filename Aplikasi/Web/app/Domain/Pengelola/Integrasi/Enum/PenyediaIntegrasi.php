@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Domain\Pengelola\Integrasi\Enum;
 
 use App\Domain\Integrasi\Enum\PenyediaGerbang;
+use App\Domain\Pengelola\Integrasi\Penguji\PengujiDokuBilling;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiFcm;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiGerbangPembayaran;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiGoogle;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiKoneksi;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiKoneksiPenyedia;
-use App\Domain\Pengelola\Integrasi\Penguji\PengujiMidtransBilling;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiS3;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiSmtp;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiTurnstile;
@@ -24,7 +24,7 @@ use App\Domain\Pengelola\Integrasi\Penguji\PengujiWhatsapp;
  * - Email: semua penyedia lewat SMTP (relay SMTP resmi tiap penyedia), sehingga satu jalur kirim & satu penguji.
  * - Gerbang pembayaran toko: sejak v2.06 diatur per tenant dan sejak keputusan pemilik produk hanya DOKU; definisi
  *   bidang di `PenyediaGerbang` (domain Integrasi), di sini hanya diteruskan. Gerbang tagihan langganan platform adalah
- *   jalur terpisah (`MidtransBilling`, jenis `GerbangBilling`).
+ *   jalur terpisah (`DokuBilling`, jenis `GerbangBilling`): akun DOKU milik Payoung.
  * - WhatsApp: resmi (WhatsApp Cloud API, Meta) atau tidak resmi berbasis WhatsApp Web (risiko nomor diblokir).
  */
 enum PenyediaIntegrasi: string
@@ -53,7 +53,7 @@ enum PenyediaIntegrasi: string
     case StarSender = 'StarSender';
     case Watzap = 'Watzap';
     case Fcm = 'Fcm';
-    case MidtransBilling = 'MidtransBilling';
+    case DokuBilling = 'DokuBilling';
     case Google = 'Google';
 
     private const MODE = ['Kunci' => 'Mode', 'Label' => 'Mode', 'Jenis' => 'Pilihan', 'Wajib' => true, 'Opsi' => ['Sandbox', 'Produksi'], 'Bawaan' => 'Sandbox', 'Keterangan' => 'Sandbox untuk uji coba tanpa uang sungguhan.'];
@@ -66,7 +66,7 @@ enum PenyediaIntegrasi: string
             self::Doku => JenisIntegrasi::GerbangPembayaran,
             self::MetaCloud, self::Fonnte, self::Wablas, self::StarSender, self::Watzap => JenisIntegrasi::Whatsapp,
             self::Fcm => JenisIntegrasi::Push,
-            self::MidtransBilling => JenisIntegrasi::GerbangBilling,
+            self::DokuBilling => JenisIntegrasi::GerbangBilling,
             self::Google => JenisIntegrasi::LoginSosial,
             default => JenisIntegrasi::Email,
         };
@@ -137,10 +137,10 @@ enum PenyediaIntegrasi: string
             self::Watzap => [
                 ['Kunci' => 'KunciNomor', 'Label' => 'Number key', 'Jenis' => 'Teks', 'Wajib' => true, 'Keterangan' => 'Kunci nomor WhatsApp di dasbor Watzap.'],
             ],
-            self::MidtransBilling => [
+            self::DokuBilling => [
                 self::MODE,
-                // Client key memang publik (dipasang di halaman bayar tenant), jadi bukan kredensial.
-                ['Kunci' => 'KunciKlien', 'Label' => 'Client key', 'Jenis' => 'Teks', 'Wajib' => true, 'Keterangan' => 'Dipakai halaman pembayaran tenant; bukan rahasia.'],
+                // Client ID DOKU bukan rahasia (ikut terkirim di setiap header permintaan); yang rahasia hanya secret key.
+                ['Kunci' => 'IdKlien', 'Label' => 'Client ID', 'Jenis' => 'Teks', 'Wajib' => true, 'Keterangan' => 'Client ID akun DOKU milik Payoung (dasbor DOKU › Integration › API Keys).'],
             ],
             default => [],
         };
@@ -177,7 +177,7 @@ enum PenyediaIntegrasi: string
             self::StarSender, self::Watzap => [['Kunci' => 'KunciApi', 'Label' => 'API key', 'Wajib' => true]],
             // Satu berkas JSON berisi client_email, private_key, dan project_id; tidak ada yang perlu diketik terpisah.
             self::Fcm => [['Kunci' => 'AkunLayanan', 'Label' => 'Akun layanan Firebase (isi berkas JSON)', 'Wajib' => true]],
-            self::MidtransBilling => [['Kunci' => 'KunciServer', 'Label' => 'Server key', 'Wajib' => true]],
+            self::DokuBilling => [['Kunci' => 'KunciRahasia', 'Label' => 'Secret key', 'Wajib' => true]],
             default => [],
         };
     }
@@ -194,7 +194,7 @@ enum PenyediaIntegrasi: string
             JenisIntegrasi::GerbangPembayaran => PengujiGerbangPembayaran::class,
             JenisIntegrasi::Whatsapp => PengujiWhatsapp::class,
             JenisIntegrasi::Push => PengujiFcm::class,
-            JenisIntegrasi::GerbangBilling => PengujiMidtransBilling::class,
+            JenisIntegrasi::GerbangBilling => PengujiDokuBilling::class,
             JenisIntegrasi::LoginSosial => PengujiGoogle::class,
         };
     }
@@ -226,7 +226,7 @@ enum PenyediaIntegrasi: string
             self::StarSender => 'StarSender (tidak resmi)',
             self::Watzap => 'Watzap (tidak resmi)',
             self::Fcm => 'Firebase Cloud Messaging',
-            self::MidtransBilling => 'Midtrans (tagihan langganan)',
+            self::DokuBilling => 'DOKU (tagihan langganan)',
             self::Google => 'Google (Masuk dengan Google)',
         };
     }
@@ -251,7 +251,7 @@ enum PenyediaIntegrasi: string
             self::Hostinger => '',
             self::Doku => $this->AmbilPenyediaGerbang()?->AmbilKeterangan() ?? '',
             self::MetaCloud => 'Resmi dan aman dari pemblokiran. Di luar 24 jam percakapan wajib memakai templat yang disetujui Meta (berbayar per percakapan).',
-            self::MidtransBilling => 'Akun Midtrans milik Payoung untuk menagih tenant — berbeda dari gerbang QRIS milik toko (D-19), yang akunnya milik tenant masing-masing.',
+            self::DokuBilling => 'Akun DOKU milik Payoung untuk menagih tenant (DOKU Checkout) — berbeda dari gerbang QRIS milik toko, yang akunnya milik tenant masing-masing. Setel URL notifikasi di dasbor DOKU akun ini ke https://<domain-aplikasi>/webhook/billing/doku.',
             self::Google => 'Pemilik toko daftar dan masuk dengan akun Google. Masuk dengan Google menggantikan verifikasi dua langkah (2FA). Panduan lengkap: Panduan/LoginGoogle.md.',
             self::Fcm => 'Satu proyek Firebase melayani Android & iOS sekaligus; sertifikat APNs diunggah di Firebase, bukan di sini. Isi berkas akun layanan dari Setelan proyek → Akun layanan → Buat kunci baru.',
             self::Fonnte, self::Wablas, self::StarSender, self::Watzap => 'Tidak resmi (WhatsApp Web): murah dan mudah, tetapi nomor bisa diblokir WhatsApp bila mengirim massal. Pakai nomor khusus, bukan nomor utama usaha.',

@@ -111,9 +111,17 @@ describe('v2.04 katalog penyedia', function (): void {
         expect(KonfigurasiIntegrasi::query()->count())->toBe(0);
     })->with(['Midtrans', 'Xendit', 'Tripay', 'Duitku', 'Ipaymu']);
 
-    it('Midtrans untuk tagihan langganan platform tetap ada sebagai penyedia gerbang billing (jalur terpisah)', function (): void {
-        expect(array_map(fn ($p) => $p->value, JenisIntegrasi::GerbangBilling->AmbilDaftarPenyedia()))->toBe(['MidtransBilling'])
-            ->and(PenyediaIntegrasi::MidtransBilling->AmbilJenis())->toBe(JenisIntegrasi::GerbangBilling);
+    it('DOKU untuk tagihan langganan platform adalah satu-satunya penyedia gerbang billing (jalur terpisah dari gerbang toko)', function (): void {
+        expect(array_map(fn ($p) => $p->value, JenisIntegrasi::GerbangBilling->AmbilDaftarPenyedia()))->toBe(['DokuBilling'])
+            ->and(PenyediaIntegrasi::DokuBilling->AmbilJenis())->toBe(JenisIntegrasi::GerbangBilling)
+            ->and(JenisIntegrasi::GerbangBilling->AmbilPenyedia())->toBe(PenyediaIntegrasi::DokuBilling)
+            // Penyedia Midtrans untuk tagihan langganan sudah dihapus.
+            ->and(PenyediaIntegrasi::tryFrom('MidtransBilling'))->toBeNull()
+            // Bidang: Client ID (pengaturan, tidak rahasia) + Mode; Secret key (kredensial, terenkripsi).
+            ->and(array_column(PenyediaIntegrasi::DokuBilling->AmbilBidangPengaturan(), 'Kunci'))->toBe(['Mode', 'IdKlien'])
+            ->and(array_column(PenyediaIntegrasi::DokuBilling->AmbilBidangKredensial(), 'Kunci'))->toBe(['KunciRahasia'])
+            // Bukan penyedia gerbang toko: tidak muncul di katalog `PenyediaGerbang` (webhook per tenant).
+            ->and(PenyediaIntegrasi::DokuBilling->AmbilPenyediaGerbang())->toBeNull();
     });
 
     it('v2.06: gerbang pembayaran tidak lagi disimpan di tingkat platform (akun merchant milik tenant)', function (): void {

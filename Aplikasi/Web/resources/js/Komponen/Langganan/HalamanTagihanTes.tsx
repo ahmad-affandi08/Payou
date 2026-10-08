@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import HalamanTagihanLangganan from '@/Halaman/Kelola/Langganan/Tagihan';
@@ -37,8 +37,6 @@ const tagihan: TagihanLangganan = {
     PeriodeSelesai: null,
 };
 
-const gerbangAktif = { KunciKlien: 'SB-Mid-client-abc', UrlSnapJs: 'https://app.sandbox.midtrans.com/snap/snap.js' };
-
 function RenderTagihan(tambahan: Partial<PropsRender> = {}) {
     return render(
         <HalamanTagihanLangganan
@@ -46,7 +44,6 @@ function RenderTagihan(tambahan: Partial<PropsRender> = {}) {
             Pembayaran={[]}
             BolehBayarOnline={tambahan.BolehBayarOnline ?? false}
             BolehBatalkan={tambahan.BolehBatalkan ?? true}
-            Gerbang={tambahan.Gerbang ?? null}
         />,
     );
 }
@@ -54,7 +51,6 @@ function RenderTagihan(tambahan: Partial<PropsRender> = {}) {
 type PropsRender = {
     BolehBayarOnline: boolean;
     BolehBatalkan: boolean;
-    Gerbang: { KunciKlien: string; UrlSnapJs: string } | null;
 };
 
 describe('Langganan/Tagihan (P-08): bayar online & konfirmasi batal', () => {
@@ -87,15 +83,62 @@ describe('Langganan/Tagihan (P-08): bayar online & konfirmasi batal', () => {
         expect(screen.queryByRole('button', { name: 'Batalkan tagihan' })).toBeNull();
     });
 
-    it('BR-P08.11: tombol bayar online hanya muncul saat gerbang billing aktif', () => {
-        RenderTagihan({ BolehBayarOnline: true, Gerbang: gerbangAktif });
+    it('BR-P08.11: tombol bayar online hanya muncul saat gerbang billing DOKU aktif (BolehBayarOnline)', () => {
+        RenderTagihan({ BolehBayarOnline: true });
 
         expect(screen.getByRole('button', { name: 'Bayar online' })).toBeTruthy();
     });
 
-    it('BR-P08.11: gerbang belum dikonfigurasi = tidak ada tombol bayar online', () => {
-        RenderTagihan({ BolehBayarOnline: true, Gerbang: null });
+    it('BR-P08.11: gerbang belum dikonfigurasi atau tagihan tidak terbuka = tidak ada tombol bayar online', () => {
+        RenderTagihan({ BolehBayarOnline: false });
 
         expect(screen.queryByRole('button', { name: 'Bayar online' })).toBeNull();
+    });
+
+    it('BR-P08.11: Bayar online meminta transaksi ke server lalu mengarahkan peramban ke halaman bayar DOKU', async () => {
+        const Alihkan = vi.fn();
+        vi.stubGlobal('location', { ...window.location, assign: Alihkan });
+        const Ambil = vi.fn().mockResolvedValue(
+            new Response(JSON.stringify({ UrlBayar: 'https://sandbox.doku.com/checkout/link/abc' }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+            }),
+        );
+        vi.stubGlobal('fetch', Ambil);
+        RenderTagihan({ BolehBayarOnline: true });
+
+        fireEvent.click(screen.getByRole('button', { name: 'Bayar online' }));
+
+        await waitFor(() => expect(Alihkan).toHaveBeenCalledWith('https://sandbox.doku.com/checkout/link/abc'));
+        expect(Ambil).toHaveBeenCalledWith(
+            '/kelola/langganan/tagihan/TG-1/bayar-online',
+            expect.objectContaining({ method: 'POST' }),
+        );
+        vi.unstubAllGlobals();
+    });
+
+    it('BR-P08.11: gerbang menolak = pesan galat tampil dan tombol bisa dicoba lagi (tanpa pengalihan)', async () => {
+        const Alihkan = vi.fn();
+        vi.stubGlobal('location', { ...window.location, assign: Alihkan });
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue(
+                new Response(
+                    JSON.stringify({ Galat: { Kode: 'GerbangMenolak', Pesan: 'Gerbang menolak permintaan.' } }),
+                    {
+                        status: 422,
+                        headers: { 'Content-Type': 'application/json' },
+                    },
+                ),
+            ),
+        );
+        RenderTagihan({ BolehBayarOnline: true });
+
+        fireEvent.click(screen.getByRole('button', { name: 'Bayar online' }));
+
+        expect(await screen.findByText('Gerbang menolak permintaan.')).toBeTruthy();
+        expect(Alihkan).not.toHaveBeenCalled();
+        expect(screen.getByRole('button', { name: 'Bayar online' }).hasAttribute('disabled')).toBe(false);
+        vi.unstubAllGlobals();
     });
 });

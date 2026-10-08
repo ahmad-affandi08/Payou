@@ -17,8 +17,11 @@ use App\Domain\Tenant\Model\TagihanLangganan;
 use App\Domain\Tenant\Model\Tenant;
 use App\Http\Perantara\IdentifikasiTenantSesi;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
@@ -27,6 +30,12 @@ use Tests\TestCase;
  */
 final class BantuanTagihan
 {
+    public const ID_KLIEN_DOKU = 'BRN-0201-1700000000000';
+
+    public const KUNCI_RAHASIA_DOKU = 'SK-kunci-billing-doku-uji';
+
+    public const ALAMAT_DOKU = 'https://api-sandbox.doku.com';
+
     public static function SiapkanPrasyarat(bool $denganPpn = true): void
     {
         BantuanPendaftaran::SiapkanPrasyarat();
@@ -38,10 +47,97 @@ final class BantuanTagihan
         }
 
         config()->set('integrasi.GerbangBilling', [
-            'Penyedia' => 'MidtransBilling',
-            'Pengaturan' => ['Mode' => 'Sandbox', 'KunciKlien' => 'SB-Mid-client-uji'],
-            'Kredensial' => ['KunciServer' => 'SB-Mid-server-kunci-billing-uji'],
+            'Penyedia' => 'DokuBilling',
+            'Pengaturan' => ['Mode' => 'Sandbox', 'IdKlien' => self::ID_KLIEN_DOKU],
+            'Kredensial' => ['KunciRahasia' => self::KUNCI_RAHASIA_DOKU],
         ]);
+    }
+
+    public const URL_BAYAR_DOKU = 'https://sandbox.doku.com/checkout/link/uji-billing';
+
+    /**
+     * Jawaban API status DOKU yang dipakai `FakeDoku()`; null = koneksi gagal.
+     *
+     * @var array<string, mixed>|null
+     */
+    private static ?array $jawabanStatusDoku = null;
+
+    private static int $kodeStatusDoku = 200;
+
+    private static int $statusDokuDipanggil = 0;
+
+    /**
+     * Jawaban pembuatan transaksi Checkout yang dipaksakan (kode HTTP, badan); null = berhasil seperti biasa.
+     *
+     * @var array{int, array<string, mixed>}|null
+     */
+    private static ?array $jawabanCheckoutDoku = null;
+
+    /**
+     * Menyiapkan DOKU palsu: pembuatan transaksi Checkout berhasil memberi `URL_BAYAR_DOKU`, dan API status menjawab
+     * sesuai `AturJawabanStatusDoku()` (bawaan: koneksi gagal).
+     */
+    public static function FakeDoku(): void
+    {
+        self::AturJawabanStatusDoku(null);
+        self::$jawabanCheckoutDoku = null;
+        Http::fake(function (Request $permintaan) {
+            $url = $permintaan->url();
+
+            if ($url === self::ALAMAT_DOKU.'/checkout/v1/payment') {
+                if (self::$jawabanCheckoutDoku !== null) {
+                    return Http::response(self::$jawabanCheckoutDoku[1], self::$jawabanCheckoutDoku[0]);
+                }
+
+                return Http::response([
+                    'message' => ['SUCCESS'],
+                    'response' => [
+                        'order' => ['invoice_number' => $permintaan['order']['invoice_number'], 'amount' => $permintaan['order']['amount']],
+                        'payment' => ['url' => self::URL_BAYAR_DOKU, 'token_id' => 'tok-doku-uji', 'expired_date' => '20260927040000'],
+                    ],
+                ]);
+            }
+
+            if (str_starts_with($url, self::ALAMAT_DOKU.'/orders/v1/status/')) {
+                self::$statusDokuDipanggil++;
+
+                if (self::$jawabanStatusDoku === null) {
+                    throw new ConnectionException('DOKU tidak terjangkau.');
+                }
+
+                return Http::response(self::$jawabanStatusDoku, self::$kodeStatusDoku);
+            }
+
+            return Http::response([], 404);
+        });
+    }
+
+    /** @param  array<string, mixed>  $badan */
+    public static function PaksaJawabanCheckoutDoku(int $kodeHttp, array $badan): void
+    {
+        self::$jawabanCheckoutDoku = [$kodeHttp, $badan];
+    }
+
+    /** @param  array<string, mixed>|null  $jawaban */
+    public static function AturJawabanStatusDoku(?array $jawaban, int $kodeHttp = 200): void
+    {
+        self::$jawabanStatusDoku = $jawaban;
+        self::$kodeStatusDoku = $kodeHttp;
+        self::$statusDokuDipanggil = 0;
+    }
+
+    public static function JumlahPanggilanStatusDoku(): int
+    {
+        return self::$statusDokuDipanggil;
+    }
+
+    /** @return array<string, mixed> Bentuk jawaban `GET /orders/v1/status/{invoice}` DOKU. */
+    public static function JawabanStatusDoku(string $nomorPesanan, string $status, string $jumlah): array
+    {
+        return [
+            'order' => ['invoice_number' => $nomorPesanan, 'amount' => (int) $jumlah],
+            'transaction' => ['status' => $status, 'date' => '2026-09-27T03:10:00Z', 'original_request_id' => 'req-doku-uji-1'],
+        ];
     }
 
     /**
