@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Kontroler\Pengelola\Tenant;
 
+use App\Domain\Integrasi\Enum\StatusSubAkunPembayaran;
 use App\Domain\Pengelola\Tenant\Aksi\AktifkanKembaliTenant;
 use App\Domain\Pengelola\Tenant\Aksi\BuatOverrideTenant;
+use App\Domain\Pengelola\Tenant\Aksi\BuatSubAkunPembayaranTenant;
 use App\Domain\Pengelola\Tenant\Aksi\CabutOverrideTenant;
 use App\Domain\Pengelola\Tenant\Aksi\PerpanjangTrial;
 use App\Domain\Pengelola\Tenant\Aksi\TangguhkanTenant;
@@ -81,6 +83,20 @@ final class TindakanTenantKontroler extends Kontroler
         $tulis->Jalankan($this->AmbilPelaku(), $tenant, $permintaan->AmbilIsi());
 
         return back()->with('Kilat', 'Catatan internal disimpan.');
+    }
+
+    public function BuatSubAkunPembayaran(Tenant $tenant, BuatSubAkunPembayaranTenant $buat): RedirectResponse
+    {
+        $subAkun = $buat->Jalankan($this->AmbilPelaku(), $tenant);
+
+        if (! $subAkun->CekSudahAda()) {
+            // Gagal pasti (4xx) maupun belum pasti (5xx/jaringan): pesan penyedia sudah disaring dari rahasia.
+            return back()->withErrors(['Umum' => (string) $subAkun->PesanGalat]);
+        }
+
+        return back()->with('Kilat', $subAkun->Status === StatusSubAkunPembayaran::Aktif
+            ? "Sub account DOKU {$tenant->Nama} dibuat dan sudah aktif."
+            : "Sub account DOKU {$tenant->Nama} dibuat dan menunggu aktivasi dari DOKU.");
     }
 
     public function UbahPenanda(Tenant $tenant, UbahPenandaTenantPermintaan $permintaan, UbahPenandaTenant $ubah): RedirectResponse

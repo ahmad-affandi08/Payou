@@ -140,7 +140,7 @@ enum PenyediaIntegrasi: string
             self::DokuBilling => [
                 self::MODE,
                 // Client ID DOKU bukan rahasia (ikut terkirim di setiap header permintaan); yang rahasia hanya secret key.
-                ['Kunci' => 'IdKlien', 'Label' => 'Client ID', 'Jenis' => 'Teks', 'Wajib' => true, 'Keterangan' => 'Client ID akun DOKU milik Payoung (dasbor DOKU › Integration › API Keys).'],
+                ['Kunci' => 'IdKlien', 'Label' => 'Client ID', 'Jenis' => 'Teks', 'Wajib' => true, 'Keterangan' => 'Client ID akun DOKU induk milik Payoung (dasbor DOKU › Integration › API Keys), dipakai untuk tagihan langganan dan pembuatan sub account.'],
             ],
             default => [],
         };
@@ -226,7 +226,7 @@ enum PenyediaIntegrasi: string
             self::StarSender => 'StarSender (tidak resmi)',
             self::Watzap => 'Watzap (tidak resmi)',
             self::Fcm => 'Firebase Cloud Messaging',
-            self::DokuBilling => 'DOKU (tagihan langganan)',
+            self::DokuBilling => 'Akun DOKU Payoung (induk)',
             self::Google => 'Google (Masuk dengan Google)',
         };
     }
@@ -251,7 +251,7 @@ enum PenyediaIntegrasi: string
             self::Hostinger => '',
             self::Doku => $this->AmbilPenyediaGerbang()?->AmbilKeterangan() ?? '',
             self::MetaCloud => 'Resmi dan aman dari pemblokiran. Di luar 24 jam percakapan wajib memakai templat yang disetujui Meta (berbayar per percakapan).',
-            self::DokuBilling => 'Akun DOKU milik Payoung untuk menagih tenant (DOKU Checkout) — berbeda dari gerbang QRIS milik toko, yang akunnya milik tenant masing-masing. Setel URL notifikasi di dasbor DOKU akun ini ke https://<domain-aplikasi>/webhook/billing/doku.',
+            self::DokuBilling => 'Akun DOKU induk milik Payoung. Satu set Client ID, secret key, dan mode yang sama dipakai untuk dua hal: menagih langganan tenant (DOKU Checkout) dan membuat sub account DOKU tiap tenant dari halaman detail tenant. Berbeda dari gerbang QRIS milik toko, yang akunnya milik tenant masing-masing. Setel URL notifikasi di dasbor DOKU akun ini ke https://<domain-aplikasi>/webhook/billing/doku.',
             self::Google => 'Pemilik toko daftar dan masuk dengan akun Google. Masuk dengan Google menggantikan verifikasi dua langkah (2FA). Panduan lengkap: Panduan/LoginGoogle.md.',
             self::Fcm => 'Satu proyek Firebase melayani Android & iOS sekaligus; sertifikat APNs diunggah di Firebase, bukan di sini. Isi berkas akun layanan dari Setelan proyek → Akun layanan → Buat kunci baru.',
             self::Fonnte, self::Wablas, self::StarSender, self::Watzap => 'Tidak resmi (WhatsApp Web): murah dan mudah, tetapi nomor bisa diblokir WhatsApp bila mengirim massal. Pakai nomor khusus, bukan nomor utama usaha.',

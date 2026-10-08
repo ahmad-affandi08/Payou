@@ -62,7 +62,7 @@ enum JenisIntegrasi: string
             self::GerbangPembayaran => 'Gerbang pembayaran (QRIS dinamis)',
             self::Whatsapp => 'WhatsApp',
             self::Push => 'Push notification (aplikasi Pemilik & POS)',
-            self::GerbangBilling => 'Gerbang pembayaran tagihan langganan',
+            self::GerbangBilling => 'Akun DOKU Payoung (induk): tagihan langganan & sub account',
             self::LoginSosial => 'Masuk dengan Google',
         };
     }

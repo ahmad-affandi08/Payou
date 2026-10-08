@@ -9,10 +9,12 @@ use App\Domain\Integrasi\Enum\PenyediaGerbang;
 use App\Domain\Integrasi\GerbangPembayaran\PembuatGerbangPembayaran;
 use App\Domain\Integrasi\Layanan\KatalogPenyediaGerbang;
 use App\Domain\Integrasi\Model\GerbangPembayaranTenant;
+use App\Domain\Integrasi\Model\SubAkunPembayaran;
 
 /**
  * Data halaman gerbang pembayaran tenant (v2.06): penyedia yang diizinkan platform beserta bidangnya, dan gerbang
- * tersimpan tanpa kredensial (hanya petunjuk 4 karakter terakhir, BR-P05.1) plus URL webhook tenant.
+ * tersimpan tanpa kredensial (hanya petunjuk 4 karakter terakhir, BR-P05.1) plus URL webhook tenant. `SubAkun` = status
+ * sub account DOKU tenant ini (dibuat pengelola), hanya baca: status dan labelnya, tanpa ID dan tanpa pesan galat.
  */
 final class HalamanGerbangPembayaranTenant
 {
@@ -25,8 +27,10 @@ final class HalamanGerbangPembayaranTenant
     {
         $gerbang = GerbangPembayaranTenant::query()->first();
         $diizinkan = $this->katalog->AmbilDiizinkan();
+        $subAkun = SubAkunPembayaran::query()->where('Penyedia', SubAkunPembayaran::PENYEDIA_DOKU)->first(['Id', 'IdTenant', 'Penyedia', 'Status']);
 
         return [
+            'SubAkun' => $subAkun === null ? null : ['Status' => $subAkun->Status->value, 'LabelStatus' => $subAkun->Status->AmbilLabel()],
             'Gerbang' => $gerbang === null ? null : [
                 'Uuid' => $gerbang->Uuid,
                 'Penyedia' => $gerbang->Penyedia->value,

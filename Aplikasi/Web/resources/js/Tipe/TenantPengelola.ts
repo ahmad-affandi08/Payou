@@ -50,7 +50,20 @@ export type RiwayatTindakan = {
     DibuatPada: string;
 };
 
+/** Sub account pembayaran DOKU tenant (tahap 3): null = belum pernah dibuat. */
+export type SubAkunPembayaranTenant = {
+    Uuid: string;
+    Penyedia: string;
+    IdSubAkun: string | null;
+    Status: 'Menunggu' | 'Aktif' | 'Gagal' | 'Dinonaktifkan';
+    LabelStatus: string;
+    PesanGalat: string | null;
+    BisaDibuat: boolean;
+    DibuatPada: string;
+};
+
 export type Tampilan360 = {
+    SubAkunPembayaran: { Sub: SubAkunPembayaranTenant | null; GerbangPlatformAktif: boolean };
     /** P-12: mitra perujuk (null = mendaftar langsung). */
     MitraPerujuk: { Uuid: string; Kode: string; Nama: string; MulaiPada: string } | null;
     Profil: {

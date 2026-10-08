@@ -11,6 +11,7 @@ import {
     FormPerpanjangTrial,
     FormTangguhkan,
 } from '@/Komponen/Pengelola/Tenant/FormTindakan';
+import PanelSubAkunPembayaran from '@/Komponen/Pengelola/Tenant/PanelSubAkunPembayaran';
 import { LabelPenanda, LabelStatusLangganan } from '@/Komponen/Pengelola/Tenant/LabelLangganan';
 import TabelData from '@/Komponen/TabelData/TabelData';
 import type { KolomTabel } from '@/Komponen/TabelData/Tipe';
@@ -36,6 +37,7 @@ const labelAksi: Record<string, string> = {
     'tenant.aktifkan': 'Aktifkan kembali',
     'tenant.catatan.tulis': 'Tulis catatan',
     'tenant.penanda.ubah': 'Ubah penanda',
+    'tenant.subakun.buat': 'Buat sub account DOKU',
 };
 
 const kolomPemakaian: KolomTabel<Tampilan360['Pemakaian'][number]>[] = [
@@ -337,6 +339,12 @@ export default function Tampil({ Tenant, Pilihan, Aturan }: PropsTampil) {
                             />
                         )}
                     </Panel>
+
+                    <PanelSubAkunPembayaran
+                        uuidTenant={Profil.Uuid}
+                        data={Tenant.SubAkunPembayaran}
+                        bolehKelola={PunyaIzin(pengguna, IzinPengelola.IntegrasiKelola)}
+                    />
 
                     <Panel judul="Pemakaian vs batas">
                         <TabelData

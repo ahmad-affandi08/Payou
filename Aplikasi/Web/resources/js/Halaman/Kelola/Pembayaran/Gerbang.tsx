@@ -16,6 +16,32 @@ const alamat = '/kelola/pembayaran/gerbang';
 
 const jenisStatusUji = { BelumDiuji: 'peringatan', Berhasil: 'sukses', Gagal: 'bahaya' } as const;
 
+const jenisStatusSubAkun = {
+    Menunggu: 'peringatan',
+    Aktif: 'sukses',
+    Gagal: 'bahaya',
+    Dinonaktifkan: 'netral',
+} as const;
+
+/**
+ * Baris baca-saja status sub account DOKU toko (dibuat otomatis oleh tim Payoung). Hanya status; tidak ada ID,
+ * pesan galat, atau tombol: toko tidak mengelola sub account sendiri.
+ */
+export function BarisSubAkun({ subAkun: subAkunProp }: { subAkun: PropsGerbangPembayaran['SubAkun'] }) {
+    const subAkun = subAkunProp ?? null;
+
+    return (
+        <div className="flex flex-wrap items-center gap-2 text-isi" data-testid="baris-sub-akun">
+            <span className="font-semibold text-teks-utama">Sub account DOKU Anda:</span>
+            <LabelStatus
+                jenis={subAkun === null ? 'netral' : jenisStatusSubAkun[subAkun.Status]}
+                teks={subAkun === null ? 'Belum dibuat' : subAkun.LabelStatus}
+            />
+            <span className="text-keterangan text-teks-sekunder">Dibuat dan dikelola oleh tim Payoung.</span>
+        </div>
+    );
+}
+
 type IsianGerbang = {
     Penyedia: string;
     Lingkungan: string;
@@ -66,6 +92,7 @@ function KredensialKosong(penyedia: OpsiPenyediaGerbang | undefined): Record<str
  * menyediakan lebih dari satu penyedia.
  */
 export default function HalamanGerbangPembayaran({
+    SubAkun,
     Gerbang,
     DaftarPenyedia,
     DaftarLingkungan,
@@ -146,6 +173,7 @@ export default function HalamanGerbangPembayaran({
                     </p>
                 </Pemberitahuan>
                 {galatUmum ? <Pemberitahuan jenis="bahaya">{galatUmum}</Pemberitahuan> : null}
+                <BarisSubAkun subAkun={SubAkun} />
 
                 {Gerbang ? (
                     <Card className="rounded-panel shadow-none">

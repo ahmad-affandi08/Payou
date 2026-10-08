@@ -40,6 +40,8 @@ export type GerbangPembayaranTenant = {
 };
 
 export type PropsGerbangPembayaran = {
+    /** Status sub account DOKU toko (hanya baca); null = belum dibuat. */
+    SubAkun?: { Status: 'Menunggu' | 'Aktif' | 'Gagal' | 'Dinonaktifkan'; LabelStatus: string } | null;
     Gerbang: GerbangPembayaranTenant | null;
     DaftarPenyedia: OpsiPenyediaGerbang[];
     DaftarLingkungan: { Nilai: string; Label: string }[];

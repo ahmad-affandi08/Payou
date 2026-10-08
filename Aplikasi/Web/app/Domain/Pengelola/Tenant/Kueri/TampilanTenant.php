@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Pengelola\Tenant\Kueri;
 
+use App\Domain\Integrasi\Model\SubAkunPembayaran;
+use App\Domain\Integrasi\SubAkun\KlienSubAkunDoku;
 use App\Domain\Organisasi\Kueri\PemakaianBatasOrganisasi;
 use App\Domain\Organisasi\Model\Gudang;
 use App\Domain\Organisasi\Model\Merek;
@@ -46,6 +48,7 @@ final class TampilanTenant
         private readonly SumberFiturTenant $sumberFitur,
         private readonly EvaluatorFitur $evaluator,
         private readonly PemakaianBatasOrganisasi $pemakaian,
+        private readonly KlienSubAkunDoku $klienSubAkun,
     ) {}
 
     /**
@@ -70,6 +73,7 @@ final class TampilanTenant
                 // Dukungan sama dengan yang menolak tenant (BR-02.1, BR-P04.3).
                 'PakaiOutlet' => $this->pemakaian->HitungOutlet(),
                 'PakaiPengguna' => $this->pemakaian->HitungPengguna($tenant->Id),
+                'SubAkunPembayaran' => self::AmbilSubAkunPembayaran(),
             ],
             $tenant->Id,
         );
@@ -102,6 +106,11 @@ final class TampilanTenant
             ])->all()),
             // P-12: mitra perujuk tenant ini (BR-P12.2: paling banyak satu), null bila mendaftar langsung.
             'MitraPerujuk' => self::AmbilMitraPerujuk($tenant->Id),
+            // Sub account pembayaran DOKU (tahap 3): status & ID sub account; gerbang platform menentukan tombol buat.
+            'SubAkunPembayaran' => [
+                'Sub' => $organisasi['SubAkunPembayaran'],
+                'GerbangPlatformAktif' => $this->klienSubAkun->CekAktif(),
+            ],
             'Pemakaian' => [
                 ['Label' => 'Outlet', 'Pakai' => $organisasi['PakaiOutlet'], 'Batas' => $batas['BatasOutlet'] ?? null],
                 ['Label' => 'Pengguna', 'Pakai' => $organisasi['PakaiPengguna'], 'Batas' => $batas['BatasPengguna'] ?? null],
@@ -215,6 +224,27 @@ final class TampilanTenant
                 'Penulis' => $catatan->Penulis->Nama,
                 'DibuatPada' => $catatan->DibuatPada->toIso8601String(),
             ])->all());
+    }
+
+    /**
+     * Dipanggil di dalam `JalankanLintasTenant`, jadi scope `MilikTenant` membatasi ke tenant yang dibuka.
+     *
+     * @return array{Uuid: string, Penyedia: string, IdSubAkun: string|null, Status: string, LabelStatus: string, PesanGalat: string|null, BisaDibuat: bool, DibuatPada: string}|null
+     */
+    private static function AmbilSubAkunPembayaran(): ?array
+    {
+        $subAkun = SubAkunPembayaran::query()->where('Penyedia', SubAkunPembayaran::PENYEDIA_DOKU)->first();
+
+        return $subAkun === null ? null : [
+            'Uuid' => $subAkun->Uuid,
+            'Penyedia' => $subAkun->Penyedia,
+            'IdSubAkun' => $subAkun->IdSubAkun,
+            'Status' => $subAkun->Status->value,
+            'LabelStatus' => $subAkun->Status->AmbilLabel(),
+            'PesanGalat' => $subAkun->PesanGalat,
+            'BisaDibuat' => ! $subAkun->CekSudahAda(),
+            'DibuatPada' => $subAkun->DibuatPada->toIso8601String(),
+        ];
     }
 
     /** @return array{Uuid: string, Kode: string, Nama: string, MulaiPada: string}|null */

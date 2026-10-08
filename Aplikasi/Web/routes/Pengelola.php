@@ -431,6 +431,10 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
             Route::post('/tenant/{tenant}/aktifkan', [TindakanTenantKontroler::class, 'Aktifkan'])
                 ->middleware([$izin(IzinPengelola::TenantAktifkan), WajibDuaFaktorBaru::class])
                 ->name('pengelola.tenant.aktifkan');
+            // Sub account pembayaran DOKU memakai kredensial akun induk platform: izin yang sama dengan P-05 + 2FA baru.
+            Route::post('/tenant/{tenant}/sub-akun-pembayaran', [TindakanTenantKontroler::class, 'BuatSubAkunPembayaran'])
+                ->middleware([$izin(IzinPengelola::IntegrasiKelola), WajibDuaFaktorBaru::class])
+                ->name('pengelola.tenant.sub-akun-pembayaran.buat');
             Route::put('/tenant/{tenant}/penanda', [TindakanTenantKontroler::class, 'UbahPenanda'])
                 ->middleware($izin(IzinPengelola::TenantPenandaUbah))
                 ->name('pengelola.tenant.penanda.ubah');
