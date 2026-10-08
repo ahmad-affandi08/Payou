@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Route;
  * Keaslian diverifikasi per penyedia (tanda tangan/token), bukan lewat login.
  */
 
-$penyedia = 'midtrans|xendit|tripay|duitku|ipaymu|doku';
+// Hanya DOKU (keputusan pemilik produk, menggantikan D-19): kode penyedia lain tidak cocok dengan rute = 404.
+$penyedia = 'doku';
 
 // BR-P08.11: notifikasi gerbang billing platform (tagihan langganan Payoung sendiri). Akun gerbangnya milik platform,
 // jadi URL-nya tunggal tanpa token dan tenant ditentukan dari nomor pesanan. Didaftarkan lebih dulu agar tidak pernah

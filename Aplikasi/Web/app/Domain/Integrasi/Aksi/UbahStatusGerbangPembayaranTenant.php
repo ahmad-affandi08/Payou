@@ -33,7 +33,7 @@ final class UbahStatusGerbangPembayaranTenant
             }
 
             if ($aktif && ! $this->katalog->CekDiizinkan($gerbang->Penyedia)) {
-                throw new PelanggaranAturanBisnis('PenyediaTidakDiizinkan', 'Penyedia ini tidak tersedia lagi. Pilih penyedia lain.', 'Penyedia');
+                throw new PelanggaranAturanBisnis('PenyediaTidakDiizinkan', 'Penyedia ini tidak tersedia lagi dari platform. Hubungi dukungan Payoung.', 'Penyedia');
             }
 
             if ($gerbang->Aktif === $aktif) {

@@ -6,11 +6,6 @@ namespace App\Domain\Integrasi\GerbangPembayaran;
 
 use App\Domain\Integrasi\Enum\PenyediaGerbang;
 use App\Domain\Integrasi\GerbangPembayaran\Adaptor\AdaptorDoku;
-use App\Domain\Integrasi\GerbangPembayaran\Adaptor\AdaptorDuitku;
-use App\Domain\Integrasi\GerbangPembayaran\Adaptor\AdaptorIpaymu;
-use App\Domain\Integrasi\GerbangPembayaran\Adaptor\AdaptorMidtrans;
-use App\Domain\Integrasi\GerbangPembayaran\Adaptor\AdaptorTripay;
-use App\Domain\Integrasi\GerbangPembayaran\Adaptor\AdaptorXendit;
 use App\Domain\Integrasi\Layanan\KatalogPenyediaGerbang;
 use App\Domain\Integrasi\Model\GerbangPembayaranTenant;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -20,12 +15,13 @@ use Illuminate\Support\Facades\Log;
 /**
  * Membuat adaptor gerbang pembayaran dari kode penyedia (`PenyediaGerbang`) atau dari gerbang milik tenant aktif
  * (`GerbangPembayaranTenant`, PRD v2.06: dana langsung ke akun merchant tenant). Sejak v2.06 tidak ada lagi gerbang
- * tingkat platform untuk transaksi.
+ * tingkat platform untuk transaksi. Hanya DOKU yang dikenal: kode penyedia lain (termasuk penyedia lama yang sudah
+ * dihapus) menghasilkan null.
  */
 final class PembuatGerbangPembayaran
 {
     /** @var list<string> */
-    public const PENYEDIA = ['Midtrans', 'Xendit', 'Tripay', 'Duitku', 'Ipaymu', 'Doku'];
+    public const PENYEDIA = ['Doku'];
 
     public function __construct(private readonly KatalogPenyediaGerbang $katalog) {}
 
@@ -36,11 +32,6 @@ final class PembuatGerbangPembayaran
     public function Buat(string $penyedia, array $pengaturan, array $kredensial): ?GerbangPembayaran
     {
         return match ($penyedia) {
-            'Midtrans' => new AdaptorMidtrans($pengaturan, $kredensial),
-            'Xendit' => new AdaptorXendit($pengaturan, $kredensial),
-            'Tripay' => new AdaptorTripay($pengaturan, $kredensial),
-            'Duitku' => new AdaptorDuitku($pengaturan, $kredensial),
-            'Ipaymu' => new AdaptorIpaymu($pengaturan, $kredensial),
             'Doku' => new AdaptorDoku($pengaturan, $kredensial),
             default => null,
         };

@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Http;
 
 /*
  * Adaptor gerbang pembayaran QRIS dinamis (v2.04): bentuk permintaan & tanda tangan sesuai dokumentasi penyedia,
- * verifikasi notifikasi (tanda tangan palsu ditolak), dan pemetaan status.
+ * verifikasi notifikasi (tanda tangan palsu ditolak), dan pemetaan status. Sejak seluruh tenant memakai DOKU, DOKU
+ * satu-satunya penyedia gerbang toko; kode penyedia lama (Midtrans, Xendit, Tripay, Duitku, iPaymu) tidak dikenal.
  */
 
 function PermintaanQrisUji(): PermintaanQris
@@ -41,93 +42,6 @@ beforeEach(function (): void {
     Http::preventStrayRequests();
 });
 
-it('Midtrans: charge QRIS dengan Basic server key, webhook SHA512, status settlement = lunas', function (): void {
-    Http::fake(['api.sandbox.midtrans.com/v2/charge' => Http::response([
-        'status_code' => '201', 'transaction_id' => 'trx-1', 'qr_string' => '00020101021226...', 'expiry_time' => '2026-09-26 10:15:00',
-    ])]);
-    $gerbang = Gerbang('Midtrans', ['Mode' => 'Sandbox', 'Akuisitor' => 'gopay'], ['KunciServer' => 'SB-Mid-server-abc']);
-    $hasil = $gerbang->BuatQris(PermintaanQrisUji());
-    expect($hasil->isiQr)->toBe('00020101021226...')->and($hasil->idReferensi)->toBe('trx-1');
-    Http::assertSent(fn (PermintaanHttp $r) => $r['payment_type'] === 'qris'
-        && $r['transaction_details'] === ['order_id' => 'QR-SLB-0001', 'gross_amount' => 25000]
-        && $r->hasHeader('Authorization', 'Basic '.base64_encode('SB-Mid-server-abc:'))
-        && $r->hasHeader('X-Override-Notification', 'https://payoung.id/webhook/uji'));
-
-    $isi = ['order_id' => 'QR-SLB-0001', 'status_code' => '200', 'gross_amount' => '25000.00', 'transaction_status' => 'settlement', 'transaction_id' => 'trx-1'];
-    $sah = WebhookJson($isi + ['signature_key' => hash('sha512', 'QR-SLB-0001'.'200'.'25000.00'.'SB-Mid-server-abc')]);
-    $palsu = WebhookJson($isi + ['signature_key' => str_repeat('0', 128)]);
-    expect($gerbang->UraiWebhook($sah)?->status)->toBe(StatusPembayaranGerbang::Lunas)
-        ->and($gerbang->UraiWebhook($palsu))->toBeNull();
-});
-
-it('Midtrans: galat gerbang dilempar sebagai GalatGerbang tanpa membocorkan kunci', function (): void {
-    Http::fake(['*' => Http::response(['status_code' => '401', 'status_message' => 'Unknown key SB-Mid-server-abc'], 401)]);
-    expect(fn () => Gerbang('Midtrans', ['Mode' => 'Sandbox'], ['KunciServer' => 'SB-Mid-server-abc'])->BuatQris(PermintaanQrisUji()))
-        ->toThrow(GalatGerbang::class, 'Unknown key ••••');
-});
-
-it('Xendit: QR dinamis, callback x-callback-token, status dari daftar pembayaran', function (): void {
-    Http::fake([
-        'api.xendit.co/qr_codes' => Http::response(['id' => 'qr_1', 'qr_string' => '000201...', 'status' => 'ACTIVE', 'expires_at' => '2026-09-26T03:15:00Z']),
-        'api.xendit.co/qr_codes/qr_1/payments' => Http::response(['data' => [['status' => 'SUCCEEDED']]]),
-    ]);
-    $gerbang = Gerbang('Xendit', [], ['KunciRahasia' => 'xnd_dev', 'TokenCallback' => 'tok-cb']);
-    expect($gerbang->BuatQris(PermintaanQrisUji())->idReferensi)->toBe('qr_1')
-        ->and($gerbang->CekStatus('QR-SLB-0001', 'qr_1'))->toBe(StatusPembayaranGerbang::Lunas);
-    Http::assertSent(fn (PermintaanHttp $r) => $r->url() === 'https://api.xendit.co/qr_codes' && $r['type'] === 'DYNAMIC' && $r['amount'] === 25000 && $r->hasHeader('api-version', '2022-07-31'));
-
-    $isi = ['event' => 'qr.payment', 'data' => ['reference_id' => 'QR-SLB-0001', 'qr_id' => 'qr_1', 'amount' => 25000, 'status' => 'SUCCEEDED']];
-    expect($gerbang->UraiWebhook(WebhookJson($isi, ['x-callback-token' => 'tok-cb']))?->status)->toBe(StatusPembayaranGerbang::Lunas)
-        ->and($gerbang->UraiWebhook(WebhookJson($isi, ['x-callback-token' => 'salah'])))->toBeNull();
-});
-
-it('Tripay: signature HMAC permintaan & callback atas body mentah', function (): void {
-    Http::fake(['tripay.co.id/api-sandbox/transaction/create' => Http::response(['success' => true, 'data' => [
-        'reference' => 'T123', 'qr_string' => '000201...', 'expired_time' => 1790000000,
-    ]])]);
-    $gerbang = Gerbang('Tripay', ['Mode' => 'Sandbox', 'KodeMerchant' => 'T0001', 'KanalQris' => 'QRIS'], ['KunciApi' => 'api-key', 'KunciPrivat' => 'privat']);
-    expect($gerbang->BuatQris(PermintaanQrisUji())->idReferensi)->toBe('T123');
-    Http::assertSent(fn (PermintaanHttp $r) => $r['method'] === 'QRIS' && $r['signature'] === hash_hmac('sha256', 'T0001QR-SLB-000125000', 'privat'));
-
-    $isi = ['merchant_ref' => 'QR-SLB-0001', 'reference' => 'T123', 'status' => 'PAID', 'total_amount' => 25000];
-    $mentah = (string) json_encode($isi);
-    expect($gerbang->UraiWebhook(WebhookJson($isi, ['X-Callback-Signature' => hash_hmac('sha256', $mentah, 'privat')]))?->status)->toBe(StatusPembayaranGerbang::Lunas)
-        ->and($gerbang->UraiWebhook(WebhookJson($isi, ['X-Callback-Signature' => 'palsu'])))->toBeNull();
-});
-
-it('Duitku: signature MD5 permintaan, callback form, kode merchant harus cocok', function (): void {
-    Http::fake(['sandbox.duitku.com/webapi/api/merchant/v2/inquiry' => Http::response(['statusCode' => '00', 'reference' => 'DK1', 'qrString' => '000201...'])]);
-    $gerbang = Gerbang('Duitku', ['Mode' => 'Sandbox', 'KodeMerchant' => 'D0001', 'KanalQris' => 'SP'], ['KunciApi' => 'kunci']);
-    expect($gerbang->BuatQris(PermintaanQrisUji())->idReferensi)->toBe('DK1');
-    Http::assertSent(fn (PermintaanHttp $r) => $r['paymentMethod'] === 'SP' && $r['signature'] === hash('md5', 'D0001QR-SLB-000125000kunci'));
-
-    $form = ['merchantCode' => 'D0001', 'amount' => '25000', 'merchantOrderId' => 'QR-SLB-0001', 'resultCode' => '00', 'reference' => 'DK1'];
-    $sah = Request::create('/webhook/duitku', 'POST', $form + ['signature' => hash('md5', 'D000125000QR-SLB-0001kunci')]);
-    $palsu = Request::create('/webhook/duitku', 'POST', $form + ['signature' => 'palsu']);
-    expect($gerbang->UraiWebhook($sah)?->status)->toBe(StatusPembayaranGerbang::Lunas)
-        ->and($gerbang->UraiWebhook($palsu))->toBeNull();
-});
-
-it('iPaymu: permintaan bertanda tangan HMAC; notifikasi dikonfirmasi ulang ke iPaymu', function (): void {
-    Http::fake([
-        'sandbox.ipaymu.com/api/v2/payment/direct' => Http::response(['Status' => 200, 'Data' => ['TransactionId' => 99, 'QrString' => '000201...']]),
-        'sandbox.ipaymu.com/api/v2/transaction' => Http::response(['Status' => 200, 'Data' => ['Status' => 1]]),
-    ]);
-    $gerbang = Gerbang('Ipaymu', ['Mode' => 'Sandbox', 'NomorVa' => '0000001234'], ['KunciApi' => 'kunci-ipaymu']);
-    expect($gerbang->BuatQris(PermintaanQrisUji())->idReferensi)->toBe('99');
-    Http::assertSent(function (PermintaanHttp $r): bool {
-        if (! str_ends_with($r->url(), '/payment/direct')) {
-            return false;
-        }
-        $harapan = hash_hmac('sha256', 'POST:0000001234:'.strtolower(hash('sha256', $r->body())).':kunci-ipaymu', 'kunci-ipaymu');
-
-        return $r->hasHeader('signature', $harapan) && $r->hasHeader('va', '0000001234') && $r['paymentMethod'] === 'qris';
-    });
-
-    $notif = Request::create('/webhook/ipaymu', 'POST', ['trx_id' => '99', 'reference_id' => 'QR-SLB-0001', 'status' => 'berhasil']);
-    expect($gerbang->UraiWebhook($notif)?->status)->toBe(StatusPembayaranGerbang::Lunas);
-});
-
 it('DOKU: header tanda tangan HMACSHA256 & notifikasi palsu ditolak; hasil berupa halaman bayar', function (): void {
     Http::fake(['api-sandbox.doku.com/checkout/v1/payment' => Http::response(['response' => ['payment' => ['url' => 'https://sandbox.doku.com/checkout/link/abc', 'token_id' => 'tok']]])]);
     $gerbang = Gerbang('Doku', ['Mode' => 'Sandbox', 'IdKlien' => 'BRN-001'], ['KunciRahasia' => 'SK-doku']);
@@ -146,7 +60,68 @@ it('DOKU: header tanda tangan HMACSHA256 & notifikasi palsu ditolak; hasil berup
     expect($gerbang->UraiWebhook($notif))->toBeNull();
 });
 
-// v2.06: gerbang aktif dibaca per tenant (`AmbilAktifTenant`, diuji di GerbangPembayaranTenantTes); di sini hanya pabrik.
-it('penyedia tidak dikenal → null', function (): void {
-    expect(app(PembuatGerbangPembayaran::class)->Buat('Tidakada', [], []))->toBeNull();
+it('DOKU: notifikasi bertanda tangan sah = lunas dengan jumlah; Client-Id lain atau isi diubah ditolak', function (): void {
+    $gerbang = Gerbang('Doku', ['Mode' => 'Sandbox', 'IdKlien' => 'BRN-001'], ['KunciRahasia' => 'SK-doku']);
+    $isi = (string) json_encode(['order' => ['invoice_number' => 'QR-SLB-0001', 'amount' => 25000], 'transaction' => ['status' => 'SUCCESS']]);
+    $buat = function (string $isiKirim, string $idKlien = 'BRN-001', string $kunci = 'SK-doku') use ($isi): Request {
+        $komponen = "Client-Id:BRN-001\nRequest-Id:r1\nRequest-Timestamp:2026-09-26T03:00:00Z\nRequest-Target:/webhook/doku/token\nDigest:".base64_encode(hash('sha256', $isi, true));
+        $permintaan = Request::create('/webhook/doku/token', 'POST', [], [], [], ['CONTENT_TYPE' => 'application/json'], $isiKirim);
+        $permintaan->headers->add([
+            'Client-Id' => $idKlien, 'Request-Id' => 'r1', 'Request-Timestamp' => '2026-09-26T03:00:00Z',
+            'Signature' => 'HMACSHA256='.base64_encode(hash_hmac('sha256', $komponen, $kunci, true)),
+        ]);
+
+        return $permintaan;
+    };
+
+    $sah = $gerbang->UraiWebhook($buat($isi));
+    expect($sah?->status)->toBe(StatusPembayaranGerbang::Lunas)
+        ->and($sah?->nomorPesanan)->toBe('QR-SLB-0001')
+        ->and($sah?->jumlah)->toBe('25000')
+        ->and($gerbang->UraiWebhook($buat($isi, kunci: 'kunci-lain')))->toBeNull()
+        ->and($gerbang->UraiWebhook($buat($isi, idKlien: 'BRN-LAIN')))->toBeNull()
+        ->and($gerbang->UraiWebhook($buat(str_replace('25000', '1', $isi))))->toBeNull();
 });
+
+it('DOKU: status order dipetakan (SUCCESS lunas, EXPIRED kedaluwarsa, FAILED gagal, lainnya menunggu) lewat nomor pesanan', function (): void {
+    Http::fake([
+        'api-sandbox.doku.com/orders/v1/status/QR-LUNAS' => Http::response(['transaction' => ['status' => 'SUCCESS']]),
+        'api-sandbox.doku.com/orders/v1/status/QR-HABIS' => Http::response(['transaction' => ['status' => 'EXPIRED']]),
+        'api-sandbox.doku.com/orders/v1/status/QR-GAGAL' => Http::response(['transaction' => ['status' => 'FAILED']]),
+        'api-sandbox.doku.com/orders/v1/status/QR-TUNGGU' => Http::response(['transaction' => ['status' => 'PENDING']]),
+    ]);
+    $gerbang = Gerbang('Doku', ['Mode' => 'Sandbox', 'IdKlien' => 'BRN-001'], ['KunciRahasia' => 'SK-doku']);
+
+    expect($gerbang->CekDapatCekDariNomorPesanan())->toBeTrue()
+        ->and($gerbang->CekStatus('QR-LUNAS', ''))->toBe(StatusPembayaranGerbang::Lunas)
+        ->and($gerbang->CekStatus('QR-HABIS', ''))->toBe(StatusPembayaranGerbang::Kedaluwarsa)
+        ->and($gerbang->CekStatus('QR-GAGAL', ''))->toBe(StatusPembayaranGerbang::Gagal)
+        ->and($gerbang->CekStatus('QR-TUNGGU', ''))->toBe(StatusPembayaranGerbang::Menunggu);
+});
+
+it('DOKU: galat gerbang dilempar sebagai GalatGerbang tanpa membocorkan secret key; uji koneksi menolak tanda tangan tidak sah', function (): void {
+    Http::fake(['*' => Http::response(['message' => ['Invalid signature for SK-doku']], 401)]);
+    $gerbang = Gerbang('Doku', ['Mode' => 'Sandbox', 'IdKlien' => 'BRN-001'], ['KunciRahasia' => 'SK-doku']);
+
+    expect(fn () => $gerbang->BuatQris(PermintaanQrisUji()))->toThrow(GalatGerbang::class, 'Invalid signature for ••••')
+        ->and($gerbang->UjiKoneksi()->berhasil)->toBeFalse();
+});
+
+it('DOKU: pembuatan tagihan tanpa halaman bayar di jawaban = hasil tidak pasti', function (): void {
+    Http::fake(['*' => Http::response(['response' => ['payment' => []]])]);
+    $gerbang = Gerbang('Doku', ['Mode' => 'Sandbox', 'IdKlien' => 'BRN-001'], ['KunciRahasia' => 'SK-doku']);
+
+    try {
+        $gerbang->BuatQris(PermintaanQrisUji());
+        $galat = null;
+    } catch (GalatGerbang $e) {
+        $galat = $e;
+    }
+
+    expect($galat)->toBeInstanceOf(GalatGerbang::class)->and($galat->tidakPasti)->toBeTrue();
+});
+
+// v2.06: gerbang aktif dibaca per tenant (`AmbilAktifTenant`, diuji di GerbangPembayaranTenantTes); di sini hanya pabrik.
+it('penyedia tidak dikenal atau penyedia lama yang sudah dihapus → null', function (string $penyedia): void {
+    expect(app(PembuatGerbangPembayaran::class)->Buat($penyedia, [], []))->toBeNull();
+})->with(['Tidakada', 'Midtrans', 'Xendit', 'Tripay', 'Duitku', 'Ipaymu']);

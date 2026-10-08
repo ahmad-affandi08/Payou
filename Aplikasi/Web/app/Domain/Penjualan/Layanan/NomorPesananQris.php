@@ -7,8 +7,8 @@ namespace App\Domain\Penjualan\Layanan;
 /**
  * Nomor pesanan tagihan QRIS dinamis di gerbang (order id / reference id, F-08): `PY{IdTenant basis-36}-{Uuid}`.
  * Seperti `KodeStrukDigital`, bagian tenant hanya menetapkan scope pencarian saat webhook masuk (tanpa query lintas
- * tenant); keaslian notifikasi dijamin tanda tangan gerbang. Panjang maksimal 2 + 13 + 1 + 26 = 42 karakter (batas
- * order id Midtrans/Duitku 50).
+ * tenant); keaslian notifikasi dijamin tanda tangan gerbang. Panjang maksimal 2 + 13 + 1 + 26 = 42 karakter (aman
+ * untuk batas nomor faktur gerbang).
  */
 final class NomorPesananQris
 {

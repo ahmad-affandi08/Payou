@@ -191,10 +191,8 @@ describe('Langkah 5 Metode pembayaran (F-01): daftar TabelData & nonaktifkan lew
         expect(screen.queryByText('Gambar QRIS')).toBeNull();
         Lepas();
 
-        RenderUji(
-            <HalamanMetodePembayaranPanduan {...props} GerbangPembayaran={{ Aktif: true, Penyedia: 'Midtrans' }} />,
-        );
-        expect(screen.getByText('Gerbang pembayaran aktif: Midtrans')).toBeTruthy();
+        RenderUji(<HalamanMetodePembayaranPanduan {...props} GerbangPembayaran={{ Aktif: true, Penyedia: 'DOKU' }} />);
+        expect(screen.getByText('Gerbang pembayaran aktif: DOKU')).toBeTruthy();
     });
     it('F-08: batas hari menunggu pencairan tampil hanya untuk metode berpencairan; Atur mengirim angka (kosong = bawaan)', () => {
         const dasar = {

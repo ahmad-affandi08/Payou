@@ -22,8 +22,9 @@ use App\Domain\Pengelola\Integrasi\Penguji\PengujiWhatsapp;
  * boleh tampil; bidang kredensial disimpan terenkripsi dan tidak pernah ditampilkan ulang (BR-P05.1).
  *
  * - Email: semua penyedia lewat SMTP (relay SMTP resmi tiap penyedia), sehingga satu jalur kirim & satu penguji.
- * - Gerbang pembayaran: sejak v2.06 diatur per tenant; definisi bidang di `PenyediaGerbang` (domain Integrasi), di sini
- *   hanya diteruskan untuk data lama.
+ * - Gerbang pembayaran toko: sejak v2.06 diatur per tenant dan sejak keputusan pemilik produk hanya DOKU; definisi
+ *   bidang di `PenyediaGerbang` (domain Integrasi), di sini hanya diteruskan. Gerbang tagihan langganan platform adalah
+ *   jalur terpisah (`MidtransBilling`, jenis `GerbangBilling`).
  * - WhatsApp: resmi (WhatsApp Cloud API, Meta) atau tidak resmi berbasis WhatsApp Web (risiko nomor diblokir).
  */
 enum PenyediaIntegrasi: string
@@ -45,11 +46,6 @@ enum PenyediaIntegrasi: string
     case Hostinger = 'Hostinger';
     case Turnstile = 'Turnstile';
     case S3 = 'S3';
-    case Midtrans = 'Midtrans';
-    case Xendit = 'Xendit';
-    case Tripay = 'Tripay';
-    case Duitku = 'Duitku';
-    case Ipaymu = 'Ipaymu';
     case Doku = 'Doku';
     case MetaCloud = 'MetaCloud';
     case Fonnte = 'Fonnte';
@@ -67,7 +63,7 @@ enum PenyediaIntegrasi: string
         return match ($this) {
             self::Turnstile => JenisIntegrasi::Captcha,
             self::S3 => JenisIntegrasi::Penyimpanan,
-            self::Midtrans, self::Xendit, self::Tripay, self::Duitku, self::Ipaymu, self::Doku => JenisIntegrasi::GerbangPembayaran,
+            self::Doku => JenisIntegrasi::GerbangPembayaran,
             self::MetaCloud, self::Fonnte, self::Wablas, self::StarSender, self::Watzap => JenisIntegrasi::Whatsapp,
             self::Fcm => JenisIntegrasi::Push,
             self::MidtransBilling => JenisIntegrasi::GerbangBilling,
@@ -103,7 +99,7 @@ enum PenyediaIntegrasi: string
         $gerbang = $this->AmbilPenyediaGerbang();
 
         if ($gerbang !== null) {
-            return [...($gerbang->CekPakaiMode() ? [self::MODE] : []), ...$gerbang->AmbilBidangPengaturan()];
+            return [self::MODE, ...$gerbang->AmbilBidangPengaturan()];
         }
 
         return match ($this) {
@@ -223,7 +219,7 @@ enum PenyediaIntegrasi: string
             self::Hostinger => 'Hostinger Email',
             self::Turnstile => 'Cloudflare Turnstile',
             self::S3 => 'S3-compatible (misal Cloudflare R2)',
-            self::Midtrans, self::Xendit, self::Tripay, self::Duitku, self::Ipaymu, self::Doku => $this->AmbilPenyediaGerbang()?->AmbilLabel() ?? $this->value,
+            self::Doku => $this->AmbilPenyediaGerbang()?->AmbilLabel() ?? $this->value,
             self::MetaCloud => 'WhatsApp Cloud API (resmi, Meta)',
             self::Fonnte => 'Fonnte (tidak resmi)',
             self::Wablas => 'Wablas (tidak resmi)',
@@ -253,7 +249,7 @@ enum PenyediaIntegrasi: string
             self::Microsoft365 => 'SMTP AUTH harus diaktifkan untuk kotak surat ini.',
             self::ZohoMail => 'Pakai smtp.zoho.com.au/.eu sesuai pusat data akun.',
             self::Hostinger => '',
-            self::Midtrans, self::Xendit, self::Tripay, self::Duitku, self::Ipaymu, self::Doku => $this->AmbilPenyediaGerbang()?->AmbilKeterangan() ?? '',
+            self::Doku => $this->AmbilPenyediaGerbang()?->AmbilKeterangan() ?? '',
             self::MetaCloud => 'Resmi dan aman dari pemblokiran. Di luar 24 jam percakapan wajib memakai templat yang disetujui Meta (berbayar per percakapan).',
             self::MidtransBilling => 'Akun Midtrans milik Payoung untuk menagih tenant — berbeda dari gerbang QRIS milik toko (D-19), yang akunnya milik tenant masing-masing.',
             self::Google => 'Pemilik toko daftar dan masuk dengan akun Google. Masuk dengan Google menggantikan verifikasi dua langkah (2FA). Panduan lengkap: Panduan/LoginGoogle.md.',

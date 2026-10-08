@@ -34,7 +34,7 @@ final class SimpanGerbangPembayaranTenant
     public function Jalankan(DataGerbangPembayaranTenant $data): GerbangPembayaranTenant
     {
         if (! $this->katalog->CekDiizinkan($data->penyedia)) {
-            throw new PelanggaranAturanBisnis('PenyediaTidakDiizinkan', 'Penyedia ini tidak tersedia. Pilih penyedia lain dari daftar.', 'Penyedia');
+            throw new PelanggaranAturanBisnis('PenyediaTidakDiizinkan', 'Penyedia ini tidak tersedia dari platform. Hubungi dukungan Payoung.', 'Penyedia');
         }
 
         try {

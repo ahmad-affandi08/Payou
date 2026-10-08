@@ -40,18 +40,16 @@ use Tests\TestCase;
  * bila pesanannya tidak jadi, dan dipulihkan bila penjualannya di-void.
  */
 
-const KUNCI_GERBANG_ONLINE = 'SB-Mid-server-uji-online';
-
 beforeEach(fn () => BantuanPendaftaran::SiapkanPrasyarat());
 
 function PalsukanGerbangOnline(string &$status): void
 {
     Http::fake(function (PermintaanHttp $r) use (&$status) {
-        if (str_ends_with($r->url(), '/v2/charge')) {
-            return Http::response(['status_code' => '201', 'transaction_id' => 'trx-online', 'qr_string' => '00020101021226670016COM.NOBUBANK.WWW']);
+        if (BantuanGerbangTenant::CekPermintaanBuat($r)) {
+            return BantuanGerbangTenant::ResponsBuat($r, 'trx-online');
         }
 
-        return Http::response(['status_code' => '201', 'transaction_status' => $status]);
+        return BantuanGerbangTenant::ResponsStatus($status);
     });
 }
 
@@ -63,7 +61,7 @@ function PalsukanGerbangOnline(string &$status): void
 function SiapkanBayarOnline(TestCase $tes): array
 {
     $k = BantuanTokoOnline::Siapkan($tes);
-    $gerbang = BantuanGerbangTenant::Aktifkan($k['Tenant']->Id, kredensial: ['KunciServer' => KUNCI_GERBANG_ONLINE]);
+    $gerbang = BantuanGerbangTenant::Aktifkan($k['Tenant']->Id);
     BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
     PengaturanTokoOnline::query()->sole()->forceFill(['QrisAktif' => true])->save();
     BantuanPenjualan::BuatMetode(JenisMetodePembayaran::QrisDinamis, 'QRIS Otomatis');
@@ -88,11 +86,9 @@ function PesanBayarQris(TestCase $tes, array $k, string $pemenuhan = 'AmbilSendi
 /**
  * @param  array<string, mixed>  $k
  */
-function WebhookBayarOnline(TestCase $tes, array $k, string $nomor, string $jumlah, string $status = 'settlement'): TestResponse
+function WebhookBayarOnline(TestCase $tes, array $k, string $nomor, string $jumlah, string $status = 'SUCCESS'): TestResponse
 {
-    $isi = ['order_id' => $nomor, 'status_code' => '200', 'gross_amount' => $jumlah, 'transaction_status' => $status, 'transaction_id' => 'trx-online'];
-
-    return $tes->postJson("/webhook/midtrans/{$k['TokenWebhook']}", $isi + ['signature_key' => hash('sha512', $nomor.'200'.$jumlah.KUNCI_GERBANG_ONLINE)]);
+    return BantuanGerbangTenant::KirimWebhook($tes, $k['TokenWebhook'], $nomor, $jumlah, $status);
 }
 
 function SaldoPeranOnline(int $idJurnal, PeranAkun $peran, int $idOutlet): string
@@ -108,19 +104,21 @@ function SaldoPeranOnline(int $idJurnal, PeranAkun $peran, int $idOutlet): strin
 }
 
 it('checkout QRIS menunggu pembayaran, QR-nya idempoten per pesanan, dan tidak tampil bila sakelarnya mati', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$pesanan] = PesanBayarQris($this, $k);
 
     $pertama = $this->postJson("/{$k['Slug']}/pesanan/{$pesanan->KodeAkses}/bayar")->assertCreated()
         ->assertJsonPath('Jumlah', '60000.00')->assertJsonPath('Status', StatusTagihanQris::Menunggu->value);
-    expect($pertama->json('Qr'))->toContain('<svg');
+    // DOKU Checkout memberi halaman bayar (bukan muatan QRIS): pembeli diarahkan ke URL itu, bukan digambarkan QR.
+    expect($pertama->json('Qr'))->toBeNull()
+        ->and($pertama->json('UrlBayar'))->toStartWith('https://sandbox.doku.com/checkout/link/');
 
     // Halaman bayar dimuat ulang: tagihan yang sama, gerbang tidak dipanggil dua kali.
     $this->postJson("/{$k['Slug']}/pesanan/{$pesanan->KodeAkses}/bayar")->assertOk()
         ->assertJsonPath('Jumlah', '60000.00');
-    expect(count(Http::recorded(fn (PermintaanHttp $r): bool => str_ends_with($r->url(), '/v2/charge'))))->toBe(1);
+    expect(count(Http::recorded(fn (PermintaanHttp $r): bool => BantuanGerbangTenant::CekPermintaanBuat($r))))->toBe(1);
 
     BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
     expect(TagihanQris::query()->count())->toBe(1)
@@ -133,7 +131,7 @@ it('checkout QRIS menunggu pembayaran, QR-nya idempoten per pesanan, dan tidak t
 });
 
 it('pembayaran masuk membukukan uang muka (J-17.1) dan memindahkan pesanan ke menunggu konfirmasi, sekali saja', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$pesanan] = PesanBayarQris($this, $k);
@@ -161,7 +159,7 @@ it('pembayaran masuk membukukan uang muka (J-17.1) dan memindahkan pesanan ke me
 });
 
 it('kasir menagih pesanan berbayar dengan metode Uang muka; void mengembalikan uang mukanya', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$pesanan] = PesanBayarQris($this, $k);
@@ -198,7 +196,7 @@ it('kasir menagih pesanan berbayar dengan metode Uang muka; void mengembalikan u
 });
 
 it('F-17 bagian 3: kasir menagih pesanan kirim beserta ongkirnya, ongkir masuk Pendapatan Pengiriman dan pesanan kirim belum Selesai', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$pesanan] = PesanBayarQris($this, $k, 'Kirim');
@@ -237,7 +235,7 @@ it('F-17 bagian 3: kasir menagih pesanan kirim beserta ongkirnya, ongkir masuk P
 });
 
 it('F-17 bagian 3: perangkat versi lama menagih pesanan kirim tanpa ongkir = diterima + tinjauan OngkirBerbeda, bukan ditolak', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$pesanan] = PesanBayarQris($this, $k, 'Kirim');
@@ -288,7 +286,7 @@ function SiapkanPesananGratisOngkir(TestCase $tes, array $k): array
 }
 
 it('F-16c gratis ongkir: pesanan bergratis ongkir ditagih dengan BiayaKirim + DiskonKirim; ongkir kotor ke Pendapatan Pengiriman, potongan ke Diskon Penjualan, pemakaian promo tercatat', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$pesanan, $uangMuka, $promo] = SiapkanPesananGratisOngkir($this, $k);
@@ -325,7 +323,7 @@ it('F-16c gratis ongkir: pesanan bergratis ongkir ditagih dengan BiayaKirim + Di
 });
 
 it('F-16c gratis ongkir: kasir yang menagih ongkir penuh padahal pesanan bergratis ongkir = diterima + tinjauan OngkirBerbeda dan PromoBerbeda', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$pesanan, $uangMuka] = SiapkanPesananGratisOngkir($this, $k);
@@ -354,7 +352,7 @@ it('F-16c gratis ongkir: kasir yang menagih ongkir penuh padahal pesanan bergrat
 });
 
 it('pesanan berbayar yang ditolak muncul di Kotak Tindakan dan pengembaliannya dibukukan sekali (J-17.2)', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$pesanan] = PesanBayarQris($this, $k);
@@ -395,7 +393,7 @@ it('pesanan berbayar yang ditolak muncul di Kotak Tindakan dan pengembaliannya d
 });
 
 it('pesanan yang tidak dibayar hangus sesuai batas QRIS, yang sudah dibayar tidak pernah hangus', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$belum] = PesanBayarQris($this, $k);
@@ -425,7 +423,7 @@ it('sakelar QRIS tidak bisa dinyalakan tanpa gerbang pembayaran aktif', function
 });
 
 it('X7: uang muka pesanan online yang masuk memicu pembayaran.diterima sekali, walau notifikasi gerbang berulang', function (): void {
-    $status = 'pending';
+    $status = 'PENDING';
     PalsukanGerbangOnline($status);
     $k = SiapkanBayarOnline($this);
     [$pesanan] = PesanBayarQris($this, $k);

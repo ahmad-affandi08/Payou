@@ -40,7 +40,7 @@ beforeEach(function (): void {
 describe('v2.04 katalog penyedia', function (): void {
     it('setiap jenis punya daftar penyedia; semua penyedia email memakai bidang SMTP dengan nilai bawaan', function (): void {
         expect(count(JenisIntegrasi::Email->AmbilDaftarPenyedia()))->toBeGreaterThanOrEqual(15)
-            ->and(array_map(fn ($p) => $p->value, JenisIntegrasi::GerbangPembayaran->AmbilDaftarPenyedia()))->toBe(['Midtrans', 'Xendit', 'Tripay', 'Duitku', 'Ipaymu', 'Doku'])
+            ->and(array_map(fn ($p) => $p->value, JenisIntegrasi::GerbangPembayaran->AmbilDaftarPenyedia()))->toBe(['Doku'])
             ->and(array_map(fn ($p) => $p->value, JenisIntegrasi::Whatsapp->AmbilDaftarPenyedia()))->toBe(['MetaCloud', 'Fonnte', 'Wablas', 'StarSender', 'Watzap'])
             ->and(PenyediaIntegrasi::MetaCloud->CekResmi())->toBeTrue()
             ->and(PenyediaIntegrasi::Fonnte->CekResmi())->toBeFalse();
@@ -60,8 +60,8 @@ describe('v2.04 katalog penyedia', function (): void {
             // v2.06: gerbang pembayaran bukan lagi slot platform; tampil sebagai katalog untuk tenant.
             ->where('Integrasi.6.Jenis', 'Whatsapp')
             ->where('Integrasi.6.DaftarPenyedia.1.Resmi', false)
-            ->has('GerbangTenant', 6)
-            ->where('GerbangTenant.0.Penyedia', 'Midtrans')
+            ->has('GerbangTenant', 1)
+            ->where('GerbangTenant.0.Penyedia', 'Doku')
             ->where('GerbangTenant.0.Diizinkan', true));
     });
 
@@ -94,17 +94,33 @@ describe('v2.04 katalog penyedia', function (): void {
     it('penyedia dari jenis lain ditolak', function (): void {
         MasukTeknisPenyedia($this);
         $this->post(BantuanPengelola::Url('/integrasi'), [
-            'Jenis' => 'Whatsapp', 'Lingkungan' => 'Staging', 'Penyedia' => 'Midtrans',
-            'Pengaturan' => ['Mode' => 'Sandbox', 'Akuisitor' => 'gopay'], 'Kredensial' => ['KunciServer' => 'SB-Mid-server-xxxxxxxx'], 'RotasiSetiapHari' => 90,
+            'Jenis' => 'Whatsapp', 'Lingkungan' => 'Staging', 'Penyedia' => 'Doku',
+            'Pengaturan' => ['Mode' => 'Sandbox', 'IdKlien' => 'BRN-001'], 'Kredensial' => ['KunciRahasia' => 'SK-doku-xxxxxxxx'], 'RotasiSetiapHari' => 90,
         ])->assertSessionHasErrors('Penyedia');
         expect(KonfigurasiIntegrasi::query()->count())->toBe(0);
+    });
+
+    it('penyedia gerbang toko yang sudah dihapus (Midtrans, Xendit, Tripay, Duitku, iPaymu) bukan penyedia integrasi lagi', function (string $lama): void {
+        expect(PenyediaIntegrasi::tryFrom($lama))->toBeNull();
+
+        MasukTeknisPenyedia($this);
+        $this->post(BantuanPengelola::Url('/integrasi'), [
+            'Jenis' => 'GerbangPembayaran', 'Lingkungan' => 'Staging', 'Penyedia' => $lama,
+            'Pengaturan' => [], 'Kredensial' => [], 'RotasiSetiapHari' => 90,
+        ])->assertSessionHasErrors('Penyedia');
+        expect(KonfigurasiIntegrasi::query()->count())->toBe(0);
+    })->with(['Midtrans', 'Xendit', 'Tripay', 'Duitku', 'Ipaymu']);
+
+    it('Midtrans untuk tagihan langganan platform tetap ada sebagai penyedia gerbang billing (jalur terpisah)', function (): void {
+        expect(array_map(fn ($p) => $p->value, JenisIntegrasi::GerbangBilling->AmbilDaftarPenyedia()))->toBe(['MidtransBilling'])
+            ->and(PenyediaIntegrasi::MidtransBilling->AmbilJenis())->toBe(JenisIntegrasi::GerbangBilling);
     });
 
     it('v2.06: gerbang pembayaran tidak lagi disimpan di tingkat platform (akun merchant milik tenant)', function (): void {
         MasukTeknisPenyedia($this);
         $this->post(BantuanPengelola::Url('/integrasi'), [
-            'Jenis' => 'GerbangPembayaran', 'Lingkungan' => 'Staging', 'Penyedia' => 'Midtrans',
-            'Pengaturan' => ['Mode' => 'Sandbox', 'Akuisitor' => 'gopay'], 'Kredensial' => ['KunciServer' => 'SB-Mid-server-rahasia-4321'], 'RotasiSetiapHari' => 90,
+            'Jenis' => 'GerbangPembayaran', 'Lingkungan' => 'Staging', 'Penyedia' => 'Doku',
+            'Pengaturan' => ['Mode' => 'Sandbox', 'IdKlien' => 'BRN-001'], 'Kredensial' => ['KunciRahasia' => 'SK-doku-rahasia-4321'], 'RotasiSetiapHari' => 90,
         ])->assertSessionHasErrors('Jenis');
 
         expect(KonfigurasiIntegrasi::query()->count())->toBe(0)

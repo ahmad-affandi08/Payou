@@ -3,7 +3,6 @@ import { useState, type ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import HalamanGerbangPembayaran, { LangkahQris } from '@/Halaman/Kelola/Pembayaran/Gerbang';
-import { PilihOpsi } from '@/Pengujian/InteraksiPilihan';
 import type { GerbangPembayaranTenant, OpsiPenyediaGerbang } from '@/Tipe/Pembayaran';
 
 /*
@@ -51,23 +50,11 @@ vi.mock('@/TataLetak/TataLetakAplikasi', () => ({
 
 const penyedia: OpsiPenyediaGerbang[] = [
     {
-        Nilai: 'Midtrans',
-        Label: 'Midtrans',
-        Keterangan: 'Core API QRIS.',
-        BidangPengaturan: [
-            { Kunci: 'Akuisitor', Label: 'Akuisitor QRIS', Jenis: 'Pilihan', Wajib: true, Opsi: ['gopay', 'airpay'] },
-        ],
-        BidangKredensial: [{ Kunci: 'KunciServer', Label: 'Server key', Wajib: true }],
-    },
-    {
-        Nilai: 'Xendit',
-        Label: 'Xendit',
-        Keterangan: 'QR Codes API.',
-        BidangPengaturan: [],
-        BidangKredensial: [
-            { Kunci: 'KunciRahasia', Label: 'Secret API key', Wajib: true },
-            { Kunci: 'TokenCallback', Label: 'Token verifikasi callback', Wajib: true },
-        ],
+        Nilai: 'Doku',
+        Label: 'DOKU',
+        Keterangan: 'DOKU Checkout (halaman bayar QRIS).',
+        BidangPengaturan: [{ Kunci: 'IdKlien', Label: 'Client ID', Jenis: 'Teks', Wajib: true }],
+        BidangKredensial: [{ Kunci: 'KunciRahasia', Label: 'Secret key', Wajib: true }],
     },
 ];
 const lingkungan = [
@@ -78,18 +65,18 @@ const lingkungan = [
 function Gerbang(ubah: Partial<GerbangPembayaranTenant> = {}): GerbangPembayaranTenant {
     return {
         Uuid: '01K5GERBANG000000000000001',
-        Penyedia: 'Midtrans',
-        LabelPenyedia: 'Midtrans',
+        Penyedia: 'Doku',
+        LabelPenyedia: 'DOKU',
         PenyediaDiizinkan: true,
         Lingkungan: 'Sandbox',
-        Pengaturan: { Akuisitor: 'gopay' },
-        PetunjukKredensial: { KunciServer: '••••7788' },
+        Pengaturan: { IdKlien: 'BRN-0012-7788' },
+        PetunjukKredensial: { KunciRahasia: '••••7788' },
         StatusUji: 'BelumDiuji',
         LabelStatusUji: 'Belum diuji',
         PesanUji: null,
         DiujiPada: null,
         Aktif: false,
-        UrlWebhook: 'https://payoung.id/webhook/midtrans/1a-TokenWebhookToko',
+        UrlWebhook: 'https://payoung.id/webhook/doku/1a-TokenWebhookToko',
         WebhookDiterimaPada: null,
         WebhookDitolakPada: null,
         ...ubah,
@@ -103,26 +90,27 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe('Gerbang pembayaran toko (v2.06)', () => {
-    it('belum terhubung: pilih Xendit mengganti bidang kredensial lalu isian terkirim', () => {
+    it('belum terhubung (hanya DOKU): tidak ada pilihan penyedia, bidang DOKU tampil lalu isian terkirim', () => {
         render(<HalamanGerbangPembayaran Gerbang={null} DaftarPenyedia={penyedia} DaftarLingkungan={lingkungan} />);
 
         expect(screen.getByText('Hubungkan QRIS dalam 4 langkah')).toBeTruthy();
         expect(screen.queryByText(/\(selesai\)/)).toBeNull();
-        expect(screen.getByLabelText(/Server key/, { selector: 'input' })).toBeTruthy();
-        PilihOpsi(screen.getByRole('combobox', { name: 'Penyedia' }), 'Xendit');
-        expect(screen.queryByLabelText(/Server key/)).toBeNull();
-        fireEvent.change(screen.getByLabelText(/Secret API key/, { selector: 'input' }), {
-            target: { value: 'xnd_development_toko' },
+        expect(screen.queryByRole('combobox', { name: 'Penyedia' })).toBeNull();
+        fireEvent.change(screen.getByLabelText(/Client ID/, { selector: 'input' }), {
+            target: { value: 'BRN-0012-7788' },
+        });
+        fireEvent.change(screen.getByLabelText(/Secret key/, { selector: 'input' }), {
+            target: { value: 'SK-rahasia-toko-7788' },
         });
 
         fireEvent.click(screen.getByRole('button', { name: 'Simpan akun merchant' }));
         expect(uji.kiriman[0]).toEqual({
             url: '/kelola/pembayaran/gerbang',
             data: {
-                Penyedia: 'Xendit',
+                Penyedia: 'Doku',
                 Lingkungan: 'Sandbox',
-                Pengaturan: {},
-                Kredensial: { KunciRahasia: 'xnd_development_toko', TokenCallback: '' },
+                Pengaturan: { IdKlien: 'BRN-0012-7788' },
+                Kredensial: { KunciRahasia: 'SK-rahasia-toko-7788' },
             },
         });
     });
@@ -133,7 +121,7 @@ describe('Gerbang pembayaran toko (v2.06)', () => {
         );
 
         expect(screen.getByText(/Tersimpan ••••7788/)).toBeTruthy();
-        expect(screen.getByText('https://payoung.id/webhook/midtrans/1a-TokenWebhookToko')).toBeTruthy();
+        expect(screen.getByText('https://payoung.id/webhook/doku/1a-TokenWebhookToko')).toBeTruthy();
         expect((screen.getByRole('button', { name: 'Aktifkan gerbang' }) as HTMLButtonElement).disabled).toBe(true);
         fireEvent.click(screen.getByRole('button', { name: 'Uji koneksi' }));
         expect(uji.router).toEqual(['/kelola/pembayaran/gerbang/uji']);
@@ -154,7 +142,7 @@ describe('Gerbang pembayaran toko (v2.06)', () => {
         render(
             <HalamanGerbangPembayaran
                 Gerbang={Gerbang({ StatusUji: 'Berhasil', PenyediaDiizinkan: false })}
-                DaftarPenyedia={penyedia.filter((p) => p.Nilai !== 'Midtrans')}
+                DaftarPenyedia={penyedia}
                 DaftarLingkungan={lingkungan}
             />,
         );

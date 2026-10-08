@@ -37,11 +37,11 @@ export function IsiAwalPengaturan(
 export function LangkahQris(gerbang: PropsGerbangPembayaran['Gerbang']): { Teks: string; Selesai: boolean }[] {
     return [
         {
-            Teks: 'Daftar akun merchant di salah satu penyedia (misalnya Midtrans atau Xendit), lalu salin kunci dari dasbornya.',
+            Teks: 'Daftar akun merchant DOKU, lalu salin Client ID dan Secret key dari dasbor DOKU.',
             Selesai: gerbang !== null,
         },
         {
-            Teks: 'Pilih penyedia, tempel kuncinya di bawah, lalu klik "Simpan akun merchant".',
+            Teks: 'Tempel Client ID dan Secret key di bawah, lalu klik "Simpan akun merchant".',
             Selesai: gerbang !== null,
         },
         {
@@ -49,7 +49,7 @@ export function LangkahQris(gerbang: PropsGerbangPembayaran['Gerbang']): { Teks:
             Selesai: gerbang?.StatusUji === 'Berhasil' || gerbang?.Aktif === true,
         },
         {
-            Teks: 'Klik "Aktifkan gerbang", lalu salin URL webhook ke dasbor penyedia agar pembayaran terkonfirmasi otomatis.',
+            Teks: 'Klik "Aktifkan gerbang", lalu salin URL webhook ke dasbor DOKU agar pembayaran terkonfirmasi otomatis.',
             Selesai: gerbang?.Aktif === true,
         },
     ];
@@ -61,8 +61,9 @@ function KredensialKosong(penyedia: OpsiPenyediaGerbang | undefined): Record<str
 
 /**
  * Gerbang pembayaran QRIS dinamis milik toko (F-08, PRD v2.06): toko memakai akun merchant sendiri sehingga dana
- * pelanggan langsung masuk ke rekening toko. Pilih penyedia yang disediakan platform, isi kredensial dari dasbor
- * penyedia, uji koneksi, aktifkan, lalu salin URL webhook ke dasbor penyedia.
+ * pelanggan langsung masuk ke rekening toko. Penyedianya DOKU (satu-satunya yang tersedia): isi kredensial dari dasbor
+ * DOKU, uji koneksi, aktifkan, lalu salin URL webhook ke dasbor DOKU. Pilihan penyedia baru tampil bila server
+ * menyediakan lebih dari satu penyedia.
  */
 export default function HalamanGerbangPembayaran({
     Gerbang,
@@ -163,7 +164,7 @@ export default function HalamanGerbangPembayaran({
                             {!Gerbang.PenyediaDiizinkan ? (
                                 <Pemberitahuan jenis="peringatan">
                                     Penyedia ini sedang tidak tersedia dari platform. Kasir tidak bisa membuat QRIS
-                                    dinamis baru; pilih penyedia lain.
+                                    dinamis baru; hubungi dukungan Payoung.
                                 </Pemberitahuan>
                             ) : null}
                             {Gerbang.PesanUji ? (
@@ -252,14 +253,16 @@ export default function HalamanGerbangPembayaran({
                             </Pemberitahuan>
                         ) : (
                             <form onSubmit={Simpan} className="grid gap-3 sm:grid-cols-2" noValidate>
-                                <BidangPilihan
-                                    label="Penyedia"
-                                    nilai={formulir.data.Penyedia}
-                                    opsi={DaftarPenyedia.map((p) => ({ Nilai: p.Nilai, Label: p.Label }))}
-                                    saatBerubah={GantiPenyedia}
-                                    galat={galat.Penyedia}
-                                    required
-                                />
+                                {DaftarPenyedia.length > 1 ? (
+                                    <BidangPilihan
+                                        label="Penyedia"
+                                        nilai={formulir.data.Penyedia}
+                                        opsi={DaftarPenyedia.map((p) => ({ Nilai: p.Nilai, Label: p.Label }))}
+                                        saatBerubah={GantiPenyedia}
+                                        galat={galat.Penyedia}
+                                        required
+                                    />
+                                ) : null}
                                 <BidangPilihan
                                     label="Lingkungan"
                                     nilai={formulir.data.Lingkungan}

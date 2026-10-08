@@ -37,7 +37,7 @@ enum JenisIntegrasi: string
             self::Email => PenyediaIntegrasi::Smtp,
             self::Captcha => PenyediaIntegrasi::Turnstile,
             self::Penyimpanan => PenyediaIntegrasi::S3,
-            self::GerbangPembayaran => PenyediaIntegrasi::Midtrans,
+            self::GerbangPembayaran => PenyediaIntegrasi::Doku,
             self::Whatsapp => PenyediaIntegrasi::MetaCloud,
             self::Push => PenyediaIntegrasi::Fcm,
             self::GerbangBilling => PenyediaIntegrasi::MidtransBilling,

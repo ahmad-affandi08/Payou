@@ -20,6 +20,9 @@ use Illuminate\Http\Request;
  * - `POST /webhook/{penyedia}` (lama, gerbang tingkat platform): sejak v2.06 tidak ada lagi gerbang platform, sehingga
  *   selalu 404 `PenyediaTidakAktif`. Rute dipertahankan agar penyedia yang masih mengirim ke alamat lama mendapat
  *   jawaban yang jelas.
+ *
+ * Hanya DOKU yang punya rute (batasan `where` di `routes/Webhook.php`); kode penyedia lain, termasuk penyedia lama yang
+ * sudah dihapus, tidak cocok dengan rute mana pun sehingga dijawab 404.
  */
 final class WebhookGerbangPembayaranKontroler extends Kontroler
 {

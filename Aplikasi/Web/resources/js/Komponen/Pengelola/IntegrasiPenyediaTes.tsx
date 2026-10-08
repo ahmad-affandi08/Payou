@@ -160,50 +160,40 @@ describe('Integrasi: pilih penyedia (v2.04)', () => {
         expect(peringatan?.getAttribute('data-jenis')).toBe('peringatan');
     });
 
-    it('v2.06 katalog gerbang untuk toko: larang penyedia wajib lewat lembar beralasan lalu terkirim', async () => {
+    it('v2.06 katalog gerbang untuk toko (hanya DOKU): izinkan terkirim langsung, larang wajib lewat lembar beralasan', async () => {
         const { router } = await import('@inertiajs/react');
-        render(
-            <HalamanIntegrasi
-                Integrasi={[]}
-                GerbangTenant={[
-                    {
-                        Penyedia: 'Midtrans',
-                        Label: 'Midtrans',
-                        Diizinkan: true,
-                        JumlahTenant: 3,
-                        JumlahAktif: 2,
-                        JumlahUjiGagal: 1,
-                        WebhookDiterima24Jam: 2,
-                        WebhookDitolak24Jam: 0,
-                    },
-                    {
-                        Penyedia: 'Doku',
-                        Label: 'DOKU',
-                        Diizinkan: false,
-                        JumlahTenant: 0,
-                        JumlahAktif: 0,
-                        JumlahUjiGagal: 0,
-                        WebhookDiterima24Jam: 0,
-                        WebhookDitolak24Jam: 0,
-                    },
-                ]}
-            />,
+        const doku = {
+            Penyedia: 'Doku',
+            Label: 'DOKU',
+            Diizinkan: true,
+            JumlahTenant: 3,
+            JumlahAktif: 2,
+            JumlahUjiGagal: 1,
+            WebhookDiterima24Jam: 2,
+            WebhookDitolak24Jam: 0,
+        };
+        const { unmount: Lepas } = render(
+            <HalamanIntegrasi Integrasi={[]} GerbangTenant={[{ ...doku, Diizinkan: false }]} />,
         );
 
         expect(screen.getByText('Gerbang pembayaran untuk toko')).toBeTruthy();
         expect(screen.getByText('Dilarang')).toBeTruthy();
+        expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(1);
         fireEvent.click(screen.getByRole('button', { name: 'Izinkan DOKU' }));
         expect(router.post).toHaveBeenCalledWith(
             '/integrasi/gerbang-pembayaran/Doku',
             { Diizinkan: true, Alasan: '' },
             expect.anything(),
         );
-        fireEvent.click(screen.getByRole('button', { name: 'Larang Midtrans' }));
+        Lepas();
+
+        render(<HalamanIntegrasi Integrasi={[]} GerbangTenant={[doku]} />);
+        fireEvent.click(screen.getByRole('button', { name: 'Larang DOKU' }));
         expect(screen.getByText(/2 toko aktif memakai penyedia ini/)).toBeTruthy();
         fireEvent.change(screen.getByLabelText(/Alasan/), { target: { value: 'Gangguan penyelesaian dana' } });
         fireEvent.click(screen.getByRole('button', { name: 'Larang penyedia' }));
         expect(router.post).toHaveBeenCalledWith(
-            '/integrasi/gerbang-pembayaran/Midtrans',
+            '/integrasi/gerbang-pembayaran/Doku',
             { Diizinkan: false, Alasan: 'Gangguan penyelesaian dana' },
             expect.anything(),
         );

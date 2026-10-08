@@ -189,16 +189,15 @@ describe('Halaman & pesanan kios', function (): void {
 
 describe('Bayar QRIS di kios', function (): void {
     it('QR ditampilkan di layar, idempoten per pesanan, dan pembayaran masuk memindahkan pesanan ke menunggu konfirmasi', function (): void {
-        $kunci = 'SB-Mid-server-uji-kios';
         Http::fake(function (PermintaanHttp $r) {
-            if (str_ends_with($r->url(), '/v2/charge')) {
-                return Http::response(['status_code' => '201', 'transaction_id' => 'trx-kios', 'qr_string' => '00020101021226670016COM.NOBUBANK.WWW']);
+            if (BantuanGerbangTenant::CekPermintaanBuat($r)) {
+                return BantuanGerbangTenant::ResponsBuat($r, 'trx-kios');
             }
 
-            return Http::response(['status_code' => '201', 'transaction_status' => 'pending']);
+            return BantuanGerbangTenant::ResponsStatus('PENDING');
         });
         $k = SiapkanKios($this);
-        $gerbang = BantuanGerbangTenant::Aktifkan($k['Tenant']->Id, kredensial: ['KunciServer' => $kunci]);
+        $gerbang = BantuanGerbangTenant::Aktifkan($k['Tenant']->Id);
         BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
         PengaturanTokoOnline::query()->create(['Aktif' => false, 'QrisAktif' => true]);
         BantuanPenjualan::BuatMetode(JenisMetodePembayaran::QrisDinamis, 'QRIS Otomatis');
@@ -206,16 +205,16 @@ describe('Bayar QRIS di kios', function (): void {
         $dibuat = $this->postJson("{$k['AlamatKios']}/pesan", KirimanKios($k, 'QrisOnline'))->assertCreated()->assertJsonPath('NomorAntrian', 'K001');
         $kode = $dibuat->json('KodeAkses');
         $bayar = $this->postJson("{$k['AlamatKios']}/pesanan/{$kode}/bayar")->assertCreated()->assertJsonPath('SudahDibayar', false);
-        expect($bayar->json('Qr'))->toContain('<svg');
+        // DOKU Checkout memberi halaman bayar (bukan muatan QRIS): layar kios menampilkan tautan itu.
+        expect($bayar->json('Qr'))->toBeNull()
+            ->and($bayar->json('UrlBayar'))->toStartWith('https://sandbox.doku.com/checkout/link/');
         $this->postJson("{$k['AlamatKios']}/pesanan/{$kode}/bayar")->assertOk();
-        expect(count(Http::recorded(fn (PermintaanHttp $r): bool => str_ends_with($r->url(), '/v2/charge'))))->toBe(1);
+        expect(count(Http::recorded(fn (PermintaanHttp $r): bool => BantuanGerbangTenant::CekPermintaanBuat($r))))->toBe(1);
         $this->getJson("{$k['AlamatKios']}/pesanan/{$kode}/status-bayar")->assertOk()->assertJsonPath('PerluBayar', true)->assertJsonPath('StatusTagihan', 'Menunggu');
 
         BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
         $tagihan = TagihanQris::query()->sole();
-        $jumlah = $tagihan->Jumlah;
-        $isi = ['order_id' => $tagihan->NomorPesanan, 'status_code' => '200', 'gross_amount' => $jumlah, 'transaction_status' => 'settlement', 'transaction_id' => 'trx-kios'];
-        $this->postJson("/webhook/midtrans/{$gerbang->TokenWebhook}", $isi + ['signature_key' => hash('sha512', $tagihan->NomorPesanan.'200'.$jumlah.$kunci)])->assertOk();
+        BantuanGerbangTenant::KirimWebhook($this, $gerbang->TokenWebhook, $tagihan->NomorPesanan, $tagihan->Jumlah)->assertOk();
 
         $this->getJson("{$k['AlamatKios']}/pesanan/{$kode}/status-bayar")->assertOk()
             ->assertJsonPath('PerluBayar', false)->assertJsonPath('SudahDibayar', true)->assertJsonPath('Status', 'MenungguKonfirmasi');
