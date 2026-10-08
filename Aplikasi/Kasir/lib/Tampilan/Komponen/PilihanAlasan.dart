@@ -29,6 +29,7 @@ class PilihanAlasan extends StatelessWidget {
     'Uang palsu ditemukan',
     'Penyebab belum diketahui',
   ];
+  static const List<String> shiftLama = ['Sisa uji coba', 'Shift lama tidak sempat ditutup', 'Aplikasi dipasang ulang'];
   static const List<String> bukaLaci = ['Tukar uang receh', 'Periksa isi laci', 'Masukkan uang yang tertinggal'];
   static const List<String> batalPesanan = ['Salah input', 'Pelanggan batal', 'Menu habis', 'Terlalu lama menunggu'];
 

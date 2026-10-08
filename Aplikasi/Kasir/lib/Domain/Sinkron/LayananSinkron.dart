@@ -6,6 +6,7 @@ import 'package:klien_api/KlienApi.dart';
 import '../Diagnostik/LogLokal.dart';
 import '../Perangkat/LayananUjiPerangkat.dart';
 import '../../Data/RepositoriKasir.dart';
+import '../GalatKasir.dart';
 import '../Sesi/LayananPerangkat.dart';
 
 /// Hasil satu putaran sinkron.
@@ -47,6 +48,9 @@ class LayananSinkron {
   }) : _jam = jam ?? DateTime.now;
 
   static const int ukuranBatch = 50;
+
+  /// Kode penolakan yang sebabnya shift lama di server: buka shift baru, tutup shift, dan penjualan/kas dari shift itu.
+  static const Set<String> kodeGalatShift = {'ShiftSudahTerbuka', 'ShiftTidakDikenal', 'ShiftTidakDitemukan'};
 
   final KlienPos klien;
   final RepositoriKasir repositori;
@@ -155,6 +159,45 @@ class LayananSinkron {
     } finally {
       _berjalan = false;
     }
+  }
+
+  /// Shift perangkat ini yang masih terbuka di server. Offline atau galat server → daftar kosong (tidak bisa dipastikan).
+  Future<List<ShiftTerbukaServerPos>> AmbilShiftTerbukaServer() async {
+    try {
+      return await klien.AmbilShiftTerbukaServer();
+    } on GalatJaringan {
+      return const [];
+    } on GalatApi {
+      return const [];
+    }
+  }
+
+  /// Kirim ulang semua penolakan karena shift (urutan terlama dulu) tanpa menutup apa pun: dipakai saat shift lama di
+  /// server ternyata sudah ditutup (misal dari back-office).
+  Future<void> JadwalkanUlangPenolakanShift() async {
+    await repositori.CobaLagiPerluTindakan(kodeGalatShift, _jam());
+  }
+
+  /// Tutup paksa shift lama di server atas persetujuan [uuidPenyetuju] (PIN supervisor sudah diperiksa), lalu jadwalkan
+  /// ulang semua item outbox yang ditolak karena shift itu (`ShiftSudahTerbuka`, `ShiftTidakDikenal`) berurutan dari
+  /// yang terlama, supaya buka-tutup shift yang tertahan ikut terkirim tanpa diketuk satu per satu.
+  Future<void> TutupShiftLamaServer({
+    required String uuidShift,
+    required String uuidPenyetuju,
+    required String alasan,
+  }) async {
+    final rapi = alasan.trim();
+    if (rapi.runes.length < 5) {
+      throw const GalatKasir('AlasanDiperlukan', 'Tulis alasan minimal 5 huruf.');
+    }
+    try {
+      await klien.TutupPaksaShift(uuidShift: uuidShift, uuidPenyetuju: uuidPenyetuju, alasan: rapi);
+    } on GalatJaringan {
+      throw const GalatKasir('Offline', 'Belum tersambung ke server. Tutup shift lama butuh internet.');
+    } on GalatApi catch (galat) {
+      throw GalatKasir(galat.kode, galat.pesan);
+    }
+    await repositori.CobaLagiPerluTindakan(kodeGalatShift, _jam());
   }
 
   /// Audit P0 F-01: server menyatakan perangkat dicabut (misal saat unduh data awal). Kirim sisa outbox selama masa

@@ -99,6 +99,16 @@
         "Jalur": "api/pos/v1/penjualan/cari",
         "Nama": "pos.penjualan.cari"
     },
+    "GET api/pos/v1/shift/terbuka": {
+        "Metode": "GET",
+        "Jalur": "api/pos/v1/shift/terbuka",
+        "Nama": "pos.shift.terbuka"
+    },
+    "POST api/pos/v1/shift/{uuidShift}/tutup-paksa": {
+        "Metode": "POST",
+        "Jalur": "api/pos/v1/shift/{uuidShift}/tutup-paksa",
+        "Nama": "pos.shift.tutup-paksa"
+    },
     "GET api/pos/v1/penjualan/kandidat": {
         "Metode": "GET",
         "Jalur": "api/pos/v1/penjualan/kandidat",

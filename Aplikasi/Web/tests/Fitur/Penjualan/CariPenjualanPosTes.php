@@ -172,6 +172,7 @@ describe('F-09 GET /api/pos/v1/penjualan/kandidat (pilih struk untuk retur tanpa
         expect(array_column($daftar(''), 'Nomor'))->toEqualCanonicalizing([$pertama->Nomor, $kedua->Nomor])
             ->and(array_column($daftar(substr($kedua->Nomor, -4)), 'Nomor'))->toContain($kedua->Nomor)
             ->and(array_column($daftar($kedua->Nomor), 'Nomor'))->toBe([$kedua->Nomor])
+            ->and(array_column($daftar((string) (int) $kedua->TotalAkhir), 'Nomor'))->toContain($kedua->Nomor)
             ->and($daftar('x'))->toBe([])
             ->and($daftar('%'))->toBe([])
             ->and($daftar(''))->each->toHaveKeys(['Uuid', 'Nomor', 'Status', 'LabelStatus', 'TanggalBisnis', 'DibuatPada', 'TotalAkhir']);

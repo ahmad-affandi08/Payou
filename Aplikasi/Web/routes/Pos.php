@@ -29,6 +29,7 @@ use App\Http\Kontroler\Pos\V1\PromoKontroler;
 use App\Http\Kontroler\Pos\V1\ReservasiKontroler;
 use App\Http\Kontroler\Pos\V1\RingkasanHarianKontroler;
 use App\Http\Kontroler\Pos\V1\SalesmanKontroler;
+use App\Http\Kontroler\Pos\V1\ShiftKontroler;
 use App\Http\Kontroler\Pos\V1\SinkronKontroler;
 use App\Http\Kontroler\Pos\V1\TagihanQrisKontroler;
 use App\Http\Kontroler\Pos\V1\VoucherKontroler;
@@ -64,6 +65,11 @@ Route::middleware([AutentikasiPerangkat::class, IdempotensiPos::class])->group(f
     // K-21: laporan galat aplikasi kasir (log harian `galat-perangkat`, tanpa data pribadi).
     Route::post('/perangkat/galat', [PerangkatKontroler::class, 'LaporGalat'])->middleware('throttle:pos-10')->name('pos.perangkat.galat');
     Route::post('/sinkron/kirim', [SinkronKontroler::class, 'Kirim'])->middleware('throttle:pos-120')->name('pos.sinkron.kirim');
+
+    // Shift lama perangkat yang masih terbuka di server dan menahan shift baru (`ShiftSudahTerbuka`): lihat & tutup
+    // paksa oleh supervisor dari aplikasi. Di luar penjaga langganan seperti sinkron agar data tidak tertahan.
+    Route::get('/shift/terbuka', [ShiftKontroler::class, 'Terbuka'])->middleware('throttle:pos-30')->name('pos.shift.terbuka');
+    Route::post('/shift/{uuidShift}/tutup-paksa', [ShiftKontroler::class, 'TutupPaksa'])->middleware('throttle:pos-10')->where('uuidShift', '[0-9A-HJKMNP-TV-Z]{26}')->name('pos.shift.tutup-paksa');
 
     // Endpoint berjualan: POS terkunci saat langganan Ditangguhkan/Berhenti.
     Route::middleware(PastikanLanggananPosAktif::class)->group(function (): void {

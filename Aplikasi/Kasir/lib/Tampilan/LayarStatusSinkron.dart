@@ -1,11 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inti/Inti.dart';
+import 'package:klien_api/KlienApi.dart';
 import 'package:sistem_desain/SistemDesain.dart';
 
 import '../Aplikasi/Penyedia.dart';
 import '../Data/RepositoriKasir.dart';
+import '../Domain/GalatKasir.dart';
+import '../Domain/Sesi/StafLokal.dart';
 import '../Domain/Sinkron/LayananSinkron.dart';
 import 'Komponen/FormatWaktu.dart';
+import 'Komponen/PilihanAlasan.dart';
+import 'LembarMutasiKas.dart';
 import 'RuangKerja/BagianKerja.dart';
 import 'RuangKerja/IsiAreaKerja.dart';
 
@@ -77,6 +85,63 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
             ? 'Belum tersambung ke server. Data aman di perangkat dan akan dikirim otomatis.'
             : '${hasil.terkirim} data terkirim${hasil.ditolak > 0 ? ', ${hasil.ditolak} perlu tindakan' : ''}.';
       });
+    }
+  }
+
+  /// Semua item "Perlu tindakan" karena shift kembali ke antrean (terlama dulu) lalu dikirim.
+  Future<void> _KirimUlangSemua() async {
+    await ref.read(penyediaLayananSinkron).JadwalkanUlangPenolakanShift();
+    await _Kirim();
+  }
+
+  /// Shift lama di server menahan shift baru perangkat ini: tampilkan, minta alasan & PIN supervisor, tutup paksa, lalu
+  /// kirim ulang semua yang tertahan.
+  Future<void> _TutupShiftLama() async {
+    final layanan = ref.read(penyediaLayananSinkron);
+    setState(() {
+      _sibuk = true;
+      _pesan = null;
+    });
+    try {
+      final aktifLokal = (await ref.read(penyediaRepositori).AmbilShiftAktif())?.Uuid;
+      final lama = [for (final s in await layanan.AmbilShiftTerbukaServer()) if (s.uuid != aktifLokal) s];
+      if (!mounted) {
+        return;
+      }
+      if (lama.isEmpty) {
+        // Tidak ada yang perlu ditutup (sudah ditutup dari back-office, atau server tidak terjangkau): coba kirim ulang.
+        await _KirimUlangSemua();
+        return;
+      }
+      setState(() => _sibuk = false);
+      final alasan = await showDialog<String>(context: context, builder: (_) => _DialogShiftLama(shift: lama));
+      if (alasan == null || !mounted) {
+        return;
+      }
+      final penyetuju = await showDialog<StafLokal>(
+        context: context,
+        builder: (_) => const DialogPinSupervisor(
+          izin: IzinKasir.shiftSelisihSetujui,
+          judulDialog: 'Persetujuan tutup shift lama',
+          pesan: 'Shift lama di server akan ditutup paksa. Pilih supervisor yang menyetujui.',
+          judul: 'Tutup shift lama',
+        ),
+      );
+      if (penyetuju == null || !mounted) {
+        return;
+      }
+      setState(() => _sibuk = true);
+      for (final s in lama) {
+        await layanan.TutupShiftLamaServer(uuidShift: s.uuid, uuidPenyetuju: penyetuju.uuid, alasan: alasan);
+      }
+      await _Kirim();
+    } on GalatKasir catch (galat) {
+      if (mounted) {
+        setState(() {
+          _sibuk = false;
+          _pesan = galat.pesan;
+        });
+      }
     }
   }
 
@@ -199,9 +264,51 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
                 ),
         ),
         const SizedBox(height: TokenJarak.jarak12),
+        if (perlu.any((b) => b.KodeGalat == 'ShiftSudahTerbuka')) ...[
+          KotakPanel(
+            key: const ValueKey('BannerShiftLama'),
+            anak: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.warning_amber_outlined, size: TokenJarak.ikonSedang, color: warna.peringatan),
+                    const SizedBox(width: TokenJarak.jarak12),
+                    Expanded(
+                      child: Text(
+                        'Server masih menyimpan shift lama dari perangkat ini yang belum ditutup, jadi shift baru dan '
+                        'transaksi di dalamnya ditolak. Tutup shift lama itu (perlu PIN supervisor), lalu semua data '
+                        'yang tertahan dikirim ulang otomatis.',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: TokenJarak.jarak8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilledButton.icon(
+                    key: const ValueKey('TutupShiftLama'),
+                    onPressed: _sibuk ? null : () => unawaited(_TutupShiftLama()),
+                    icon: const Icon(Icons.lock_clock_outlined),
+                    label: const Text('Tutup shift lama'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: TokenJarak.jarak12),
+        ],
         BagianKerja(
           judul: 'Perlu tindakan',
           ikon: Icons.error_outline,
+          ekor: perlu.length > 1
+              ? TextButton(
+                  key: const ValueKey('KirimUlangSemua'),
+                  onPressed: _sibuk ? null : () => unawaited(_KirimUlangSemua()),
+                  child: const Text('Kirim ulang semua'),
+                )
+              : null,
           anak: perlu.isEmpty
               ? const KeadaanKosong(
                   ringkas: true,
@@ -286,6 +393,87 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
           nada: NadaStatus.Sukses,
           judul: 'Tidak terkirim dua kali',
           keterangan: 'Mengirim ulang data yang sama tidak membuat transaksi ganda.',
+        ),
+      ],
+    );
+  }
+}
+
+/// Konfirmasi tutup shift lama di server: daftar shift (kasir, waktu buka, kas awal) dan alasan tertulis.
+class _DialogShiftLama extends StatefulWidget {
+  const _DialogShiftLama({required this.shift});
+
+  final List<ShiftTerbukaServerPos> shift;
+
+  @override
+  State<_DialogShiftLama> createState() => _DialogShiftLamaState();
+}
+
+class _DialogShiftLamaState extends State<_DialogShiftLama> {
+  final _alasan = TextEditingController();
+  String? _galat;
+
+  @override
+  void dispose() {
+    _alasan.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final teks = Theme.of(context).textTheme;
+    final warna = TokenWarna.AmbilDari(context);
+    return AlertDialog(
+      title: const Text('Tutup shift lama di server'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Shift ini masih terbuka di server dan menahan shift baru. Setelah ditutup, kas dihitung dari data server '
+              'dan shift ditandai untuk diperiksa pemilik.',
+              style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
+            ),
+            const SizedBox(height: TokenJarak.jarak8),
+            for (final s in widget.shift)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: TokenJarak.jarak4),
+                child: Text(
+                  '${s.namaKasir} | dibuka ${FormatWaktu.FormatTanggalJam(s.dibukaPada)} | kas awal '
+                  '${Uang.Dari(s.kasAwal).FormatRupiah()}',
+                  style: teks.bodyMedium,
+                ),
+              ),
+            const SizedBox(height: TokenJarak.jarak8),
+            PilihanAlasan(pengendali: _alasan, pilihan: PilihanAlasan.shiftLama),
+            TextField(
+              key: const ValueKey('AlasanShiftLama'),
+              controller: _alasan,
+              maxLength: 150,
+              onChanged: (_) => setState(() => _galat = null),
+              decoration: InputDecoration(
+                labelText: 'Alasan menutup',
+                errorText: _galat,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Batal')),
+        FilledButton(
+          key: const ValueKey('LanjutTutupShiftLama'),
+          onPressed: () {
+            final alasan = _alasan.text.trim();
+            if (alasan.runes.length < 5) {
+              setState(() => _galat = 'Tulis alasan minimal 5 huruf.');
+              return;
+            }
+            Navigator.of(context).pop(alasan);
+          },
+          child: const Text('Lanjut minta PIN'),
         ),
       ],
     );

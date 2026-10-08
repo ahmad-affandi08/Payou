@@ -58,7 +58,7 @@ final class CariPenjualanPos
      * Penjualan outlet yang masih bisa diretur untuk dipilih di layar retur (`GET penjualan/kandidat?kata=`): kasir
      * cukup mengetik sebagian nomor (misal empat angka terakhir) atau memilih dari yang terbaru, tanpa mengetik nomor
      * struk utuh. Hanya lunas/diretur sebagian dalam `BatasHariRetur`, terbaru dulu, paling banyak 10. [kata] kosong =
-     * yang terbaru; kata pendek (1 karakter) ditolak agar tidak mengembalikan semuanya.
+     * yang terbaru; kata pendek (1 karakter) ditolak agar tidak mengembalikan semuanya. Kata berupa angka juga dicocokkan ke total struk.
      *
      * @return list<array<string, mixed>>
      */
@@ -78,7 +78,16 @@ final class CariPenjualanPos
             }
 
             $aman = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $kata);
-            $kueri->where('Nomor', 'like', '%'.$aman.'%');
+            // Nomor memuat kata itu, atau (kata hanya angka/pemisah ribuan) total struk sama dengan angka itu: kasir sering
+            // hanya ingat nominalnya.
+            $nominal = preg_match('/^\d{1,3}([.,]\d{3})*$|^\d+$/', $kata) === 1 ? str_replace(['.', ','], '', $kata) : null;
+            $kueri->where(function ($cocok) use ($aman, $nominal): void {
+                $cocok->where('Nomor', 'like', '%'.$aman.'%');
+
+                if ($nominal !== null) {
+                    $cocok->orWhere('TotalAkhir', $nominal);
+                }
+            });
         }
 
         $baris = $kueri->orderByDesc('DibuatOfflinePada')->orderByDesc('Id')->limit(10)->get()

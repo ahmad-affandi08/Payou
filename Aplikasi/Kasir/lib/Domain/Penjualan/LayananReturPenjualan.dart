@@ -100,16 +100,36 @@ class LayananReturPenjualan {
       int.tryParse(await repositori.AmbilPengaturan(KunciPengaturan.batasHariRetur) ?? '') ??
       DataAwal.batasHariReturBawaan;
 
-  /// Daftar penjualan yang bisa dipilih untuk diretur (terbaru, atau yang nomornya memuat [kata]). Offline atau galat
-  /// server → daftar kosong: layar tetap bisa dipakai lewat nomor utuh atau pindai QR struk.
+  /// Daftar penjualan yang bisa dipilih untuk diretur (terbaru, atau yang nomornya memuat [kata]): jawaban server
+  /// digabung dengan penjualan perangkat ini, jadi pilihan tetap muncul saat offline atau server belum punya rute
+  /// pencarian ini. Layar tetap bisa dipakai lewat nomor utuh atau pindai QR struk.
   Future<List<KandidatReturPos>> CariKandidat(String kata) async {
+    final rapi = kata.trim();
+    var server = const <KandidatReturPos>[];
     try {
-      return await klien.CariKandidatRetur(kata);
+      server = await klien.CariKandidatRetur(rapi);
     } on GalatJaringan {
-      return const [];
+      // Offline: hanya penjualan perangkat ini.
     } on GalatApi {
-      return const [];
+      // Galat server (misal rute belum ada di server lama): penjualan perangkat ini tetap ditawarkan.
     }
+    if (rapi.length == 1) {
+      return server;
+    }
+    final lokal = await repositoriPenjualan.CariPenjualanNomorMirip(rapi);
+    final nomorServer = {for (final k in server) k.nomor};
+    return [
+      ...server,
+      for (final p in lokal)
+        if (!nomorServer.contains(p.Nomor))
+          KandidatReturPos(
+            uuid: p.Uuid,
+            nomor: p.Nomor,
+            labelStatus: p.Status == StatusPenjualanLokal.lunas ? 'Lunas' : 'Sudah diretur',
+            dibuatPada: p.DibuatPada.toUtc().toIso8601String(),
+            totalAkhir: p.TotalAkhir,
+          ),
+    ].take(10).toList();
   }
 
   /// Cari struk asal di server. Offline → `ReturButuhInternet`; tidak ada → `PenjualanTidakDitemukan` (dengan petunjuk
@@ -134,7 +154,22 @@ class LayananReturPenjualan {
             'Struk $rapi belum terkirim ke server. Tunggu sampai terkirim (lihat menu Sinkron), lalu cari lagi.',
           );
         }
-        throw GalatKasir('PenjualanTidakDitemukan', 'Struk $rapi tidak ditemukan di outlet ini. Periksa nomornya.');
+        // Nomor utuh tidak ada: anggap kasir mengetik sebagian nomor atau nominal. Satu yang cocok langsung dibuka,
+        // beberapa yang cocok diminta dipilih, tidak ada yang cocok baru dinyatakan tidak ditemukan.
+        final cocok = rapi.length < 2 ? const <KandidatReturPos>[] : await CariKandidat(rapi);
+        if (cocok.length == 1 && cocok.single.nomor != rapi) {
+          return Cari(cocok.single.nomor);
+        }
+        if (cocok.length > 1) {
+          throw GalatKasir(
+            'StrukBanyak',
+            'Ada ${cocok.length} struk yang cocok dengan "$rapi". Pilih salah satu dari daftar di bawah.',
+          );
+        }
+        throw GalatKasir(
+          'PenjualanTidakDitemukan',
+          'Struk "$rapi" tidak ditemukan. Cek lagi angkanya, atau struk itu sudah di-void, sudah lewat batas retur, atau dari outlet lain.',
+        );
       }
       throw GalatKasir(galat.kode, galat.pesan);
     }

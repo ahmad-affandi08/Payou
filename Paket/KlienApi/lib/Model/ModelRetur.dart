@@ -277,3 +277,29 @@ class HasilCariPenjualan {
     retur: UraiJson.AmbilDaftarPeta(json['Retur']).map(ReturRingkasCariPos.DariJson).toList(),
   );
 }
+
+/// Shift perangkat ini yang masih terbuka di server (`shift/terbuka`), untuk ditutup paksa supervisor bila menahan
+/// shift baru (`ShiftSudahTerbuka`).
+class ShiftTerbukaServerPos {
+  const ShiftTerbukaServerPos({
+    required this.uuid,
+    required this.status,
+    required this.dibukaPada,
+    required this.namaKasir,
+    required this.kasAwal,
+  });
+
+  final String uuid;
+  final String status;
+  final DateTime dibukaPada;
+  final String namaKasir;
+  final String kasAwal;
+
+  static ShiftTerbukaServerPos DariJson(Map<String, Object?> json) => ShiftTerbukaServerPos(
+    uuid: UraiJson.AmbilTeks(json['Uuid']),
+    status: UraiJson.AmbilTeks(json['Status']),
+    dibukaPada: DateTime.parse(UraiJson.AmbilTeks(json['DibukaPada'])),
+    namaKasir: UraiJson.AmbilTeks(json['NamaKasir']),
+    kasAwal: UraiJson.AmbilDesimal(json['KasAwal']),
+  );
+}

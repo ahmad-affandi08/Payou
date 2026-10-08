@@ -137,6 +137,23 @@ class KlienPos {
     await _Kirim('GET', 'penjualan/cari?nomor=${Uri.encodeQueryComponent(nomor.trim())}', null),
   );
 
+  /// Shift perangkat ini yang masih terbuka di server (terlama dulu). Offline → `GalatJaringan`.
+  Future<List<ShiftTerbukaServerPos>> AmbilShiftTerbukaServer() async {
+    final json = await _Kirim('GET', 'shift/terbuka', null);
+    return [for (final s in UraiJson.AmbilDaftarPeta(json['Shift'])) ShiftTerbukaServerPos.DariJson(s)];
+  }
+
+  /// Tutup paksa shift lama perangkat ini oleh supervisor ([uuidPenyetuju], PIN sudah diperiksa di perangkat) dengan
+  /// [alasan] tertulis. Server menolak penyetuju tanpa izin `shift.selisih.setujui` (`PenyetujuTidakBerwenang`) dan shift
+  /// yang sudah tertutup (`ShiftTidakAktif`).
+  Future<void> TutupPaksaShift({
+    required String uuidShift,
+    required String uuidPenyetuju,
+    required String alasan,
+  }) async {
+    await _Kirim('POST', 'shift/$uuidShift/tutup-paksa', {'UuidPenyetuju': uuidPenyetuju, 'Alasan': alasan});
+  }
+
   /// Penjualan outlet yang masih bisa diretur untuk dipilih di layar retur: [kata] kosong = yang terbaru, selain itu
   /// nomor yang memuat kata itu (misal empat angka terakhir). Offline → `GalatJaringan`.
   Future<List<KandidatReturPos>> CariKandidatRetur(String kata) async {

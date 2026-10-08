@@ -19,6 +19,7 @@ void main() {
   Future<({LingkunganUji u, List<Uri> cari, List<Uri> kandidat})> Masuk(
     WidgetTester tester, {
     PemindaiQr? pemindai,
+    bool cariHanyaNomorUtuh = false,
   }) async {
     final u = LingkunganUji.Buat();
     final dataAwal = DataAwalUji();
@@ -48,6 +49,11 @@ void main() {
       }
       if (p.url.path.endsWith('/penjualan/cari')) {
         cari.add(p.url);
+        if (cariHanyaNomorUtuh && p.url.queryParameters['nomor'] != UuidStruk.nomor) {
+          return JsonUji({
+            'Galat': {'Kode': 'PenjualanTidakDitemukan', 'Pesan': 'Penjualan dengan nomor ini tidak ditemukan.'},
+          }, 404);
+        }
         return JsonUji(StrukUji());
       }
       if (p.url.path.endsWith('/data-awal')) {
@@ -120,6 +126,19 @@ void main() {
     final (:u, cari: _, kandidat: _) = await Masuk(tester);
     expect(find.byKey(const ValueKey('PindaiStrukRetur')), findsNothing);
     expect(find.text('Transaksi terbaru'), findsOneWidget);
+    await Lepas(tester, u);
+  });
+
+  testWidgets('4 angka terakhir lalu Cari struk: satu yang cocok langsung terbuka (tanpa nomor utuh)', (tester) async {
+    final (:u, :cari, kandidat: _) = await Masuk(tester, cariHanyaNomorUtuh: true);
+
+    await tester.enterText(find.widgetWithText(TextField, 'Nomor struk'), '0007');
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Cari struk'));
+    await Tunggu(tester);
+
+    expect(cari.map((u) => u.queryParameters['nomor']), ['0007', UuidStruk.nomor]);
+    expect(find.byKey(const ValueKey('JumlahRetur-${UuidStruk.kopiLiter}')), findsOneWidget);
+    expect(tester.takeException(), isNull);
     await Lepas(tester, u);
   });
 }

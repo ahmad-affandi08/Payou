@@ -67,6 +67,7 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
 
   /// Penjualan yang bisa dipilih (terbaru atau yang cocok dengan ketikan), supaya kasir tidak mengetik nomor utuh.
   List<KandidatReturPos> _kandidat = const [];
+  bool _memuatKandidat = false;
   Timer? _jedaKandidat;
   int _urutanKandidat = 0;
 
@@ -84,7 +85,8 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
       _nomor.text = nomor;
       unawaited(Future<void>.microtask(_Cari));
     } else {
-      unawaited(_MuatKandidat(''));
+      // Setelah initState selesai: _MuatKandidat memanggil setState.
+      unawaited(Future<void>.microtask(() => _MuatKandidat('')));
     }
   }
 
@@ -92,15 +94,24 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
   /// mengetik lagi.
   Future<void> _MuatKandidat(String kata) async {
     final urutan = ++_urutanKandidat;
+    if (mounted) {
+      setState(() => _memuatKandidat = true);
+    }
     final daftar = await _layanan.CariKandidat(kata);
     if (mounted && urutan == _urutanKandidat) {
-      setState(() => _kandidat = daftar);
+      setState(() {
+        _kandidat = daftar;
+        _memuatKandidat = false;
+      });
     }
   }
 
+  /// Pencarian dinamis: tiap ketikan menyaring pilihan struk (jeda singkat agar tidak menembak server per huruf), dan
+  /// kolom yang dikosongkan kembali menampilkan transaksi terbaru.
   void _SaatNomorBerubah(String kata) {
     _jedaKandidat?.cancel();
-    _jedaKandidat = Timer(const Duration(milliseconds: 350), () => unawaited(_MuatKandidat(kata)));
+    setState(() => _galat = null);
+    _jedaKandidat = Timer(const Duration(milliseconds: 250), () => unawaited(_MuatKandidat(kata)));
   }
 
   /// Pindai QR di struk (tautan struk digital) dengan kamera lalu langsung cari.
@@ -165,6 +176,9 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);
+        if (galat.kode == 'StrukBanyak') {
+          unawaited(_MuatKandidat(_nomor.text));
+        }
       }
     } finally {
       if (mounted) {
@@ -507,6 +521,14 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
               ),
               trailing: TeksUang(Uang.Dari(k.totalAkhir), gaya: teks.bodyMedium),
             ),
+        ] else if (!_memuatKandidat && _nomor.text.trim().length >= 2) ...[
+          const SizedBox(height: TokenJarak.jarak12),
+          Text(
+            'Belum ada struk yang cocok dengan "${_nomor.text.trim()}". Struk yang sudah di-void, lewat batas retur, '
+            'atau dari outlet lain tidak muncul.',
+            key: const ValueKey('KandidatReturKosong'),
+            style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
+          ),
         ],
         const SizedBox(height: TokenJarak.jarak8),
         Text(

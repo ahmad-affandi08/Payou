@@ -247,6 +247,22 @@ class RepositoriPenjualan {
   Future<BarisPenjualan?> CariPenjualanNomor(String nomor) =>
       (db.select(db.penjualan)..where((p) => p.Nomor.equals(nomor))).getSingleOrNull();
 
+  /// Penjualan perangkat ini (bukan void) yang nomornya memuat [kata], terbaru dulu; [kata] kosong = terbaru. Dipakai
+  /// layar retur supaya struk bisa dipilih tanpa mengetik nomor utuh, juga saat server tidak menjawab.
+  Future<List<BarisPenjualan>> CariPenjualanNomorMirip(String kata, {int batas = 10}) {
+    // Karakter pengganti LIKE dibuang dari ketikan supaya "%" atau "_" tidak mencocokkan semua nomor.
+    final aman = kata.replaceAll('%', '').replaceAll('_', '');
+    return (db.select(db.penjualan)
+          ..where(
+            (p) =>
+                p.Status.equals(StatusPenjualanLokal.divoid).not() &
+                (aman.isEmpty ? const Constant(true) : p.Nomor.like('%$aman%')),
+          )
+          ..orderBy([(p) => OrderingTerm.desc(p.DibuatPada)])
+          ..limit(batas))
+        .get();
+  }
+
   /// Apakah dokumen [uuid] masih menunggu di outbox (belum terkirim atau perlu tindakan).
   Future<bool> CekMasihDiOutbox(String uuid) async =>
       (await (db.select(db.outbox)..where((o) => o.Uuid.equals(uuid))).getSingleOrNull()) != null;
