@@ -1440,10 +1440,9 @@ class TampilanSelesai extends StatelessWidget {
                           namaPelanggan: hasil.namaPelanggan,
                           labelPoin: hasil.labelPoin,
                         ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: TombolKirimStruk(uuidPenjualan: hasil.uuid),
-                        ),
+                        // Selebar tombol cetak di atasnya (kolom meregangkan anak), dengan jarak yang sama.
+                        const SizedBox(height: TokenJarak.jarak8),
+                        TombolKirimStruk(uuidPenjualan: hasil.uuid),
                         BagianTiketDapur(uuidPenjualan: hasil.uuid, namaPelanggan: hasil.namaPelanggan),
                       ],
                     ),
