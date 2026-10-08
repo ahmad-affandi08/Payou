@@ -7,6 +7,7 @@ use App\Domain\Lisensi\Enum\EdisiAplikasi;
 use App\Http\Kontroler\Publik\LaporanCspKontroler;
 use App\Http\Kontroler\Publik\WebhookBillingKontroler;
 use App\Http\Kontroler\Publik\WebhookGerbangPembayaranKontroler;
+use App\Http\Kontroler\Publik\WebhookPendaftaranMerchantKontroler;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,6 +26,12 @@ if (! EdisiAplikasi::CekLisensi()) {
     Route::post('/webhook/billing/doku', [WebhookBillingKontroler::class, 'Terima'])
         ->middleware('throttle:webhook')
         ->name('webhook.billing.doku');
+
+    // Callback KYB DOKU Partner API (pendaftaran merchant tenant). `callback_url` dikirim otomatis saat registrasi; dua
+    // segmen `pembayaran/doku-partner` tidak bentrok dengan pola gerbang tenant (penyedia dibatasi `doku`).
+    Route::post('/webhook/pembayaran/doku-partner', [WebhookPendaftaranMerchantKontroler::class, 'Terima'])
+        ->middleware('throttle:webhook')
+        ->name('webhook.pembayaran.doku-partner');
 }
 
 // F-08 BR-08.5, v2.06: notifikasi gerbang pembayaran QRIS dinamis milik tenant (kode adaptor huruf kecil + token

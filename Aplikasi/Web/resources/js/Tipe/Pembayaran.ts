@@ -40,8 +40,8 @@ export type GerbangPembayaranTenant = {
 };
 
 export type PropsGerbangPembayaran = {
-    /** Status sub account DOKU toko (hanya baca); null = belum dibuat. */
-    SubAkun?: { Status: 'Menunggu' | 'Aktif' | 'Gagal' | 'Dinonaktifkan'; LabelStatus: string } | null;
+    /** Aktivasi QRIS otomatis (DOKU Partner) hanya ada di edisi SaaS. */
+    AktivasiQrisTersedia?: boolean;
     Gerbang: GerbangPembayaranTenant | null;
     DaftarPenyedia: OpsiPenyediaGerbang[];
     DaftarLingkungan: { Nilai: string; Label: string }[];

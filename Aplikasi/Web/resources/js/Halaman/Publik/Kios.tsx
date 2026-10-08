@@ -731,7 +731,7 @@ function LayarQris({ alamat, token, pesanan, tagihan, saatLunas, saatBatal }: Pr
             ) : tagihan.Qr ? (
                 <img
                     alt="Kode QRIS untuk pembayaran"
-                    className="size-80 rounded-panel border border-garis bg-white p-3"
+                    className="size-80 rounded-panel border border-garis bg-permukaan p-3"
                     src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(tagihan.Qr)}`}
                 />
             ) : (

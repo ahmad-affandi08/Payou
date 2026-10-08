@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Domain\Lisensi\Enum\EdisiAplikasi;
 use App\Domain\Organisasi\Enum\IzinTenant;
 use App\Http\Kontroler\Kelola\Kasir\KategoriKasKontroler;
 use App\Http\Kontroler\Kelola\Kasir\PengaturanKasirKontroler;
 use App\Http\Kontroler\Kelola\Kasir\PengaturanStrukKontroler;
 use App\Http\Kontroler\Kelola\Kasir\ShiftKontroler;
 use App\Http\Kontroler\Kelola\Kasir\TutupHarianKontroler;
+use App\Http\Kontroler\Kelola\Pembayaran\AktivasiQrisKontroler;
 use App\Http\Kontroler\Kelola\Pembayaran\GerbangPembayaranKontroler;
 use App\Http\Perantara\SiapkanAuditTenant;
 use App\Http\Perantara\WajibIzinTenant;
@@ -58,4 +60,14 @@ Route::middleware(SiapkanAuditTenant::class)->group(function () use ($izin, $uli
         Route::post('/aktifkan', [GerbangPembayaranKontroler::class, 'Aktifkan'])->name('kelola.pembayaran.gerbang.aktifkan');
         Route::post('/nonaktifkan', [GerbangPembayaranKontroler::class, 'Nonaktifkan'])->name('kelola.pembayaran.gerbang.nonaktifkan');
     });
+
+    // Aktivasi QRIS otomatis lewat DOKU Partner API (KYB): hanya edisi SaaS, karena butuh akun Partner milik Payoung.
+    if (! EdisiAplikasi::CekLisensi()) {
+        Route::middleware($izin(IzinTenant::PembayaranGerbangAtur))->prefix('/pembayaran/aktivasi-qris')->group(function (): void {
+            Route::get('/', [AktivasiQrisKontroler::class, 'Tampilkan'])->name('kelola.pembayaran.aktivasi-qris');
+            Route::post('/draf', [AktivasiQrisKontroler::class, 'SimpanDraf'])->middleware('throttle:20,1')->name('kelola.pembayaran.aktivasi-qris.draf');
+            Route::post('/kirim', [AktivasiQrisKontroler::class, 'Kirim'])->middleware('throttle:10,1')->name('kelola.pembayaran.aktivasi-qris.kirim');
+            Route::post('/batal', [AktivasiQrisKontroler::class, 'Batal'])->name('kelola.pembayaran.aktivasi-qris.batal');
+        });
+    }
 });

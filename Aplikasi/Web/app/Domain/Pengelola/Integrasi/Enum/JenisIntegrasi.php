@@ -18,6 +18,7 @@ enum JenisIntegrasi: string
     case Push = 'Push';
     case GerbangBilling = 'GerbangBilling';
     case LoginSosial = 'LoginSosial';
+    case PendaftaranMerchant = 'PendaftaranMerchant';
 
     /**
      * Jenis yang dikonfigurasi di tingkat platform. v2.06: gerbang pembayaran diatur tiap tenant (akun merchant
@@ -42,6 +43,7 @@ enum JenisIntegrasi: string
             self::Push => PenyediaIntegrasi::Fcm,
             self::GerbangBilling => PenyediaIntegrasi::DokuBilling,
             self::LoginSosial => PenyediaIntegrasi::Google,
+            self::PendaftaranMerchant => PenyediaIntegrasi::DokuPartner,
         };
     }
 
@@ -62,8 +64,9 @@ enum JenisIntegrasi: string
             self::GerbangPembayaran => 'Gerbang pembayaran (QRIS dinamis)',
             self::Whatsapp => 'WhatsApp',
             self::Push => 'Push notification (aplikasi Pemilik & POS)',
-            self::GerbangBilling => 'Akun DOKU Payoung (induk): tagihan langganan & sub account',
+            self::GerbangBilling => 'Akun DOKU Payoung (induk): tagihan langganan',
             self::LoginSosial => 'Masuk dengan Google',
+            self::PendaftaranMerchant => 'DOKU Partner (pendaftaran merchant)',
         };
     }
 }

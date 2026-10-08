@@ -353,7 +353,7 @@ describe('Kelola/Perangkat: cabut lewat AlertDialog (F-02 langkah 5, BR-02.3)', 
 function BuatTenant(): Tampilan360 {
     return {
         MitraPerujuk: null,
-        SubAkunPembayaran: { Sub: null, GerbangPlatformAktif: false },
+        PendaftaranMerchant: { Pendaftaran: null, PartnerAktif: false },
         Profil: {
             Uuid: 'T-1',
             Nama: 'Kopi Nusantara',

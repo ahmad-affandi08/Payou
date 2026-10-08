@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Pengelola\Tenant\Kueri;
 
-use App\Domain\Integrasi\Model\SubAkunPembayaran;
-use App\Domain\Integrasi\SubAkun\KlienSubAkunDoku;
+use App\Domain\Integrasi\Merchant\KlienPartnerDoku;
+use App\Domain\Integrasi\Model\PendaftaranMerchantPembayaran;
 use App\Domain\Organisasi\Kueri\PemakaianBatasOrganisasi;
 use App\Domain\Organisasi\Model\Gudang;
 use App\Domain\Organisasi\Model\Merek;
@@ -48,7 +48,7 @@ final class TampilanTenant
         private readonly SumberFiturTenant $sumberFitur,
         private readonly EvaluatorFitur $evaluator,
         private readonly PemakaianBatasOrganisasi $pemakaian,
-        private readonly KlienSubAkunDoku $klienSubAkun,
+        private readonly KlienPartnerDoku $klienPartner,
     ) {}
 
     /**
@@ -73,7 +73,7 @@ final class TampilanTenant
                 // Dukungan sama dengan yang menolak tenant (BR-02.1, BR-P04.3).
                 'PakaiOutlet' => $this->pemakaian->HitungOutlet(),
                 'PakaiPengguna' => $this->pemakaian->HitungPengguna($tenant->Id),
-                'SubAkunPembayaran' => self::AmbilSubAkunPembayaran(),
+                'PendaftaranMerchant' => self::AmbilPendaftaranMerchant(),
             ],
             $tenant->Id,
         );
@@ -106,10 +106,11 @@ final class TampilanTenant
             ])->all()),
             // P-12: mitra perujuk tenant ini (BR-P12.2: paling banyak satu), null bila mendaftar langsung.
             'MitraPerujuk' => self::AmbilMitraPerujuk($tenant->Id),
-            // Sub account pembayaran DOKU (tahap 3): status & ID sub account; gerbang platform menentukan tombol buat.
-            'SubAkunPembayaran' => [
-                'Sub' => $organisasi['SubAkunPembayaran'],
-                'GerbangPlatformAktif' => $this->klienSubAkun->CekAktif(),
+            // Pendaftaran merchant pembayaran DOKU Partner (KYB): status, ID bisnis/brand, dan penampung merchant QRIS.
+            // NIK & rekening tersamar, foto sudah dihapus, shared key tidak pernah keluar.
+            'PendaftaranMerchant' => [
+                'Pendaftaran' => $organisasi['PendaftaranMerchant'],
+                'PartnerAktif' => $this->klienPartner->CekAktif(),
             ],
             'Pemakaian' => [
                 ['Label' => 'Outlet', 'Pakai' => $organisasi['PakaiOutlet'], 'Batas' => $batas['BatasOutlet'] ?? null],
@@ -229,21 +230,32 @@ final class TampilanTenant
     /**
      * Dipanggil di dalam `JalankanLintasTenant`, jadi scope `MilikTenant` membatasi ke tenant yang dibuka.
      *
-     * @return array{Uuid: string, Penyedia: string, IdSubAkun: string|null, Status: string, LabelStatus: string, PesanGalat: string|null, BisaDibuat: bool, DibuatPada: string}|null
+     * @return array<string, mixed>|null
      */
-    private static function AmbilSubAkunPembayaran(): ?array
+    private static function AmbilPendaftaranMerchant(): ?array
     {
-        $subAkun = SubAkunPembayaran::query()->where('Penyedia', SubAkunPembayaran::PENYEDIA_DOKU)->first();
+        $p = PendaftaranMerchantPembayaran::query()->where('Penyedia', PendaftaranMerchantPembayaran::PENYEDIA_DOKU)->first();
 
-        return $subAkun === null ? null : [
-            'Uuid' => $subAkun->Uuid,
-            'Penyedia' => $subAkun->Penyedia,
-            'IdSubAkun' => $subAkun->IdSubAkun,
-            'Status' => $subAkun->Status->value,
-            'LabelStatus' => $subAkun->Status->AmbilLabel(),
-            'PesanGalat' => $subAkun->PesanGalat,
-            'BisaDibuat' => ! $subAkun->CekSudahAda(),
-            'DibuatPada' => $subAkun->DibuatPada->toIso8601String(),
+        return $p === null ? null : [
+            'Uuid' => $p->Uuid,
+            'Status' => $p->Status->value,
+            'LabelStatus' => $p->Status->AmbilLabel(),
+            'NamaPemilik' => $p->NamaPemilik,
+            'NamaUsaha' => $p->NamaUsaha,
+            'NikTersamar' => $p->NikTersamar(),
+            'RekeningTersamar' => $p->RekeningTersamar(),
+            'IdBisnisDoku' => $p->IdBisnisDoku,
+            'IdBrandDoku' => $p->IdBrandDoku,
+            'StatusDoku' => $p->StatusDoku,
+            'PesanGalat' => $p->PesanGalat,
+            'AlasanPenolakan' => $p->AlasanPenolakan,
+            'DikirimPada' => $p->DikirimPada?->toIso8601String(),
+            'DisetujuiPada' => $p->DisetujuiPada?->toIso8601String(),
+            'DiperiksaPada' => $p->DiperiksaPada?->toIso8601String(),
+            'CallbackDiterimaPada' => $p->CallbackDiterimaPada?->toIso8601String(),
+            'IdPedagangQris' => $p->IdPedagangQris,
+            'IdTerminalQris' => $p->IdTerminalQris,
+            'BisaDisegarkan' => $p->CekSudahTerdaftar(),
         ];
     }
 

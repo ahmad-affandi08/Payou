@@ -35,6 +35,7 @@ use App\Http\Kontroler\Pengelola\Rilis\RilisAplikasiKontroler;
 use App\Http\Kontroler\Pengelola\SesiKontroler;
 use App\Http\Kontroler\Pengelola\Tagihan\TagihanKontroler;
 use App\Http\Kontroler\Pengelola\TemplateSektor\TemplateSektorKontroler;
+use App\Http\Kontroler\Pengelola\Tenant\PendaftaranMerchantTenantKontroler;
 use App\Http\Kontroler\Pengelola\Tenant\TenantKontroler;
 use App\Http\Kontroler\Pengelola\Tenant\TindakanTenantKontroler;
 use App\Http\Kontroler\Pengelola\TimInternalKontroler;
@@ -431,10 +432,14 @@ Route::middleware(['auth:pengelola', PastikanPenggunaPengelola::class, WajibGant
             Route::post('/tenant/{tenant}/aktifkan', [TindakanTenantKontroler::class, 'Aktifkan'])
                 ->middleware([$izin(IzinPengelola::TenantAktifkan), WajibDuaFaktorBaru::class])
                 ->name('pengelola.tenant.aktifkan');
-            // Sub account pembayaran DOKU memakai kredensial akun induk platform: izin yang sama dengan P-05 + 2FA baru.
-            Route::post('/tenant/{tenant}/sub-akun-pembayaran', [TindakanTenantKontroler::class, 'BuatSubAkunPembayaran'])
+            // Pendaftaran merchant DOKU Partner: segarkan status memakai kredensial Partner platform (izin P-05); mengisi
+            // penampung merchant QRIS menambah 2FA baru karena nilainya kelak menentukan rute dana.
+            Route::post('/tenant/{tenant}/pendaftaran-merchant/segarkan', [PendaftaranMerchantTenantKontroler::class, 'Segarkan'])
+                ->middleware($izin(IzinPengelola::IntegrasiKelola))
+                ->name('pengelola.tenant.pendaftaran-merchant.segarkan');
+            Route::put('/tenant/{tenant}/pendaftaran-merchant/penampung-qris', [PendaftaranMerchantTenantKontroler::class, 'AturPenampungQris'])
                 ->middleware([$izin(IzinPengelola::IntegrasiKelola), WajibDuaFaktorBaru::class])
-                ->name('pengelola.tenant.sub-akun-pembayaran.buat');
+                ->name('pengelola.tenant.pendaftaran-merchant.penampung-qris');
             Route::put('/tenant/{tenant}/penanda', [TindakanTenantKontroler::class, 'UbahPenanda'])
                 ->middleware($izin(IzinPengelola::TenantPenandaUbah))
                 ->name('pengelola.tenant.penanda.ubah');

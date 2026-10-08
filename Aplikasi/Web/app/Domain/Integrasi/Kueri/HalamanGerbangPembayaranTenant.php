@@ -9,12 +9,11 @@ use App\Domain\Integrasi\Enum\PenyediaGerbang;
 use App\Domain\Integrasi\GerbangPembayaran\PembuatGerbangPembayaran;
 use App\Domain\Integrasi\Layanan\KatalogPenyediaGerbang;
 use App\Domain\Integrasi\Model\GerbangPembayaranTenant;
-use App\Domain\Integrasi\Model\SubAkunPembayaran;
+use App\Domain\Lisensi\Enum\EdisiAplikasi;
 
 /**
  * Data halaman gerbang pembayaran tenant (v2.06): penyedia yang diizinkan platform beserta bidangnya, dan gerbang
- * tersimpan tanpa kredensial (hanya petunjuk 4 karakter terakhir, BR-P05.1) plus URL webhook tenant. `SubAkun` = status
- * sub account DOKU tenant ini (dibuat pengelola), hanya baca: status dan labelnya, tanpa ID dan tanpa pesan galat.
+ * tersimpan tanpa kredensial (hanya petunjuk 4 karakter terakhir, BR-P05.1) plus URL webhook tenant.
  */
 final class HalamanGerbangPembayaranTenant
 {
@@ -27,10 +26,10 @@ final class HalamanGerbangPembayaranTenant
     {
         $gerbang = GerbangPembayaranTenant::query()->first();
         $diizinkan = $this->katalog->AmbilDiizinkan();
-        $subAkun = SubAkunPembayaran::query()->where('Penyedia', SubAkunPembayaran::PENYEDIA_DOKU)->first(['Id', 'IdTenant', 'Penyedia', 'Status']);
 
         return [
-            'SubAkun' => $subAkun === null ? null : ['Status' => $subAkun->Status->value, 'LabelStatus' => $subAkun->Status->AmbilLabel()],
+            // Aktivasi QRIS otomatis (DOKU Partner) hanya ada di edisi SaaS.
+            'AktivasiQrisTersedia' => ! EdisiAplikasi::CekLisensi(),
             'Gerbang' => $gerbang === null ? null : [
                 'Uuid' => $gerbang->Uuid,
                 'Penyedia' => $gerbang->Penyedia->value,

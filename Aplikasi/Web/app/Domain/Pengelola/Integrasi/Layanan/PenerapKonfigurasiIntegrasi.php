@@ -56,11 +56,11 @@ final class PenerapKonfigurasiIntegrasi
                 ]),
                 // v2.06: gerbang pembayaran diatur tiap tenant (`GerbangPembayaranTenant`); baris platform lama diabaikan.
                 JenisIntegrasi::GerbangPembayaran => null,
-                // v2.04 WhatsApp, v2.69 Push (FCM), v2.70 gerbang billing, v4.70 Masuk dengan Google: bentuknya sama — penyedia, pengaturan,
+                // v2.04 WhatsApp, v2.69 Push (FCM), v2.70 gerbang billing, v4.70 Masuk dengan Google, DOKU Partner (pendaftaran merchant): bentuknya sama — penyedia, pengaturan,
                 // dan kredensial diterbitkan apa adanya, lalu dibaca layanan pemakainya lewat `config('integrasi.*')`.
                 // `match` ini tanpa `default` dengan sengaja: menambah jenis integrasi baru tanpa menerbitkannya di
                 // sini akan gagal keras, bukan diam-diam tidak aktif. Dijaga `PenerapKonfigurasiIntegrasiTes`.
-                JenisIntegrasi::Whatsapp, JenisIntegrasi::Push, JenisIntegrasi::GerbangBilling, JenisIntegrasi::LoginSosial => config([
+                JenisIntegrasi::Whatsapp, JenisIntegrasi::Push, JenisIntegrasi::GerbangBilling, JenisIntegrasi::LoginSosial, JenisIntegrasi::PendaftaranMerchant => config([
                     'integrasi.'.$konfigurasi->Jenis->value => [
                         'Penyedia' => $konfigurasi->Penyedia->value,
                         'Pengaturan' => $konfigurasi->Pengaturan,

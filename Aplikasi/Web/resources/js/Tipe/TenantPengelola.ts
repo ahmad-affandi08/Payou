@@ -50,20 +50,34 @@ export type RiwayatTindakan = {
     DibuatPada: string;
 };
 
-/** Sub account pembayaran DOKU tenant (tahap 3): null = belum pernah dibuat. */
-export type SubAkunPembayaranTenant = {
+/**
+ * Pendaftaran merchant pembayaran tenant di DOKU Partner API (KYB), null = belum pernah dibuat. NIK & rekening hanya
+ * tersamar, foto sudah dihapus, shared key tidak pernah dikirim ke halaman.
+ */
+export type PendaftaranMerchantTenant = {
     Uuid: string;
-    Penyedia: string;
-    IdSubAkun: string | null;
-    Status: 'Menunggu' | 'Aktif' | 'Gagal' | 'Dinonaktifkan';
+    Status: 'Draf' | 'Dikirim' | 'Ditinjau' | 'Aktif' | 'Ditolak' | 'Gagal';
     LabelStatus: string;
+    NamaPemilik: string | null;
+    NamaUsaha: string | null;
+    NikTersamar: string | null;
+    RekeningTersamar: string | null;
+    IdBisnisDoku: string | null;
+    IdBrandDoku: string | null;
+    StatusDoku: string | null;
     PesanGalat: string | null;
-    BisaDibuat: boolean;
-    DibuatPada: string;
+    AlasanPenolakan: string | null;
+    DikirimPada: string | null;
+    DisetujuiPada: string | null;
+    DiperiksaPada: string | null;
+    CallbackDiterimaPada: string | null;
+    IdPedagangQris: string | null;
+    IdTerminalQris: string | null;
+    BisaDisegarkan: boolean;
 };
 
 export type Tampilan360 = {
-    SubAkunPembayaran: { Sub: SubAkunPembayaranTenant | null; GerbangPlatformAktif: boolean };
+    PendaftaranMerchant: { Pendaftaran: PendaftaranMerchantTenant | null; PartnerAktif: boolean };
     /** P-12: mitra perujuk (null = mendaftar langsung). */
     MitraPerujuk: { Uuid: string; Kode: string; Nama: string; MulaiPada: string } | null;
     Profil: {

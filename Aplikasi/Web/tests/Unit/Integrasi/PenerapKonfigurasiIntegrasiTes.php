@@ -34,7 +34,7 @@ it('setiap jenis integrasi punya arm di penerap konfigurasi', function (): void 
 
 it('jenis yang dibaca lewat config integrasi memakai kunci sesuai nilainya', function (): void {
     // Push & gerbang billing dibaca layanan pemakainya sebagai config('integrasi.Push') / ('integrasi.GerbangBilling').
-    foreach ([JenisIntegrasi::Whatsapp, JenisIntegrasi::Push, JenisIntegrasi::GerbangBilling, JenisIntegrasi::LoginSosial] as $jenis) {
+    foreach ([JenisIntegrasi::Whatsapp, JenisIntegrasi::Push, JenisIntegrasi::GerbangBilling, JenisIntegrasi::LoginSosial, JenisIntegrasi::PendaftaranMerchant] as $jenis) {
         expect($jenis->value)->toBe($jenis->name);
     }
 });

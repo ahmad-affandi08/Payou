@@ -34,6 +34,11 @@ $jadwalSaas('tagihan:proses-tunggakan')->hourly()->withoutOverlapping(120)->runI
 // P-08 (v4.06): pembayaran langganan gerbang tanpa notifikasi webhook ditanyakan statusnya ke gerbang.
 $jadwalSaas('tagihan:rekonsiliasi-gerbang')->everyFifteenMinutes()->withoutOverlapping(30)->runInBackground();
 
+// DOKU Partner (KYB): jalur cadangan webhook, status pendaftaran merchant yang masih ditinjau dibaca tiap 30 menit;
+// foto KYC sementara yang tersisa lebih dari 24 jam dihapus tiap jam. Hanya edisi SaaS (butuh akun Partner Payoung).
+$jadwalSaas('pembayaran:segarkan-pendaftaran-merchant')->everyThirtyMinutes()->withoutOverlapping(30)->runInBackground();
+$jadwalSaas('pembayaran:bersihkan-berkas-pendaftaran')->hourly()->withoutOverlapping(60)->runInBackground();
+
 // P-08 (v4.04): tagihan perpanjangan otomatis H-7 + pengingat H-7/H-3/H0/H+3 ke Owner, di jam kerja.
 $jadwalSaas('tagihan:terbitkan-perpanjangan')->dailyAt('08:20')->timezone('Asia/Jakarta')->withoutOverlapping(240)->runInBackground();
 

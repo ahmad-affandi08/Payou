@@ -111,6 +111,18 @@ describe('v2.04 katalog penyedia', function (): void {
         expect(KonfigurasiIntegrasi::query()->count())->toBe(0);
     })->with(['Midtrans', 'Xendit', 'Tripay', 'Duitku', 'Ipaymu']);
 
+    it('DOKU Partner (pendaftaran merchant) adalah jenis tersendiri: Mode + Brand ID di pengaturan, secret key terenkripsi di kredensial', function (): void {
+        expect(array_map(fn ($p) => $p->value, JenisIntegrasi::PendaftaranMerchant->AmbilDaftarPenyedia()))->toBe(['DokuPartner'])
+            ->and(PenyediaIntegrasi::DokuPartner->AmbilJenis())->toBe(JenisIntegrasi::PendaftaranMerchant)
+            ->and(JenisIntegrasi::PendaftaranMerchant->AmbilPenyedia())->toBe(PenyediaIntegrasi::DokuPartner)
+            ->and(JenisIntegrasi::PendaftaranMerchant->value)->toBe('PendaftaranMerchant')
+            ->and(PenyediaIntegrasi::DokuPartner->AmbilLabel())->toBe('DOKU Partner (pendaftaran merchant)')
+            ->and(array_column(PenyediaIntegrasi::DokuPartner->AmbilBidangPengaturan(), 'Kunci'))->toBe(['Mode', 'IdKlien'])
+            ->and(array_column(PenyediaIntegrasi::DokuPartner->AmbilBidangKredensial(), 'Kunci'))->toBe(['KunciRahasia'])
+            ->and(PenyediaIntegrasi::DokuPartner->AmbilPenyediaGerbang())->toBeNull()
+            ->and(in_array(JenisIntegrasi::PendaftaranMerchant, JenisIntegrasi::AmbilJenisPlatform(), true))->toBeTrue();
+    });
+
     it('DOKU untuk tagihan langganan platform adalah satu-satunya penyedia gerbang billing (jalur terpisah dari gerbang toko)', function (): void {
         expect(array_map(fn ($p) => $p->value, JenisIntegrasi::GerbangBilling->AmbilDaftarPenyedia()))->toBe(['DokuBilling'])
             ->and(PenyediaIntegrasi::DokuBilling->AmbilJenis())->toBe(JenisIntegrasi::GerbangBilling)

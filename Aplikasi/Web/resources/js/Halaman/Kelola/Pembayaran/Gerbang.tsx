@@ -1,4 +1,4 @@
-import { router, useForm, usePage } from '@inertiajs/react';
+import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { useState, type FormEvent } from 'react';
 
 import BidangPilihan from '@/Komponen/Formulir/BidangPilihan';
@@ -15,32 +15,6 @@ import type { BidangPengaturanGerbang, OpsiPenyediaGerbang, PropsGerbangPembayar
 const alamat = '/kelola/pembayaran/gerbang';
 
 const jenisStatusUji = { BelumDiuji: 'peringatan', Berhasil: 'sukses', Gagal: 'bahaya' } as const;
-
-const jenisStatusSubAkun = {
-    Menunggu: 'peringatan',
-    Aktif: 'sukses',
-    Gagal: 'bahaya',
-    Dinonaktifkan: 'netral',
-} as const;
-
-/**
- * Baris baca-saja status sub account DOKU toko (dibuat otomatis oleh tim Payoung). Hanya status; tidak ada ID,
- * pesan galat, atau tombol: toko tidak mengelola sub account sendiri.
- */
-export function BarisSubAkun({ subAkun: subAkunProp }: { subAkun: PropsGerbangPembayaran['SubAkun'] }) {
-    const subAkun = subAkunProp ?? null;
-
-    return (
-        <div className="flex flex-wrap items-center gap-2 text-isi" data-testid="baris-sub-akun">
-            <span className="font-semibold text-teks-utama">Sub account DOKU Anda:</span>
-            <LabelStatus
-                jenis={subAkun === null ? 'netral' : jenisStatusSubAkun[subAkun.Status]}
-                teks={subAkun === null ? 'Belum dibuat' : subAkun.LabelStatus}
-            />
-            <span className="text-keterangan text-teks-sekunder">Dibuat dan dikelola oleh tim Payoung.</span>
-        </div>
-    );
-}
 
 type IsianGerbang = {
     Penyedia: string;
@@ -92,7 +66,7 @@ function KredensialKosong(penyedia: OpsiPenyediaGerbang | undefined): Record<str
  * menyediakan lebih dari satu penyedia.
  */
 export default function HalamanGerbangPembayaran({
-    SubAkun,
+    AktivasiQrisTersedia = false,
     Gerbang,
     DaftarPenyedia,
     DaftarLingkungan,
@@ -173,7 +147,15 @@ export default function HalamanGerbangPembayaran({
                     </p>
                 </Pemberitahuan>
                 {galatUmum ? <Pemberitahuan jenis="bahaya">{galatUmum}</Pemberitahuan> : null}
-                <BarisSubAkun subAkun={SubAkun} />
+                {AktivasiQrisTersedia ? (
+                    <Pemberitahuan jenis="info" judul="Belum punya akun merchant DOKU?">
+                        Payoung bisa mendaftarkannya untuk Anda. Cukup foto KTP, foto selfie, foto tempat usaha, dan
+                        nomor rekening toko.{' '}
+                        <Link href="/kelola/pembayaran/aktivasi-qris" className="font-semibold underline">
+                            Aktifkan QRIS otomatis
+                        </Link>
+                    </Pemberitahuan>
+                ) : null}
 
                 {Gerbang ? (
                     <Card className="rounded-panel shadow-none">

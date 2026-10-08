@@ -127,6 +127,15 @@ export const daftarPengaturan: GrupPengaturan[] = [
                 href: '/kelola/pembayaran/gerbang',
                 izin: IzinTenant.PembayaranGerbangAtur,
             },
+            {
+                label: 'Aktivasi QRIS',
+                keterangan:
+                    'Daftarkan QRIS toko cukup dengan foto KTP, foto selfie, foto tempat usaha, dan nomor rekening.',
+                href: '/kelola/pembayaran/aktivasi-qris',
+                izin: IzinTenant.PembayaranGerbangAtur,
+                // Butuh akun Partner DOKU milik Payoung, jadi rutenya tidak ada di edisi Lisensi.
+                edisi: 'Saas',
+            },
         ],
     },
     {

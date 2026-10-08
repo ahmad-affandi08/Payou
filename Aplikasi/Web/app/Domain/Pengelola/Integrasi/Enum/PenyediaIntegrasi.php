@@ -6,6 +6,7 @@ namespace App\Domain\Pengelola\Integrasi\Enum;
 
 use App\Domain\Integrasi\Enum\PenyediaGerbang;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiDokuBilling;
+use App\Domain\Pengelola\Integrasi\Penguji\PengujiDokuPartner;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiFcm;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiGerbangPembayaran;
 use App\Domain\Pengelola\Integrasi\Penguji\PengujiGoogle;
@@ -55,6 +56,7 @@ enum PenyediaIntegrasi: string
     case Fcm = 'Fcm';
     case DokuBilling = 'DokuBilling';
     case Google = 'Google';
+    case DokuPartner = 'DokuPartner';
 
     private const MODE = ['Kunci' => 'Mode', 'Label' => 'Mode', 'Jenis' => 'Pilihan', 'Wajib' => true, 'Opsi' => ['Sandbox', 'Produksi'], 'Bawaan' => 'Sandbox', 'Keterangan' => 'Sandbox untuk uji coba tanpa uang sungguhan.'];
 
@@ -68,6 +70,7 @@ enum PenyediaIntegrasi: string
             self::Fcm => JenisIntegrasi::Push,
             self::DokuBilling => JenisIntegrasi::GerbangBilling,
             self::Google => JenisIntegrasi::LoginSosial,
+            self::DokuPartner => JenisIntegrasi::PendaftaranMerchant,
             default => JenisIntegrasi::Email,
         };
     }
@@ -140,7 +143,12 @@ enum PenyediaIntegrasi: string
             self::DokuBilling => [
                 self::MODE,
                 // Client ID DOKU bukan rahasia (ikut terkirim di setiap header permintaan); yang rahasia hanya secret key.
-                ['Kunci' => 'IdKlien', 'Label' => 'Client ID', 'Jenis' => 'Teks', 'Wajib' => true, 'Keterangan' => 'Client ID akun DOKU induk milik Payoung (dasbor DOKU › Integration › API Keys), dipakai untuk tagihan langganan dan pembuatan sub account.'],
+                ['Kunci' => 'IdKlien', 'Label' => 'Client ID', 'Jenis' => 'Teks', 'Wajib' => true, 'Keterangan' => 'Client ID akun DOKU induk milik Payoung (dasbor DOKU › Integration › API Keys), dipakai untuk menagih langganan tenant.'],
+            ],
+            self::DokuPartner => [
+                self::MODE,
+                // Brand ID partner bukan rahasia (ikut terkirim di header `Client-Id` setiap permintaan); yang rahasia hanya secret key.
+                ['Kunci' => 'IdKlien', 'Label' => 'Brand ID partner (Client-Id)', 'Jenis' => 'Teks', 'Wajib' => true, 'Keterangan' => 'Brand ID Partner yang diberikan account manager DOKU. Mode Sandbox memakai api-uat.doku.com, Produksi memakai api.doku.com.'],
             ],
             default => [],
         };
@@ -177,7 +185,7 @@ enum PenyediaIntegrasi: string
             self::StarSender, self::Watzap => [['Kunci' => 'KunciApi', 'Label' => 'API key', 'Wajib' => true]],
             // Satu berkas JSON berisi client_email, private_key, dan project_id; tidak ada yang perlu diketik terpisah.
             self::Fcm => [['Kunci' => 'AkunLayanan', 'Label' => 'Akun layanan Firebase (isi berkas JSON)', 'Wajib' => true]],
-            self::DokuBilling => [['Kunci' => 'KunciRahasia', 'Label' => 'Secret key', 'Wajib' => true]],
+            self::DokuBilling, self::DokuPartner => [['Kunci' => 'KunciRahasia', 'Label' => 'Secret key', 'Wajib' => true]],
             default => [],
         };
     }
@@ -196,6 +204,7 @@ enum PenyediaIntegrasi: string
             JenisIntegrasi::Push => PengujiFcm::class,
             JenisIntegrasi::GerbangBilling => PengujiDokuBilling::class,
             JenisIntegrasi::LoginSosial => PengujiGoogle::class,
+            JenisIntegrasi::PendaftaranMerchant => PengujiDokuPartner::class,
         };
     }
 
@@ -228,6 +237,7 @@ enum PenyediaIntegrasi: string
             self::Fcm => 'Firebase Cloud Messaging',
             self::DokuBilling => 'Akun DOKU Payoung (induk)',
             self::Google => 'Google (Masuk dengan Google)',
+            self::DokuPartner => 'DOKU Partner (pendaftaran merchant)',
         };
     }
 
@@ -251,7 +261,8 @@ enum PenyediaIntegrasi: string
             self::Hostinger => '',
             self::Doku => $this->AmbilPenyediaGerbang()?->AmbilKeterangan() ?? '',
             self::MetaCloud => 'Resmi dan aman dari pemblokiran. Di luar 24 jam percakapan wajib memakai templat yang disetujui Meta (berbayar per percakapan).',
-            self::DokuBilling => 'Akun DOKU induk milik Payoung. Satu set Client ID, secret key, dan mode yang sama dipakai untuk dua hal: menagih langganan tenant (DOKU Checkout) dan membuat sub account DOKU tiap tenant dari halaman detail tenant. Berbeda dari gerbang QRIS milik toko, yang akunnya milik tenant masing-masing. Setel URL notifikasi di dasbor DOKU akun ini ke https://<domain-aplikasi>/webhook/billing/doku.',
+            self::DokuBilling => 'Akun DOKU induk milik Payoung. Dipakai untuk menagih langganan tenant (DOKU Checkout). Berbeda dari gerbang QRIS milik toko, yang akunnya milik tenant masing-masing. Setel URL notifikasi di dasbor DOKU akun ini ke https://<domain-aplikasi>/webhook/billing/doku.',
+            self::DokuPartner => 'Akun Partner Payoung di DOKU (Brand ID partner + secret key) untuk mendaftarkan merchant tenant lewat KYB: tenant cukup mengunggah foto KTP, selfie, foto tempat usaha, dan rekening. Payoung harus berstatus Partner di DOKU. URL callback KYB tidak perlu disetel manual: alamatnya dikirim otomatis saat pendaftaran (https://<domain-aplikasi>/webhook/pembayaran/doku-partner). Aktivasi QRIS per Brand masih dilakukan di DOKU Dashboard.',
             self::Google => 'Pemilik toko daftar dan masuk dengan akun Google. Masuk dengan Google menggantikan verifikasi dua langkah (2FA). Panduan lengkap: Panduan/LoginGoogle.md.',
             self::Fcm => 'Satu proyek Firebase melayani Android & iOS sekaligus; sertifikat APNs diunggah di Firebase, bukan di sini. Isi berkas akun layanan dari Setelan proyek → Akun layanan → Buat kunci baru.',
             self::Fonnte, self::Wablas, self::StarSender, self::Watzap => 'Tidak resmi (WhatsApp Web): murah dan mudah, tetapi nomor bisa diblokir WhatsApp bila mengirim massal. Pakai nomor khusus, bukan nomor utama usaha.',
