@@ -13,6 +13,7 @@ class KonfigurasiAplikasi {
     required this.wajibPembaruan,
     required this.flagFitur,
     this.pengumuman = const [],
+    this.persetujuanJarakJauh,
   });
 
   final String? versiSaatIni;
@@ -32,6 +33,10 @@ class KonfigurasiAplikasi {
   /// Server lama tidak mengirimnya → kosong.
   final List<PengumumanAplikasi> pengumuman;
 
+  /// Fitur paket `persetujuan.jarak-jauh` aktif untuk tenant ini sekarang. Null = server lama yang belum mengirimnya
+  /// (jangan mengubah keadaan lokal).
+  final bool? persetujuanJarakJauh;
+
   /// Flag dengan kunci [kunci]; tanpa aturan = [bawaan].
   bool CekFlag(String kunci, {bool bawaan = true}) => flagFitur[kunci] ?? bawaan;
 
@@ -43,6 +48,7 @@ class KonfigurasiAplikasi {
         flag[kunci] = nilai;
       }
     });
+    final jarakJauh = UraiJson.AmbilPeta(json['FiturPaket'])['PersetujuanJarakJauh'];
     return KonfigurasiAplikasi(
       versiSaatIni: UraiJson.AmbilTeksAtauNull(aplikasi['VersiSaatIni']),
       versiTerbaru: UraiJson.AmbilTeksAtauNull(aplikasi['VersiTerbaru']),
@@ -57,6 +63,7 @@ class KonfigurasiAplikasi {
             .map(PengumumanAplikasi.DariJson)
             .where((p) => p.uuid.isNotEmpty && p.judul.isNotEmpty),
       ),
+      persetujuanJarakJauh: jarakJauh is bool ? jarakJauh : null,
     );
   }
 }

@@ -201,6 +201,21 @@ describe('wewenang, four-eyes, fitur, isolasi', function (): void {
         AjukanDariKasir($this, $k['Token'], $orangLuar)->assertForbidden()->assertJsonPath('Galat.Kode', 'KasirTidakDitemukan');
     });
 
+    it('konfigurasi-aplikasi membawa keadaan fitur paket, jadi perubahan di konsol sampai ke kasir tanpa menekan Perbarui data', function (): void {
+        $k = BantuanKasir::Siapkan($this);
+        $this->flushHeaders();
+        $this->withToken($k['Token'])->getJson('/api/pos/v1/konfigurasi-aplikasi')->assertOk()->assertJsonPath('FiturPaket.PersetujuanJarakJauh', false);
+
+        AktifkanPersetujuanJarakJauh($k['Tenant']);
+        $this->flushHeaders();
+        $this->withToken($k['Token'])->getJson('/api/pos/v1/konfigurasi-aplikasi')->assertOk()->assertJsonPath('FiturPaket.PersetujuanJarakJauh', true);
+
+        // Fitur dicabut lagi (override berakhir): perangkat ikut tahu pada pemeriksaan berikutnya.
+        OverrideTenant::query()->where('IdTenant', $k['Tenant']->Id)->update(['BerakhirPada' => now()->subMinute()]);
+        $this->flushHeaders();
+        $this->withToken($k['Token'])->getJson('/api/pos/v1/konfigurasi-aplikasi')->assertOk()->assertJsonPath('FiturPaket.PersetujuanJarakJauh', false);
+    });
+
     it('pemilik tenant lain tidak melihat & tidak bisa memutuskan; perangkat lain tidak bisa membaca permintaan', function (): void {
         $k = BantuanKasir::Siapkan($this);
         AktifkanPersetujuanJarakJauh($k['Tenant']);

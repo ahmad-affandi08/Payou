@@ -17,7 +17,24 @@ http.Response Json(Object isi, int status) =>
     http.Response(jsonEncode(isi), status, headers: {'content-type': 'application/json'});
 
 void main() {
-  test('CekGalatPerantara: 429/413 dan balasan proxy tanpa badan Galat tidak dianggap item salah; Galat server tetap', () {
+  test('konfigurasi aplikasi: FiturPaket.PersetujuanJarakJauh dibaca; server lama tanpa kunci = null', () async {
+    Future<KonfigurasiAplikasi> Ambil(Map<String, Object?> isi) =>
+        BuatKlien((_) async => Json(isi, 200)).AmbilKonfigurasiAplikasi();
+
+    final baru = await Ambil({
+      'FiturPaket': {'PersetujuanJarakJauh': true},
+    });
+    final mati = await Ambil({
+      'FiturPaket': {'PersetujuanJarakJauh': false},
+    });
+    final lama = await Ambil({'Aplikasi': <String, Object?>{}});
+
+    expect(baru.persetujuanJarakJauh, isTrue);
+    expect(mati.persetujuanJarakJauh, isFalse);
+    expect(lama.persetujuanJarakJauh, isNull, reason: 'Server lama tidak boleh mengubah keadaan lokal.');
+  });
+
+  test('CekGalatPerantara: 429/413 dan balasan proxy tanpa badan Galat bukan item salah; Galat server tetap', () {
     GalatApi Galat(int status, String kode) => GalatApi(kode: kode, pesan: 'x', statusHttp: status);
 
     expect(Galat(429, 'GalatServer').CekGalatPerantara(), isTrue);

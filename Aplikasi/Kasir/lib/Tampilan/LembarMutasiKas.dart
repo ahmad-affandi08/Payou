@@ -357,7 +357,7 @@ class _DialogPinSupervisorState extends ConsumerState<DialogPinSupervisor> {
   bool _sibuk = false;
   String? _galat;
 
-  /// X4: fitur aktif (dibaca dari data awal lokal).
+  /// X4: fitur aktif (dari keadaan lokal, lalu disegarkan dari server saat dialog dibuka).
   bool _jarakJauhTersedia = false;
 
   /// Permintaan jarak jauh yang sedang ditunggu (null = tidak menunggu).
@@ -369,10 +369,17 @@ class _DialogPinSupervisorState extends ConsumerState<DialogPinSupervisor> {
   @override
   void initState() {
     super.initState();
+    // Tampil dari keadaan lokal dulu (cepat, juga saat offline), lalu tanya server sekali: fitur yang baru diaktifkan di
+    // konsol langsung muncul tanpa kasir menekan "Perbarui data kasir".
+    final layanan = _jarakJauh;
     unawaited(
-      _jarakJauh.CekTersedia().then((ada) {
+      layanan.CekTersedia().then((ada) async {
         if (mounted) {
           setState(() => _jarakJauhTersedia = ada);
+        }
+        final terbaru = await layanan.SegarkanTersedia();
+        if (mounted && terbaru != _jarakJauhTersedia) {
+          setState(() => _jarakJauhTersedia = terbaru);
         }
       }),
     );

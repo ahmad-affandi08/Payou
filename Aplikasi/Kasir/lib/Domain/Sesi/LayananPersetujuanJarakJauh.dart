@@ -8,7 +8,7 @@ import '../GalatKasir.dart';
 import 'StafLokal.dart';
 
 /// Persetujuan jarak jauh (X4, §19.2): bila penyetuju tidak di tempat, kasir meminta persetujuan yang diputuskan lewat
-/// Aplikasi Owner. Butuh online di kedua sisi dan fitur paket `persetujuan.jarak-jauh` (dibawa data awal). Perangkat
+/// Aplikasi Owner. Butuh online di kedua sisi dan fitur paket `persetujuan.jarak-jauh` (dibawa data awal dan konfigurasi aplikasi). Perangkat
 /// memantau status tiap [jeda]; setelah disetujui, penyetujunya dipakai persis seperti penyetuju yang memasukkan PIN
 /// (izinnya diperiksa lagi saat dokumen disinkronkan).
 class LayananPersetujuanJarakJauh {
@@ -31,11 +31,31 @@ class LayananPersetujuanJarakJauh {
     IzinKasir.shiftSelisihSetujui => 'Selisih kas tutup shift',
     IzinKasir.penjualanVoid => 'Pembatalan transaksi (void)',
     IzinKasir.penjualanRetur => 'Retur penjualan',
+    IzinKasir.penjualanReturTanpaStruk => 'Retur tanpa struk',
     IzinKasir.penjualanTempoSetujui => 'Penjualan tempo',
     _ => 'Persetujuan pemilik',
   };
 
   Future<bool> CekTersedia() async => await repositori.AmbilPengaturan(KunciPengaturan.persetujuanJarakJauh) == '1';
+
+  /// Simpan keadaan fitur dari server (konfigurasi aplikasi) ke pengaturan lokal. Null (server lama) = tidak mengubah.
+  Future<void> SimpanKeadaan(bool? aktif) async {
+    if (aktif != null) {
+      await repositori.SimpanPengaturan(KunciPengaturan.persetujuanJarakJauh, aktif ? '1' : '0');
+    }
+  }
+
+  /// Tanya server apakah fitur paket aktif sekarang, supaya perubahan paket di konsol langsung terlihat tanpa menunggu
+  /// "Perbarui data kasir". Offline atau galat apa pun = pakai keadaan lokal terakhir (tidak melempar).
+  Future<bool> SegarkanTersedia({Duration batas = const Duration(seconds: 4)}) async {
+    try {
+      final konfigurasi = await klien.AmbilKonfigurasiAplikasi().timeout(batas);
+      await SimpanKeadaan(konfigurasi.persetujuanJarakJauh);
+    } on Object {
+      // Offline, kedaluwarsa, atau galat server: keadaan lokal terakhir tetap berlaku.
+    }
+    return CekTersedia();
+  }
 
   /// Kirim permintaan. [izin] null (atau [hanyaPemilik]) = hanya pemilik yang bisa memutuskan.
   Future<PermintaanPersetujuanPos> Ajukan({

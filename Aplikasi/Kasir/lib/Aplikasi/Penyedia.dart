@@ -1130,7 +1130,10 @@ class PengaturKonfigurasiAplikasi extends Notifier<KonfigurasiAplikasi?> {
     }
     _terakhir = sekarang;
     try {
-      state = await ref.read(penyediaKlienPos).AmbilKonfigurasiAplikasi();
+      final konfigurasi = await ref.read(penyediaKlienPos).AmbilKonfigurasiAplikasi();
+      state = konfigurasi;
+      // Fitur paket yang diubah di konsol ikut sampai ke perangkat tanpa menunggu "Perbarui data kasir".
+      await ref.read(penyediaLayananPersetujuanJarakJauh).SimpanKeadaan(konfigurasi.persetujuanJarakJauh);
     } on GalatJaringan {
       _terakhir = null;
     } on GalatApi {

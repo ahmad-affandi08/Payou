@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:kasir/Data/RepositoriKasir.dart';
 
 import '../Pendukung/LingkunganUji.dart';
 import '../Pendukung/PasangAplikasi.dart';
@@ -28,7 +29,14 @@ void main() {
     'Penyetuju': penyetuju,
   };
 
-  Future<LingkunganUji> SiapkanKasKeluar(WidgetTester tester, {required bool fitur, required String keputusan}) async {
+  /// [fitur] = keadaan di data awal lokal; [fiturServer] (bila diisi) = jawaban `konfigurasi-aplikasi` saat dialog PIN
+  /// dibuka (perubahan paket di konsol setelah data awal diunduh).
+  Future<LingkunganUji> SiapkanKasKeluar(
+    WidgetTester tester, {
+    required bool fitur,
+    required String keputusan,
+    bool? fiturServer,
+  }) async {
     final u = LingkunganUji.Buat();
     await tester.runAsync(() => u.SiapkanAktif(dataAwal: DataAwalUji(persetujuanJarakJauh: fitur)));
     var dicek = 0;
@@ -57,6 +65,11 @@ void main() {
                   },
                 )
               : Permintaan('Ditolak', alasan: 'Galon masih ada stok di gudang'),
+        });
+      }
+      if (jalur.endsWith('/konfigurasi-aplikasi') && fiturServer != null) {
+        return JsonUji({
+          'FiturPaket': {'PersetujuanJarakJauh': fiturServer},
         });
       }
       if (p.method == 'GET') {
@@ -132,6 +145,31 @@ void main() {
   testWidgets('fitur paket tidak aktif → tombol jarak jauh tidak ditawarkan', (tester) async {
     final u = await SiapkanKasKeluar(tester, fitur: false, keputusan: 'Disetujui');
     expect(find.text('Minta persetujuan jarak jauh'), findsNothing);
+    await tester.tap(find.text('Batal'));
+    await Tunggu(tester);
+    await Lepas(tester, u);
+  });
+
+  testWidgets('fitur baru diaktifkan di konsol → tombol muncul tanpa Perbarui data kasir', (tester) async {
+    final u = await SiapkanKasKeluar(tester, fitur: false, keputusan: 'Disetujui', fiturServer: true);
+    await Tunggu(tester, const Duration(seconds: 1));
+
+    expect(find.text('Minta persetujuan jarak jauh'), findsOneWidget);
+    // Keadaan terbaru ikut tersimpan di perangkat untuk dialog berikutnya.
+    final tersimpan = await tester.runAsync(() => u.repositori.AmbilPengaturan(KunciPengaturan.persetujuanJarakJauh));
+    expect(tersimpan, '1');
+    await tester.tap(find.text('Batal'));
+    await Tunggu(tester);
+    await Lepas(tester, u);
+  });
+
+  testWidgets('fitur dicabut di konsol → tombol hilang walau data awal lokal masih menyala', (tester) async {
+    final u = await SiapkanKasKeluar(tester, fitur: true, keputusan: 'Disetujui', fiturServer: false);
+    await Tunggu(tester, const Duration(seconds: 1));
+
+    expect(find.text('Minta persetujuan jarak jauh'), findsNothing);
+    final tersimpan = await tester.runAsync(() => u.repositori.AmbilPengaturan(KunciPengaturan.persetujuanJarakJauh));
+    expect(tersimpan, '0');
     await tester.tap(find.text('Batal'));
     await Tunggu(tester);
     await Lepas(tester, u);
