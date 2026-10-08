@@ -1276,6 +1276,9 @@ class _LayarJualState extends ConsumerState<LayarJual> {
   Future<void> _SegarkanProdukHabis() async {
     if (widget.aktif && ref.read(penyediaKoneksi) == StatusKoneksi.Online) {
       await ref.read(penyediaProdukHabis.notifier).Muat();
+      if (!mounted) {
+        return;
+      }
       // BR-05.2: salinan sisa stok Toko ikut disegarkan (penjualan di perangkat lain, penerimaan barang, dll.).
       await ref.read(penyediaSesi.notifier).SegarkanStokTersedia();
     }
@@ -1284,6 +1287,7 @@ class _LayarJualState extends ConsumerState<LayarJual> {
   /// BR-05.2: ketuk produk yang sisa stoknya nol atau kurang. Pesannya sama dengan penolakan saat menambah (jumlah
   /// stok, atau "semuanya sudah ada di keranjang"), tanpa membuka panel pilihan/nomor seri dulu.
   void _TampilStokKosong(ProdukJual produk) {
+    _TutupLayarSelesai();
     final katalog = ref.read(penyediaKatalog).value;
     if (katalog == null) {
       return;
@@ -1300,7 +1304,10 @@ class _LayarJualState extends ConsumerState<LayarJual> {
           );
     } on GalatKasir catch (galat) {
       _TampilPesan(galat.pesan);
+      return;
     }
+    // Sisa berubah di antara tampilan dan ketukan (kini cukup): tambahkan seperti ketukan biasa.
+    _TambahProduk(produk);
   }
 
   Future<void> _PerbaruiBerkala() async {
@@ -1310,6 +1317,10 @@ class _LayarJualState extends ConsumerState<LayarJual> {
         keranjang.pesananMeja == null &&
         _panel == null) {
       await _PerbaruiKatalog();
+      if (mounted) {
+        // Audit kesegaran data (P1): data awal ikut disegarkan tiap 10 menit selama kasir bekerja.
+        await ref.read(penyediaSesi.notifier).SegarkanDataAwalBerkala();
+      }
     }
   }
 

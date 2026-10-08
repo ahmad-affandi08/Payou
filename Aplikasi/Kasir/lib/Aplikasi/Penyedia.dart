@@ -1021,6 +1021,12 @@ final penyediaKategori = FutureProvider.family<List<BarisKategoriKas>, String>(
   (ref, jenis) => ref.watch(penyediaRepositori).AmbilKategori(jenis),
 );
 
+/// Gambar QRIS statis metode pembayaran: disimpan di memori supaya tetap tampil saat offline, dan dibuang setiap data
+/// awal diperbarui (`SegarkanData`, `SegarkanDataAwalBerkala`) supaya QRIS yang diganti pemilik tidak tampil usang.
+final penyediaGambarQris = FutureProvider.family<Uint8List, String>(
+  (ref, uuidMetode) => ref.watch(penyediaKlienPos).AmbilGambarQris(uuidMetode),
+);
+
 /// Identitas outlet & perangkat untuk kepala layar.
 final penyediaIdentitas = FutureProvider<({String outlet, String perangkat})>((ref) async {
   final repo = ref.watch(penyediaRepositori);
@@ -1225,7 +1231,7 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
     ref.invalidate(penyediaIdentitas);
     ref.invalidate(penyediaKonteksPenjualan);
     // BR-05.2: salinan stok milik outlet sebelumnya tidak boleh berlaku di outlet ini.
-    await ref.read(penyediaLayananStokTersedia).Reset();
+    await ref.read(penyediaLayananStokTersedia).Kosongkan();
     state = const KeadaanSesi(TahapSesi.PilihKasir);
     unawaited(PerbaruiKatalog());
     unawaited(PerbaruiDataMeja());
@@ -1278,6 +1284,7 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
       ref.invalidate(penyediaKategori);
       ref.invalidate(penyediaKonteksPenjualan);
       ref.invalidate(penyediaIdentitas);
+      ref.invalidate(penyediaGambarQris);
       if (tersambung) {
         await PerbaruiKatalog();
         await PerbaruiDataMeja();
@@ -1320,6 +1327,69 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
       await _TanganiDicabut(galat.pesan);
     } on Object {
       // Galat lain: tetap pakai data lokal terakhir; dicoba lagi pada putaran berikutnya.
+      return;
+    }
+  }
+
+  DateTime? _dataAwalBerkalaPada;
+
+  /// Audit kesegaran data (P1): data awal (PIN & izin staf, batas diskon/retur/tempo, metode bayar, tarif pajak,
+  /// kategori kas, gambar QRIS) tidak boleh menunggu kasir menekan "Perbarui data kasir" atau mengunci layar. Dipanggil
+  /// dari layar Jual saat keranjang kosong, jadi tidak mengubah konteks hitung di tengah transaksi. Hanya saat online;
+  /// paling sering sekali per [jeda].
+  Future<void> SegarkanDataAwalBerkala({Duration jeda = const Duration(minutes: 10)}) async {
+    if (_sedangDicabut || state.tahap != TahapSesi.Masuk || ref.read(penyediaKoneksi) != StatusKoneksi.Online) {
+      return;
+    }
+    final sekarang = ref.read(penyediaJam)();
+    final terakhir = _dataAwalBerkalaPada;
+    if (terakhir != null && sekarang.difference(terakhir) < jeda) {
+      return;
+    }
+    _dataAwalBerkalaPada = sekarang;
+    try {
+      final tersambung = await ref.read(penyediaLayananPerangkat).SegarkanDataAwal();
+      if (tersambung) {
+        ref.invalidate(penyediaStaf);
+        ref.invalidate(penyediaKaryawanPos);
+        ref.invalidate(penyediaKategori);
+        ref.invalidate(penyediaKonteksPenjualan);
+        ref.invalidate(penyediaIdentitas);
+        ref.invalidate(penyediaGambarQris);
+      }
+    } on GalatKasir catch (galat) {
+      await _TanganiDicabut(galat.pesan);
+    } on Object {
+      // Galat lain: data lokal terakhir tetap dipakai; dicoba lagi pada putaran berikutnya.
+      return;
+    }
+  }
+
+  DateTime? _stafUntukPinPada;
+
+  /// Audit kesegaran data (P2): daftar staf (PIN, izin, status aktif) disegarkan saat dialog PIN penyetuju dibuka, supaya
+  /// PIN yang baru diganti atau izin yang baru dicabut berlaku di perangkat ini juga. Yang disegarkan hanya data staf
+  /// (bukan konteks hitung), jadi aman di tengah transaksi. Offline atau gagal = data lokal. Paling sering sekali per
+  /// [jeda].
+  Future<void> SegarkanStafUntukPin({Duration jeda = const Duration(seconds: 30)}) async {
+    if (_sedangDicabut || state.tahap != TahapSesi.Masuk) {
+      return;
+    }
+    final sekarang = ref.read(penyediaJam)();
+    final terakhir = _stafUntukPinPada;
+    if (terakhir != null && sekarang.difference(terakhir) < jeda) {
+      return;
+    }
+    _stafUntukPinPada = sekarang;
+    try {
+      final tersambung = await ref.read(penyediaLayananPerangkat).SegarkanDataAwal();
+      if (tersambung) {
+        ref.invalidate(penyediaStaf);
+        ref.invalidate(penyediaKaryawanPos);
+      }
+    } on GalatKasir catch (galat) {
+      await _TanganiDicabut(galat.pesan);
+    } on Object {
       return;
     }
   }

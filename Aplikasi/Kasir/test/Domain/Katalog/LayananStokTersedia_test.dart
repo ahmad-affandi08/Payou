@@ -10,6 +10,7 @@ import 'package:kasir/Domain/Katalog/KatalogLokal.dart';
 import 'package:kasir/Domain/Katalog/LayananStokTersedia.dart';
 import 'package:kasir/Domain/Penjualan/Keranjang.dart';
 import 'package:kasir/Domain/Penjualan/KonteksPenjualan.dart';
+import 'package:kasir/Domain/Penjualan/LayananPenjualan.dart';
 import 'package:kasir/Domain/Sesi/StafLokal.dart';
 import 'package:mesin_kasir/MesinKasir.dart';
 
@@ -393,11 +394,11 @@ void main() {
       );
     });
 
-    test('BR-05.2: Reset (aktivasi ulang) menghapus salinan di memori dan di pengaturan', () async {
+    test('BR-05.2: Kosongkan (aktivasi ulang) menghapus salinan di memori dan di pengaturan', () async {
       jawaban = {UuidUji.roti: '10.0000'};
       await stok.Segarkan();
 
-      await stok.Reset();
+      await stok.Kosongkan();
 
       expect(stok.CekAdaSalinan, isFalse);
       expect(Efektif(KeranjangRoti(99)), isNull);

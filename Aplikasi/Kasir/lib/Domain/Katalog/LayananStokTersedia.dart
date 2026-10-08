@@ -120,6 +120,9 @@ class LayananStokTersedia {
   DateTime? _disimpanPada;
   bool _sedangMenyegarkan = false;
   int _urutanHitung = 0;
+
+  /// Naik tiap [Kosongkan]: pemuatan salinan tersimpan yang dimulai sebelumnya dan selesai sesudahnya diabaikan.
+  int _generasi = 0;
   StreamSubscription<void>? _langganan;
 
   SalinanStokTersedia? get salinan => _salinan;
@@ -129,7 +132,11 @@ class LayananStokTersedia {
 
   /// Muat salinan tersimpan lalu pantau perubahan penjualan lokal. Dipanggil sekali saat layanan dibuat.
   Future<void> Mulai() async {
-    await Muat();
+    try {
+      await Muat();
+    } on Object {
+      // Salinan tersimpan tak terbaca (basis data sedang ditutup, dll.): tanpa batas sampai Segarkan berhasil.
+    }
     _langganan ??= repositoriPenjualan.PantauPerubahanPenjualan().listen(
       (_) => unawaited(HitungUlangTerjual()),
       onError: (Object _) {},
@@ -145,8 +152,9 @@ class LayananStokTersedia {
   /// Muat salinan terakhir dari pengaturan lokal, supaya batas stok tetap berlaku setelah aplikasi dibuka ulang
   /// dalam keadaan offline. Salinan yang sudah diambil dari server lebih dulu tidak ditimpa.
   Future<void> Muat() async {
+    final generasi = _generasi;
     final teks = await repositori.AmbilPengaturan(KunciPengaturan.stokTersedia);
-    if (_salinan != null || teks == null || teks.isEmpty) {
+    if (generasi != _generasi || _salinan != null || teks == null || teks.isEmpty) {
       return;
     }
     final salinan = SalinanStokTersedia.DariJson(teks);
@@ -160,7 +168,8 @@ class LayananStokTersedia {
   }
 
   /// Hapus salinan (aktivasi ulang ke outlet lain): sampai salinan baru diambil, semua produk tanpa batas.
-  Future<void> Reset() async {
+  Future<void> Kosongkan() async {
+    _generasi++;
     _urutanHitung++;
     _salinan = null;
     _terjualLokal = const {};
@@ -183,7 +192,11 @@ class LayananStokTersedia {
       final StokTersediaPos hasil;
       try {
         hasil = await klien.AmbilStokTersedia();
-      } on GalatApi {
+      } on GalatApi catch (galat) {
+        // Rute tidak ada lagi (server dikembalikan ke versi lama): jangan menahan penjualan dengan salinan usang.
+        if (galat.statusHttp == 404 && _salinan != null) {
+          await Kosongkan();
+        }
         return false;
       } on GalatJaringan {
         return false;
@@ -203,7 +216,7 @@ class LayananStokTersedia {
         diambilPada: mulai,
         waktuServer: hasil.waktuServer,
         tersedia: Map.unmodifiable(peta),
-        belumTercakup: Set.unmodifiable(tertunda),
+        belumTercakup: Set.of(tertunda),
       );
       _salinan = baru;
       await _Simpan(baru);
@@ -243,6 +256,14 @@ class LayananStokTersedia {
 
   /// Hitung ulang jumlah (satuan dasar) penjualan lokal yang belum tercakup salinan, per produk di dalam salinan.
   Future<void> HitungUlangTerjual() async {
+    try {
+      await _HitungTerjual();
+    } on Object {
+      // Basis data sedang ditutup atau galat baca: hitungan lama tetap dipakai, pemicu berikutnya mencoba lagi.
+    }
+  }
+
+  Future<void> _HitungTerjual() async {
     final salinan = _salinan;
     final nomor = ++_urutanHitung;
     final peta = <String, Kuantitas>{};
@@ -262,7 +283,7 @@ class LayananStokTersedia {
         peta[b.uuidProduk] = (peta[b.uuidProduk] ?? Kuantitas.Nol()).Tambah(KeDasar(jumlah, b.konversiKeDasar));
       }
     }
-    // Perhitungan yang lebih baru (atau Reset) sudah berjalan: hasil ini usang.
+    // Perhitungan yang lebih baru (atau Kosongkan) sudah berjalan: hasil ini usang.
     if (nomor != _urutanHitung) {
       return;
     }

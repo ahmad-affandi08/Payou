@@ -25,11 +25,6 @@ import 'DialogQrisDinamis.dart';
 import 'DialogResep.dart';
 import 'PanelKeranjang.dart';
 
-/// Gambar QRIS statis metode pembayaran (diunduh sekali per sesi aplikasi).
-final penyediaGambarQris = FutureProvider.family<Uint8List, String>(
-  (ref, uuidMetode) => ref.watch(penyediaKlienPos).AmbilGambarQris(uuidMetode),
-);
-
 /// Label jenis metode pembayaran untuk kasir.
 String AmbilLabelJenisMetode(String jenis) => switch (jenis) {
   JenisMetodeBayar.tunai => 'Tunai',

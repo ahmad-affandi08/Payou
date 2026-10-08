@@ -257,7 +257,6 @@ void main() {
       expect(keranjang.baris.single.namaSatuan, 'Lusin');
       expect(keranjang.baris.single.jumlah, Kuantitas.DariBulat(2));
     });
-
   });
 
   group('tidak memblokir', () {

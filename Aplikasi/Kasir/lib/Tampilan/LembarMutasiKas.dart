@@ -372,6 +372,8 @@ class _DialogPinSupervisorState extends ConsumerState<DialogPinSupervisor> {
     // Tampil dari keadaan lokal dulu (cepat, juga saat offline), lalu tanya server sekali: fitur yang baru diaktifkan di
     // konsol langsung muncul tanpa kasir menekan "Perbarui data kasir".
     final layanan = _jarakJauh;
+    // P2: PIN/izin penyetuju yang baru diubah di back-office ikut berlaku (data staf disegarkan sekali, bila online).
+    unawaited(ref.read(penyediaSesi.notifier).SegarkanStafUntukPin());
     unawaited(
       layanan.CekTersedia().then((ada) async {
         if (mounted) {
@@ -501,7 +503,10 @@ class _DialogPinSupervisorState extends ConsumerState<DialogPinSupervisor> {
         .toList();
     final warna = TokenWarna.AmbilDari(context);
     final menunggu = _menunggu;
-    final dipilih = _dipilih ?? (supervisor.length == 1 ? supervisor.single : null);
+    // Data staf bisa disegarkan saat dialog terbuka: pakai versi terbaru staf yang dipilih, dan bila ia tidak lagi
+    // berhak, kembali ke pilihan penyetuju.
+    final dipilihTerbaru = _dipilih == null ? null : supervisor.where((s) => s.uuid == _dipilih!.uuid).firstOrNull;
+    final dipilih = dipilihTerbaru ?? (supervisor.length == 1 ? supervisor.single : null);
     final tombolJarakJauh = _jarakJauhTersedia && widget.bolehJarakJauh
         ? FilledButton.tonalIcon(
             onPressed: _sibuk ? null : () => unawaited(_MintaJarakJauh()),
