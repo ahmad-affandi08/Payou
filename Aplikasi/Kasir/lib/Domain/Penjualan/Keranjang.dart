@@ -2,6 +2,7 @@ import 'package:mesin_kasir/MesinKasir.dart';
 
 import '../Katalog/KatalogLokal.dart';
 import '../Meja/KonteksPesananMeja.dart';
+import '../Sesi/StafLokal.dart';
 import 'Racikan.dart';
 
 /// Diskon manual baris atau pesanan: tepat satu dari [persen] atau [jumlah] (BR-07.3).
@@ -419,6 +420,26 @@ class PraPesananKeranjang {
       : null;
 }
 
+/// Persetujuan retur tukar barang. PIN penyetuju diminta di akhir, saat pembayaran diselesaikan (satu kali, saat nilai
+/// transaksi sudah pasti), bukan sebelum kasir memilih barang pengganti. [staf] diisi layar Bayar setelah PIN benar dan
+/// dipakai [TukarKeranjang.simpanRetur].
+class PenyetujuTukar {
+  PenyetujuTukar({required this.izin, required this.pesan, this.perlu = true});
+
+  /// Izin yang harus dimiliki penyetuju (`penjualan.retur` atau `penjualan.retur.tanpa-struk`).
+  final String izin;
+
+  /// Kalimat alasan di dialog PIN.
+  final String pesan;
+
+  /// False = kasir sendiri berwenang sehingga tidak perlu PIN.
+  final bool perlu;
+
+  StafLokal? staf;
+
+  bool get siap => !perlu || staf != null;
+}
+
 /// K-11 tukar barang: barang yang diretur menjadi pembayaran barang pengganti. Retur **belum** disimpan selama kasir
 /// memilih barang pengganti; [simpanRetur] dipanggil saat pembayaran diselesaikan, di transaksi lokal yang sama dengan
 /// penjualan pengganti, dengan pembagian refund `Tukar` (sebesar yang dipakai membayar) dan `Tunai` (selisih yang
@@ -432,8 +453,12 @@ class TukarKeranjang {
     required this.uuidMetode,
     required this.namaMetode,
     required this.simpanRetur,
+    required this.penyetuju,
     this.tanpaStruk = false,
   });
+
+  /// Persetujuan yang diminta saat pembayaran diselesaikan.
+  final PenyetujuTukar penyetuju;
 
   /// Uuid retur yang akan dibuat (dirujuk `UuidReturTukar` penjualan pengganti).
   final String uuidRetur;

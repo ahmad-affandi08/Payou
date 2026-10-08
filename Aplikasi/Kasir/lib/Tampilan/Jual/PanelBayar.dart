@@ -545,7 +545,35 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
     }
   }
 
+  /// Tukar barang: persetujuan retur diminta di sini, satu kali, setelah barang pengganti dipilih dan nilainya pasti.
+  /// Dibatalkan = pembayaran tidak dilanjutkan, keranjang tukar tetap utuh.
+  Future<bool> _PastikanPenyetujuTukar() async {
+    final tukar = ref.read(penyediaKeranjangEfektif).tukar;
+    final persetujuan = tukar?.penyetuju;
+    if (tukar == null || persetujuan == null || persetujuan.siap) {
+      return true;
+    }
+    final staf = await showDialog<StafLokal>(
+      context: context,
+      builder: (_) => DialogPinSupervisor(
+        izin: persetujuan.izin,
+        judulDialog: 'Persetujuan retur tukar barang',
+        pesan: persetujuan.pesan,
+        judul: 'Retur tukar barang',
+        nilai: tukar.nilai,
+      ),
+    );
+    if (staf == null || !mounted) {
+      return false;
+    }
+    persetujuan.staf = staf;
+    return true;
+  }
+
   Future<void> _Selesaikan(KonteksPenjualan k, List<PembayaranMasukan> pembayaran) async {
+    if (!await _PastikanPenyetujuTukar()) {
+      return;
+    }
     setState(() {
       _sibuk = true;
       _galat = null;

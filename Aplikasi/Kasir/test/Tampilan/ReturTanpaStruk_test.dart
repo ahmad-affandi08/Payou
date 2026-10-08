@@ -202,7 +202,8 @@ void main() {
       await IsiRetur(tester, jumlah: '1');
       await Ketuk(tester, find.text('Tukar barang'));
       await Ketuk(tester, find.byKey(const ValueKey('SimpanReturTanpaStruk')));
-      await SetujuiBudi(tester);
+      // PIN tidak diminta di sini: barang pengganti dipilih dulu, PIN sekali di akhir pembayaran.
+      expect(find.text('Persetujuan retur tukar barang'), findsNothing);
       expect(find.byType(PanelTugas), findsNothing, reason: 'Lembar retur tertutup, layar Jual terbuka.');
       expect(await Outbox(tester, u), isEmpty, reason: 'Retur belum disimpan sebelum pembayaran.');
 
@@ -212,6 +213,7 @@ void main() {
       expect(find.textContaining('Tukar barang tanpa struk'), findsOneWidget);
       expect(find.textContaining('tanpa struk tidak dikembalikan tunai'), findsOneWidget);
       await Ketuk(tester, find.text('Selesaikan pembayaran'));
+      await SetujuiBudi(tester);
       expect(find.textContaining('Tambah barang pengganti sampai minimal Rp 27.500'), findsOneWidget);
       expect(await Outbox(tester, u), isEmpty);
 

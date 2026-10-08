@@ -73,11 +73,18 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'Alasan retur'), 'Salah ukuran, tukar dengan yang lain');
     await Ketuk(tester, find.text('Tukar barang'));
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Pilih barang pengganti'));
+    // PIN penyetuju tidak diminta di sini: kasir memilih barang pengganti dulu, PIN sekali di akhir pembayaran.
+    expect(find.text('Persetujuan retur tukar barang'), findsNothing);
+    expect(find.byType(PanelTugas), findsNothing, reason: 'Lembar retur tertutup, layar Jual terbuka.');
+  }
+
+  /// PIN penyetuju (Budi) diminta saat pembayaran diselesaikan.
+  Future<void> SetujuiBudi(WidgetTester tester) async {
+    expect(find.text('Persetujuan retur tukar barang'), findsOneWidget);
     await PilihPenyetuju(tester, 'Budi Santoso');
     await tester.pump();
     await KetikPin(tester, KasusPin(1)['Pin']! as String);
     await Tunggu(tester, const Duration(seconds: 1));
-    expect(find.byType(PanelTugas), findsNothing, reason: 'Lembar retur tertutup, layar Jual terbuka.');
   }
 
   Future<List<({String jenis, Map<String, Object?> data})>> Outbox(WidgetTester tester, LingkunganUji u) async => [
@@ -109,6 +116,7 @@ void main() {
         expect(find.text('Rp 33.333,33'), findsWidgets);
         await Ketuk(tester, find.widgetWithText(ChoiceChip, 'Tunai'));
         await Ketuk(tester, find.widgetWithText(FilledButton, 'Uang pas'));
+        await SetujuiBudi(tester);
         expect(find.text('Pembayaran berhasil'), findsOneWidget);
         expect(find.textContaining('Retur tukar barang RJ/'), findsOneWidget);
         expect(tester.takeException(), isNull);
@@ -146,6 +154,7 @@ void main() {
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').last);
     expect(find.textContaining('kembalikan Rp 16.833,33 tunai'), findsOneWidget);
     await Ketuk(tester, find.text('Selesaikan pembayaran'));
+    await SetujuiBudi(tester);
     expect(find.text('Pembayaran berhasil'), findsOneWidget);
     expect(find.text('Kembalikan selisih tukar'), findsOneWidget);
     expect(find.text('Rp 16.833,33'), findsWidgets);
@@ -197,6 +206,28 @@ void main() {
 
     expect(find.textContaining('Tukar barang |'), findsNothing);
     expect(await Outbox(tester, u), isEmpty);
+    await Lepas(tester, u);
+  });
+
+  testWidgets('batal di dialog PIN: pembayaran tidak dilanjutkan, tukar tetap utuh, PIN hanya diminta sekali', (
+    tester,
+  ) async {
+    final u = await Masuk(tester, const Size(1280, 900));
+    await MulaiTukar(tester);
+    await Ketuk(tester, Ubin('Americano Panas'));
+    await Ketuk(tester, find.widgetWithText(FilledButton, 'Bayar').last);
+    await Ketuk(tester, find.text('Selesaikan pembayaran'));
+    expect(find.text('Persetujuan retur tukar barang'), findsOneWidget);
+    await tester.tapAt(const Offset(2, 2)); // tutup dialog tanpa memilih penyetuju
+    await Tunggu(tester);
+
+    expect(find.text('Pembayaran berhasil'), findsNothing);
+    expect(find.textContaining('Tukar barang dari'), findsOneWidget, reason: 'Layar Bayar tukar masih terbuka.');
+    expect(await Outbox(tester, u), isEmpty);
+
+    await Ketuk(tester, find.text('Selesaikan pembayaran'));
+    await SetujuiBudi(tester);
+    expect(find.text('Pembayaran berhasil'), findsOneWidget);
     await Lepas(tester, u);
   });
 }

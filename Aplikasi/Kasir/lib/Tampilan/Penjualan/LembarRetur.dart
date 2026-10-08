@@ -290,6 +290,12 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
     }
     final metodeTransfer = transfer.where((m) => m.Uuid == _uuidMetodeTransfer).firstOrNull ?? transfer.firstOrNull;
 
+    // Tukar barang: PIN diminta nanti, saat pembayaran barang pengganti diselesaikan (nilai transaksi sudah pasti).
+    if (_cara == CaraRefund.Tukar) {
+      _MulaiTukar(k, hasil, pilihan, total.Kurangi(_HitungPotongPiutang(total)), katalog, total);
+      return;
+    }
+
     StafLokal? penyetuju;
     if (LayananReturPenjualan.AmbilPenyetujuEfektif(widget.kasir, null) == null) {
       penyetuju = await showDialog<StafLokal>(
@@ -304,12 +310,6 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
       if (penyetuju == null) {
         return;
       }
-    }
-
-    // K-11: tukar barang — retur belum disimpan; disimpan bersama penjualan pengganti saat pembayaran selesai.
-    if (_cara == CaraRefund.Tukar) {
-      _MulaiTukar(k, hasil, pilihan, total.Kurangi(_HitungPotongPiutang(total)), penyetuju, katalog);
-      return;
     }
 
     setState(() {
@@ -349,8 +349,8 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
     HasilCariPenjualan hasil,
     List<PilihanReturBaris> pilihan,
     Uang nilai,
-    StafLokal? penyetuju,
     KatalogLokal? katalog,
+    Uang totalRetur,
   ) {
     final metode = k.metodeTukar;
     final saatTukar = widget.saatTukar;
@@ -366,12 +366,18 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
     final kasir = widget.kasir;
     final layanan = _layanan;
     final uuidRetur = ref.read(penyediaLayananPenjualan).BuatUuid();
+    final penyetuju = PenyetujuTukar(
+      izin: IzinKasir.penjualanRetur,
+      pesan: 'Retur tukar barang ${totalRetur.FormatRupiah()} wajib disetujui. Pilih supervisor yang menyetujui.',
+      perlu: LayananReturPenjualan.AmbilPenyetujuEfektif(kasir, null) == null,
+    );
     ref
         .read(penyediaKeranjang.notifier)
         .Ganti(
           Keranjang.kosong.Salin(
             tukar: () => TukarKeranjang(
               uuidRetur: uuidRetur,
+              penyetuju: penyetuju,
               nomorPenjualanAsal: hasil.penjualan.nomor,
               nilai: nilai,
               uuidMetode: metode.Uuid,
@@ -386,7 +392,7 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
                 uuidRetur: uuidRetur,
                 kasir: kasir,
                 k: k,
-                penyetuju: penyetuju,
+                penyetuju: penyetuju.staf,
                 katalog: katalog,
               )).nomor,
             ),

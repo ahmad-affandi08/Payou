@@ -196,6 +196,12 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
       return;
     }
 
+    // Tukar barang: PIN diminta nanti, saat pembayaran barang pengganti diselesaikan (nilai transaksi sudah pasti).
+    if (cara == CaraRefundTanpaStruk.Tukar) {
+      _MulaiTukar(k, katalog, baris, hitungan.total);
+      return;
+    }
+
     final penyetuju = await showDialog<StafLokal>(
       context: context,
       builder: (_) => DialogPinSupervisor(
@@ -210,11 +216,6 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
       ),
     );
     if (penyetuju == null || !mounted) {
-      return;
-    }
-
-    if (cara == CaraRefundTanpaStruk.Tukar) {
-      _MulaiTukar(k, katalog, baris, hitungan.total, penyetuju);
       return;
     }
 
@@ -254,7 +255,6 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
     KatalogLokal katalog,
     List<BarisReturTanpaStruk> baris,
     Uang nilai,
-    StafLokal penyetuju,
   ) {
     final metode = k.metodeTukar;
     final saatTukar = widget.saatTukar;
@@ -266,12 +266,17 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
     final kasir = widget.kasir;
     final layanan = _layanan;
     final uuidRetur = ref.read(penyediaLayananPenjualan).BuatUuid();
+    final penyetuju = PenyetujuTukar(
+      izin: IzinKasir.penjualanReturTanpaStruk,
+      pesan: 'Retur tanpa struk ${nilai.FormatRupiah()} wajib disetujui pemilik atau pengguna yang berhak.',
+    );
     ref
         .read(penyediaKeranjang.notifier)
         .Ganti(
           Keranjang.kosong.Salin(
             tukar: () => TukarKeranjang(
               uuidRetur: uuidRetur,
+              penyetuju: penyetuju,
               nomorPenjualanAsal: '',
               nilai: nilai,
               uuidMetode: metode.Uuid,
@@ -282,7 +287,7 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
                 baris: baris,
                 alasan: alasan,
                 kasir: kasir,
-                penyetuju: penyetuju,
+                penyetuju: penyetuju.staf!,
                 metode: metode,
                 katalog: katalog,
                 k: k,
@@ -557,7 +562,7 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
             _sibuk
                 ? 'Menyimpan…'
                 : _cara == CaraRefundTanpaStruk.Tukar
-                ? 'Minta PIN & pilih barang pengganti'
+                ? 'Pilih barang pengganti'
                 : 'Minta PIN & simpan retur',
           ),
         ),
