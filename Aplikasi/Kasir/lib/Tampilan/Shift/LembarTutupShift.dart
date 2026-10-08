@@ -170,10 +170,17 @@ class _LembarTutupShiftState extends ConsumerState<LembarTutupShift> {
         alasan: _alasan.text,
         penyetuju: penyetuju,
       );
+      if (mounted) {
+        UmpanAksi.Berhasil(
+          Navigator.of(context, rootNavigator: true).context,
+          'Shift ditutup. Laporan tutup shift tersimpan dan dikirim otomatis ke server.',
+        );
+      }
       await ref.read(penyediaSesi.notifier).Sinkronkan();
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);
+        unawaited(UmpanAksi.Gagal(context, judul: 'Shift belum ditutup', pesan: galat.pesan));
       }
     } finally {
       if (mounted) {

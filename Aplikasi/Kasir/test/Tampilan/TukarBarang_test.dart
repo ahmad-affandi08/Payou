@@ -173,4 +173,30 @@ void main() {
     expect(await Outbox(tester, u), isEmpty);
     await Lepas(tester, u);
   });
+
+  testWidgets('tukar barang tidak bisa ditahan (retur & PIN penyetuju akan terbuang), pesannya jelas', (tester) async {
+    final u = await Masuk(tester, const Size(1280, 900));
+    await MulaiTukar(tester);
+    await Ketuk(tester, Ubin('Americano Panas'));
+    await Ketuk(tester, find.text('Tahan').first);
+
+    expect(find.textContaining('Tukar barang sedang berjalan'), findsOneWidget);
+    expect(find.textContaining('Tukar barang |'), findsOneWidget, reason: 'Mode tukar tetap aktif.');
+    expect(await tester.runAsync(() => u.db.select(u.db.pesananTertahan).get()), isEmpty);
+    await Lepas(tester, u);
+  });
+
+  testWidgets('tukar barang dengan keranjang kosong tetap bisa dibatalkan (tidak buntu)', (tester) async {
+    final u = await Masuk(tester, const Size(1280, 900));
+    await MulaiTukar(tester);
+    expect(find.textContaining('Tukar barang |'), findsOneWidget);
+
+    await Ketuk(tester, find.byTooltip('Batalkan transaksi'));
+    expect(find.text('Batalkan tukar barang?'), findsOneWidget);
+    await Ketuk(tester, find.widgetWithText(FilledButton, 'Batalkan transaksi'));
+
+    expect(find.textContaining('Tukar barang |'), findsNothing);
+    expect(await Outbox(tester, u), isEmpty);
+    await Lepas(tester, u);
+  });
 }

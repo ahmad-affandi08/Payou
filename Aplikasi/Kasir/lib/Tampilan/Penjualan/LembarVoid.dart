@@ -108,6 +108,7 @@ class _LembarVoidState extends ConsumerState<LembarVoid> {
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);
+        unawaited(UmpanAksi.Gagal(context, judul: 'Transaksi belum dibatalkan', pesan: galat.pesan));
       }
     } finally {
       if (mounted) {

@@ -1129,6 +1129,11 @@ class _LayarJualState extends ConsumerState<LayarJual> {
 
   Future<void> _Tahan() async {
     final keranjang = ref.read(penyediaKeranjang);
+    if (keranjang.tukar != null) {
+      // Pesanan tertahan tidak membawa retur tukar barang; menahannya akan membuang retur & PIN penyetuju diam-diam.
+      _TampilPesan('Tukar barang sedang berjalan. Selesaikan pembayarannya atau batalkan dulu; tidak bisa ditahan.');
+      return;
+    }
     final k = await ref.read(penyediaKonteksPenjualan.future);
     final layanan = ref.read(penyediaLayananPenjualan);
     try {
@@ -1142,15 +1147,21 @@ class _LayarJualState extends ConsumerState<LayarJual> {
   }
 
   Future<void> _KonfirmasiBatal() async {
-    if (ref.read(penyediaKeranjang).CekKosong) {
+    final tukar = ref.read(penyediaKeranjang).tukar != null;
+    if (ref.read(penyediaKeranjang).CekKosong && !tukar) {
       return;
     }
     final warna = TokenWarna.AmbilDari(context);
     final ya = await showDialog<bool>(
       context: context,
       builder: (konteks) => AlertDialog(
-        title: const Text('Batalkan transaksi ini?'),
-        content: const Text('Semua item di keranjang dihapus. Transaksi yang belum dibayar tidak disimpan.'),
+        title: Text(tukar ? 'Batalkan tukar barang?' : 'Batalkan transaksi ini?'),
+        content: Text(
+          tukar
+              ? 'Retur tukar barang yang belum disimpan dibatalkan dan keranjang dikosongkan. Barang yang dikembalikan '
+                    'pelanggan tidak tercatat.'
+              : 'Semua item di keranjang dihapus. Transaksi yang belum dibayar tidak disimpan.',
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.of(konteks).pop(false), child: const Text('Kembali')),
           FilledButton(

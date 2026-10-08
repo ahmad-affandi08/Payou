@@ -149,6 +149,25 @@ void main() {
     );
   }
 
+  testWidgets('jumlah lebih dari 4 desimal ditolak sebagai isian salah, layar tidak jatuh dan bisa diperbaiki', (
+    tester,
+  ) async {
+    final u = await Masuk(tester, const Size(1280, 900));
+    await IsiRetur(tester, jumlah: '1,23456');
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Isi jumlah'), findsOneWidget);
+    final isian = find.descendant(
+      of: find.byKey(const ValueKey('BarisTanpaStruk-${UuidUji.croissant}-${UuidUji.psCroissant}')),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(isian, '2');
+    await Tunggu(tester);
+    expect(find.text('Isi jumlah'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await Lepas(tester, u);
+  });
+
   testWidgets('tanpa penyetuju berizin: dialog PIN tidak menawarkan staf; produk ber-batch tidak bisa dipilih', (
     tester,
   ) async {

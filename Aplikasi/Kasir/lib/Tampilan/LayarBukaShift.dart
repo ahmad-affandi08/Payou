@@ -83,6 +83,7 @@ class _LayarBukaShiftState extends ConsumerState<LayarBukaShift> {
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);
+        unawaited(UmpanAksi.Gagal(context, judul: 'Shift belum dibuka ulang', pesan: galat.pesan));
       }
     } finally {
       if (mounted) {
@@ -116,10 +117,17 @@ class _LayarBukaShiftState extends ConsumerState<LayarBukaShift> {
             kasAwal: kasAwal,
             pecahan: _hitungPecahan ? [for (final e in _pecahan.entries) BarisPecahan(e.key, e.value)] : null,
           );
+      if (mounted) {
+        UmpanAksi.Berhasil(
+          Navigator.of(context, rootNavigator: true).context,
+          'Shift dibuka dengan kas awal ${kasAwal.FormatRupiah()}. Selamat bertugas.',
+        );
+      }
       await ref.read(penyediaSesi.notifier).Sinkronkan();
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);
+        unawaited(UmpanAksi.Gagal(context, judul: 'Shift belum terbuka', pesan: galat.pesan));
       }
     } finally {
       if (mounted) {

@@ -335,6 +335,7 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);
+        unawaited(UmpanAksi.Gagal(context, judul: 'Retur belum tersimpan', pesan: galat.pesan));
       }
     } finally {
       if (mounted) {

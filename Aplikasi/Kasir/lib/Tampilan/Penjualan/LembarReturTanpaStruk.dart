@@ -124,7 +124,8 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
   Kuantitas? _AmbilJumlah(int i) {
     final teks = _jumlah[i].text.trim().replaceAll(',', '.');
     final d = Decimal.tryParse(teks);
-    return d == null ? null : Kuantitas.DariDesimal(d);
+    // Lebih dari 4 desimal ditolak sebagai isian tak valid (bukan dilempar), seperti di layar retur dari struk.
+    return d == null || d.scale > Kuantitas.skala ? null : Kuantitas.DariDesimal(d);
   }
 
   /// Baris dengan jumlah terbaru; null bila ada isian jumlah yang tidak valid.
@@ -239,6 +240,7 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);
+        unawaited(UmpanAksi.Gagal(context, judul: 'Retur tanpa struk belum tersimpan', pesan: galat.pesan));
       }
     } finally {
       if (mounted) {

@@ -95,6 +95,11 @@ void main() {
       expect(find.text('Status sinkron'), findsOneWidget);
       await tester.tap(find.widgetWithText(FilledButton, 'Kirim sekarang'));
       await Tunggu(tester, const Duration(milliseconds: 900));
+      // Hasil kirim yang ditolak server tampil sebagai dialog yang harus diakui.
+      expect(find.byKey(const ValueKey('DialogHasilGagal')), findsOneWidget);
+      expect(find.text('1 data ditolak server'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Mengerti'));
+      await Tunggu(tester);
 
       final daftar = find.byType(Scrollable).last;
       await tester.scrollUntilVisible(find.byKey(const ValueKey('BannerShiftLama')), 200, scrollable: daftar);

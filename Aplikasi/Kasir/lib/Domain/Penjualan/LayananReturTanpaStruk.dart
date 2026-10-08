@@ -77,6 +77,9 @@ class LayananReturTanpaStruk {
     if (produk.bernomorSeri || produk.berBatch) {
       return '"${produk.nama}" ber-batch atau bernomor seri sehingga hanya bisa diretur dengan struk.';
     }
+    if (produk.hargaTerbuka || produk.kelompokPilihan.any((k) => k.minimal >= 1)) {
+      return '"${produk.nama}" butuh harga atau pilihan khusus saat dijual sehingga hanya bisa diretur dengan struk.';
+    }
     if (produk.jenis != jenisProdukStok) {
       return '"${produk.nama}" bukan barang berstok biasa sehingga tidak bisa diretur tanpa struk.';
     }

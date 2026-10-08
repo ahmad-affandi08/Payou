@@ -85,6 +85,29 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
             ? 'Belum tersambung ke server. Data aman di perangkat dan akan dikirim otomatis.'
             : '${hasil.terkirim} data terkirim${hasil.ditolak > 0 ? ', ${hasil.ditolak} perlu tindakan' : ''}.';
       });
+      // Hasil kirim harus terlihat jelas: berhasil = notifikasi, gagal/ditolak = dialog dengan langkah berikutnya.
+      if (hasil.offline) {
+        unawaited(
+          UmpanAksi.Gagal(
+            context,
+            judul: 'Belum tersambung ke server',
+            pesan: 'Data aman di perangkat ini dan dikirim otomatis begitu internet kembali. Tidak perlu diulang.',
+          ),
+        );
+      } else if (hasil.ditolak > 0) {
+        unawaited(
+          UmpanAksi.Gagal(
+            context,
+            judul: '${hasil.ditolak} data ditolak server',
+            pesan: 'Lihat bagian Perlu tindakan di bawah untuk alasannya, lalu perbaiki dan kirim ulang.',
+          ),
+        );
+      } else {
+        UmpanAksi.Berhasil(
+          context,
+          hasil.terkirim == 0 ? 'Tidak ada data yang menunggu. Semua sudah terkirim.' : '${hasil.terkirim} data terkirim ke server.',
+        );
+      }
     }
   }
 
