@@ -92,6 +92,7 @@ Route::middleware([AutentikasiPerangkat::class, IdempotensiPos::class])->group(f
 
         // F-09: cari struk asal untuk retur (perlu online); hanya penjualan outlet perangkat.
         Route::get('/penjualan/cari', [PenjualanKontroler::class, 'Cari'])->middleware('throttle:pos-60')->name('pos.penjualan.cari');
+        Route::get('/penjualan/kandidat', [PenjualanKontroler::class, 'Kandidat'])->middleware('throttle:pos-60')->name('pos.penjualan.kandidat');
         // F-16a: cari pelanggan aktif untuk dipilih kasir (pelanggan baru lewat outbox `Pelanggan.Buat`).
         Route::get('/pelanggan', [PelangganKontroler::class, 'Cari'])->middleware('throttle:pos-60')->name('pos.pelanggan.cari');
         // F-12 bagian 2: cari pre-order untuk diambil (perlu online).

@@ -100,6 +100,18 @@ class LayananReturPenjualan {
       int.tryParse(await repositori.AmbilPengaturan(KunciPengaturan.batasHariRetur) ?? '') ??
       DataAwal.batasHariReturBawaan;
 
+  /// Daftar penjualan yang bisa dipilih untuk diretur (terbaru, atau yang nomornya memuat [kata]). Offline atau galat
+  /// server → daftar kosong: layar tetap bisa dipakai lewat nomor utuh atau pindai QR struk.
+  Future<List<KandidatReturPos>> CariKandidat(String kata) async {
+    try {
+      return await klien.CariKandidatRetur(kata);
+    } on GalatJaringan {
+      return const [];
+    } on GalatApi {
+      return const [];
+    }
+  }
+
   /// Cari struk asal di server. Offline → `ReturButuhInternet`; tidak ada → `PenjualanTidakDitemukan` (dengan petunjuk
   /// bila struk itu dibuat di perangkat ini dan belum terkirim); retur sebelumnya atas struk ini yang belum terkirim →
   /// `ReturSebelumnyaBelumTerkirim` (jumlah yang bisa diretur dari server belum memperhitungkannya).

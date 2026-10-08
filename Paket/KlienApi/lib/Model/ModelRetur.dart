@@ -231,6 +231,31 @@ class ReturRingkasCariPos {
   );
 }
 
+/// Satu penjualan yang bisa dipilih di layar retur (`penjualan/kandidat`), tanpa mengetik nomor struk utuh.
+class KandidatReturPos {
+  const KandidatReturPos({
+    required this.uuid,
+    required this.nomor,
+    required this.labelStatus,
+    required this.dibuatPada,
+    required this.totalAkhir,
+  });
+
+  final String uuid;
+  final String nomor;
+  final String labelStatus;
+  final String dibuatPada;
+  final String totalAkhir;
+
+  static KandidatReturPos DariJson(Map<String, Object?> json) => KandidatReturPos(
+    uuid: UraiJson.AmbilTeks(json['Uuid']),
+    nomor: UraiJson.AmbilTeks(json['Nomor']),
+    labelStatus: UraiJson.AmbilTeks(json['LabelStatus']),
+    dibuatPada: UraiJson.AmbilTeks(json['DibuatPada']),
+    totalAkhir: UraiJson.AmbilDesimal(json['TotalAkhir']),
+  );
+}
+
 /// Hasil `penjualan/cari`.
 class HasilCariPenjualan {
   const HasilCariPenjualan({

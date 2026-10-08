@@ -43,11 +43,71 @@ final class CariPenjualanPos
     ) {}
 
     /**
+     * Uuid penjualan (ULID 26 karakter) dari tautan/kode struk digital; null bila [teks] bukan kode struk.
+     */
+    public static function AmbilUuidDariKodeStruk(string $teks): ?string
+    {
+        if (preg_match('/(?:^|[\/.])([0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26})(?:[?#].*)?$/', trim($teks), $cocok) !== 1) {
+            return null;
+        }
+
+        return strtoupper($cocok[1]);
+    }
+
+    /**
+     * Penjualan outlet yang masih bisa diretur untuk dipilih di layar retur (`GET penjualan/kandidat?kata=`): kasir
+     * cukup mengetik sebagian nomor (misal empat angka terakhir) atau memilih dari yang terbaru, tanpa mengetik nomor
+     * struk utuh. Hanya lunas/diretur sebagian dalam `BatasHariRetur`, terbaru dulu, paling banyak 10. [kata] kosong =
+     * yang terbaru; kata pendek (1 karakter) ditolak agar tidak mengembalikan semuanya.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function CariKandidat(string $kata, int $idOutlet): array
+    {
+        $kata = trim($kata);
+        $batasHari = $this->pengaturanKasir->Ambil()->batasHariRetur;
+        $sejak = $this->tanggalBisnis->Hitung($idOutlet)->subDays($batasHari)->toDateString();
+        $kueri = Penjualan::query()
+            ->where('IdOutlet', $idOutlet)
+            ->whereIn('Status', [StatusPenjualan::Lunas->value, StatusPenjualan::DireturSebagian->value])
+            ->where('TanggalBisnis', '>=', $sejak);
+
+        if ($kata !== '') {
+            if (mb_strlen($kata) < 2) {
+                return [];
+            }
+
+            $aman = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $kata);
+            $kueri->where('Nomor', 'like', '%'.$aman.'%');
+        }
+
+        $baris = $kueri->orderByDesc('DibuatOfflinePada')->orderByDesc('Id')->limit(10)->get()
+            ->map(fn (Penjualan $p): array => [
+                'Uuid' => $p->Uuid,
+                'Nomor' => $p->Nomor,
+                'Status' => $p->Status->value,
+                'LabelStatus' => $p->Status->AmbilLabel(),
+                'TanggalBisnis' => $p->TanggalBisnis->toDateString(),
+                'DibuatPada' => $p->DibuatOfflinePada->utc()->toIso8601ZuluString(),
+                'TotalAkhir' => $p->TotalAkhir,
+            ])
+            ->all();
+
+        return array_values($baris);
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     public function Ambil(string $nomor, int $idOutlet): ?array
     {
         $p = Penjualan::query()->where('Nomor', $nomor)->where('IdOutlet', $idOutlet)->first();
+
+        // Hasil pindai QR struk digital (`.../s/{kode}`, kode = tenant.Uuid) atau Uuid penjualan: nomor struk panjang
+        // tidak perlu diketik. Tetap dibatasi outlet perangkat dan scope tenant.
+        if ($p === null && ($uuid = self::AmbilUuidDariKodeStruk($nomor)) !== null) {
+            $p = Penjualan::query()->where('Uuid', $uuid)->where('IdOutlet', $idOutlet)->first();
+        }
 
         if ($p === null) {
             return null;

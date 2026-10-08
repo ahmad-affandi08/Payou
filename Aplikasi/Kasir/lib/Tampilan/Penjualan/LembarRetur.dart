@@ -18,6 +18,7 @@ import '../../Domain/Penjualan/LayananReturPenjualan.dart';
 import '../../Domain/Penjualan/PenghitungNilaiRetur.dart';
 import '../../Domain/Sesi/StafLokal.dart';
 import '../Komponen/FormatAngka.dart';
+import '../Komponen/FormatWaktu.dart';
 import '../Komponen/MasukanUang.dart';
 import '../LembarMutasiKas.dart';
 import 'LembarReturTanpaStruk.dart';
@@ -64,6 +65,11 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
   ReturTersimpan? _selesai;
   int? _batasHari;
 
+  /// Penjualan yang bisa dipilih (terbaru atau yang cocok dengan ketikan), supaya kasir tidak mengetik nomor utuh.
+  List<KandidatReturPos> _kandidat = const [];
+  Timer? _jedaKandidat;
+  int _urutanKandidat = 0;
+
   /// K28: formulir retur tanpa struk ditampilkan.
   bool _tanpaStruk = false;
 
@@ -77,7 +83,45 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
     if (nomor != null) {
       _nomor.text = nomor;
       unawaited(Future<void>.microtask(_Cari));
+    } else {
+      unawaited(_MuatKandidat(''));
     }
+  }
+
+  /// Muat daftar pilihan untuk [kata] (kosong = terbaru). Jawaban yang datang terlambat dibuang bila kasir sudah
+  /// mengetik lagi.
+  Future<void> _MuatKandidat(String kata) async {
+    final urutan = ++_urutanKandidat;
+    final daftar = await _layanan.CariKandidat(kata);
+    if (mounted && urutan == _urutanKandidat) {
+      setState(() => _kandidat = daftar);
+    }
+  }
+
+  void _SaatNomorBerubah(String kata) {
+    _jedaKandidat?.cancel();
+    _jedaKandidat = Timer(const Duration(milliseconds: 350), () => unawaited(_MuatKandidat(kata)));
+  }
+
+  /// Pindai QR di struk (tautan struk digital) dengan kamera lalu langsung cari.
+  Future<void> _PindaiKamera() async {
+    final hasil = await ref
+        .read(penyediaPemindaiQr)
+        .Pindai(
+          context,
+          judul: 'Pindai QR struk',
+          petunjuk: 'Arahkan kamera ke kode QR di struk pembeli.',
+        );
+    if (!mounted || hasil == null || hasil.trim().isEmpty) {
+      return;
+    }
+    _nomor.text = hasil.trim();
+    await _Cari();
+  }
+
+  void _PilihKandidat(KandidatReturPos kandidat) {
+    _nomor.text = kandidat.nomor;
+    unawaited(_Cari());
   }
 
   Future<void> _MuatBatas() async {
@@ -89,6 +133,7 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
 
   @override
   void dispose() {
+    _jedaKandidat?.cancel();
     _nomor.dispose();
     _alasan.dispose();
     _tunai.dispose();
@@ -412,16 +457,26 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
       ]);
     }
 
+    final adaPemindaiKamera = ref.watch(penyediaPemindaiQr).CekTersedia();
     final cari = [
       TextField(
         controller: _nomor,
         autofocus: hasil == null,
         textInputAction: TextInputAction.search,
+        onChanged: _SaatNomorBerubah,
         onSubmitted: (_) => unawaited(_Cari()),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           labelText: 'Nomor struk',
-          hintText: 'Pindai atau ketik, misal INV/SLB/260924/POS-001-0001',
-          border: OutlineInputBorder(),
+          hintText: 'Ketik 4 angka terakhir nomor struk, atau pindai QR di struk',
+          border: const OutlineInputBorder(),
+          suffixIcon: adaPemindaiKamera
+              ? IconButton(
+                  key: const ValueKey('PindaiStrukRetur'),
+                  tooltip: 'Pindai QR di struk',
+                  onPressed: _mencari ? null : () => unawaited(_PindaiKamera()),
+                  icon: const Icon(Icons.qr_code_scanner),
+                )
+              : null,
         ),
       ),
       const SizedBox(height: TokenJarak.jarak8),
@@ -435,6 +490,24 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
       if (_mencari) const LinearProgressIndicator(),
       if (hasil == null) ...[
         galat,
+        if (_kandidat.isNotEmpty) ...[
+          const SizedBox(height: TokenJarak.jarak12),
+          Text(_nomor.text.trim().isEmpty ? 'Transaksi terbaru' : 'Pilih struk', style: teks.titleSmall),
+          const SizedBox(height: TokenJarak.jarak4),
+          for (final k in _kandidat)
+            ListTile(
+              key: ValueKey('KandidatRetur:${k.uuid}'),
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              onTap: _mencari ? null : () => _PilihKandidat(k),
+              title: TeksKode(k.nomor, gaya: teks.bodyMedium),
+              subtitle: Text(
+                '${FormatWaktu.FormatTanggalJam(DateTime.parse(k.dibuatPada))} | ${k.labelStatus}',
+                style: teks.bodySmall?.copyWith(color: warna.teksSekunder),
+              ),
+              trailing: TeksUang(Uang.Dari(k.totalAkhir), gaya: teks.bodyMedium),
+            ),
+        ],
         const SizedBox(height: TokenJarak.jarak8),
         Text(
           'Retur butuh internet untuk mencari struk. Batas retur ${_batasHari ?? DataAwal.batasHariReturBawaan} hari '

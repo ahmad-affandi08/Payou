@@ -7,7 +7,7 @@ namespace App\Http\Permintaan\Pos\V1;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `GET /api/pos/v1/penjualan/cari?nomor=` (F-09 fase 1): nomor struk lengkap (`INV/...`), dicocokkan persis.
+ * `GET /api/pos/v1/penjualan/cari?nomor=` (F-09 fase 1): nomor struk lengkap (`INV/...`) dicocokkan persis, atau isi QR struk digital (`.../s/{kode}`).
  */
 final class CariPenjualanPermintaan extends FormRequest
 {

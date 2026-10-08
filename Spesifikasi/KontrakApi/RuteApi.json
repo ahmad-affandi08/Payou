@@ -99,6 +99,11 @@
         "Jalur": "api/pos/v1/penjualan/cari",
         "Nama": "pos.penjualan.cari"
     },
+    "GET api/pos/v1/penjualan/kandidat": {
+        "Metode": "GET",
+        "Jalur": "api/pos/v1/penjualan/kandidat",
+        "Nama": "pos.penjualan.kandidat"
+    },
     "GET api/pos/v1/pesan-keluar/{uuidPesanKeluar}": {
         "Metode": "GET",
         "Jalur": "api/pos/v1/pesan-keluar/{uuidPesanKeluar}",

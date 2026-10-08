@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Katalog\Enum\JenisProduk;
 use App\Domain\Katalog\Model\ProdukSatuan;
 use App\Domain\Organisasi\Model\Outlet;
+use App\Domain\Penjualan\Layanan\KodeStrukDigital;
 use Illuminate\Support\Facades\DB;
 use Tests\Pendukung\Kasir\BantuanKasir;
 use Tests\Pendukung\Katalog\BantuanKatalog;
@@ -129,5 +130,62 @@ describe('F-09 GET /api/pos/v1/penjualan/cari (struk asal untuk retur)', functio
 
         $this->app['auth']->forgetGuards();
         $this->withHeaders(['Authorization' => ''])->getJson('/api/pos/v1/penjualan/cari?nomor='.urlencode($p->Nomor))->assertUnauthorized();
+    });
+
+    it('menemukan struk dari isi QR struk digital (tautan, kode, atau Uuid), tanpa mengetik nomor utuh; outlet lain tetap 404', function (): void {
+        $k = BantuanPenjualan::Siapkan($this);
+        $minyak = BantuanPenjualan::BuatProdukBerstok($k['Gudang'], $k['Pemilik']->Id);
+        $p = BantuanPenjualan::Jual($this, $k, ['Baris' => [['Produk' => $minyak, 'Jumlah' => '1', 'Harga' => '38500.00']]]);
+        $kode = KodeStrukDigital::Buat($k['Tenant']->Id, $p->Uuid);
+        $cari = fn (string $isi) => $this->withToken($k['Token'])->getJson('/api/pos/v1/penjualan/cari?nomor='.urlencode($isi));
+
+        foreach ([KodeStrukDigital::AmbilAwalan($k['Tenant']->Id).strtoupper($p->Uuid), 'https://dashboard.payoung.id/s/'.$kode.'?x=1', $kode, $p->Uuid] as $isi) {
+            $cari($isi)->assertOk()->assertJsonPath('Penjualan.Nomor', $p->Nomor);
+        }
+        $cari('https://dashboard.payoung.id/s/'.$kode.'0')->assertNotFound();
+
+        BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
+        $outletLain = Outlet::query()->create(['IdMerek' => $k['Outlet']->IdMerek, 'Kode' => 'CBG3', 'Nama' => 'Cabang Palur']);
+        $perangkatLain = BantuanPerangkat::BuatDanAktifkan($this, $k['Tenant']->Id, $outletLain);
+        $this->withToken($perangkatLain['Token'])->getJson('/api/pos/v1/penjualan/cari?nomor='.urlencode($kode))->assertNotFound();
+    });
+});
+
+describe('F-09 GET /api/pos/v1/penjualan/kandidat (pilih struk untuk retur tanpa mengetik nomor utuh)', function (): void {
+    it('tanpa kata: penjualan terbaru yang masih bisa diretur; dengan kata: nomor yang memuat kata itu; void, diretur penuh, dan lewat batas hari tidak muncul', function (): void {
+        $k = BantuanPenjualan::Siapkan($this);
+        $minyak = BantuanPenjualan::BuatProdukBerstok($k['Gudang'], $k['Pemilik']->Id);
+        $baris = ['Baris' => [['Produk' => $minyak, 'Jumlah' => '1', 'Harga' => '38500.00']]];
+        $pertama = BantuanPenjualan::Jual($this, $k, $baris);
+        $kedua = BantuanPenjualan::Jual($this, $k, $baris);
+        $void = BantuanPenjualan::Jual($this, $k, $baris);
+        $penuh = BantuanPenjualan::Jual($this, $k, $baris);
+        $lama = BantuanPenjualan::Jual($this, $k, $baris);
+        expect(BantuanKasir::KirimRingkas($this, $k['Token'], [
+            BantuanPenjualan::ItemVoid($k, $void),
+            BantuanPenjualan::ItemRetur($k, $penuh, [['Detail' => $penuh->Detail()->firstOrFail()]]),
+        ]))->toBe([['Diterima', null], ['Diterima', null]]);
+        DB::table('Penjualan')->where('Id', $lama->Id)->update(['TanggalBisnis' => $lama->TanggalBisnis->copy()->subDays(10)->toDateString()]);
+
+        $daftar = fn (string $kata) => $this->withToken($k['Token'])->getJson('/api/pos/v1/penjualan/kandidat?kata='.urlencode($kata))->assertOk()->json('Penjualan');
+
+        expect(array_column($daftar(''), 'Nomor'))->toEqualCanonicalizing([$pertama->Nomor, $kedua->Nomor])
+            ->and(array_column($daftar(substr($kedua->Nomor, -4)), 'Nomor'))->toContain($kedua->Nomor)
+            ->and(array_column($daftar($kedua->Nomor), 'Nomor'))->toBe([$kedua->Nomor])
+            ->and($daftar('x'))->toBe([])
+            ->and($daftar('%'))->toBe([])
+            ->and($daftar(''))->each->toHaveKeys(['Uuid', 'Nomor', 'Status', 'LabelStatus', 'TanggalBisnis', 'DibuatPada', 'TotalAkhir']);
+    });
+
+    it('hanya penjualan outlet perangkat; 401 tanpa token', function (): void {
+        $k = BantuanPenjualan::Siapkan($this);
+        $minyak = BantuanPenjualan::BuatProdukBerstok($k['Gudang'], $k['Pemilik']->Id);
+        BantuanPenjualan::Jual($this, $k, ['Baris' => [['Produk' => $minyak, 'Jumlah' => '1', 'Harga' => '38500.00']]]);
+
+        $b = BantuanPenjualan::Siapkan($this, 'Warung Bakso Pak Kumis');
+        expect($this->withToken($b['Token'])->getJson('/api/pos/v1/penjualan/kandidat')->assertOk()->json('Penjualan'))->toBe([]);
+
+        $this->app['auth']->forgetGuards();
+        $this->withHeaders(['Authorization' => ''])->getJson('/api/pos/v1/penjualan/kandidat')->assertUnauthorized();
     });
 });

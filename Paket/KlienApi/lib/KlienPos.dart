@@ -137,6 +137,13 @@ class KlienPos {
     await _Kirim('GET', 'penjualan/cari?nomor=${Uri.encodeQueryComponent(nomor.trim())}', null),
   );
 
+  /// Penjualan outlet yang masih bisa diretur untuk dipilih di layar retur: [kata] kosong = yang terbaru, selain itu
+  /// nomor yang memuat kata itu (misal empat angka terakhir). Offline → `GalatJaringan`.
+  Future<List<KandidatReturPos>> CariKandidatRetur(String kata) async {
+    final json = await _Kirim('GET', 'penjualan/kandidat?kata=${Uri.encodeQueryComponent(kata.trim())}', null);
+    return [for (final p in UraiJson.AmbilDaftarPeta(json['Penjualan'])) KandidatReturPos.DariJson(p)];
+  }
+
   /// Cari pelanggan aktif tenant (F-16a): nama atau nomor HP, minimal 3 karakter (kurang = daftar kosong tanpa
   /// permintaan). Offline → `GalatJaringan`.
   Future<List<PelangganPos>> CariPelanggan(String kata) async {
