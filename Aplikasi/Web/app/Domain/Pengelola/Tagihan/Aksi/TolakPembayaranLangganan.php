@@ -74,7 +74,7 @@ final class TolakPembayaranLangganan
         }
 
         try {
-            Mail::to($pembayaran->EmailPemberitahuan)->send(new PembayaranLanggananDitolak(
+            Mail::to($pembayaran->EmailPemberitahuan)->queue(new PembayaranLanggananDitolak(
                 nama: $pembayaran->NamaPemberitahuan ?? 'Pemilik usaha',
                 nomorTagihan: $tagihan->Nomor,
                 total: $tagihan->AmbilTotal()->FormatRupiah(),

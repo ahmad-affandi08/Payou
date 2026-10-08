@@ -113,7 +113,7 @@ final class AktifkanKembaliTenant
 
         foreach ($penerima as $pemilik) {
             try {
-                Mail::to($pemilik['Email'])->send(new LanggananDiaktifkanKembali($pemilik['Nama'], $tenant->Nama, $langganan->Status->AmbilLabel()));
+                Mail::to($pemilik['Email'])->queue(new LanggananDiaktifkanKembali($pemilik['Nama'], $tenant->Nama, $langganan->Status->AmbilLabel()));
             } catch (Throwable $galat) {
                 Log::warning('Email pengaktifan kembali tenant gagal dikirim.', ['IdTenant' => $tenant->Id, 'Galat' => $galat->getMessage()]);
             }

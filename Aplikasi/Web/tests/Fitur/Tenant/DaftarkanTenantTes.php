@@ -91,9 +91,9 @@ describe('Pendaftaran tenant (F-00)', function (): void {
             ->and(Tenant::query()->count())->toBe(2);
 
         // Rina diberi tahu sekali saja dalam satu jam walau namanya dipakai tiga kali; Budi sekali (nomornya).
-        Mail::assertSent(UpayaPendaftaranAkunTerdaftar::class, 2);
-        Mail::assertSent(UpayaPendaftaranAkunTerdaftar::class, fn (UpayaPendaftaranAkunTerdaftar $surel) => $surel->hasTo('rina@kopinusantara.id') && $surel->identitas === ['email']);
-        Mail::assertSent(UpayaPendaftaranAkunTerdaftar::class, fn (UpayaPendaftaranAkunTerdaftar $surel) => $surel->hasTo('budi@toko.id') && $surel->identitas === ['nomor WhatsApp']);
+        Mail::assertQueued(UpayaPendaftaranAkunTerdaftar::class, 2);
+        Mail::assertQueued(UpayaPendaftaranAkunTerdaftar::class, fn (UpayaPendaftaranAkunTerdaftar $surel) => $surel->hasTo('rina@kopinusantara.id') && $surel->identitas === ['email']);
+        Mail::assertQueued(UpayaPendaftaranAkunTerdaftar::class, fn (UpayaPendaftaranAkunTerdaftar $surel) => $surel->hasTo('budi@toko.id') && $surel->identitas === ['nomor WhatsApp']);
     });
 
     it('BR-00.6: paket pilihan dipakai bila aktif; GRATIS langsung berstatus Gratis; negosiasi memakai paket bawaan', function (): void {

@@ -38,7 +38,7 @@ final class KirimVerifikasiEmail
         ], false);
         $tautan = AlamatDomain::BuatUrlAbsolutTenant($relatif);
 
-        Mail::to($pengguna->Email)->send(new VerifikasiEmail($pengguna->Nama, $tautan, $jam));
+        Mail::to($pengguna->Email)->queue(new VerifikasiEmail($pengguna->Nama, $tautan, $jam));
 
         return true;
     }

@@ -59,7 +59,7 @@ final class AturUlangKataSandi
         }
 
         try {
-            Mail::to($diubah->Email)->send(new KataSandiDiubah($diubah->Nama));
+            Mail::to($diubah->Email)->queue(new KataSandiDiubah($diubah->Nama));
         } catch (Throwable $galat) {
             // Kata sandi sudah terganti; pemberitahuan bersifat tambahan.
             Log::error('Email pemberitahuan kata sandi diubah gagal dikirim.', ['Pesan' => $galat->getMessage()]);

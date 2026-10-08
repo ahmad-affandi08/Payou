@@ -7,6 +7,7 @@ namespace App\Domain\Tenant\Kueri;
 use App\Domain\Tenant\Enum\CakupanFlagFitur;
 use App\Domain\Tenant\Model\FlagFitur;
 use App\Domain\Tenant\Model\Langganan;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Nilai flag fitur untuk satu tenant (P-10, §5 P-04 "flag fitur global mengizinkan"). Per kunci:
@@ -103,6 +104,8 @@ final class FlagFiturTenant
      */
     private function AmbilAturan(): array
     {
-        return $this->aturan ??= array_values(FlagFitur::query()->orderBy('Id')->get()->all());
+        // Tabel kecil yang sama untuk semua tenant dan dibaca di setiap polling kasir: cache 30 detik, dibatalkan otomatis
+        // oleh `FlagFitur` saat berubah (kill switch tetap seketika bila diubah lewat aplikasi).
+        return $this->aturan ??= array_values(Cache::remember(FlagFitur::KUNCI_CACHE_ATURAN, 30, fn (): array => FlagFitur::query()->orderBy('Id')->get()->all()));
     }
 }

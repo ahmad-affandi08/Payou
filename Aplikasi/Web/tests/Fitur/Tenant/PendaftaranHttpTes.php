@@ -57,7 +57,7 @@ describe('Registrasi lewat web (F-00)', function (): void {
             ->and($pengguna->NoHp)->toBe('081234567890')
             ->and($tenant->Langganan?->Paket->Kode)->toBe('PRO');
         $this->assertAuthenticatedAs($pengguna, 'web');
-        Mail::assertSent(VerifikasiEmail::class, fn (VerifikasiEmail $surel) => $surel->hasTo('rina@kopinusantara.id'));
+        Mail::assertQueued(VerifikasiEmail::class, fn (VerifikasiEmail $surel) => $surel->hasTo('rina@kopinusantara.id'));
 
         $this->get('/kelola/panduan-awal')
             ->assertInertia(fn (AssertableInertia $halaman) => $halaman
@@ -98,7 +98,7 @@ describe('Registrasi lewat web (F-00)', function (): void {
 
         $this->assertGuest('web');
         expect(Tenant::query()->count())->toBe(1)->and(Pengguna::query()->count())->toBe(1);
-        Mail::assertSent(UpayaPendaftaranAkunTerdaftar::class, fn (UpayaPendaftaranAkunTerdaftar $surel) => $surel->hasTo('rina@kopinusantara.id'));
+        Mail::assertQueued(UpayaPendaftaranAkunTerdaftar::class, fn (UpayaPendaftaranAkunTerdaftar $surel) => $surel->hasTo('rina@kopinusantara.id'));
     });
 
     it('BR-00.6: paket pilihan yang tidak tersedia jatuh ke paket bawaan, bukan paket pertama', function (): void {
@@ -201,7 +201,7 @@ describe('Verifikasi email (BR-00.5)', function (): void {
     it('tautan di email berlaku sesuai konfigurasi (24 jam), bukan lebih', function (): void {
         $this->post('/daftar', IsianDaftarUji())->assertSessionHasNoErrors();
         $tautan = '';
-        Mail::assertSent(VerifikasiEmail::class, function (VerifikasiEmail $surel) use (&$tautan): bool {
+        Mail::assertQueued(VerifikasiEmail::class, function (VerifikasiEmail $surel) use (&$tautan): bool {
             $tautan = $surel->tautan;
 
             return true;
@@ -221,7 +221,7 @@ describe('Verifikasi email (BR-00.5)', function (): void {
             $this->post('/verifikasi-email/kirim-ulang')->assertSessionHasNoErrors();
         }
         $this->post('/verifikasi-email/kirim-ulang')->assertSessionHasErrors('Umum');
-        Mail::assertSent(VerifikasiEmail::class, 4);
+        Mail::assertQueued(VerifikasiEmail::class, 4);
     });
 
     it('kirim ulang untuk email yang sudah terverifikasi tidak mengaku mengirim', function (): void {
@@ -320,7 +320,7 @@ describe('Badan email verifikasi (D-26)', function (): void {
         $this->post('/keluar');
 
         $surel = null;
-        Mail::assertSent(VerifikasiEmail::class, function (VerifikasiEmail $dikirim) use (&$surel): bool {
+        Mail::assertQueued(VerifikasiEmail::class, function (VerifikasiEmail $dikirim) use (&$surel): bool {
             $surel = $dikirim;
 
             return true;
@@ -347,7 +347,7 @@ describe('Badan email verifikasi (D-26)', function (): void {
         $this->post('/keluar');
 
         $surel = null;
-        Mail::assertSent(VerifikasiEmail::class, function (VerifikasiEmail $dikirim) use (&$surel): bool {
+        Mail::assertQueued(VerifikasiEmail::class, function (VerifikasiEmail $dikirim) use (&$surel): bool {
             $surel = $dikirim;
 
             return true;

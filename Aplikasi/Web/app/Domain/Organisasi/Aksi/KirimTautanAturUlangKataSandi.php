@@ -33,7 +33,7 @@ final class KirimTautanAturUlangKataSandi
                 $menit = (int) config('auth.passwords.users.expire');
 
                 try {
-                    Mail::to($pengguna->Email)->send(new TautanAturUlangKataSandi($pengguna->Nama, $tautan, $menit));
+                    Mail::to($pengguna->Email)->queue(new TautanAturUlangKataSandi($pengguna->Nama, $tautan, $menit));
                 } catch (Throwable $galat) {
                     // Galat pengiriman tidak boleh terlihat berbeda dari email yang tidak terdaftar (§25 no. 18).
                     Log::error('Email atur ulang kata sandi gagal dikirim.', ['Pesan' => $galat->getMessage()]);

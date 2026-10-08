@@ -8,7 +8,9 @@ use App\Domain\Bersama\Model\ModelDasar;
 use App\Domain\Tenant\Enum\AplikasiRilis;
 use App\Domain\Tenant\Enum\KanalRilis;
 use App\Domain\Tenant\Enum\StatusRilis;
+use BackedEnum;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Rilis aplikasi Flutter per platform & kanal (P-10, §14.6). Data platform (tanpa `MilikTenant`); dikelola dari
@@ -38,6 +40,33 @@ use Illuminate\Support\Carbon;
 final class RilisAplikasi extends ModelDasar
 {
     protected $table = 'RilisAplikasi';
+
+    /** Kunci cache daftar rilis per aplikasi & platform (dipakai `VersiAplikasiPerangkat`). */
+    public static function KunciCache(string $aplikasi, string $platform): string
+    {
+        return "rilis:{$aplikasi}:{$platform}";
+    }
+
+    protected static function booted(): void
+    {
+        // Batalkan cache pasangan (aplikasi, platform) yang lama dan yang baru, kalau salah satunya berubah.
+        $lupakan = static function (self $rilis): void {
+            foreach ([$rilis->getAttributes(), $rilis->getRawOriginal()] as $nilai) {
+                $aplikasi = $nilai['Aplikasi'] ?? null;
+                $platform = $nilai['Platform'] ?? null;
+
+                if ($aplikasi instanceof BackedEnum) {
+                    $aplikasi = $aplikasi->value;
+                }
+
+                if (is_string($aplikasi) && is_string($platform)) {
+                    Cache::forget(self::KunciCache($aplikasi, $platform));
+                }
+            }
+        };
+        self::saved($lupakan);
+        self::deleted($lupakan);
+    }
 
     /** @var array<string, mixed> */
     protected $attributes = [

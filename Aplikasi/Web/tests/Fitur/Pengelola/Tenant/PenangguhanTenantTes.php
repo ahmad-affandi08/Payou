@@ -61,7 +61,7 @@ describe('P-07 tangguhkan manual (BR-P07.4)', function (): void {
             ->and($log->NilaiBaru)->toMatchArray(['Status' => 'Ditangguhkan', 'Kategori' => 'Penipuan'])
             ->and($log->Alasan)->toContain('chargeback QRIS');
 
-        Mail::assertSent(LanggananDitangguhkan::class, function (LanggananDitangguhkan $surel): bool {
+        Mail::assertQueued(LanggananDitangguhkan::class, function (LanggananDitangguhkan $surel): bool {
             $isi = $surel->render();
 
             return $surel->hasTo('rina@kopinusantara.id')
@@ -101,7 +101,7 @@ describe('P-07 tangguhkan manual (BR-P07.4)', function (): void {
 
         Langganan::query()->where('IdTenant', $tenant->Id)->sole()->update(['Status' => StatusLangganan::Berhenti]);
         TangguhkanUji($this, $tenant)->assertSessionHasErrors('Umum');
-        Mail::assertSentCount(1);
+        Mail::assertQueuedCount(1);
     });
 
     it('§19.3: hanya Super Admin yang boleh menangguhkan', function (PeranPengelolaBawaan $peran): void {
@@ -127,7 +127,7 @@ describe('P-07 aktifkan kembali (BR-P07.5)', function (): void {
         expect($langganan->Status)->toBe($asal)
             ->and($langganan->StatusSebelumDitangguhkan)->toBeNull()
             ->and(LogAuditPengelola::query()->where('Aksi', 'tenant.aktifkan')->sole()->Alasan)->toContain('tidak terbukti');
-        Mail::assertSent(LanggananDiaktifkanKembali::class, fn (LanggananDiaktifkanKembali $surel) => $surel->hasTo('rina@kopinusantara.id'));
+        Mail::assertQueued(LanggananDiaktifkanKembali::class, fn (LanggananDiaktifkanKembali $surel) => $surel->hasTo('rina@kopinusantara.id'));
     })->with([StatusLangganan::Trial, StatusLangganan::Aktif, StatusLangganan::Gratis]);
 
     it('trial yang habis selama ditangguhkan dipulihkan ke paket Gratis (BR-00.3)', function (): void {
@@ -230,7 +230,7 @@ describe('P-07 × P-08: aktifkan kembali memeriksa tunggakan (BR-P07.5, BR-P08.1
         expect($langganan->Status)->toBe(StatusLangganan::Ditangguhkan)
             ->and($langganan->StatusSebelumDitangguhkan)->toBeNull()
             ->and($langganan->CekDitangguhkanManual())->toBeFalse();
-        Mail::assertNotSent(LanggananDiaktifkanKembali::class);
+        Mail::assertNotQueued(LanggananDiaktifkanKembali::class);
     });
 
     it('status asal penangguhan manual dikosongkan begitu langganan keluar dari Ditangguhkan lewat jalur mana pun', function (): void {

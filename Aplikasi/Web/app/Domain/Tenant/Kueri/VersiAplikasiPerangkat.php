@@ -11,6 +11,7 @@ use App\Domain\Tenant\Enum\StatusRilis;
 use App\Domain\Tenant\Model\RilisAplikasi;
 use App\Domain\Tenant\Model\Tenant;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Versi aplikasi untuk satu perangkat (P-10, §14.6) dari `RilisAplikasi`:
@@ -33,11 +34,17 @@ final class VersiAplikasiPerangkat
     {
         $cadangan = self::AmbilCadangan($aplikasi, $platform);
         /** @var Collection<int, RilisAplikasi> $rilis */
-        $rilis = RilisAplikasi::query()
-            ->where('Aplikasi', $aplikasi->value)
-            ->where('Platform', $platform)
-            ->where('Status', '!=', StatusRilis::Draf->value)
-            ->get();
+        // Daftar rilis sama untuk semua tenant dan dibaca di setiap polling `konfigurasi-aplikasi` (tiga platform per
+        // panggilan): cache 30 detik, dibatalkan otomatis oleh `RilisAplikasi` saat berubah.
+        $rilis = Cache::remember(
+            RilisAplikasi::KunciCache($aplikasi->value, $platform),
+            30,
+            fn (): Collection => RilisAplikasi::query()
+                ->where('Aplikasi', $aplikasi->value)
+                ->where('Platform', $platform)
+                ->where('Status', '!=', StatusRilis::Draf->value)
+                ->get(),
+        );
 
         $ember = self::HitungEmber($uuidPerangkat);
         $beta = $this->CekTenantBeta($idTenant);

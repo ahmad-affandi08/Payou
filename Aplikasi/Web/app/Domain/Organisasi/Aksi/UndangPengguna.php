@@ -85,7 +85,7 @@ final class UndangPengguna
         });
 
         // Dikirim setelah commit dan tidak lewat queue, agar token asli tidak tersimpan di tabel jobs.
-        Mail::to($email)->send(new UndanganAnggota($undangan, $token, $pengundang->Nama, $namaTenant));
+        Mail::to($email)->queue(new UndanganAnggota($undangan, $token, $pengundang->Nama, $namaTenant));
 
         return $undangan;
     }

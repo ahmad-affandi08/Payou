@@ -176,7 +176,7 @@ describe('Terima pembayaran → tagihan Lunas → langganan Aktif (BR-00.7)', fu
             ->and($log->Alasan)->toBe('Mutasi BCA 23/09')
             ->and($log->NilaiLama['Langganan']['Status'] ?? null)->toBe('Trial')
             ->and($log->NilaiBaru['Langganan']['Status'] ?? null)->toBe('Aktif');
-        Mail::assertSent(PembayaranLanggananDiterima::class, fn (PembayaranLanggananDiterima $surel) => $surel->hasTo('rina@kopinusantara.id')
+        Mail::assertQueued(PembayaranLanggananDiterima::class, fn (PembayaranLanggananDiterima $surel) => $surel->hasTo('rina@kopinusantara.id')
             && $surel->nomorTagihan === 'INV/2026/09/000001');
     });
 
@@ -203,7 +203,7 @@ describe('Terima pembayaran → tagihan Lunas → langganan Aktif (BR-00.7)', fu
 
         expect(LanggananTagihanUji($this->tenant)->PeriodeSelesai?->equalTo($periodeSelesai))->toBeTrue()
             ->and(LogAuditPengelola::query()->where('Aksi', 'like', 'tagihan.pembayaran.%')->count())->toBe(1);
-        Mail::assertSentCount(1);
+        Mail::assertQueuedCount(1);
     });
 
     it('race dua verifikator: yang kedua memeriksa ulang status di bawah kunci dan ditolak', function (): void {
@@ -233,7 +233,7 @@ describe('Tolak pembayaran', function (): void {
             ->and($pembayaran->AlasanTolak)->toBe('Dana belum masuk ke rekening BCA per 23/09 pukul 12.00.')
             ->and(TagihanLangganan::query()->withoutGlobalScopes()->sole()->Status)->toBe(StatusTagihanLangganan::Terbit)
             ->and(LogAuditPengelola::query()->where('Aksi', 'tagihan.pembayaran.tolak')->sole()->IdTenant)->toBe($this->tenant->Id);
-        Mail::assertSent(PembayaranLanggananDitolak::class, fn (PembayaranLanggananDitolak $surel) => $surel->hasTo('rina@kopinusantara.id'));
+        Mail::assertQueued(PembayaranLanggananDitolak::class, fn (PembayaranLanggananDitolak $surel) => $surel->hasTo('rina@kopinusantara.id'));
 
         $baru = UnggahBuktiUji($this, $this->pemilik, $this->tenant, TagihanLangganan::query()->withoutGlobalScopes()->sole());
         expect($baru->Id)->not->toBe($pembayaran->Id)

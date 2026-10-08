@@ -29,7 +29,7 @@ beforeEach(function (): void {
 function AmbilTokenAturUlangUji(): string
 {
     $tautan = '';
-    Mail::assertSent(TautanAturUlangKataSandi::class, function (TautanAturUlangKataSandi $surel) use (&$tautan): bool {
+    Mail::assertQueued(TautanAturUlangKataSandi::class, function (TautanAturUlangKataSandi $surel) use (&$tautan): bool {
         $tautan = $surel->tautan;
 
         return true;
@@ -54,8 +54,8 @@ describe('Minta tautan (BR-00.9, §25 no. 18)', function (): void {
                 ->assertSessionHas('Kilat', LupaKataSandiKontroler::PESAN_TERKIRIM);
         }
 
-        Mail::assertSent(TautanAturUlangKataSandi::class, 1);
-        Mail::assertSent(TautanAturUlangKataSandi::class, fn (TautanAturUlangKataSandi $surel) => $surel->hasTo('rina@kopinusantara.id') && $surel->menitBerlaku === 60);
+        Mail::assertQueued(TautanAturUlangKataSandi::class, 1);
+        Mail::assertQueued(TautanAturUlangKataSandi::class, fn (TautanAturUlangKataSandi $surel) => $surel->hasTo('rina@kopinusantara.id') && $surel->menitBerlaku === 60);
         expect(DB::table('password_reset_tokens')->where('email', 'rina@kopinusantara.id')->value('token'))
             ->not->toBe(AmbilTokenAturUlangUji());
     });
@@ -65,7 +65,7 @@ describe('Minta tautan (BR-00.9, §25 no. 18)', function (): void {
             $this->post('/lupa-kata-sandi', ['Email' => 'rina@kopinusantara.id'])->assertSessionHasNoErrors();
             $this->travel(2)->minutes();
         }
-        Mail::assertSent(TautanAturUlangKataSandi::class, LupaKataSandiKontroler::BATAS_PERMINTAAN_PER_EMAIL_PER_JAM);
+        Mail::assertQueued(TautanAturUlangKataSandi::class, LupaKataSandiKontroler::BATAS_PERMINTAAN_PER_EMAIL_PER_JAM);
 
         foreach (range(1, LupaKataSandiKontroler::BATAS_PERMINTAAN_PER_IP_PER_JAM - LupaKataSandiKontroler::BATAS_PERMINTAAN_PER_EMAIL_PER_JAM - 1) as $urutan) {
             $this->post('/lupa-kata-sandi', ['Email' => "acak{$urutan}@contoh.id"])->assertSessionHasNoErrors();
@@ -93,7 +93,7 @@ describe('Atur ulang kata sandi (BR-00.9)', function (): void {
         expect(Hash::check('kopi-baru-2026', $pengguna->KataSandi))->toBeTrue()
             ->and($pengguna->getRememberToken())->not->toBe('token-ingat-lama')
             ->and(DB::table('password_reset_tokens')->count())->toBe(0);
-        Mail::assertSent(KataSandiDiubah::class, fn (KataSandiDiubah $surel) => $surel->hasTo('rina@kopinusantara.id'));
+        Mail::assertQueued(KataSandiDiubah::class, fn (KataSandiDiubah $surel) => $surel->hasTo('rina@kopinusantara.id'));
 
         $this->post('/atur-ulang-kata-sandi', [...$isian, 'KataSandi' => 'lagi-lagi-99', 'KonfirmasiKataSandi' => 'lagi-lagi-99'])
             ->assertSessionHasErrors('Umum');
@@ -129,7 +129,7 @@ describe('Atur ulang kata sandi (BR-00.9)', function (): void {
         $this->travel(61)->minutes();
         $this->post('/atur-ulang-kata-sandi', $isian)->assertSessionHasErrors('Umum');
         expect(Hash::check(BantuanAutentikasi::KATA_SANDI, $this->pengguna->refresh()->KataSandi))->toBeTrue();
-        Mail::assertNotSent(KataSandiDiubah::class);
+        Mail::assertNotQueued(KataSandiDiubah::class);
     });
 
     it('sesi lain yang sedang masuk berakhir setelah kata sandi diatur ulang', function (): void {

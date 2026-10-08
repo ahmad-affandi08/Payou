@@ -63,7 +63,7 @@ final class TangguhkanTenant
 
         foreach ($this->pemilik->Ambil($tenant->Id) as $pemilik) {
             try {
-                Mail::to($pemilik['Email'])->send(new LanggananDitangguhkan($pemilik['Nama'], $tenant->Nama, $kategori->AmbilLabel()));
+                Mail::to($pemilik['Email'])->queue(new LanggananDitangguhkan($pemilik['Nama'], $tenant->Nama, $kategori->AmbilLabel()));
             } catch (Throwable $galat) {
                 Log::warning('Email penangguhan tenant gagal dikirim.', ['IdTenant' => $tenant->Id, 'Galat' => $galat->getMessage()]);
             }

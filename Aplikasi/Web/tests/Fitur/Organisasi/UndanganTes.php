@@ -39,7 +39,7 @@ function UndangAnggotaUji(TestCase $tes, Pengguna $pengundang, int $idTenant, st
         ->assertSessionHasNoErrors();
 
     $tautan = null;
-    Mail::assertSent(UndanganAnggota::class, function (UndanganAnggota $surel) use ($email, &$tautan): bool {
+    Mail::assertQueued(UndanganAnggota::class, function (UndanganAnggota $surel) use ($email, &$tautan): bool {
         if (! $surel->hasTo(strtolower($email))) {
             return false;
         }

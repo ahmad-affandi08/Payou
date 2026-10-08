@@ -113,7 +113,7 @@ final class TerimaPembayaranLangganan
         }
 
         try {
-            Mail::to($pembayaran->EmailPemberitahuan)->send(new PembayaranLanggananDiterima(
+            Mail::to($pembayaran->EmailPemberitahuan)->queue(new PembayaranLanggananDiterima(
                 nama: $pembayaran->NamaPemberitahuan ?? 'Pemilik usaha',
                 nomorTagihan: $tagihan->Nomor,
                 total: $tagihan->AmbilTotal()->FormatRupiah(),

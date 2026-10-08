@@ -252,7 +252,7 @@ describe('Daftar dengan Google', function (): void {
             ->and($tenant->Langganan?->Paket->Kode)->toBe('PRO');
         $this->assertAuthenticatedAs($pengguna, 'web');
         expect(session(SesiAutentikasiTenant::MASUK_GOOGLE))->toBeTrue();
-        Mail::assertNotSent(VerifikasiEmail::class);
+        Mail::assertNotQueued(VerifikasiEmail::class);
         expect(session(SesiAutentikasiTenant::GOOGLE_PENDAFTARAN))->toBeNull();
     });
 

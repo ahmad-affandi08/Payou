@@ -7,6 +7,7 @@ namespace App\Domain\Tenant\Model;
 use App\Domain\Bersama\Model\ModelDasar;
 use App\Domain\Tenant\Enum\CakupanFlagFitur;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Aturan flag fitur (P-10, PGL-18). Data platform (tanpa `MilikTenant`); dikelola Platform Pengelola, dievaluasi
@@ -27,6 +28,16 @@ use Illuminate\Support\Carbon;
 final class FlagFitur extends ModelDasar
 {
     protected $table = 'FlagFitur';
+
+    /** Kunci cache seluruh aturan flag (dipakai `FlagFiturTenant`); dibatalkan otomatis tiap flag berubah. */
+    public const KUNCI_CACHE_ATURAN = 'flagfitur:aturan';
+
+    protected static function booted(): void
+    {
+        $lupakan = static fn () => Cache::forget(self::KUNCI_CACHE_ATURAN);
+        self::saved($lupakan);
+        self::deleted($lupakan);
+    }
 
     /** @var array<string, mixed> */
     protected $attributes = ['IdObjek' => null, 'Persen' => null, 'DiubahOleh' => null];

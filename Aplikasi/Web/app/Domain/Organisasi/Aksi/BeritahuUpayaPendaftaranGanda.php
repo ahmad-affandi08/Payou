@@ -40,7 +40,7 @@ final class BeritahuUpayaPendaftaranGanda
             RateLimiter::hit($kunci, self::DETIK_JEDA_PEMBERITAHUAN);
 
             try {
-                Mail::to($pengguna->Email)->send(new UpayaPendaftaranAkunTerdaftar($pengguna->Nama, $identitas));
+                Mail::to($pengguna->Email)->queue(new UpayaPendaftaranAkunTerdaftar($pengguna->Nama, $identitas));
             } catch (Throwable $galat) {
                 // Pendaftar tetap melihat pesan umum yang sama; kegagalan email tidak boleh membuka apa pun.
                 Log::error('Email pemberitahuan upaya pendaftaran gagal dikirim.', ['Pesan' => $galat->getMessage()]);
