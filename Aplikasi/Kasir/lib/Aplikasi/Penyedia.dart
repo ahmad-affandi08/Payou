@@ -1165,6 +1165,9 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
   /// Penjaga agar pencabutan hanya ditangani sekali: kaitnya bisa terpicu beberapa permintaan sekaligus.
   bool _sedangDicabut = false;
 
+  /// Kapan daftar staf (izin & verifier PIN) terakhir disegarkan di latar oleh [SegarkanStafBilaPerlu].
+  DateTime? _stafDisegarkanPada;
+
   @override
   KeadaanSesi build() {
     unawaited(_Muat());
@@ -1252,6 +1255,38 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
     } on GalatApi {
       // Galat server lain: tetap pakai data lokal terakhir.
       ref.read(penyediaKoneksi.notifier).Tandai(StatusKoneksi.Online);
+    }
+  }
+
+  /// Segarkan daftar staf (PIN, izin, status aktif) di latar supaya perubahan dari back-office, misalnya PIN diganti
+  /// atau akses dicabut, tidak menunggu kasir menekan "Perbarui data". PIN diverifikasi lokal (BR-06.3), jadi tanpa ini
+  /// PIN lama tetap diterima sampai data awal diunduh ulang. Hanya berjalan di layar pilih kasir atau saat terkunci,
+  /// yaitu sebelum PIN diketik, dan tidak mengganggu transaksi yang sedang berjalan. [paksa] melewati jeda [jeda].
+  Future<void> SegarkanStafBilaPerlu({bool paksa = false, Duration jeda = const Duration(minutes: 5)}) async {
+    final menungguPin = state.tahap == TahapSesi.PilihKasir ||
+        (state.tahap == TahapSesi.Masuk && state.kunci != KeadaanKunci.Bebas);
+    if (_sedangDicabut || !menungguPin) {
+      return;
+    }
+    final sekarang = ref.read(penyediaJam)();
+    final terakhir = _stafDisegarkanPada;
+    if (!paksa && terakhir != null && sekarang.difference(terakhir) < jeda) {
+      return;
+    }
+    _stafDisegarkanPada = sekarang;
+    try {
+      // Status koneksi sengaja tidak disentuh: itu urusan pemeriksaan perangkat dan sinkron.
+      final tersambung = await ref.read(penyediaLayananPerangkat).SegarkanDataAwal();
+      if (tersambung) {
+        ref.invalidate(penyediaStaf);
+        ref.invalidate(penyediaKaryawanPos);
+        ref.invalidate(penyediaIdentitas);
+      }
+    } on GalatKasir catch (galat) {
+      await _TanganiDicabut(galat.pesan);
+    } on Object {
+      // Galat lain: tetap pakai data lokal terakhir; dicoba lagi pada putaran berikutnya.
+      return;
     }
   }
 

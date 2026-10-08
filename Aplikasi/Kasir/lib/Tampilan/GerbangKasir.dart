@@ -46,6 +46,8 @@ class _GerbangKasirState extends ConsumerState<GerbangKasir> with WidgetsBinding
   Future<void> _Periksa() async {
     final sesi = ref.read(penyediaSesi.notifier);
     await sesi.PeriksaPerangkat();
+    // PIN & izin staf berubah di back-office: segarkan sebelum PIN berikutnya diketik (jeda 5 menit).
+    await sesi.SegarkanStafBilaPerlu();
     if (mounted && _CekDiLuarRuangKerja()) {
       await sesi.Sinkronkan();
     }
@@ -77,7 +79,9 @@ class _GerbangKasirState extends ConsumerState<GerbangKasir> with WidgetsBinding
     // K-6: outbox yang menunggu jadwal coba ulang langsung dikirim, bukan menunggu jeda berikutnya.
     if (keadaan == AppLifecycleState.resumed) {
       final sesi = ref.read(penyediaSesi.notifier);
-      unawaited(sesi.PeriksaPerangkat().then((_) => sesi.SinkronkanSegera()));
+      unawaited(
+        sesi.PeriksaPerangkat().then((_) => sesi.SegarkanStafBilaPerlu(paksa: true)).then((_) => sesi.SinkronkanSegera()),
+      );
     }
   }
 
