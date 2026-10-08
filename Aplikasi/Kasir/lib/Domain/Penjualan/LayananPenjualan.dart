@@ -10,6 +10,7 @@ import '../../Data/RepositoriPelanggan.dart';
 import '../../Data/RepositoriPenjualan.dart';
 import '../GalatKasir.dart';
 import '../Katalog/KatalogLokal.dart';
+import '../Katalog/LayananStokTersedia.dart';
 import '../Sesi/StafLokal.dart';
 import 'AturanApotek.dart';
 import 'Keranjang.dart';
@@ -148,6 +149,8 @@ enum StatusDiskon { Boleh, ButuhPenyetuju, MelebihiBatas }
 /// - BR-07.3 diskon manual sampai `BatasDiskonManual` oleh kasir ber-izin `penjualan.diskon.manual`; kasir tanpa izin
 ///   itu atau di atas batas butuh penyetuju ber-izin `penjualan.diskon.setujui` sampai `BatasDiskonPenyetuju`;
 ///   Pemilik tanpa batas. Persen = diskon hasil mesin ÷ bruto baris (pesanan: ÷ subtotal);
+/// - BR-05.2: bila [stokTersedia] ada, menambah jumlah produk berstok melebihi sisa stok Toko ditolak
+///   (`StokTidakCukup`, lihat [PastikanStokCukup]);
 /// - BR-07.4 butuh shift terbuka; BR-07.1 nomor `INV/{KodeOutlet}/{YYMMDD}/{KodePerangkat}-{SEQ4}`;
 /// - penjualan + detail + pembayaran + outbox `Penjualan.Buat` dalam satu transaksi SQLite (PRD §18.3 no. 3).
 class LayananPenjualan {
@@ -155,6 +158,7 @@ class LayananPenjualan {
     required this.repositori,
     required this.repositoriPenjualan,
     this.repositoriPelanggan,
+    this.stokTersedia,
     PembuatUlid? ulid,
     DateTime Function()? jam,
   }) : _ulid = ulid ?? PembuatUlid(),
@@ -176,6 +180,9 @@ class LayananPenjualan {
 
   /// F-12: cache posisi kredit pelanggan (sisa piutang bertambah setelah penjualan tempo); null = tidak diperbarui.
   final RepositoriPelanggan? repositoriPelanggan;
+
+  /// BR-05.2: salinan sisa stok Toko untuk pencegah di keranjang; null = tanpa pencegah (stok tidak dibatasi).
+  final LayananStokTersedia? stokTersedia;
   final PembuatUlid _ulid;
   final DateTime Function() _jam;
   final MesinKalkulasi _mesin = const MesinKalkulasi();
@@ -482,6 +489,18 @@ class LayananPenjualan {
   Keranjang TambahBaris(Keranjang keranjang, ItemKeranjang baru, KatalogLokal katalog, KonteksPenjualan k) {
     final indeks = keranjang.baris.indexWhere((b) => b.CekBisaDigabung(baru));
     if (indeks < 0) {
+      PastikanStokCukup(
+        keranjang,
+        katalog,
+        uuidProduk: baru.uuidProduk,
+        nama: baru.nama,
+        jumlahDasarBaru: LayananStokTersedia.HitungJumlahDasar(
+          baru.jumlah,
+          baru.uuidProduk,
+          baru.uuidProdukSatuan,
+          katalog,
+        ),
+      );
       return keranjang.Salin(baris: [...keranjang.baris, baru]);
     }
     final lama = keranjang.baris[indeks];
@@ -509,6 +528,15 @@ class LayananPenjualan {
       if (!b.bolehDesimal && jumlah.KeDesimal() != jumlah.KeDesimal().truncate()) {
         throw GalatKasir('JumlahTidakValid', 'Jumlah ${b.namaSatuan ?? 'satuan ini'} harus bilangan bulat.');
       }
+      PastikanStokCukup(
+        keranjang,
+        katalog,
+        uuidProduk: b.uuidProduk,
+        nama: b.nama,
+        jumlahDasarBaru: LayananStokTersedia.HitungJumlahDasar(jumlah, b.uuidProduk, b.uuidProdukSatuan, katalog),
+        jumlahDasarLama: LayananStokTersedia.HitungJumlahDasar(b.jumlah, b.uuidProduk, b.uuidProdukSatuan, katalog),
+        kecualiBaris: b.uuid,
+      );
       final harga = b.uuidProdukSatuan == null || b.hargaTerbuka
           ? null
           : TentukanHarga(
@@ -524,20 +552,34 @@ class LayananPenjualan {
     });
   }
 
+  /// Ganti satuan jual baris. [jumlahBaru] (bila diisi) adalah jumlah yang akan dipakai baris itu setelah ini
+  /// (misal dari panel item yang mengganti satuan dan jumlah sekaligus), supaya pencegah stok menilai hasil akhirnya
+  /// dan bukan jumlah lama dalam satuan baru.
   Keranjang GantiSatuan(
     Keranjang keranjang,
     String uuidBaris,
     SatuanJual satuan,
     KatalogLokal katalog,
-    KonteksPenjualan k,
-  ) => _UbahBaris(keranjang, uuidBaris, (b) {
-    final jumlah = satuan.bolehDesimal ? b.jumlah : Kuantitas.DariDesimal(b.jumlah.KeDesimal().ceil());
+    KonteksPenjualan k, {
+    Kuantitas? jumlahBaru,
+  }) => _UbahBaris(keranjang, uuidBaris, (b) {
+    final asal = jumlahBaru ?? b.jumlah;
+    final jumlah = satuan.bolehDesimal ? asal : Kuantitas.DariDesimal(asal.KeDesimal().ceil());
     if (b.hargaTerbuka) {
       throw GalatKasir(
         'HargaTerbukaSatuan',
         'Harga "${b.nama}" diketik kasir. Hapus lalu tambahkan lagi dengan satuan lain.',
       );
     }
+    PastikanStokCukup(
+      keranjang,
+      katalog,
+      uuidProduk: b.uuidProduk,
+      nama: b.nama,
+      jumlahDasarBaru: LayananStokTersedia.HitungJumlahDasar(jumlah, b.uuidProduk, satuan.uuid, katalog),
+      jumlahDasarLama: LayananStokTersedia.HitungJumlahDasar(b.jumlah, b.uuidProduk, b.uuidProdukSatuan, katalog),
+      kecualiBaris: b.uuid,
+    );
     final harga = TentukanHarga(
       katalog,
       k,
@@ -558,6 +600,66 @@ class LayananPenjualan {
       hargaSatuan: harga,
     );
   });
+
+  /// BR-05.2: pencegah stok berlaku untuk [keranjang] ini. Tidak berlaku bila keranjang menagih dokumen yang sudah
+  /// ada (pengambilan pre-order/uang muka, pesanan online, reservasi, perintah kerja) atau bila [stokTersedia] tidak
+  /// dipasang. (Tanpa salinan stok, [LayananStokTersedia] sendiri menganggap semua produk tanpa batas.)
+  bool CekPencegahStokBerlaku(Keranjang keranjang) =>
+      stokTersedia != null &&
+      keranjang.praPesan == null &&
+      keranjang.reservasi == null &&
+      keranjang.perintahKerja == null;
+
+  /// BR-05.2: produk [uuidProduk] tidak bisa ditambah ke [keranjang] karena sisa stoknya nol atau kurang (tampil
+  /// "Habis" di katalog kasir).
+  bool CekStokHabis(Keranjang keranjang, KatalogLokal katalog, String uuidProduk) =>
+      CekPencegahStokBerlaku(keranjang) && stokTersedia!.CekHabis(uuidProduk, keranjang, katalog);
+
+  /// BR-05.2: tolak penambahan jumlah produk berstok yang melebihi sisa stok Toko (`StokTidakCukup`). Sisa = salinan
+  /// stok dari server − penjualan lokal yang belum tercakup − isi [keranjang] (lihat [LayananStokTersedia]);
+  /// [kecualiBaris] (baris yang sedang diubah) tidak ikut dihitung. Jumlah dalam satuan dasar.
+  ///
+  /// Sengaja **tidak** memblokir:
+  /// - mengurangi/mempertahankan jumlah ([jumlahDasarLama] ≥ [jumlahDasarBaru]): salinan bisa turun setelah baris
+  ///   masuk, dan kasir harus tetap bisa merapikan keranjangnya;
+  /// - produk di luar daftar server (boleh minus, jasa, paket, resep) dan perangkat tanpa salinan (belum online);
+  /// - keranjang yang menagih dokumen yang sudah ada (pengambilan pre-order/uang muka, pesanan online, reservasi,
+  ///   perintah kerja): barangnya sudah dijanjikan ke pelanggan, jadi kasir tidak boleh terhenti di kasir;
+  /// - retur, tukar-masuk, void, pembayaran, pesanan meja yang barisnya sudah tersimpan, dan pesanan self-order/online:
+  ///   jalur ini tidak lewat [TambahBaris]/[UbahJumlah]/[GantiSatuan], dan server tetap menerima penjualan yang sudah
+  ///   terjadi.
+  void PastikanStokCukup(
+    Keranjang keranjang,
+    KatalogLokal katalog, {
+    required String uuidProduk,
+    required String nama,
+    required Kuantitas jumlahDasarBaru,
+    Kuantitas? jumlahDasarLama,
+    String? kecualiBaris,
+  }) {
+    final stok = stokTersedia;
+    if (stok == null || !CekPencegahStokBerlaku(keranjang)) {
+      return;
+    }
+    if (jumlahDasarLama != null && jumlahDasarBaru.Bandingkan(jumlahDasarLama) <= 0) {
+      return;
+    }
+    final sisa = stok.HitungTersediaEfektif(uuidProduk, keranjang, katalog, kecualiBaris: kecualiBaris);
+    if (sisa == null || jumlahDasarBaru.Bandingkan(sisa) <= 0) {
+      return;
+    }
+    final total = stok.HitungTersediaSalinan(uuidProduk) ?? Kuantitas.Nol();
+    final namaSatuan = katalog.CariProduk(uuidProduk)?.satuanDasar?.nama.trim() ?? '';
+    final satuan = namaSatuan.isEmpty ? '' : ' $namaSatuan';
+    if (total.Bandingkan(Kuantitas.Nol()) <= 0) {
+      throw GalatKasir('StokTidakCukup', 'Stok $nama sudah habis.');
+    }
+    final hanya = 'Stok $nama hanya ${LayananStokTersedia.FormatJumlah(total)}$satuan';
+    throw GalatKasir(
+      'StokTidakCukup',
+      sisa.Bandingkan(Kuantitas.Nol()) <= 0 ? '$hanya, semuanya sudah ada di keranjang.' : '$hanya.',
+    );
+  }
 
   /// F-05h: ganti nomor seri baris produk bernomor seri; jumlah mengikuti banyaknya nomor (kosong = hapus baris).
   Keranjang AturNomorSeri(

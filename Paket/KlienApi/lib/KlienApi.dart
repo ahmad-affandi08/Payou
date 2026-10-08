@@ -19,5 +19,6 @@ export 'Model/ModelPromo.dart';
 export 'Model/ModelReservasi.dart';
 export 'Model/ModelRetur.dart';
 export 'Model/ModelSalesman.dart';
+export 'Model/ModelStok.dart';
 export 'Model/ModelTokoOnline.dart';
 export 'Model/UraiJson.dart';

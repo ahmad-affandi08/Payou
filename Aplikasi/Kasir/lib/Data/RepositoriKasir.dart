@@ -147,6 +147,10 @@ abstract final class KunciPengaturan {
   /// (JSON `{DiambilPada, Stok: {UuidProduk: Jumlah}}`).
   static const String pelangganSalesmanDiperbaruiPada = 'PelangganSalesmanDiperbaruiPada';
   static const String stokSalesman = 'StokSalesman';
+
+  /// BR-05.2: salinan sisa stok lokasi Toko dari `GET /api/pos/v1/stok-tersedia` (JSON `{DiambilPada, WaktuServer,
+  /// Produk: {UuidProduk: Jumlah}, BelumTercakup: [UuidPenjualan]}`). Satu blob, tanpa tabel baru.
+  static const String stokTersedia = 'StokTersedia';
 }
 
 /// Status shift lokal (sama dengan server).

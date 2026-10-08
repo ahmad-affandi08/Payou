@@ -216,7 +216,7 @@ class _PanelItemState extends ConsumerState<PanelItem> {
       if (produk != null) {
         keranjang = layanan.AturPilihan(keranjang, uuid, produk, _AmbilPilihan());
         if (_satuan != null && _satuan!.uuid != widget.baris!.uuidProdukSatuan && !_bernomorSeri) {
-          keranjang = layanan.GantiSatuan(keranjang, uuid, _satuan!, katalog, k);
+          keranjang = layanan.GantiSatuan(keranjang, uuid, _satuan!, katalog, k, jumlahBaru: jumlah);
         }
       }
       if (_bernomorSeri) {

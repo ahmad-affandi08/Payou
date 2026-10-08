@@ -42,6 +42,7 @@ import '../Domain/GalatKasir.dart';
 import '../Domain/Katalog/KatalogLokal.dart';
 import '../Domain/Katalog/LayananKatalog.dart';
 import '../Domain/Katalog/LayananKetersediaan.dart';
+import '../Domain/Katalog/LayananStokTersedia.dart';
 import '../Domain/Meja/LayananPesanSendiri.dart';
 import '../Domain/Meja/LayananPesananMeja.dart';
 import '../Domain/Pelanggan/LayananDeposit.dart';
@@ -543,6 +544,32 @@ class PengaturProdukHabis extends Notifier<Set<String>> {
 
 final penyediaProdukHabis = NotifierProvider<PengaturProdukHabis, Set<String>>(PengaturProdukHabis.new);
 
+/// BR-05.2: penghitung perubahan salinan stok tersedia (salinan baru diambil atau penjualan lokal berubah). Tampilan
+/// yang menandai produk "Habis" memantaunya supaya ikut dihitung ulang; nilainya tidak bermakna selain berubah.
+class PengaturVersiStokTersedia extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void Naik() => state = state + 1;
+}
+
+final penyediaVersiStokTersedia = NotifierProvider<PengaturVersiStokTersedia, int>(PengaturVersiStokTersedia.new);
+
+/// BR-05.2: salinan sisa stok Toko di perangkat (tersimpan di pengaturan lokal, dimuat saat layanan dibuat) yang
+/// dipakai pencegah stok di keranjang. Diperbarui lewat `PengaturSesi.SegarkanStokTersedia`.
+final penyediaLayananStokTersedia = Provider<LayananStokTersedia>((ref) {
+  final layanan = LayananStokTersedia(
+    klien: ref.watch(penyediaKlienPos),
+    repositori: ref.watch(penyediaRepositori),
+    repositoriPenjualan: ref.watch(penyediaRepositoriPenjualan),
+    jam: ref.watch(penyediaJam),
+  );
+  layanan.saatBerubah = () => ref.read(penyediaVersiStokTersedia.notifier).Naik();
+  ref.onDispose(layanan.Berhenti);
+  unawaited(layanan.Mulai());
+  return layanan;
+});
+
 final penyediaLayananKatalog = Provider<LayananKatalog>(
   (ref) => LayananKatalog(
     klien: ref.watch(penyediaKlienPos),
@@ -557,6 +584,7 @@ final penyediaLayananPenjualan = Provider<LayananPenjualan>(
     repositori: ref.watch(penyediaRepositori),
     repositoriPenjualan: ref.watch(penyediaRepositoriPenjualan),
     repositoriPelanggan: ref.watch(penyediaRepositoriPelanggan),
+    stokTersedia: ref.watch(penyediaLayananStokTersedia),
     jam: ref.watch(penyediaJam),
   ),
 );
@@ -1196,6 +1224,8 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
     ref.invalidate(penyediaKaryawanPos);
     ref.invalidate(penyediaIdentitas);
     ref.invalidate(penyediaKonteksPenjualan);
+    // BR-05.2: salinan stok milik outlet sebelumnya tidak boleh berlaku di outlet ini.
+    await ref.read(penyediaLayananStokTersedia).Reset();
     state = const KeadaanSesi(TahapSesi.PilihKasir);
     unawaited(PerbaruiKatalog());
     unawaited(PerbaruiDataMeja());
@@ -1252,6 +1282,7 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
         await PerbaruiKatalog();
         await PerbaruiDataMeja();
         await ref.read(penyediaKonfigurasiAplikasi.notifier).Periksa(paksa: true);
+        await SegarkanStokTersedia();
       }
     } on GalatKasir catch (galat) {
       await _TanganiDicabut(galat.pesan);
@@ -1335,8 +1366,24 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
     } else if (hasil.tersambung != false) {
       // P-10: versi & flag diperiksa paling sering tiap 15 menit, tidak saat offline.
       await ref.read(penyediaKonfigurasiAplikasi.notifier).Periksa();
+      // BR-05.2: setelah outbox benar-benar kosong, server sudah memuat semua penjualan perangkat ini, jadi salinan
+      // stok diambil lagi (penjualan lokal yang tadinya dihitung terpisah kini tercakup).
+      if (hasil.tersambung == true &&
+          hasil.terkirim > 0 &&
+          await ref.read(penyediaRepositori).HitungJumlahTertunda() == 0) {
+        unawaited(SegarkanStokTersedia());
+      }
     }
     return hasil;
+  }
+
+  /// BR-05.2: ambil salinan sisa stok Toko dari server untuk pencegah stok di keranjang. Hanya saat online (offline =
+  /// salinan terakhir tetap dipakai); galat server tidak melempar.
+  Future<void> SegarkanStokTersedia() async {
+    if (ref.read(penyediaKoneksi) != StatusKoneksi.Online) {
+      return;
+    }
+    await ref.read(penyediaLayananStokTersedia).Segarkan();
   }
 
   /// §18.3 butir 6 (K-6): kirim outbox sekarang juga, termasuk item yang sedang menunggu jadwal coba ulang. Dipakai saat

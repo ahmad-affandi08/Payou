@@ -177,6 +177,7 @@ class _LayarJualState extends ConsumerState<LayarJual> {
     HardwareKeyboard.instance.addHandler(_SaatTombolPemindai);
     _pewaktuKatalog = Timer.periodic(LayarJual.selangKatalog, (_) => unawaited(_PerbaruiBerkala()));
     unawaited(ref.read(penyediaProdukHabis.notifier).Muat());
+    unawaited(ref.read(penyediaSesi.notifier).SegarkanStokTersedia());
     _pewaktuProdukHabis = Timer.periodic(LayarJual.selangProdukHabis, (_) => unawaited(_SegarkanProdukHabis()));
     if (widget.aktif) {
       _FokusAkar();
@@ -1275,6 +1276,30 @@ class _LayarJualState extends ConsumerState<LayarJual> {
   Future<void> _SegarkanProdukHabis() async {
     if (widget.aktif && ref.read(penyediaKoneksi) == StatusKoneksi.Online) {
       await ref.read(penyediaProdukHabis.notifier).Muat();
+      // BR-05.2: salinan sisa stok Toko ikut disegarkan (penjualan di perangkat lain, penerimaan barang, dll.).
+      await ref.read(penyediaSesi.notifier).SegarkanStokTersedia();
+    }
+  }
+
+  /// BR-05.2: ketuk produk yang sisa stoknya nol atau kurang. Pesannya sama dengan penolakan saat menambah (jumlah
+  /// stok, atau "semuanya sudah ada di keranjang"), tanpa membuka panel pilihan/nomor seri dulu.
+  void _TampilStokKosong(ProdukJual produk) {
+    final katalog = ref.read(penyediaKatalog).value;
+    if (katalog == null) {
+      return;
+    }
+    try {
+      ref
+          .read(penyediaLayananPenjualan)
+          .PastikanStokCukup(
+            ref.read(penyediaKeranjang),
+            katalog,
+            uuidProduk: produk.uuid,
+            nama: produk.nama,
+            jumlahDasarBaru: Kuantitas.DariBulat(1),
+          );
+    } on GalatKasir catch (galat) {
+      _TampilPesan(galat.pesan);
     }
   }
 
@@ -1334,6 +1359,9 @@ class _LayarJualState extends ConsumerState<LayarJual> {
     final kanal = LayananPenjualan.AmbilKanal(ref.watch(penyediaKeranjang));
     final tier = ref.watch(penyediaKeranjang.select((k) => k.pelanggan?.kodeTier));
     final habis = ref.watch(penyediaProdukHabis);
+    // BR-05.2: tampilan "Habis" karena stok dihitung ulang saat salinan stok, penjualan lokal, atau keranjang berubah.
+    ref.watch(penyediaVersiStokTersedia);
+    final keranjangJual = ref.watch(penyediaKeranjang);
     final pesan = _pesan;
     // K-8: Retail & Grosir (atau pilihan perangkat) memakai daftar ringkas, mode lain ubin bergambar.
     final daftarRingkas =
@@ -1350,6 +1378,8 @@ class _LayarJualState extends ConsumerState<LayarJual> {
       final adaVarian = p.indukVarian && (katalog?.AmbilVarian(p.uuid).isNotEmpty ?? false);
       final alasan = adaVarian ? null : p.AmbilAlasanTidakBisaDijual();
       final tandaiHabis = habis.contains(p.uuid);
+      final stokKosong =
+          !tandaiHabis && !adaVarian && katalog != null && layanan.CekStokHabis(keranjangJual, katalog, p.uuid);
       return (
         harga: satuan == null || katalog == null || k == null
             ? null
@@ -1362,10 +1392,10 @@ class _LayarJualState extends ConsumerState<LayarJual> {
                 kanal: kanal,
                 tierPelanggan: tier,
               ),
-        nonaktif: alasan != null || tandaiHabis,
+        nonaktif: alasan != null || tandaiHabis || stokKosong,
         keterangan: alasan != null
             ? 'Tidak bisa dijual'
-            : tandaiHabis
+            : tandaiHabis || stokKosong
             ? 'Habis'
             : adaVarian
             ? 'Pilih varian'
@@ -1374,6 +1404,8 @@ class _LayarJualState extends ConsumerState<LayarJual> {
             : null,
         saatDiketuk: tandaiHabis
             ? () => _TampilPesan('${p.nama} ditandai habis di outlet ini. Tahan untuk menandai tersedia lagi.')
+            : stokKosong
+            ? () => _TampilStokKosong(p)
             : () => _TambahProduk(p),
         saatDitahan: () => unawaited(_UbahKetersediaan(p, habis: !tandaiHabis)),
       );

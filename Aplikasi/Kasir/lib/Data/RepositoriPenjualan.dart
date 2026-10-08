@@ -142,6 +142,46 @@ class RepositoriPenjualan {
       .watch()
       .map((baris) => [for (final b in baris) b.read<String>('Uuid')]);
 
+  /// BR-05.2: berubah setiap penjualan/detail/outbox ditulis (simpan, void, kirim, tolak). Dipakai layanan stok
+  /// tersedia untuk menghitung ulang penjualan lokal yang belum tercakup salinan stok server.
+  Stream<void> PantauPerubahanPenjualan() => db
+      .customSelect('SELECT 1', readsFrom: {db.penjualan, db.penjualanDetail, db.outbox})
+      .watch()
+      .map((_) {});
+
+  /// BR-05.2: Uuid penjualan perangkat ini yang masih menunggu di outbox (belum terkirim atau perlu tindakan).
+  Future<Set<String>> AmbilUuidPenjualanTertunda() async {
+    final kueri = db.select(db.penjualan).join([innerJoin(db.outbox, db.outbox.Uuid.equalsExp(db.penjualan.Uuid))]);
+    return {for (final b in await kueri.get()) b.readTable(db.penjualan).Uuid};
+  }
+
+  /// BR-05.2: baris detail penjualan lokal (bukan `Void`) yang **mungkin belum tercakup** salinan stok server, yaitu
+  /// salah satu dari: dibuat pada/setelah [sejak] (jam perangkat), masih di outbox sekarang (belum terkirim atau
+  /// ditolak), atau termasuk [uuidTertundaSaatAmbil] (masih di outbox ketika salinan diminta, jadi belum dilihat
+  /// server walau sekarang sudah terkirim). Tiap baris membawa konversi satuan jualnya ke satuan dasar (null = 1).
+  Future<List<({String uuidProduk, String? uuidProdukSatuan, String jumlah, String? konversiKeDasar})>>
+  AmbilDetailBelumTercakup({required DateTime sejak, Set<String> uuidTertundaSaatAmbil = const {}}) async {
+    final belumTercakup = <Expression<bool>>[
+      db.penjualan.DibuatPada.isBiggerOrEqualValue(sejak.toUtc()),
+      db.outbox.Uuid.isNotNull(),
+      if (uuidTertundaSaatAmbil.isNotEmpty) db.penjualan.Uuid.isIn(uuidTertundaSaatAmbil),
+    ];
+    final kueri = db.select(db.penjualanDetail).join([
+      innerJoin(db.penjualan, db.penjualan.Uuid.equalsExp(db.penjualanDetail.UuidPenjualan)),
+      leftOuterJoin(db.outbox, db.outbox.Uuid.equalsExp(db.penjualan.Uuid)),
+      leftOuterJoin(db.produkSatuan, db.produkSatuan.Uuid.equalsExp(db.penjualanDetail.UuidProdukSatuan)),
+    ])..where(db.penjualan.Status.equals(StatusPenjualanLokal.divoid).not() & belumTercakup.reduce((a, b) => a | b));
+    return [
+      for (final b in await kueri.get())
+        (
+          uuidProduk: b.readTable(db.penjualanDetail).UuidProduk,
+          uuidProdukSatuan: b.readTable(db.penjualanDetail).UuidProdukSatuan,
+          jumlah: b.readTable(db.penjualanDetail).Jumlah,
+          konversiKeDasar: b.readTableOrNull(db.produkSatuan)?.KonversiKeDasar,
+        ),
+    ];
+  }
+
   Future<BarisPenjualan?> CariPenjualan(String uuid) =>
       (db.select(db.penjualan)..where((p) => p.Uuid.equals(uuid))).getSingleOrNull();
 

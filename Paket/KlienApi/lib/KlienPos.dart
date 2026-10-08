@@ -22,6 +22,7 @@ import 'Model/ModelPromo.dart';
 import 'Model/ModelReservasi.dart';
 import 'Model/ModelRetur.dart';
 import 'Model/ModelSalesman.dart';
+import 'Model/ModelStok.dart';
 import 'Model/ModelTokoOnline.dart';
 import 'Model/UraiJson.dart';
 
@@ -595,6 +596,11 @@ class KlienPos {
   /// F-17 BR-17.2 ("86"): Uuid produk yang ditandai habis di outlet perangkat. Offline → `GalatJaringan`.
   Future<Set<String>> AmbilProdukHabis() async =>
       UraiJson.AmbilDaftarTeks((await _Kirim('GET', 'produk-habis', null))['Produk']).toSet();
+
+  /// BR-05.2: sisa stok lokasi Toko outlet perangkat (satuan dasar) untuk produk berstok yang tidak boleh minus.
+  /// Produk di luar daftar tidak dibatasi. Offline → `GalatJaringan`.
+  Future<StokTersediaPos> AmbilStokTersedia() async =>
+      StokTersediaPos.DariJson(await _Kirim('GET', 'stok-tersedia', null));
 
   /// K-19: batch bersisa produk di lokasi stok Toko outlet perangkat, urut FEFO. Offline → `GalatJaringan`.
   Future<BatchProdukPos> AmbilBatchProduk(String uuidProduk) async =>
