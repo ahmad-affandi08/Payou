@@ -3,8 +3,12 @@
 declare(strict_types=1);
 
 use App\Domain\Pengelola\Integrasi\Enum\JenisIntegrasi;
+use App\Domain\Pengelola\Integrasi\Enum\LingkunganIntegrasi;
 use App\Domain\Pengelola\Integrasi\Enum\PenyediaIntegrasi;
+use App\Domain\Pengelola\Integrasi\Layanan\PenerapKonfigurasiIntegrasi;
 use App\Domain\Pengelola\Integrasi\Model\KonfigurasiIntegrasi;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -56,5 +60,31 @@ it('menghapus baris GerbangBilling Midtrans lama saja; DOKU dan jenis lain tidak
 it('aman dijalankan bila tabel kosong', function (): void {
     JalankanMigrasiHapusBillingMidtrans();
 
+    expect(DB::table('KonfigurasiIntegrasi')->count())->toBe(0);
+});
+
+it('boot aplikasi tidak jatuh oleh baris aktif berpenyedia lama, sehingga `php artisan migrate` bisa berjalan', function (): void {
+    // Produksi: baris lama masih ada saat kode baru sudah terpasang dan migrasi pembersih BELUM dijalankan. Penerap
+    // konfigurasi membaca baris aktif di boot; nilai yang tidak lagi dikenal enum tidak boleh melempar ValueError.
+    DB::table('KonfigurasiIntegrasi')->insert([
+        'Uuid' => (string) Str::ulid(),
+        'Jenis' => 'GerbangBilling',
+        'Lingkungan' => LingkunganIntegrasi::AmbilSaatIni()->value,
+        'Penyedia' => 'MidtransBilling',
+        'Aktif' => true,
+        'Pengaturan' => '{}',
+        'Kredensial' => Crypt::encryptString('{}'),
+        'PetunjukKredensial' => '{}',
+        'KredensialDiubahPada' => now(),
+        'DibuatPada' => now(),
+        'DiubahPada' => now(),
+    ]);
+    Cache::flush();
+
+    app(PenerapKonfigurasiIntegrasi::class)->Terapkan();
+
+    expect(config('integrasi.GerbangBilling.Penyedia'))->not->toBe('MidtransBilling');
+
+    JalankanMigrasiHapusBillingMidtrans();
     expect(DB::table('KonfigurasiIntegrasi')->count())->toBe(0);
 });

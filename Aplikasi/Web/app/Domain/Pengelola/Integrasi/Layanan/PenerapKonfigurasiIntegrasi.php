@@ -6,6 +6,7 @@ namespace App\Domain\Pengelola\Integrasi\Layanan;
 
 use App\Domain\Pengelola\Integrasi\Enum\JenisIntegrasi;
 use App\Domain\Pengelola\Integrasi\Enum\LingkunganIntegrasi;
+use App\Domain\Pengelola\Integrasi\Enum\PenyediaIntegrasi;
 use App\Domain\Pengelola\Integrasi\Model\KonfigurasiIntegrasi;
 use App\Domain\Pengelola\Integrasi\Penguji\PenyusunKonfigurasiLaravel;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -97,6 +98,14 @@ final class PenerapKonfigurasiIntegrasi
         $daftar = [];
 
         foreach ($baris as $atribut) {
+            // Penyedia/jenis yang sudah dihapus dari kode (mis. gerbang lama sebelum migrasi pembersih jalan) dilewati:
+            // membaca barisnya lewat enum akan melempar `ValueError` dan menjatuhkan boot, termasuk `php artisan migrate`
+            // yang justru akan membersihkan baris itu.
+            if (! is_string($atribut['Penyedia'] ?? null) || PenyediaIntegrasi::tryFrom($atribut['Penyedia']) === null
+                || ! is_string($atribut['Jenis'] ?? null) || JenisIntegrasi::tryFrom($atribut['Jenis']) === null) {
+                continue;
+            }
+
             try {
                 // Uji dekripsi di sini agar APP_KEY yang berganti tidak menjatuhkan boot semua request.
                 Crypt::decryptString(is_string($atribut['Kredensial'] ?? null) ? $atribut['Kredensial'] : '');
