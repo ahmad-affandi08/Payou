@@ -1,6 +1,10 @@
 import {
     BadgeCheck,
     ChartColumn,
+    GalleryHorizontal,
+    ListOrdered,
+    Plug,
+    PanelTop,
     CircleHelp,
     Download,
     FileText,
@@ -36,6 +40,27 @@ export const INFO_BLOK: Record<string, InfoBlok> = {
         kategori: 'Pembuka',
         deskripsi: 'Judul besar, penjelasan singkat, tombol, dan gambar produk.',
         ikon: LayoutTemplate,
+    },
+    HeroGeser: {
+        kategori: 'Pembuka',
+        deskripsi:
+            'Pembuka berupa carousel 2 sampai 6 sorotan: judul, satu kalimat, tombol, dan tangkapan layar aplikasi.',
+        ikon: GalleryHorizontal,
+    },
+    TabUsaha: {
+        kategori: 'Isi',
+        deskripsi: 'Tab per jenis usaha (kafe, retail, salon, apotek, dsb.) dengan poin fitur dan tangkapan layar.',
+        ikon: PanelTop,
+    },
+    Langkah: {
+        kategori: 'Isi',
+        deskripsi: 'Langkah bernomor, misalnya "mulai dalam empat langkah", dengan satu tombol ajakan.',
+        ikon: ListOrdered,
+    },
+    Integrasi: {
+        kategori: 'Isi',
+        deskripsi: 'Kelompok integrasi dan perangkat yang didukung (pembayaran, pesan, printer, pesan-antar).',
+        ikon: Plug,
     },
     Keunggulan: {
         kategori: 'Isi',

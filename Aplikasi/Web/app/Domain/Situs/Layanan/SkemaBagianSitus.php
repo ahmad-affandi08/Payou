@@ -31,9 +31,24 @@ final class SkemaBagianSitus
         'Lock', 'RefreshCw', 'MessageCircle', 'Bell', 'FileText', 'Landmark', 'HandCoins', 'ChefHat', 'Pill', 'Car',
     ];
 
+    /**
+     * Spesimen = tangkapan layar **asli** aplikasi Payoung (berkas statis `public/situs/produk`, dibuat
+     * `Spesifikasi/Merek/BuatFotoSitus.py`) atau keluaran produk (struk, jurnal). Dipakai isi bawaan karena gambar
+     * unggahan konsol dirujuk lewat Uuid. Peta ke berkas ada di `Komponen/Situs/SpesimenSitus.tsx`.
+     */
+    public const SPESIMEN = [
+        'Kasir', 'KasirBayar', 'KasirBerhasil', 'KasirShift', 'KasirRiwayat', 'KasirKas', 'KasirHp',
+        'Pemilik', 'PemilikDuo', 'PemilikLaporan', 'PemilikPersetujuan', 'PemilikKaryawan', 'PemilikInsight',
+        'Struk', 'Jurnal',
+    ];
+
     /** @var array<string, string> */
     public const LABEL = [
         'Hero' => 'Pembuka (hero)',
+        'HeroGeser' => 'Pembuka geser (carousel)',
+        'TabUsaha' => 'Tab jenis usaha',
+        'Langkah' => 'Langkah bernomor',
+        'Integrasi' => 'Integrasi & perangkat',
         'Keunggulan' => 'Keunggulan / fitur',
         'Sektor' => 'Jenis usaha',
         'GambarTeks' => 'Gambar & teks',
@@ -69,7 +84,47 @@ final class SkemaBagianSitus
                 // D-39: tiga alasan singkat untuk percaya, tampil sebagai baris centang di bawah tombol.
                 'Poin' => ['Daftar', 0, 4, ['Teks' => ['Teks', 60, true]]],
                 'Latar' => ['Pilihan', ['Terang', 'Merek', 'Navy']],
-                'Spesimen' => ['Pilihan', ['Kasir', 'Pemilik', 'Struk', 'Jurnal']],
+                'Spesimen' => ['Pilihan', self::SPESIMEN],
+            ],
+            // Pembuka beranda berupa carousel (permintaan pemilik produk): tiap sorotan punya judul, satu kalimat,
+            // tombol, dan tangkapan layar asli. Semua teks sorotan selalu ada di HTML; hanya satu yang terlihat.
+            'HeroGeser' => [
+                'Sorotan' => ['Daftar', 2, 6, [
+                    'Label' => ['Teks', 40, true],
+                    'Judul' => ['Teks', 120, true],
+                    'Teks' => ['TeksPanjang', 260],
+                    'TombolUtama' => ['Tombol'],
+                    'TombolKedua' => ['Tombol'],
+                    'Gambar' => ['Gambar'],
+                    'Spesimen' => ['Pilihan', self::SPESIMEN],
+                ]],
+                'Poin' => ['Daftar', 0, 4, ['Teks' => ['Teks', 60, true]]],
+                'Catatan' => ['Teks', 160],
+            ],
+            'TabUsaha' => $judulBagian + [
+                'Item' => ['Daftar', 2, 8, [
+                    'Label' => ['Teks', 40, true],
+                    'Ikon' => ['Ikon'],
+                    'Judul' => ['Teks', 120, true],
+                    'Teks' => ['TeksPanjang', 400],
+                    'Poin' => ['Daftar', 0, 6, ['Teks' => ['Teks', 140, true]]],
+                    'Gambar' => ['Gambar'],
+                    'Spesimen' => ['Pilihan', self::SPESIMEN],
+                    'Tombol' => ['Tombol'],
+                ]],
+            ],
+            'Langkah' => $judulBagian + [
+                'Item' => ['Daftar', 2, 6, ['Ikon' => ['Ikon'], 'Judul' => ['Teks', 80, true], 'Teks' => ['TeksPanjang', 240]]],
+                'Tombol' => ['Tombol'],
+            ],
+            'Integrasi' => $judulBagian + [
+                'Kelompok' => ['Daftar', 1, 6, [
+                    'Ikon' => ['Ikon'],
+                    'Judul' => ['Teks', 60, true],
+                    'Teks' => ['TeksPanjang', 200],
+                    'Item' => ['Daftar', 1, 12, ['Nama' => ['Teks', 40, true]]],
+                ]],
+                'Catatan' => ['Teks', 200],
             ],
             'Keunggulan' => $judulBagian + [
                 'TataLetak' => ['Pilihan', ['Grid', 'Daftar', 'Sorot']],
@@ -90,7 +145,7 @@ final class SkemaBagianSitus
                 'Poin' => ['Daftar', 0, 8, ['Teks' => ['Teks', 140, true]]],
                 'Gambar' => ['Gambar'],
                 'PosisiGambar' => ['Pilihan', ['Kanan', 'Kiri']],
-                'Spesimen' => ['Pilihan', ['Kasir', 'Pemilik', 'Struk', 'Jurnal']],
+                'Spesimen' => ['Pilihan', self::SPESIMEN],
                 'Tombol' => ['Tombol'],
             ],
             'Statistik' => $judulBagian + [

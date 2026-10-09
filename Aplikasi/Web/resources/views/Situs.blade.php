@@ -2,6 +2,32 @@
     $seo = $page['props']['Halaman']['Seo'] ?? [];
     $pratinjau = (bool) ($page['props']['Halaman']['Pratinjau'] ?? false);
     $namaSitus = $seo['NamaSitus'] ?? config('app.name');
+    // Kunci "@context" JSON-LD harus berada di dalam blok @php: di luar blok, Blade membacanya sebagai direktif
+    // @context dan menulis kode PHP mentah ke dalam skrip (bug di produksi: skema Organization rusak).
+    $jsonLd = json_encode(! empty($seo['Artikel']) ? array_filter([
+        '@context' => 'https://schema.org',
+        '@type' => 'BlogPosting',
+        'headline' => $seo['Artikel']['Judul'] ?? null,
+        'description' => $seo['Deskripsi'] ?? null,
+        'image' => $seo['Gambar'] ?? null,
+        'datePublished' => $seo['Artikel']['DiterbitkanPada'] ?? null,
+        'dateModified' => $seo['Artikel']['DiubahPada'] ?? null,
+        'author' => ['@type' => 'Organization', 'name' => $seo['Artikel']['Penulis'] ?? $namaSitus],
+        'publisher' => ['@type' => 'Organization', 'name' => $namaSitus],
+        'mainEntityOfPage' => $seo['Kanonik'] ?? null,
+    ]) : array_filter([
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => $namaSitus,
+        'url' => $seo['Kanonik'] ?? null,
+    ]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG);
+    $bagianHalaman = is_array($page['props']['Halaman']['Bagian'] ?? null) ? $page['props']['Halaman']['Bagian'] : [];
+    $kerangka = [
+        'pembuka' => \App\Domain\Situs\Layanan\KerangkaHalamanSitus::AmbilPembuka($bagianHalaman),
+        'ringkasan' => \App\Domain\Situs\Layanan\KerangkaHalamanSitus::SusunRingkasan($bagianHalaman),
+        'namaSitus' => $page['props']['Situs']['NamaSitus'] ?? $namaSitus,
+        'tombolDaftar' => $page['props']['Situs']['TombolDaftar'] ?? ['Label' => 'Coba gratis', 'Tautan' => '/daftar'],
+    ];
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -39,23 +65,7 @@
     @else
         <meta name="twitter:card" content="summary">
     @endif
-    <script type="application/ld+json">{!! json_encode(! empty($seo['Artikel']) ? array_filter([
-        '@context' => 'https://schema.org',
-        '@type' => 'BlogPosting',
-        'headline' => $seo['Artikel']['Judul'] ?? null,
-        'description' => $seo['Deskripsi'] ?? null,
-        'image' => $seo['Gambar'] ?? null,
-        'datePublished' => $seo['Artikel']['DiterbitkanPada'] ?? null,
-        'dateModified' => $seo['Artikel']['DiubahPada'] ?? null,
-        'author' => ['@type' => 'Organization', 'name' => $seo['Artikel']['Penulis'] ?? $namaSitus],
-        'publisher' => ['@type' => 'Organization', 'name' => $namaSitus],
-        'mainEntityOfPage' => $seo['Kanonik'] ?? null,
-    ]) : array_filter([
-        '@context' => 'https://schema.org',
-        '@type' => 'Organization',
-        'name' => $namaSitus,
-        'url' => $seo['Kanonik'] ?? null,
-    ]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+    <script type="application/ld+json">{!! $jsonLd !!}</script>
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     @viteReactRefresh
@@ -63,6 +73,11 @@
     @inertiaHead
 </head>
 <body>
+    {{-- Isi #app dengan kerangka server (KerangkaHalamanSitus); React menggantinya begitu halaman siap. --}}
+    @php ob_start(); @endphp
     @inertia
+    @php
+        echo str_replace('<div id="app"></div>', '<div id="app">'.view('situs.kerangka', $kerangka)->render().'</div>', ob_get_clean());
+    @endphp
 </body>
 </html>

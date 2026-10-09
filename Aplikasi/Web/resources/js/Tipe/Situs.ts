@@ -39,6 +39,34 @@ export type DataSitus = {
 
 export type Tombol = { Label: string; Tautan: string } | null;
 
+/** Spesimen bawaan = tangkapan layar asli aplikasi atau keluaran produk (sama dengan `SkemaBagianSitus::SPESIMEN`). */
+export type NamaSpesimen =
+    | 'Kasir'
+    | 'KasirBayar'
+    | 'KasirBerhasil'
+    | 'KasirShift'
+    | 'KasirRiwayat'
+    | 'KasirKas'
+    | 'KasirHp'
+    | 'Pemilik'
+    | 'PemilikDuo'
+    | 'PemilikLaporan'
+    | 'PemilikPersetujuan'
+    | 'PemilikKaryawan'
+    | 'PemilikInsight'
+    | 'Struk'
+    | 'Jurnal';
+
+export type SorotanHero = {
+    Label: string;
+    Judul: string;
+    Teks: string | null;
+    TombolUtama: Tombol;
+    TombolKedua: Tombol;
+    Gambar: GambarSitus | null;
+    Spesimen: NamaSpesimen | null;
+};
+
 export type PaketHarga = {
     Kode: string;
     Nama: string;
@@ -68,8 +96,29 @@ export type BagianSitus =
           /** D-25: latar hero. `Merek`/`Navy` memberi jangkar gelap penuh tanpa gradien. */
           Latar: 'Terang' | 'Merek' | 'Navy' | null;
           /** D-25: spesimen keluaran produk sebagai jangkar visual bila belum ada gambar. */
-          Spesimen: 'Kasir' | 'Pemilik' | 'Struk' | 'Jurnal' | null;
+          Spesimen: NamaSpesimen | null;
       })
+    | { Jenis: 'HeroGeser'; Sorotan: SorotanHero[]; Poin?: { Teks: string }[]; Catatan: string | null }
+    | ({ Jenis: 'TabUsaha' } & JudulBagian & {
+              Item: {
+                  Label: string;
+                  Ikon: string | null;
+                  Judul: string;
+                  Teks: string | null;
+                  Poin: { Teks: string }[];
+                  Gambar: GambarSitus | null;
+                  Spesimen: NamaSpesimen | null;
+                  Tombol: Tombol;
+              }[];
+          })
+    | ({ Jenis: 'Langkah' } & JudulBagian & {
+              Item: { Ikon: string | null; Judul: string; Teks: string | null }[];
+              Tombol: Tombol;
+          })
+    | ({ Jenis: 'Integrasi' } & JudulBagian & {
+              Kelompok: { Ikon: string | null; Judul: string; Teks: string | null; Item: { Nama: string }[] }[];
+              Catatan: string | null;
+          })
     | ({ Jenis: 'Keunggulan' } & JudulBagian & {
               Kolom: '2' | '3' | '4' | null;
               /** D-25: bentuk blok, supaya dua blok keunggulan berurutan tidak terbaca sebagai satu grid. */
@@ -91,7 +140,7 @@ export type BagianSitus =
               Gambar: GambarSitus | null;
               PosisiGambar: 'Kanan' | 'Kiri' | null;
               /** D-25: dipakai bila `Gambar` kosong. */
-              Spesimen: 'Kasir' | 'Pemilik' | 'Struk' | 'Jurnal' | null;
+              Spesimen: NamaSpesimen | null;
               Tombol: Tombol;
           })
     | ({ Jenis: 'Statistik' } & JudulBagian & { Item: { Angka: string; Keterangan: string }[] })

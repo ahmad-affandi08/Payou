@@ -108,3 +108,20 @@ it('ikon yang dipakai copy bawaan ada di daftar ikon yang diizinkan', function (
 
     expect($tidakDikenal)->toBe([]);
 });
+
+it('beranda bawaan dibuka carousel lima sorotan berisi tangkapan layar asli, tanpa klaim sosial karangan (D-39)', function (): void {
+    $bagian = KontenSitusBawaan::AmbilHalaman()['beranda']['Bagian'];
+    $jenis = array_column($bagian, 'Jenis');
+
+    expect($jenis[0])->toBe('HeroGeser')
+        ->and($bagian[0]['Sorotan'])->toHaveCount(5)
+        ->and($jenis)->toContain('TabUsaha', 'Langkah', 'Integrasi', 'Harga', 'Faq', 'Cta')
+        // Bukti sosial hanya boleh diisi pemilik dari konsol: tidak ada testimoni atau logo klien karangan.
+        ->and($jenis)->not->toContain('Testimoni')
+        ->and($jenis)->not->toContain('LogoMitra');
+
+    foreach ($bagian[0]['Sorotan'] as $sorotan) {
+        expect(SkemaBagianSitus::SPESIMEN)->toContain($sorotan['Spesimen']);
+        expect($sorotan['TombolUtama'])->not->toBeNull();
+    }
+});

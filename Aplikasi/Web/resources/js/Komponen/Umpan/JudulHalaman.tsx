@@ -7,9 +7,10 @@ type PropsJudulHalaman = {
      * Skala judul halaman:
      * - `halaman` (bawaan): back-office, konsol, dan halaman publik transaksional — `text-judul`.
      * - `situs`: halaman pemasaran, yang memang memakai skala tampilan lebih besar (§17.5).
+     * - `sorotan`: judul besar pembuka beranda (carousel hero), `text-sorotan` di layar lebar.
      * - `ringkas`: judul di dalam kartu sempit (struk digital, keadaan kosong) yang tidak boleh selebar halaman.
      */
-    skala?: 'halaman' | 'situs' | 'ringkas';
+    skala?: 'halaman' | 'situs' | 'sorotan' | 'ringkas';
     className?: string;
     children: ReactNode;
 };
@@ -17,6 +18,7 @@ type PropsJudulHalaman = {
 const kelasSkala = {
     halaman: 'text-judul font-bold text-teks-utama',
     situs: 'text-judul-bagian-hp font-bold text-teks-utama sm:text-judul-bagian',
+    sorotan: 'text-sorotan-hp font-bold text-teks-utama sm:text-sorotan',
     ringkas: 'text-subjudul font-semibold text-teks-utama',
 } as const;
 

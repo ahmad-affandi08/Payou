@@ -1,6 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { Menu, MessageCircle } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { LogoMerek } from '@/Komponen/Merek/LogoMerek';
 import PersetujuanCookie from '@/Komponen/Situs/PersetujuanCookie';
@@ -26,13 +26,59 @@ function LogoSitus({ situs }: { situs: DataSitus }) {
         return <img src={situs.Logo.Url} alt={situs.NamaSitus} className="h-10 w-auto sm:h-12" />;
     }
 
-    return <LogoMerek nama={situs.NamaSitus} className="h-10 sm:h-12" />;
+    return <LogoMerek nama={situs.NamaSitus} className="h-9 sm:h-12" />;
 }
 
 function CekAktif(tautan: string, jalurKini: string): boolean {
     const jalur = tautan.split(/[?#]/)[0] ?? '';
 
     return jalur !== '' && jalur !== '/' && (jalurKini === jalur || jalurKini.startsWith(`${jalur}/`));
+}
+
+/** Seberapa jauh halaman digulir (px) sebelum bilah ajakan HP muncul: sesudah tombol hero lewat. */
+const AMBANG_BILAH_AJAKAN_PX = 480;
+
+/**
+ * Bilah ajakan menempel di bawah layar HP (< 640px): tombol Coba gratis dan WhatsApp tetap terjangkau ibu jari
+ * sepanjang halaman. Muncul setelah hero digulir lewat supaya tidak menutupi tombol hero; dicegah di pratinjau editor.
+ */
+function BilahAjakanHp({ situs }: { situs: DataSitus }) {
+    const [terlihat, AturTerlihat] = useState(false);
+
+    useEffect(() => {
+        const Periksa = () => AturTerlihat(window.scrollY > AMBANG_BILAH_AJAKAN_PX);
+        Periksa();
+        window.addEventListener('scroll', Periksa, { passive: true });
+
+        return () => window.removeEventListener('scroll', Periksa);
+    }, []);
+
+    if (!terlihat) {
+        return null;
+    }
+
+    return (
+        <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-garis bg-permukaan px-4 pt-3 tepi-bawah-aman sm:hidden">
+            <TombolSitus href={situs.TombolDaftar.Tautan} className="flex-1">
+                {situs.TombolDaftar.Label}
+            </TombolSitus>
+            {situs.Kontak.TautanWhatsApp ? (
+                <a
+                    href={situs.Kontak.TautanWhatsApp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-kontrol border border-sukses px-4 text-isi font-semibold text-sukses hover:bg-sukses-lembut focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                >
+                    <MessageCircle className="size-5" aria-hidden />
+                    WhatsApp
+                </a>
+            ) : (
+                <TombolSitus href={situs.TombolMasuk.Tautan} varian="kedua" className="flex-1">
+                    {situs.TombolMasuk.Label}
+                </TombolSitus>
+            )}
+        </div>
+    );
 }
 
 type PropsTataLetakSitus = { judul: string; children: ReactNode; pratinjau?: boolean };
@@ -100,7 +146,9 @@ export default function TataLetakSitus({ judul, children, pratinjau = false }: P
                         <TombolSitus href={situs.TombolMasuk.Tautan} varian="kedua" className="hidden sm:inline-flex">
                             {situs.TombolMasuk.Label}
                         </TombolSitus>
-                        <TombolSitus href={situs.TombolDaftar.Tautan}>{situs.TombolDaftar.Label}</TombolSitus>
+                        <TombolSitus href={situs.TombolDaftar.Tautan} className="whitespace-nowrap">
+                            {situs.TombolDaftar.Label}
+                        </TombolSitus>
                         <Sheet open={menuTerbuka} onOpenChange={AturMenuTerbuka}>
                             <SheetTrigger
                                 className="inline-flex size-11 items-center justify-center rounded-kontrol text-teks-utama hover:bg-permukaan-sorot lg:hidden"
@@ -162,9 +210,10 @@ export default function TataLetakSitus({ judul, children, pratinjau = false }: P
              *
              * Wadahnya `pointer-events-none` supaya jalur kosong di kiri tombol tidak menelan klik ke isi halaman.
              */}
+            {pratinjau ? null : <BilahAjakanHp situs={situs} />}
             <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col gap-3 pb-4 tepi-bawah-aman">
                 {situs.WhatsAppMelayang && situs.Kontak.TautanWhatsApp ? (
-                    <div className="flex justify-end px-4">
+                    <div className="flex justify-end px-4 max-sm:hidden">
                         <a
                             href={situs.Kontak.TautanWhatsApp}
                             target="_blank"
@@ -239,7 +288,7 @@ function KakiSitus({ situs }: { situs: DataSitus }) {
                     </nav>
                 ))}
             </div>
-            <div className="border-t border-garis">
+            <div className="border-t border-garis max-sm:pb-20">
                 <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 text-label sm:flex-row sm:items-center sm:justify-between">
                     <p>
                         © {situs.Tahun} {situs.NamaSitus}

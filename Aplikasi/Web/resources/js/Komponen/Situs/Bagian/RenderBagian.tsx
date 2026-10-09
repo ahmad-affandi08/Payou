@@ -6,6 +6,9 @@ import BagianBelumLengkap from './BagianBelumLengkap';
 import BagianFormulirProspek from './BagianFormulirProspek';
 import BagianHarga from './BagianHarga';
 import BagianHero from './BagianHero';
+import BagianHeroGeser from './BagianHeroGeser';
+import { BagianIntegrasi, BagianLangkah } from './BagianLangkahIntegrasi';
+import { BagianTabUsaha } from './BagianTabUsaha';
 import { BagianKeunggulan, BagianLogoMitra, BagianSektor, BagianStatistik, BagianTestimoni } from './BagianKartu';
 import {
     BagianCta,
@@ -19,7 +22,7 @@ import {
 import type { LatarBagian } from './KepalaBagian';
 
 /** Blok yang mengatur latarnya sendiri dan tidak ikut irama terang/gelap. */
-const LATAR_SENDIRI = new Set<BagianSitus['Jenis']>(['Hero', 'Statistik', 'Cta']);
+const LATAR_SENDIRI = new Set<BagianSitus['Jenis']>(['Hero', 'HeroGeser', 'Statistik', 'Cta']);
 
 /** Setelah sebanyak ini bagian terang berturut-turut, satu bagian dibuat gelap sebagai jeda baca. */
 const JEDA_GELAP_SETIAP = 4;
@@ -28,12 +31,23 @@ const JEDA_GELAP_SETIAP = 4;
  * Blok yang tidak pantas dibalik menjadi gelap (isi panjang atau berisi formulir/kartu putih). D-39: FAQ ikut,
  * karena hampir selalu tepat di atas CTA berlatar merek; FAQ Navy + CTA biru membuat dua balok gelap menempel.
  */
-const SELALU_TERANG = new Set<BagianSitus['Jenis']>(['Harga', 'TeksBebas', 'FormulirProspek', 'Video', 'Faq']);
+const SELALU_TERANG = new Set<BagianSitus['Jenis']>([
+    'Harga',
+    'TeksBebas',
+    'FormulirProspek',
+    'Video',
+    'Faq',
+    'TabUsaha',
+]);
 
 export type IramaBagian = { latar: LatarBagian; garisAtas: boolean };
 
 /** Latar yang dirender sendiri oleh blok, dipakai agar bagian sesudahnya tahu harus mulai terang atau gelap. */
 function LatarSendiri(bagian: BagianSitus): LatarBagian {
+    if (bagian.Jenis === 'HeroGeser') {
+        return 'permukaan';
+    }
+
     if (bagian.Jenis === 'Hero') {
         return bagian.Latar === 'Navy' ? 'navy' : bagian.Latar === 'Merek' ? 'merek' : 'permukaan';
     }
@@ -149,6 +163,20 @@ export default function RenderBagian({ bagian, penyunting }: { bagian: BagianSit
                 switch (b.Jenis) {
                     case 'Hero':
                         return Bungkus(i, <BagianHero key={kunci} bagian={b} utama={i === 0} />);
+                    case 'HeroGeser':
+                        return Bungkus(i, <BagianHeroGeser key={kunci} bagian={b} utama={i === 0} />);
+                    case 'TabUsaha':
+                        return Bungkus(
+                            i,
+                            <BagianTabUsaha key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />,
+                        );
+                    case 'Langkah':
+                        return Bungkus(i, <BagianLangkah key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />);
+                    case 'Integrasi':
+                        return Bungkus(
+                            i,
+                            <BagianIntegrasi key={kunci} bagian={b} latar={latar} garisAtas={garisAtas} />,
+                        );
                     case 'Keunggulan':
                         return Bungkus(
                             i,

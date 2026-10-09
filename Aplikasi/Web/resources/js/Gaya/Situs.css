@@ -20,5 +20,6 @@
 @source '../Komponen/Umpan/JudulHalaman.tsx';
 @source '../Pustaka/{AnalitikSitus,DaftarIsiTeks,Format,FormatWaktu}.ts';
 @source '../../views/Situs.blade.php';
+@source '../../views/situs';
 /* File test tidak dirender; contoh pola terlarang di dalamnya jangan sampai menjadi CSS. */
 @source not '../**/*Tes.{ts,tsx}';

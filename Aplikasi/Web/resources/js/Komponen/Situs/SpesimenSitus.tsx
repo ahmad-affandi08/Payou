@@ -1,4 +1,7 @@
+import type { ReactNode } from 'react';
+
 import { cn } from '@/Komponen/Ui/utils';
+import type { NamaSpesimen } from '@/Tipe/Situs';
 
 /**
  * Spesimen keluaran Payoung untuk situs pemasaran (D-25, D-39): tangkapan layar asli aplikasi Kasir & Pemilik
@@ -16,6 +19,8 @@ import { cn } from '@/Komponen/Ui/utils';
  */
 
 type PropsSpesimen = { className?: string | undefined };
+
+export type { NamaSpesimen };
 
 const BARIS_STRUK = [
     { Nama: 'Kopi susu gula aren', Qty: '2', Harga: '36.000' },
@@ -125,21 +130,118 @@ export function SpesimenJurnal({ className }: PropsSpesimen) {
     );
 }
 
-/** D-39: tangkapan layar asli aplikasi, dihasilkan `Aplikasi/{Kasir,Pemilik}/AlatSitus/FotoSitus_test.dart`. */
-const FOTO_KASIR = { src: '/situs/produk/kasir-jual.webp', lebar: 1280, tinggi: 800 } as const;
-const FOTO_PEMILIK = { src: '/situs/produk/pemilik-beranda.webp', lebar: 390, tinggi: 844 } as const;
+/**
+ * Tangkapan layar asli aplikasi (D-39), dihasilkan `Aplikasi/{Kasir,Pemilik}/AlatSitus/FotoPlayStore_test.dart` lalu
+ * diubah ke WebP oleh `Spesifikasi/Merek/BuatFotoSitus.py`. Tablet 1600 × 1000, ponsel 540 × 1080: lebar & tinggi
+ * dipasang di `<img>` supaya halaman tidak bergeser saat gambar tiba.
+ */
+type Foto = { src: string; lebar: number; tinggi: number; alt: string };
+
+const TABLET = { lebar: 1600, tinggi: 1000 } as const;
+const PONSEL = { lebar: 540, tinggi: 1080 } as const;
+
+export const FOTO = {
+    KasirJual: {
+        src: '/situs/produk/kasir-jual.webp',
+        ...TABLET,
+        alt: 'Aplikasi Kasir Payoung di tablet: katalog menu kafe, keranjang berisi Es Kopi Susu Aren, Croissant Cokelat, dan Matcha Latte, total Rp 95.700 dengan PBJT 10%.',
+    },
+    KasirBayar: {
+        src: '/situs/produk/kasir-bayar.webp',
+        ...TABLET,
+        alt: 'Layar Bayar aplikasi Kasir Payoung: total Rp 95.700, pilihan Tunai, QRIS, EDC, transfer, dan e-wallet, tombol Uang pas, papan angka, dan Bagi tagihan.',
+    },
+    KasirBerhasil: {
+        src: '/situs/produk/kasir-berhasil.webp',
+        ...TABLET,
+        alt: 'Layar pembayaran berhasil di aplikasi Kasir Payoung dengan nomor transaksi, tombol Kirim struk, dan Transaksi baru.',
+    },
+    KasirShift: {
+        src: '/situs/produk/kasir-shift.webp',
+        ...TABLET,
+        alt: 'Layar Shift aplikasi Kasir Payoung: penjualan shift Rp 551.100, rincian per metode bayar, produk terlaris, dan daftar periksa sebelum tutup shift.',
+    },
+    KasirRiwayat: {
+        src: '/situs/produk/kasir-riwayat.webp',
+        ...TABLET,
+        alt: 'Riwayat transaksi hari ini di aplikasi Kasir Payoung dengan rincian transaksi, cetak ulang struk, kirim struk, retur atau tukar, dan batalkan transaksi.',
+    },
+    KasirKas: {
+        src: '/situs/produk/kasir-kas.webp',
+        ...TABLET,
+        alt: 'Layar Kas aplikasi Kasir Payoung: perkiraan kas di laci Rp 746.600, asal uang di laci, serta kas masuk dan keluar.',
+    },
+    KasirHp: {
+        src: '/situs/produk/kasir-hp-jual.webp',
+        ...PONSEL,
+        alt: 'Aplikasi Kasir Payoung di ponsel Android: katalog menu, keranjang dua baris Rp 47.300, dan tombol Bayar.',
+    },
+    PemilikBeranda: {
+        src: '/situs/produk/pemilik-beranda.webp',
+        ...PONSEL,
+        alt: 'Aplikasi Pemilik Payoung: omzet hari ini Rp 8.475.000, naik 14% dari kemarin, perlu tindakan stok susu hampir habis, dan omzet per outlet.',
+    },
+    PemilikLaporan: {
+        src: '/situs/produk/pemilik-laporan.webp',
+        ...PONSEL,
+        alt: 'Laporan di aplikasi Pemilik Payoung: penjualan per produk dengan pilihan kategori, kasir, dan jam.',
+    },
+    PemilikPersetujuan: {
+        src: '/situs/produk/pemilik-persetujuan.webp',
+        ...PONSEL,
+        alt: 'Persetujuan jarak jauh di aplikasi Pemilik Payoung: kas keluar di atas batas dan diskon manual 20%, dengan tombol Tolak dan Setujui.',
+    },
+    PemilikKaryawan: {
+        src: '/situs/produk/pemilik-karyawan.webp',
+        ...PONSEL,
+        alt: 'Pantau karyawan di aplikasi Pemilik Payoung: kehadiran hari ini, yang belum absen masuk, serta komisi dan target bulan ini.',
+    },
+    PemilikInsight: {
+        src: '/situs/produk/pemilik-insight.webp',
+        ...PONSEL,
+        alt: 'Insight mingguan di aplikasi Pemilik Payoung: penjualan bersih minggu lalu, produk terlaris, yang naik dan turun paling banyak, dan saran restock.',
+    },
+} as const satisfies Record<string, Foto>;
+
+/**
+ * `penuhTinggi`: dipakai di dalam panggung bergaris besar (`[container-type:size]`, mis. carousel hero) supaya tinggi
+ * ponsel mengikuti tinggi panggung (`100cqh`), bukan lebar kolom; tanpa itu ponsel bisa lebih tinggi daripada panggung.
+ */
+type PropsFoto = PropsSpesimen & { prioritas?: boolean; penuhTinggi?: boolean };
+
+const KELAS_PONSEL_PENUH = 'h-[100cqh] w-auto max-w-none [&>img]:h-full [&>img]:w-auto';
+
+/** Bingkai tablet: tepi gelap tipis membulat, tanpa bayangan dekoratif (§17.6.11). */
+function BingkaiTablet({ foto, className, prioritas = false }: PropsFoto & { foto: Foto }) {
+    return (
+        <div
+            className={cn('w-full rounded-[1.25rem] border border-teks-utama bg-teks-utama p-1.5 sm:p-2.5', className)}
+        >
+            <img
+                src={foto.src}
+                width={foto.lebar}
+                height={foto.tinggi}
+                loading={prioritas ? 'eager' : 'lazy'}
+                fetchPriority={prioritas ? 'high' : 'auto'}
+                decoding="async"
+                alt={foto.alt}
+                className="block h-auto w-full rounded-[0.75rem] bg-permukaan"
+            />
+        </div>
+    );
+}
 
 /** Bingkai HP: tepi gelap tipis membulat, tanpa bayangan dekoratif (§17.6.11). */
-function BingkaiHp({ className, prioritas = false }: PropsSpesimen & { prioritas?: boolean }) {
+function BingkaiHp({ foto, className, prioritas = false }: PropsFoto & { foto: Foto }) {
     return (
         <div className={cn('rounded-[1.75rem] border border-teks-utama bg-teks-utama p-1.5', className)}>
             <img
-                src={FOTO_PEMILIK.src}
-                width={FOTO_PEMILIK.lebar}
-                height={FOTO_PEMILIK.tinggi}
+                src={foto.src}
+                width={foto.lebar}
+                height={foto.tinggi}
                 loading={prioritas ? 'eager' : 'lazy'}
                 decoding="async"
-                alt="Aplikasi Pemilik Payoung: omzet hari ini Rp 8.475.000, naik 14% dari kemarin, perlu tindakan stok susu hampir habis, dan omzet per outlet."
+                alt={foto.alt}
                 className="block h-auto w-full rounded-[1.375rem] bg-permukaan"
             />
         </div>
@@ -150,36 +252,80 @@ function BingkaiHp({ className, prioritas = false }: PropsSpesimen & { prioritas
  * Layar Jual aplikasi Kasir di bingkai tablet, dengan aplikasi Pemilik di HP menumpuk di sudut kiri bawah: satu
  * gambar yang langsung menjelaskan "kasir di toko, pemilik dari mana saja". Gambar asli, bukan mockup karangan.
  */
-export function SpesimenKasir({ className }: PropsSpesimen) {
+export function SpesimenKasir({ className, prioritas = false }: PropsFoto) {
     return (
         <div className={cn('relative w-full max-w-2xl pb-10 pl-6 sm:pb-14 sm:pl-10', className)}>
-            <div className="rounded-[1.25rem] border border-teks-utama bg-teks-utama p-2 sm:p-2.5">
-                <img
-                    src={FOTO_KASIR.src}
-                    width={FOTO_KASIR.lebar}
-                    height={FOTO_KASIR.tinggi}
-                    loading="eager"
-                    fetchPriority="high"
-                    decoding="async"
-                    alt="Aplikasi Kasir Payoung di tablet: katalog menu kafe, keranjang berisi Es Kopi Susu Aren, Croissant Cokelat, dan Matcha Latte, total Rp 95.700 dengan PBJT 10%."
-                    className="block h-auto w-full rounded-[0.75rem] bg-permukaan"
-                />
-            </div>
-            <BingkaiHp prioritas className="absolute bottom-0 left-0 w-[26%] min-w-24" />
+            <BingkaiTablet foto={FOTO.KasirJual} prioritas={prioritas} />
+            <BingkaiHp
+                foto={FOTO.PemilikBeranda}
+                prioritas={prioritas}
+                className="absolute bottom-0 left-0 w-[26%] min-w-24"
+            />
         </div>
     );
 }
 
 /** Aplikasi Pemilik saja, untuk blok gambar-teks tentang memantau usaha dari HP. */
-export function SpesimenPemilik({ className }: PropsSpesimen) {
-    return <BingkaiHp className={cn('mx-auto w-full max-w-64', className)} />;
+export function SpesimenPemilik({ className, prioritas = false, penuhTinggi = false }: PropsFoto) {
+    return (
+        <BingkaiHp
+            foto={FOTO.PemilikBeranda}
+            prioritas={prioritas}
+            className={cn(penuhTinggi ? KELAS_PONSEL_PENUH : 'mx-auto w-full max-w-64', className)}
+        />
+    );
 }
 
-export const SPESIMEN = {
+/** Dua layar aplikasi Pemilik berdampingan (Beranda & Laporan), sedikit bertumpuk. */
+export function SpesimenPemilikDuo({ className, prioritas = false, penuhTinggi = false }: PropsFoto) {
+    const kelasPonsel = penuhTinggi ? KELAS_PONSEL_PENUH : 'w-[44%]';
+
+    return (
+        <div
+            className={cn(
+                'mx-auto flex items-center justify-center',
+                penuhTinggi ? 'h-full gap-4' : 'w-full max-w-xl gap-[4%]',
+                className,
+            )}
+        >
+            <BingkaiHp foto={FOTO.PemilikBeranda} prioritas={prioritas} className={kelasPonsel} />
+            <BingkaiHp foto={FOTO.PemilikLaporan} prioritas={prioritas} className={kelasPonsel} />
+        </div>
+    );
+}
+
+function Tablet(foto: Foto) {
+    return function SpesimenTablet({ className, prioritas = false }: PropsFoto) {
+        return <BingkaiTablet foto={foto} prioritas={prioritas} className={cn('max-w-2xl', className)} />;
+    };
+}
+
+function Ponsel(foto: Foto) {
+    return function SpesimenPonsel({ className, prioritas = false, penuhTinggi = false }: PropsFoto) {
+        return (
+            <BingkaiHp
+                foto={foto}
+                prioritas={prioritas}
+                className={cn(penuhTinggi ? KELAS_PONSEL_PENUH : 'mx-auto w-full max-w-64', className)}
+            />
+        );
+    };
+}
+
+export const SPESIMEN: Record<NamaSpesimen, (props: PropsFoto) => ReactNode> = {
     Kasir: SpesimenKasir,
+    KasirBayar: Tablet(FOTO.KasirBayar),
+    KasirBerhasil: Tablet(FOTO.KasirBerhasil),
+    KasirShift: Tablet(FOTO.KasirShift),
+    KasirRiwayat: Tablet(FOTO.KasirRiwayat),
+    KasirKas: Tablet(FOTO.KasirKas),
+    KasirHp: Ponsel(FOTO.KasirHp),
     Pemilik: SpesimenPemilik,
+    PemilikDuo: SpesimenPemilikDuo,
+    PemilikLaporan: Ponsel(FOTO.PemilikLaporan),
+    PemilikPersetujuan: Ponsel(FOTO.PemilikPersetujuan),
+    PemilikKaryawan: Ponsel(FOTO.PemilikKaryawan),
+    PemilikInsight: Ponsel(FOTO.PemilikInsight),
     Struk: SpesimenStruk,
     Jurnal: SpesimenJurnal,
-} as const;
-
-export type NamaSpesimen = keyof typeof SPESIMEN;
+};

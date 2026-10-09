@@ -112,7 +112,7 @@ export default function BagianHarga({
                             >
                                 {disorot ? (
                                     <p className="text-keterangan absolute -top-3 left-6 rounded-full bg-aksen px-3 py-0.5 font-semibold text-teks-utama">
-                                        Paling populer
+                                        Disarankan
                                     </p>
                                 ) : null}
                                 <div className="flex flex-col gap-1">

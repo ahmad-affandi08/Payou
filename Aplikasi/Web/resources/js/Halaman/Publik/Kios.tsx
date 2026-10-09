@@ -16,6 +16,7 @@ import KeadaanKosong from '@/Komponen/Katalog/KeadaanKosong';
 import Tombol from '@/Komponen/Formulir/Tombol';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/Komponen/Ui/sheet';
 import Pemberitahuan from '@/Komponen/Umpan/Pemberitahuan';
+import JudulHalaman from '@/Komponen/Umpan/JudulHalaman';
 import { FormatRupiah } from '@/Pustaka/Format';
 import { KunciKueri } from '@/Pustaka/KunciKueri';
 import { BuatUlid } from '@/Pustaka/Ulid';
@@ -124,7 +125,7 @@ function PesanTengah({ judul, children }: { judul: string; children: ReactNode }
     return (
         <section className="m-auto flex max-w-xl flex-col items-center gap-3 p-8 text-center">
             <StoreIcon aria-hidden="true" className="size-14 text-teks-sekunder" />
-            <h1 className="text-judul font-semibold">{judul}</h1>
+            <JudulHalaman>{judul}</JudulHalaman>
             <p className="text-subjudul text-teks-sekunder">{children}</p>
         </section>
     );
@@ -249,7 +250,9 @@ function Sambut({ namaToko, saatMulai }: { namaToko: string; saatMulai: () => vo
 function PilihSantap({ saatPilih, saatBatal }: { saatPilih: (s: Santap) => void; saatBatal: () => void }) {
     return (
         <section className="flex min-h-screen flex-col gap-8 p-8">
-            <h1 className="text-center text-sorotan font-bold">Makan di sini atau bawa pulang?</h1>
+            <JudulHalaman className="text-center" skala="sorotan">
+                Makan di sini atau bawa pulang?
+            </JudulHalaman>
             <div className="grid flex-1 grid-cols-1 gap-6 md:grid-cols-2">
                 {(
                     [
@@ -395,9 +398,7 @@ function Memesan(p: PropsMemesan) {
                 <header className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-col">
                         <p className="text-label text-teks-sekunder">{p.namaToko}</p>
-                        <h1 className="text-judul font-bold">
-                            {p.santap === 'MakanDiTempat' ? 'Makan di sini' : 'Bawa pulang'}
-                        </h1>
+                        <JudulHalaman>{p.santap === 'MakanDiTempat' ? 'Makan di sini' : 'Bawa pulang'}</JudulHalaman>
                     </div>
                     <Tombol varian="sekunder" onClick={p.saatGantiSantap}>
                         <ArrowLeftIcon aria-hidden="true" className="size-4" />
@@ -724,7 +725,7 @@ function LayarQris({ alamat, token, pesanan, tagihan, saatLunas, saatBatal }: Pr
 
     return (
         <section className="m-auto flex w-full max-w-xl flex-col items-center gap-5 p-8 text-center">
-            <h1 className="text-sorotan font-bold">Bayar dengan QRIS</h1>
+            <JudulHalaman skala="sorotan">Bayar dengan QRIS</JudulHalaman>
             <p className="text-judul font-semibold tabular-nums">{FormatRupiah(tagihan.Jumlah)}</p>
             {habis ? (
                 <Pemberitahuan jenis="bahaya">QR sudah kedaluwarsa. Mulai lagi atau bayar di kasir.</Pemberitahuan>
@@ -777,7 +778,7 @@ function LayarSelesai({ alamat, token, pesanan, saatSelesai }: PropsSelesai) {
 
     return (
         <section className="m-auto flex w-full max-w-2xl flex-col items-center gap-5 p-8 text-center">
-            <h1 className="text-judul font-semibold">Pesanan diterima. Nomor antrian Anda</h1>
+            <JudulHalaman>Pesanan diterima. Nomor antrian Anda</JudulHalaman>
             <p
                 aria-label={`Nomor antrian ${terkini.NomorAntrian ?? ''}`}
                 className="text-sorotan-besar font-bold tabular-nums text-brand"

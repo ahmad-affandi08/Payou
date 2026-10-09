@@ -276,7 +276,7 @@ describe('Situs pemasaran D-21: tata letak & blok', () => {
         expect(screen.getByRole('heading', { level: 1, name: 'Kasir yang tetap jalan' })).toBeTruthy();
         expect(screen.getByText('Rp 199.000')).toBeTruthy();
         expect(screen.getAllByText('Gratis').length).toBeGreaterThan(0);
-        expect(screen.getByText('Paling populer')).toBeTruthy();
+        expect(screen.getByText('Disarankan')).toBeTruthy();
         expect(screen.getByRole('link', { name: 'Hubungi kami' }).getAttribute('href')).toBe(
             'https://wa.me/6281234567890',
         );

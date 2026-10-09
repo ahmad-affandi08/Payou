@@ -75,6 +75,9 @@ export function BagianKeunggulan({ bagian, latar, garisAtas }: PropsKeunggulan) 
                             className={cn(
                                 'flex flex-col gap-3',
                                 KelasKartu(latar),
+                                // Kartu utama berlatar merek gelap (jangkar visual), supaya ruang kosongnya terbaca
+                                // sebagai kartu yang disengaja dan bukan lubang di tengah grid.
+                                i === 0 && !gelap && 'border-brand-gelap bg-brand-gelap',
                                 // D-39: item pertama 2 kolom × 2 baris di grid tiga kolom, sehingga enam item pas
                                 // memenuhi 3×3 tanpa kartu yatim (versi lama: satu baris penuh + 5 kartu dua kolom).
                                 i === 0 && 'justify-between sm:col-span-2 lg:col-span-2 lg:row-span-2 lg:gap-8 lg:p-8',
@@ -82,28 +85,11 @@ export function BagianKeunggulan({ bagian, latar, garisAtas }: PropsKeunggulan) 
                         >
                             {i === 0 ? (
                                 <>
-                                    {item.Ikon ? (
-                                        <IkonSitus
-                                            nama={item.Ikon}
-                                            className={cn('size-12', gelap ? 'text-aksen' : 'text-brand')}
-                                        />
-                                    ) : null}
+                                    {item.Ikon ? <IkonSitus nama={item.Ikon} className="size-12 text-aksen" /> : null}
                                     <div className="flex flex-col gap-3">
-                                        <h3
-                                            className={cn(
-                                                'text-judul font-bold',
-                                                gelap ? 'text-permukaan' : 'text-teks-utama',
-                                            )}
-                                        >
-                                            {item.Judul}
-                                        </h3>
+                                        <h3 className="text-judul font-bold text-permukaan">{item.Judul}</h3>
                                         {item.Teks ? (
-                                            <p
-                                                className={cn(
-                                                    'text-subjudul max-w-3xl whitespace-pre-line',
-                                                    gelap ? 'text-brand-gelap-teks' : 'text-teks-sekunder',
-                                                )}
-                                            >
+                                            <p className="text-subjudul max-w-3xl whitespace-pre-line text-brand-gelap-teks">
                                                 {item.Teks}
                                             </p>
                                         ) : null}
@@ -209,11 +195,9 @@ export function BagianStatistik({ bagian }: { bagian: Extract<BagianSitus, { Jen
             <KepalaBagian label={bagian.Label} judul={bagian.Judul} subjudul={bagian.Subjudul} gelap />
             <dl className="grid grid-cols-2 gap-6 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]">
                 {bagian.Item.map((item, i) => (
-                    <div key={`${item.Angka}-${i}`} className="flex flex-col-reverse gap-1">
+                    <div key={`${item.Angka}-${i}`} className="flex flex-col-reverse justify-end gap-2">
                         <dt className="text-isi text-brand-gelap-teks">{item.Keterangan}</dt>
-                        <dd className="text-judul-bagian-hp font-bold text-permukaan sm:text-judul-bagian">
-                            {item.Angka}
-                        </dd>
+                        <dd className="text-sorotan-hp font-bold text-aksen sm:text-sorotan">{item.Angka}</dd>
                     </div>
                 ))}
             </dl>

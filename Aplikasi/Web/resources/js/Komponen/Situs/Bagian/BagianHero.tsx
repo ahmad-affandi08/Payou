@@ -126,7 +126,7 @@ export default function BagianHero({ bagian, utama }: Props) {
                         )}
                     />
                 ) : Spesimen ? (
-                    <Spesimen className="min-w-0 justify-self-center lg:justify-self-end" />
+                    <Spesimen prioritas={utama} className="min-w-0 justify-self-center lg:justify-self-end" />
                 ) : null}
             </div>
         </section>

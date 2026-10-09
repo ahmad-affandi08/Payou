@@ -1,3 +1,4 @@
+import JudulHalaman from '@/Komponen/Umpan/JudulHalaman';
 import { Head } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -33,7 +34,9 @@ export default function HalamanAntrianKios({ Aktif, Slug, Token, Toko, Antrian }
         <>
             <Head title={`Antrian ${Toko?.Nama ?? ''}`} />
             <main className="flex min-h-screen flex-col gap-6 bg-brand-gelap p-8 text-brand-teks">
-                <h1 className="text-center text-sorotan font-bold">{Toko?.Nama ?? 'Antrian'}</h1>
+                <JudulHalaman className="text-center" skala="sorotan">
+                    {Toko?.Nama ?? 'Antrian'}
+                </JudulHalaman>
                 {!Aktif || Toko === null ? (
                     <p className="m-auto text-judul">Layar antrian tidak aktif.</p>
                 ) : (
