@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs>
+  <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#528688"/><stop offset="1" stop-color="#365759"/></linearGradient>
+  <linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3C6264"/><stop offset="1" stop-color="#26403F"/></linearGradient>
+  <filter id="k" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="14"/></filter>
+</defs>
+<ellipse cx="512" cy="835" rx="300" ry="22" fill="#1F3335" opacity=".10" filter="url(#k)"/>
+<path d="M170 430 C165 330 260 235 380 232 C450 230 480 250 520 248 C600 244 650 215 735 240 C830 268 880 360 850 470 C825 575 745 690 600 750 C470 802 300 790 215 690 C175 640 172 520 170 430 Z" fill="#DCEBE8"/>
+<circle cx="200" cy="320" r="12" fill="#F4A261"/><circle cx="850" cy="430" r="9" fill="#4F8184"/>
+
+<rect x="215" y="285" width="594" height="30" rx="15" fill="url(#b)" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M330 315 V345 M470 315 V345 M560 315 V370 M700 315 V370" stroke="#1F3335" stroke-width="12" stroke-linecap="round"/>
+<path d="M300 345 H500 V690 L470 665 L440 695 L410 665 L380 695 L350 665 L300 690 Z" fill="#fff" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M340 410 H460 M340 460 H430 M340 510 H460 M340 560 H410" stroke="#7FA9A9" stroke-width="14" stroke-linecap="round"/>
+<path d="M545 370 H745 V640 L715 615 L685 645 L655 615 L625 645 L595 615 L545 640 Z" fill="#D9EBE7" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M585 430 H705 M585 480 H675 M585 530 H705" stroke="#4F8184" stroke-width="14" stroke-linecap="round"/>
+<circle cx="740" cy="690" r="44" fill="#F4A261" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/><path d="M720 692 L735 707 L762 676" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+</svg>

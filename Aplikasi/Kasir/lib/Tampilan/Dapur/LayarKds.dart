@@ -492,7 +492,14 @@ class _DialogStasiunState extends State<_DialogStasiun> {
               title: Text(s.nama),
               onChanged: (v) => setState(() => v == true ? _pilih.add(s.uuid) : _pilih.remove(s.uuid)),
             ),
-          if (widget.stasiun.isEmpty) const Text('Belum ada stasiun dapur. Atur di back-office menu Stasiun dapur.'),
+          if (widget.stasiun.isEmpty)
+            const KeadaanKosong(
+              ikon: Icons.soup_kitchen_outlined,
+              ilustrasi: IlustrasiKosong.Dapur,
+              judul: 'Belum ada stasiun dapur',
+              keterangan: 'Atur di back-office menu Stasiun dapur.',
+              ringkas: true,
+            ),
         ],
       ),
     ),

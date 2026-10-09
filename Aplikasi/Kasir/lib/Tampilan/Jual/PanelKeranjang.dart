@@ -477,14 +477,14 @@ class PanelKeranjang extends StatelessWidget {
           Expanded(
             child: kosong
                 ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(TokenJarak.jarak24),
-                      child: Text(
-                        keranjang.pesananMeja == null
-                            ? 'Keranjang kosong. Ketuk produk atau pindai barcode untuk mulai.'
-                            : 'Pesanan masih kosong. Ketuk produk untuk menambah, lalu Kirim ke dapur.',
-                        textAlign: TextAlign.center,
-                        style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
+                    child: SingleChildScrollView(
+                      child: KeadaanKosong(
+                        ikon: Icons.shopping_basket_outlined,
+                        ilustrasi: keranjang.pesananMeja == null ? IlustrasiKosong.Keranjang : IlustrasiKosong.Dapur,
+                        judul: keranjang.pesananMeja == null ? 'Keranjang masih kosong' : 'Pesanan masih kosong',
+                        keterangan: keranjang.pesananMeja == null
+                            ? 'Ketuk produk atau pindai barcode untuk mulai.'
+                            : 'Ketuk produk untuk menambah, lalu Kirim ke dapur.',
                       ),
                     ),
                   )

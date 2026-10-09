@@ -161,12 +161,11 @@ class _LembarPerintahKerjaState extends ConsumerState<LembarPerintahKerja> {
           ),
         if (_galat != null) _BangunGalat(context),
         if (_daftar != null && daftar.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: TokenJarak.jarak12),
-            child: Text(
-              _semuaAktif ? 'Tidak ada perintah kerja yang sedang berjalan.' : 'Belum ada servis yang siap ditagih.',
-              style: teks.bodyMedium,
-            ),
+          KeadaanKosong(
+            ikon: Icons.build_outlined,
+            ilustrasi: IlustrasiKosong.Servis,
+            ringkas: true,
+            judul: _semuaAktif ? 'Tidak ada perintah kerja yang sedang berjalan' : 'Belum ada servis yang siap ditagih',
           ),
         if (daftar.isNotEmpty)
           Padding(

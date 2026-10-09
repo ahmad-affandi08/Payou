@@ -56,7 +56,7 @@ void main() {
 
       await Ketuk(tester, find.text('Stok').last);
       // Di layar sempit bagian Bahan terbuang ada di bawah bagian Gudang: gulir dulu.
-      final kosong = find.text('Belum ada bahan terbuang yang dicatat hari ini di perangkat ini.');
+      final kosong = find.text('Belum ada bahan terbuang yang dicatat hari ini');
       await tester.scrollUntilVisible(
         kosong,
         200,

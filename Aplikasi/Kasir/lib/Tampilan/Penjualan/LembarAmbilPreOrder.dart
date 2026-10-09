@@ -116,9 +116,12 @@ class _LembarAmbilPreOrderState extends ConsumerState<LembarAmbilPreOrder> {
             child: Text(_galat!, style: TextStyle(color: warna.bahaya)),
           ),
         if (_hasil != null && pesanan.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: TokenJarak.jarak12),
-            child: Text('Tidak ada pre-order yang siap diambil untuk "${_kata.text.trim()}".', style: teks.bodyMedium),
+          KeadaanKosong(
+            ikon: Icons.search_off,
+            ilustrasi: IlustrasiKosong.Cari,
+            ringkas: true,
+            judul: 'Tidak ada pre-order yang siap diambil',
+            keterangan: 'Tidak ada hasil untuk "${_kata.text.trim()}".',
           ),
         for (final p in pesanan)
           Padding(

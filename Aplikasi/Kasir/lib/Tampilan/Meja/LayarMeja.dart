@@ -692,13 +692,13 @@ class _LayarMejaState extends ConsumerState<LayarMeja> {
             child: Center(child: CircularProgressIndicator()),
           )
         else if (meja.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: TokenJarak.jarak24),
-            child: Text(
-              'Belum ada meja di outlet ini. Atur meja di back-office menu Meja, lalu sambungkan perangkat ke internet. '
-              'Pesanan tanpa meja tetap bisa dibuat.',
-              style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
-            ),
+          const KeadaanKosong(
+            ikon: Icons.table_restaurant_outlined,
+            ilustrasi: IlustrasiKosong.Meja,
+            judul: 'Belum ada meja di outlet ini',
+            keterangan:
+                'Atur meja di back-office menu Meja, lalu sambungkan perangkat ke internet. '
+                'Pesanan tanpa meja tetap bisa dibuat.',
           ),
         for (final k in kelompok) ...[
           const SizedBox(height: TokenJarak.jarak16),

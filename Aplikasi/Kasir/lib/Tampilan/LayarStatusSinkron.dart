@@ -271,6 +271,7 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
           anak: antrean.isEmpty
               ? const KeadaanKosong(
                   ringkas: true,
+                  ilustrasi: IlustrasiKosong.Sinkron,
                   ikon: Icons.cloud_done_outlined,
                   judul: 'Antrean kosong',
                   keterangan: 'Semua penjualan, kas, dan shift dari perangkat ini sudah sampai di server.',
@@ -335,6 +336,7 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
           anak: perlu.isEmpty
               ? const KeadaanKosong(
                   ringkas: true,
+                  ilustrasi: IlustrasiKosong.Sinkron,
                   ikon: Icons.verified_outlined,
                   judul: 'Tidak ada data yang ditolak server.',
                   keterangan: 'Bila server menolak data (misal produk sudah dihapus), alasannya muncul di sini.',
@@ -376,6 +378,7 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
         if (ditinjau.isEmpty)
           const KeadaanKosong(
             ringkas: true,
+            ilustrasi: IlustrasiKosong.Sinkron,
             ikon: Icons.flag_outlined,
             judul: 'Tidak ada transaksi yang ditandai untuk diperiksa.',
             keterangan: 'Transaksi yang diterima server tetapi perlu dicek pemilik (misal stok kurang) tampil di sini.',

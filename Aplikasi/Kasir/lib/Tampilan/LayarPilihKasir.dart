@@ -133,9 +133,11 @@ class _LayarPilihKasirState extends ConsumerState<LayarPilihKasir> {
             error: (galat, _) =>
                 Text('Data kasir tidak bisa dimuat: $galat', style: teks.bodyMedium?.copyWith(color: warna.bahaya)),
             data: (daftar) => daftar.isEmpty
-                ? Text(
-                    'Belum ada kasir untuk outlet ini. Tambahkan pengguna di back-office, lalu ketuk "Perbarui data kasir".',
-                    style: teks.bodyLarge,
+                ? const KeadaanKosong(
+                    ikon: Icons.person_off_outlined,
+                    ilustrasi: IlustrasiKosong.Pelanggan,
+                    judul: 'Belum ada kasir untuk outlet ini',
+                    keterangan: 'Tambahkan pengguna di back-office, lalu ketuk "Perbarui data kasir".',
                   )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

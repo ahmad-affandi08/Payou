@@ -540,13 +540,15 @@ void main() {
     await Ketuk(tester, find.byTooltip('Batalkan transaksi'));
     expect(find.text('Batalkan transaksi ini?'), findsOneWidget);
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Batalkan transaksi'));
-    expect(find.text('Keranjang kosong. Ketuk produk atau pindai barcode untuk mulai.'), findsOneWidget);
+    expect(find.text('Keranjang masih kosong'), findsOneWidget);
+    expect(find.text('Ketuk produk atau pindai barcode untuk mulai.'), findsOneWidget);
 
     // Pemindai tidak aktif saat layar lain terbuka.
     await Ketuk(tester, find.text('Kas'));
     await Pindai(UuidUji.barcodeAmericano);
     await Ketuk(tester, find.text('Jual'));
-    expect(find.text('Keranjang kosong. Ketuk produk atau pindai barcode untuk mulai.'), findsOneWidget);
+    expect(find.text('Keranjang masih kosong'), findsOneWidget);
+    expect(find.text('Ketuk produk atau pindai barcode untuk mulai.'), findsOneWidget);
     await Lepas(tester, u);
   });
 
@@ -573,7 +575,8 @@ void main() {
     await Ketuk(tester, Ubin('Americano Panas'));
     await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Tahan'));
     expect(find.text('Pesanan ditahan. Buka lagi lewat tombol Tertahan.'), findsOneWidget);
-    expect(find.text('Keranjang kosong. Ketuk produk atau pindai barcode untuk mulai.'), findsOneWidget);
+    expect(find.text('Keranjang masih kosong'), findsOneWidget);
+    expect(find.text('Ketuk produk atau pindai barcode untuk mulai.'), findsOneWidget);
 
     await Ketuk(tester, find.byTooltip('Pesanan tertahan (1)'));
     expect(tester.widget<PanelTugas>(find.byType(PanelTugas)).judul, 'Pesanan tertahan');

@@ -217,10 +217,13 @@ class _Keranjang extends StatelessWidget {
         children: [
           Text('Keranjang', style: teks.titleMedium),
           const Spacer(),
-          Center(child: Icon(Icons.shopping_basket_outlined, size: 48, color: warna.garis)),
-          const SizedBox(height: TokenJarak.jarak8),
-          Center(
-            child: Text('Belum ada barang', style: TextStyle(color: warna.teksSekunder)),
+          const Center(
+            child: KeadaanKosong(
+              ikon: Icons.shopping_basket_outlined,
+              ilustrasi: IlustrasiKosong.Keranjang,
+              judul: 'Belum ada barang',
+              ringkas: true,
+            ),
           ),
           const Spacer(),
           Container(

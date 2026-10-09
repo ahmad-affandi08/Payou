@@ -296,10 +296,14 @@ class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
                     ),
             ),
           ),
-          if (daftar.isEmpty) ...[
-            const SizedBox(height: TokenJarak.jarak8),
-            Text('Tidak ada transaksi yang cocok dengan "${_cari.text.trim()}".', style: teks.bodyMedium),
-          ],
+          if (daftar.isEmpty)
+            KeadaanKosong(
+              ikon: Icons.search_off,
+              ilustrasi: IlustrasiKosong.Cari,
+              ringkas: true,
+              judul: 'Tidak ada transaksi yang cocok',
+              keterangan: 'Tidak ada hasil untuk "${_cari.text.trim()}". Periksa nomor struk atau nominalnya.',
+            ),
         ],
         const SizedBox(height: TokenJarak.jarak8),
         if (semua.isEmpty && riwayat.hasValue)
@@ -366,6 +370,7 @@ class _LayarRiwayatState extends ConsumerState<LayarRiwayat> {
               if (terpilih == null)
                 const KeadaanKosong(
                   ringkas: true,
+                  ilustrasi: IlustrasiKosong.Penjualan,
                   ikon: Icons.receipt_long_outlined,
                   judul: 'Belum ada transaksi dipilih',
                   keterangan:

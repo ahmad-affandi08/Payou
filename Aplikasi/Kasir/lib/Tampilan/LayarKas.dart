@@ -87,6 +87,7 @@ class LayarKas extends ConsumerWidget {
         if (mutasi.isEmpty)
           const KeadaanKosong(
             ringkas: true,
+            ilustrasi: IlustrasiKosong.Kas,
             ikon: Icons.swap_vert,
             judul: 'Belum ada kas masuk atau keluar',
             keterangan:

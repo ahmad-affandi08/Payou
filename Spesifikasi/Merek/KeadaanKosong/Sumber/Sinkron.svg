@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs>
+  <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#528688"/><stop offset="1" stop-color="#365759"/></linearGradient>
+  <linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3C6264"/><stop offset="1" stop-color="#26403F"/></linearGradient>
+  <filter id="k" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="14"/></filter>
+</defs>
+<ellipse cx="512" cy="835" rx="300" ry="22" fill="#1F3335" opacity=".10" filter="url(#k)"/>
+<path d="M170 430 C165 330 260 235 380 232 C450 230 480 250 520 248 C600 244 650 215 735 240 C830 268 880 360 850 470 C825 575 745 690 600 750 C470 802 300 790 215 690 C175 640 172 520 170 430 Z" fill="#DCEBE8"/>
+<circle cx="200" cy="320" r="12" fill="#F4A261"/><circle cx="850" cy="430" r="9" fill="#4F8184"/>
+
+<path d="M300 650 C205 650 170 545 245 500 C235 395 345 335 435 385 C480 295 640 305 665 415 C780 405 845 530 765 610 C740 640 705 650 680 650 Z" fill="url(#a)" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M395 520 L475 600 L640 440" fill="none" stroke="#fff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M330 735 H690" stroke="#1F3335" stroke-width="14" stroke-linecap="round" opacity=".25"/>
+
+</svg>

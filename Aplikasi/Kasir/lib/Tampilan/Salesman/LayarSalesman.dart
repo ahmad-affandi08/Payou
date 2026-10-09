@@ -507,16 +507,22 @@ class _DaftarPelanggan extends StatelessWidget {
             ),
             _ when semua.isEmpty => Padding(
               padding: EdgeInsets.all(tepi),
-              child: Text(
-                memperbarui
-                    ? 'Mengunduh data pelanggan…'
-                    : 'Belum ada data pelanggan di perangkat ini. Sambungkan ke internet lalu ketuk Perbarui.',
-                style: teks.bodyMedium,
+              child: KeadaanKosong(
+                ikon: Icons.people_outline,
+                ilustrasi: memperbarui ? IlustrasiKosong.Sinkron : IlustrasiKosong.Pelanggan,
+                judul: memperbarui ? 'Mengunduh data pelanggan…' : 'Belum ada data pelanggan di perangkat ini',
+                keterangan: memperbarui ? null : 'Sambungkan ke internet lalu ketuk Perbarui.',
               ),
             ),
             _ when hasil.isEmpty => Padding(
               padding: EdgeInsets.all(tepi),
-              child: Text('Tidak ada pelanggan yang cocok dengan "${cari.text.trim()}".', style: teks.bodyMedium),
+              child: KeadaanKosong(
+                ikon: Icons.search_off,
+                ilustrasi: IlustrasiKosong.Cari,
+                ringkas: true,
+                judul: 'Tidak ada pelanggan yang cocok',
+                keterangan: 'Tidak ada hasil untuk "${cari.text.trim()}".',
+              ),
             ),
             _ => ListView.separated(
               padding: EdgeInsets.only(bottom: tepi),

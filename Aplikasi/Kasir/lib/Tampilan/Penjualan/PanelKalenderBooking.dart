@@ -261,9 +261,12 @@ class _PanelKalenderBookingState extends ConsumerState<PanelKalenderBooking> {
           ),
         ),
       if (kalender.staf.isEmpty)
-        Padding(
-          padding: const EdgeInsets.only(top: TokenJarak.jarak12),
-          child: Text('Belum ada staf berjadwal pada tanggal ini.', style: teks.bodyMedium),
+        const KeadaanKosong(
+          ikon: Icons.event_busy_outlined,
+          ilustrasi: IlustrasiKosong.Kalender,
+          ringkas: true,
+          judul: 'Belum ada staf berjadwal pada tanggal ini',
+          keterangan: 'Pilih tanggal lain atau atur jadwal kerja di back-office.',
         ),
       for (final s in kalender.staf)
         Padding(

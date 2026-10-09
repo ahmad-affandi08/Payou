@@ -128,6 +128,7 @@ class LayarShift extends ConsumerWidget {
       anak: l.perMetode.isEmpty
           ? const KeadaanKosong(
               ringkas: true,
+              ilustrasi: IlustrasiKosong.Kas,
               ikon: Icons.account_balance_wallet_outlined,
               judul: 'Belum ada pembayaran',
               keterangan: 'Tunai, QRIS, dan kartu tampil di sini setelah transaksi pertama.',
@@ -149,6 +150,7 @@ class LayarShift extends ConsumerWidget {
       anak: l.terlaris.isEmpty
           ? const KeadaanKosong(
               ringkas: true,
+              ilustrasi: IlustrasiKosong.Produk,
               ikon: Icons.local_fire_department_outlined,
               judul: 'Belum ada produk terjual',
               keterangan: 'Lima produk paling laku di shift ini tampil di sini.',

@@ -4,11 +4,34 @@ import '../Token/TokenJarak.dart';
 import '../Token/TokenWarna.dart';
 
 /// Pilihan ilustrasi keadaan kosong (D-68): set merek di `assets/ilustrasi/`, nama berkas = nama nilai.
-enum IlustrasiKosong { Umum, Penjualan, Laporan, Akuntansi, Pelanggan, Pembelian, Outlet }
+enum IlustrasiKosong {
+  Umum,
+  Penjualan,
+  Laporan,
+  Akuntansi,
+  Pelanggan,
+  Pembelian,
+  Outlet,
+  Produk,
+  Stok,
+  Promo,
+  Shift,
+  // Set khusus aplikasi Kasir (dibuat `Spesifikasi/Merek/BuatIlustrasiKasir.py`).
+  Keranjang,
+  Meja,
+  Dapur,
+  Sinkron,
+  Kas,
+  Cari,
+  Kalender,
+  Cucian,
+  Servis,
+}
 
 /// Keadaan kosong (§17.6.6, D-40, D-68): satu kalimat yang menjelaskan **apa yang akan muncul di sini**, dan aksi
-/// opsional untuk mengisinya. Bentuk penuh menampilkan ilustrasi merek (D-68); bentuk `ringkas` (panel samping,
-/// bagian kecil) tetap ikon dalam lingkaran netral supaya tidak memakan tempat. Ilustrasi gagal dimuat = ikon.
+/// opsional untuk mengisinya. Bentuk penuh menampilkan ilustrasi merek (D-68; bawaan [IlustrasiKosong.Umum]). Bentuk
+/// `ringkas` (panel samping, bagian kecil) menampilkan ilustrasi yang lebih kecil bila [ilustrasi] diisi, dan ikon dalam
+/// lingkaran netral bila tidak. Ilustrasi gagal dimuat = ikon.
 class KeadaanKosong extends StatelessWidget {
   const KeadaanKosong({
     super.key,
@@ -17,7 +40,7 @@ class KeadaanKosong extends StatelessWidget {
     this.keterangan,
     this.aksi,
     this.ringkas = false,
-    this.ilustrasi = IlustrasiKosong.Umum,
+    this.ilustrasi,
   });
 
   final IconData ikon;
@@ -30,8 +53,9 @@ class KeadaanKosong extends StatelessWidget {
   /// Untuk panel samping & bagian kecil: ikon lebih kecil, jarak lebih rapat.
   final bool ringkas;
 
-  /// Ilustrasi merek untuk bentuk penuh; diabaikan saat [ringkas].
-  final IlustrasiKosong ilustrasi;
+  /// Ilustrasi merek. Bentuk penuh memakai [IlustrasiKosong.Umum] bila null; bentuk [ringkas] hanya menampilkan
+  /// ilustrasi (lebih kecil) bila diisi.
+  final IlustrasiKosong? ilustrasi;
 
   @override
   Widget build(BuildContext context) {
@@ -56,15 +80,15 @@ class KeadaanKosong extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (ringkas)
+          if (ringkas && ilustrasi == null)
             lingkaranIkon
           else
             Image.asset(
-              'assets/ilustrasi/${ilustrasi.name}.png',
+              'assets/ilustrasi/${(ilustrasi ?? IlustrasiKosong.Umum).name}.png',
               package: 'sistem_desain',
               key: const ValueKey('IlustrasiKosong'),
-              width: 160,
-              height: 160,
+              width: ringkas ? 96 : 160,
+              height: ringkas ? 96 : 160,
               excludeFromSemantics: true,
               errorBuilder: (_, _, _) => lingkaranIkon,
             ),

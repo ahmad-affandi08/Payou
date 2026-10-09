@@ -1604,6 +1604,7 @@ class _LayarJualState extends ConsumerState<LayarJual> {
                   context,
                   _cari.text.isEmpty ? 'Belum ada produk di kategori ini.' : 'Tidak ada produk yang cocok.',
                   _cari.text.isEmpty ? 'Pilih kategori lain.' : 'Periksa ejaan atau cari dengan SKU/barcode.',
+                  ilustrasi: _cari.text.isEmpty ? IlustrasiKosong.Produk : IlustrasiKosong.Cari,
                 )
               : daftarRingkas
               ? ListView.builder(
@@ -1662,29 +1663,21 @@ class _LayarJualState extends ConsumerState<LayarJual> {
     );
   }
 
-  Widget _BangunKosong(BuildContext context, String judul, String isi, {VoidCallback? aksi}) {
-    final teks = Theme.of(context).textTheme;
-    final warna = TokenWarna.AmbilDari(context);
+  Widget _BangunKosong(
+    BuildContext context,
+    String judul,
+    String isi, {
+    VoidCallback? aksi,
+    IlustrasiKosong ilustrasi = IlustrasiKosong.Produk,
+  }) {
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(TokenJarak.jarak24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.inventory_2_outlined, size: TokenJarak.ikonBesar, color: warna.teksSekunder),
-            const SizedBox(height: TokenJarak.jarak8),
-            Text(judul, style: teks.titleMedium, textAlign: TextAlign.center),
-            const SizedBox(height: TokenJarak.jarak4),
-            Text(
-              isi,
-              style: teks.bodyMedium?.copyWith(color: warna.teksSekunder),
-              textAlign: TextAlign.center,
-            ),
-            if (aksi != null) ...[
-              const SizedBox(height: TokenJarak.jarak16),
-              OutlinedButton(onPressed: aksi, child: const Text('Perbarui katalog')),
-            ],
-          ],
+        child: KeadaanKosong(
+          ikon: Icons.inventory_2_outlined,
+          ilustrasi: ilustrasi,
+          judul: judul,
+          keterangan: isi,
+          aksi: aksi == null ? null : OutlinedButton(onPressed: aksi, child: const Text('Perbarui katalog')),
         ),
       ),
     );

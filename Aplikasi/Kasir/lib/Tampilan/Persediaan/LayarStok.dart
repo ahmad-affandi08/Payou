@@ -92,7 +92,13 @@ class LayarStok extends ConsumerWidget {
         if (terbuang.hasError)
           Text('Catatan bahan terbuang tidak bisa dimuat. Coba lagi.', style: TextStyle(color: warna.bahaya)),
         if (!terbuang.isLoading && !terbuang.hasError && daftar.isEmpty)
-          Text('Belum ada bahan terbuang yang dicatat hari ini di perangkat ini.', style: teks.bodyMedium),
+          const KeadaanKosong(
+            ikon: Icons.delete_outline,
+            ilustrasi: IlustrasiKosong.Stok,
+            ringkas: true,
+            judul: 'Belum ada bahan terbuang yang dicatat hari ini',
+            keterangan: 'Catatan bahan terbuang di perangkat ini akan muncul di sini.',
+          ),
         if (daftar.isNotEmpty)
           Material(
             color: warna.permukaan,

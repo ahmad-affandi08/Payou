@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs>
+  <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#528688"/><stop offset="1" stop-color="#365759"/></linearGradient>
+  <linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3C6264"/><stop offset="1" stop-color="#26403F"/></linearGradient>
+  <filter id="k" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="14"/></filter>
+</defs>
+<ellipse cx="512" cy="835" rx="300" ry="22" fill="#1F3335" opacity=".10" filter="url(#k)"/>
+<path d="M170 430 C165 330 260 235 380 232 C450 230 480 250 520 248 C600 244 650 215 735 240 C830 268 880 360 850 470 C825 575 745 690 600 750 C470 802 300 790 215 690 C175 640 172 520 170 430 Z" fill="#DCEBE8"/>
+<circle cx="200" cy="320" r="12" fill="#F4A261"/><circle cx="850" cy="430" r="9" fill="#4F8184"/>
+
+<g transform="rotate(-9 440 420)"><rect x="285" y="300" width="330" height="170" rx="22" fill="#D9EBE7" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="450" cy="385" r="46" fill="#fff" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/><path d="M308 330 V440 M592 330 V440" stroke="#7FA9A9" stroke-width="12" stroke-linecap="round"/></g>
+<g transform="rotate(7 560 450)"><rect x="410" y="330" width="330" height="170" rx="22" fill="#fff" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="575" cy="415" r="46" fill="#D9EBE7" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/><path d="M432 360 V470 M718 360 V470" stroke="#7FA9A9" stroke-width="12" stroke-linecap="round"/></g>
+<path d="M232 540 L262 490 H762 L792 540 Z" fill="url(#a)" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="215" y="540" width="594" height="205" rx="34" fill="url(#b)" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="300" y="600" width="424" height="86" rx="18" fill="#D9EBE7" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M440 643 H584" stroke="#4F8184" stroke-width="16" stroke-linecap="round"/>
+<circle cx="770" cy="470" r="42" fill="#F4A261" stroke="#1F3335" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/><circle cx="770" cy="470" r="20" fill="none" stroke="#fff" stroke-width="10"/>
+
+</svg>

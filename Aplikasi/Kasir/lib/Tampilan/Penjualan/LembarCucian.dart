@@ -162,12 +162,12 @@ class _LembarCucianState extends ConsumerState<LembarCucian> {
             child: Text(_pesan!, style: teks.bodyMedium),
           ),
         if (_daftar != null && daftar.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: TokenJarak.jarak12),
-            child: Text(
-              _kata.text.trim().isEmpty ? 'Belum ada cucian yang siap diambil.' : 'Cucian tidak ditemukan.',
-              style: teks.bodyMedium,
-            ),
+          KeadaanKosong(
+            ikon: Icons.local_laundry_service_outlined,
+            ilustrasi: _kata.text.trim().isEmpty ? IlustrasiKosong.Cucian : IlustrasiKosong.Cari,
+            ringkas: true,
+            judul: _kata.text.trim().isEmpty ? 'Belum ada cucian yang siap diambil' : 'Cucian tidak ditemukan',
+            keterangan: _kata.text.trim().isEmpty ? 'Cucian yang selesai dicuci akan muncul di sini.' : null,
           ),
         for (final t in daftar)
           Padding(

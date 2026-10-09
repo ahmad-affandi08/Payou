@@ -603,9 +603,11 @@ class _LembarGudangState extends ConsumerState<LembarGudang> {
       const SizedBox(height: TokenJarak.jarak8),
       if (_memuat) const LinearProgressIndicator(),
       if (daftar != null && daftar.isEmpty && !_memuat)
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: TokenJarak.jarak12),
-          child: Text(_PesanKosong(), style: teks.bodyMedium),
+        KeadaanKosong(
+          ikon: Icons.inventory_2_outlined,
+          ilustrasi: IlustrasiKosong.Stok,
+          ringkas: true,
+          judul: _PesanKosong(),
         ),
       for (final d in daftar ?? const <_Dokumen>[])
         ListTile(

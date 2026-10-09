@@ -164,9 +164,12 @@ class _LembarReservasiState extends ConsumerState<LembarReservasi> {
             child: Text(_galat!, style: TextStyle(color: warna.bahaya)),
           ),
         if (_daftar != null && daftar.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: TokenJarak.jarak12),
-            child: Text('Belum ada reservasi hari ini.', style: teks.bodyMedium),
+          const KeadaanKosong(
+            ikon: Icons.event_busy_outlined,
+            ilustrasi: IlustrasiKosong.Kalender,
+            ringkas: true,
+            judul: 'Belum ada reservasi hari ini',
+            keterangan: 'Reservasi pelanggan untuk hari ini akan muncul di sini.',
           ),
         for (final r in daftar)
           Padding(

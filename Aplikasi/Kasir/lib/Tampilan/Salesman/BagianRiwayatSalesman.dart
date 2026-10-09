@@ -148,7 +148,12 @@ class _BagianRiwayatSalesmanState extends ConsumerState<BagianRiwayatSalesman> {
                 ],
               ),
             if (!_memuatServer && _galatServer == null && server != null && server.kunjungan.isEmpty)
-              Text('Belum ada kunjungan yang diterima kantor hari ini.', style: teks.bodyMedium),
+              const KeadaanKosong(
+                ikon: Icons.event_available_outlined,
+                ilustrasi: IlustrasiKosong.Kalender,
+                ringkas: true,
+                judul: 'Belum ada kunjungan yang diterima kantor hari ini',
+              ),
             if (!_memuatServer && _galatServer == null && server != null)
               for (final k in server.kunjungan) _BarisKunjunganServer(kunjungan: k),
           ],
