@@ -142,6 +142,7 @@ class _LayarJualState extends ConsumerState<LayarJual> {
 
   /// Transaksi terakhir menutup pesanan meja (setelah selesai kembali ke layar Meja).
   bool _selesaiPesanan = false;
+  bool _mengirimDapur = false;
 
   String? _uuidKategori;
 
@@ -788,7 +789,24 @@ class _LayarJualState extends ConsumerState<LayarJual> {
   }
 
   /// Mode meja: simpan item baru ke pesanan dan kirim ke dapur (termasuk item tersimpan yang belum dikirim).
+  /// Ketuk ganda diabaikan selama pengiriman sebelumnya belum selesai; tanpa penjaga ini dua tiket dapur tercetak.
   Future<void> _KirimDapur() async {
+    if (_mengirimDapur) {
+      return;
+    }
+    if (ref.read(penyediaModeLatihan)) {
+      _TampilPesan('Mode latihan hidup, jadi pesanan tidak dikirim ke dapur. Matikan dulu di Pengaturan.', galat: true);
+      return;
+    }
+    _mengirimDapur = true;
+    try {
+      await _KirimDapurSekali();
+    } finally {
+      _mengirimDapur = false;
+    }
+  }
+
+  Future<void> _KirimDapurSekali() async {
     final draf = ref.read(penyediaKeranjang);
     final konteks = draf.pesananMeja;
     if (konteks == null) {

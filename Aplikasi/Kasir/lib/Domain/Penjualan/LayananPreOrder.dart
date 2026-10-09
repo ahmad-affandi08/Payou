@@ -119,6 +119,17 @@ class LayananPreOrder {
         'Pre-order belum bisa dari pesanan meja, dengan voucher, atau tukar poin. Hapus dulu, lalu coba lagi.',
       );
     }
+    // Server mencatat TotalPesanan apa adanya, tetapi saat diambil penjualan dihitung ulang dari harga baris saat
+    // dipesan tanpa diskon manual dan ongkir. Total yang sudah dipotong atau ditambah di sini akan berbeda dari yang
+    // ditagih, jadi ditolak sampai server ikut menerima rincian itu.
+    if (keranjang.diskonPesanan != null ||
+        keranjang.baris.any((b) => b.diskon != null) ||
+        keranjang.biayaKirim.Bandingkan(Uang.Nol()) > 0) {
+      throw const GalatKasir(
+        'PreOrderBelumDidukung',
+        'Pre-order belum bisa dengan diskon manual atau ongkir. Hapus dulu diskon/ongkirnya, lalu coba lagi.',
+      );
+    }
     if (!JenisMetodeBayar.bolehUangMuka.contains(metode.Jenis)) {
       throw GalatKasir('MetodeBayarBelumDidukung', 'Uang muka tidak bisa dibayar dengan ${metode.Nama}.');
     }

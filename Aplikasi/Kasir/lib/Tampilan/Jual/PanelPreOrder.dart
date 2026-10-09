@@ -66,6 +66,13 @@ class _PanelPreOrderState extends ConsumerState<PanelPreOrder> {
   }
 
   Future<void> _Simpan(KonteksPenjualan k) async {
+    if (_sibuk) {
+      return;
+    }
+    if (ref.read(penyediaModeLatihan)) {
+      setState(() => _galat = 'Mode latihan hidup, jadi pre-order tidak disimpan. Matikan dulu di Pengaturan.');
+      return;
+    }
     final metode = _metode;
     final teks = _uangMuka.text.trim();
     if (metode == null) {

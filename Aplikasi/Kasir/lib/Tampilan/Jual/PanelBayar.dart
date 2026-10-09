@@ -582,7 +582,9 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
   }
 
   Future<void> _Selesaikan(KonteksPenjualan k, List<PembayaranMasukan> pembayaran) async {
-    if (!await _PastikanPenyetujuTukar(k)) {
+    // Penjaga ketuk ganda: `_sibuk` dipasang sebelum `await` pertama, supaya dua ketukan di frame yang sama tidak
+    // sama-sama lolos dan menyimpan dua penjualan.
+    if (_sibuk) {
       return;
     }
     setState(() {
@@ -591,6 +593,9 @@ class PanelBayarState extends ConsumerState<PanelBayar> {
     });
     final syarat = _AmbilSyaratApotek();
     try {
+      if (!await _PastikanPenyetujuTukar(k)) {
+        return;
+      }
       final hasil = await ref
           .read(penyediaLayananPenjualan)
           .Bayar(

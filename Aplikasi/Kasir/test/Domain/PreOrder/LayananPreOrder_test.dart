@@ -68,6 +68,16 @@ void main() {
       throwsA(isA<GalatKasir>().having((g) => g.kode, 'kode', 'PelangganWajib')),
     );
     await expectLater(
+      Buat(isi: keranjang.Salin(diskonPesanan: () => DiskonManual.DariJumlah(Uang.DariBulat(1000)))),
+      throwsA(isA<GalatKasir>().having((g) => g.kode, 'kode', 'PreOrderBelumDidukung')),
+      reason: 'Diskon manual tidak ikut ke server, jadi total saat diambil akan berbeda.',
+    );
+    await expectLater(
+      Buat(isi: keranjang.Salin(biayaKirim: Uang.DariBulat(5000))),
+      throwsA(isA<GalatKasir>().having((g) => g.kode, 'kode', 'PreOrderBelumDidukung')),
+      reason: 'Ongkir tidak ikut ke server.',
+    );
+    await expectLater(
       Buat(dp: total.Tambah(Uang.DariBulat(1))),
       throwsA(isA<GalatKasir>().having((g) => g.kode, 'kode', 'UangMukaMelebihiTotal')),
     );
