@@ -112,7 +112,11 @@ Kedua aplikasi butuh akun, jadi pilih "Semua atau sebagian fungsi dibatasi" dan 
 (jangan akun toko sungguhan):
 
 - **Payoung POS**: buat perangkat kasir di tenant demo, tulis kode aktivasi + PIN kasir demo di instruksi.
-  Kode aktivasi sekali pakai, jadi buat yang baru setiap kali kirim ulang ke peninjauan.
+  Kode aktivasi sekali pakai, jadi buat yang baru setiap kali kirim ulang ke peninjauan. **Bawaan kode hanya berlaku
+  15 menit**, terlalu singkat untuk peninjau Google: sebelum membuat kode, set `MENIT_BERLAKU_KODE_AKTIVASI=10080` (7 hari)
+  di `.env` server produksi, jalankan `php artisan config:clear` (atau `optimize` ulang bila konfigurasi di-cache), baru
+  buat kodenya di Kelola › Perangkat. Jangan dipakai untuk uji sendiri (sekali pakai). Setelah aplikasi disetujui,
+  kembalikan ke `15`. Membuat kode baru membatalkan kode lama perangkat itu.
 - **Payoung Owner**: email + kata sandi pemilik tenant demo, 2FA dimatikan untuk akun ini. Peninjau memakai email + kata sandi; tombol "Masuk dengan Google" (D-57) boleh tetap ada tetapi jangan jadi satu-satunya jalan masuk, dan cantumkan di instruksi bahwa masuk Google bersifat opsional (panduan: `Panduan/LoginGoogle.md`).
 
 Kredensial hanya diisi di Play Console, **tidak** di repo atau dokumen ini.

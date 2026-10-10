@@ -72,6 +72,20 @@ describe('F-02 langkah 5: tambah perangkat & kode aktivasi di back-office', func
                 ->where('Outlet.0.BatasPerangkat', ['Batas' => 5, 'Terpakai' => 1]));
     });
 
+    it('masa berlaku kode aktivasi mengikuti konfigurasi (dinaikkan untuk peninjauan Play Store)', function (): void {
+        ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant();
+        $outlet = PerangkatUjiOutletUtama($tenant->Id);
+        config(['organisasi.MenitBerlakuKodeAktivasi' => 10080]);
+
+        BantuanOrganisasi::Masuk($this, $pemilik, $tenant->Id)
+            ->post('/kelola/perangkat', ['Nama' => 'Peninjau', 'Outlet' => $outlet->Uuid, 'Jenis' => 'Kasir'])
+            ->assertSessionHasNoErrors();
+
+        BantuanOrganisasi::AturKonteks($tenant->Id);
+        $baris = KodeAktivasi::query()->where('IdPerangkat', Perangkat::query()->sole()->Id)->sole();
+        expect($baris->KedaluwarsaPada->diffInMinutes(now(), true))->toBeGreaterThan(10079.9)->toBeLessThanOrEqual(10080.0);
+    });
+
     it('BR-02.2: perangkat pertama mengunci kode outlet sehingga kode tidak bisa diubah lagi', function (): void {
         ['Tenant' => $tenant, 'Pemilik' => $pemilik] = BantuanOrganisasi::BuatTenant();
         $outlet = PerangkatUjiOutletUtama($tenant->Id);
