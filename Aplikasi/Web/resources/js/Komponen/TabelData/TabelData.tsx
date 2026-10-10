@@ -327,8 +327,8 @@ export default function TabelData<T>(props: PropsTabelData<T>) {
         SaatData?.(data);
     }, [data, SaatData]);
 
-    const kolom = useMemo<ColumnDef<T, any>[]>(() => {
-        const hasil: ColumnDef<T, any>[] = [];
+    const kolom = useMemo<ColumnDef<T, unknown>[]>(() => {
+        const hasil: ColumnDef<T, unknown>[] = [];
 
         if (adaAksiMassal) {
             hasil.push({

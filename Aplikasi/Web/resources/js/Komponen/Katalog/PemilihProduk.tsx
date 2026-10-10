@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode 
 
 import { Command, CommandItem, CommandList } from '@/Komponen/Ui/command';
 import { Label } from '@/Komponen/Ui/label';
+import { GayaTinggiPopoverCari, usePerilakuPopoverCari } from '@/Komponen/Formulir/PerilakuPopoverCari';
 import { Popover, PopoverContent, PopoverTrigger } from '@/Komponen/Ui/popover';
 import { cn } from '@/Komponen/Ui/utils';
 import { KunciKueri } from '@/Pustaka/KunciKueri';
@@ -105,6 +106,13 @@ export function KerangkaPemilihProduk({
     const id = useId();
     const idDaftar = `${id}-daftar`;
     const pemicu = useRef<HTMLButtonElement>(null);
+    const { modal, isi, SiapkanBuka, SaatBukaFokus } = usePerilakuPopoverCari(pemicu, terbuka);
+    const AturBuka = (buka: boolean) => {
+        if (buka) {
+            SiapkanBuka();
+        }
+        saatTerbuka(buka);
+    };
 
     // Mengetik huruf saat tombol fokus langsung membuka daftar dan mengisi kotak cari, sehingga pemindai barcode
     // yang mengetik ke bidang terfokus tetap bekerja tanpa klik tambahan.
@@ -112,28 +120,25 @@ export function KerangkaPemilihProduk({
         if (peristiwa.key.length === 1 && !peristiwa.ctrlKey && !peristiwa.metaKey && !peristiwa.altKey) {
             if (peristiwa.key !== ' ') {
                 peristiwa.preventDefault();
-                saatTerbuka(true);
+                AturBuka(true);
                 saatKata(peristiwa.key);
             }
         } else if (peristiwa.key === 'ArrowDown') {
             peristiwa.preventDefault();
-            saatTerbuka(true);
+            AturBuka(true);
         }
     };
 
     /*
-     * `modal` wajib: saat popover ini dipakai di dalam Dialog, react-remove-scroll milik Dialog memblokir
-     * `touchmove` untuk semua yang ada di luar subtree dialog — dan isi popover di-portal ke body. Akibatnya
-     * daftar tidak bisa digulir dengan jari di HP, sementara di desktop masih bisa karena scrollbar diseret
-     * dengan tetikus; itu sebabnya bug ini lama tidak terlihat. Dengan `modal`, popover mengurus scroll-lock
-     * sendiri dan isinya kembali bisa digulir sentuh.
+     * `modal` hanya bila pemicu berada di dalam Dialog/Sheet/Popover lain; di halaman biasa non-modal supaya halaman
+     * tetap bisa digulir dan daftar tidak terkunci di bawah keyboard HP (alasan lengkap: `PerilakuPopoverCari`).
      */
     return (
         <div data-slot="field" className="flex flex-col gap-1">
             <Label htmlFor={id} className="text-label font-semibold text-teks-utama">
                 {label}
             </Label>
-            <Popover modal open={terbuka} onOpenChange={saatTerbuka}>
+            <Popover modal={modal} open={terbuka} onOpenChange={AturBuka}>
                 <PopoverTrigger asChild>
                     <button
                         ref={pemicu}
@@ -168,16 +173,14 @@ export function KerangkaPemilihProduk({
                     </button>
                 </PopoverTrigger>
                 <PopoverContent
+                    ref={isi}
+                    style={GayaTinggiPopoverCari}
                     align="start"
                     side="bottom"
                     sideOffset={4}
                     collisionPadding={8}
                     className="flex max-h-(--radix-popover-content-available-height) w-(--radix-popover-trigger-width) min-w-56 flex-col overflow-hidden border-garis bg-permukaan p-0"
-                    onOpenAutoFocus={(peristiwa) => {
-                        // Fokus ke kotak cari, bukan ke item pertama.
-                        peristiwa.preventDefault();
-                        (peristiwa.currentTarget as HTMLElement).querySelector('input')?.focus();
-                    }}
+                    onOpenAutoFocus={SaatBukaFokus}
                     onCloseAutoFocus={(peristiwa) => {
                         peristiwa.preventDefault();
                         if (pemicu.current?.isConnected) {

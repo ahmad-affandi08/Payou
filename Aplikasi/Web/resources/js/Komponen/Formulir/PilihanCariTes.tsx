@@ -94,6 +94,61 @@ describe('PilihanCari (select ber-cari, §17.6)', () => {
     });
 });
 
+describe('PilihanCari di layar sentuh & di halaman biasa (regresi dropdown tertutup keyboard HP)', () => {
+    const MatchMediaAsli = window.matchMedia;
+
+    afterEach(() => {
+        window.matchMedia = MatchMediaAsli;
+    });
+
+    function PakaiSentuh(sentuh: boolean) {
+        window.matchMedia = ((kueri: string) => ({
+            matches: sentuh && kueri.includes('pointer: coarse'),
+            media: kueri,
+            onchange: null,
+            addEventListener: () => undefined,
+            removeEventListener: () => undefined,
+            addListener: () => undefined,
+            removeListener: () => undefined,
+            dispatchEvent: () => false,
+        })) as typeof window.matchMedia;
+    }
+
+    it('di layar sentuh kotak cari tidak otomatis fokus, supaya keyboard tidak menutupi daftar', () => {
+        PakaiSentuh(true);
+        render(<Terkendali saatBerubah={() => undefined} />);
+        BukaPilihan(screen.getByRole('combobox', { name: 'Kota' }));
+
+        expect(document.activeElement).not.toBe(screen.getByRole('textbox', { name: 'Cari Kota' }));
+    });
+
+    it('di desktop kotak cari tetap otomatis fokus', () => {
+        PakaiSentuh(false);
+        render(<Terkendali saatBerubah={() => undefined} />);
+        BukaPilihan(screen.getByRole('combobox', { name: 'Kota' }));
+
+        expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'Cari Kota' }));
+    });
+
+    it('di halaman biasa popover non-modal: halaman tidak dikunci gulirnya', () => {
+        render(<Terkendali saatBerubah={() => undefined} />);
+        BukaPilihan(screen.getByRole('combobox', { name: 'Kota' }));
+
+        // Mode modal memasang aria-hidden pada sisa halaman dan mengunci gulir; non-modal tidak.
+        expect(document.body.style.pointerEvents).not.toBe('none');
+        expect(document.querySelector('label[for="kota"]')?.closest('[aria-hidden="true"]')).toBeNull();
+    });
+
+    it('tinggi isi popover juga dibatasi area terlihat saat keyboard naik', () => {
+        render(<Terkendali saatBerubah={() => undefined} />);
+        BukaPilihan(screen.getByRole('combobox', { name: 'Kota' }));
+
+        const isi = document.querySelector<HTMLElement>('[data-slot="popover-content"]');
+        expect(isi?.style.maxHeight).toContain('--tinggi-tampak');
+        expect(isi?.style.maxHeight).toContain('--radix-popover-content-available-height');
+    });
+});
+
 describe('Penjaga: select bawaan peramban tidak dipakai (§17.6)', () => {
     it('tidak ada <select> / NativeSelect di Halaman & Komponen (kecuali Komponen/Ui)', () => {
         const berkas = import.meta.glob(['/resources/js/Halaman/**/*.tsx', '/resources/js/Komponen/**/*.tsx'], {

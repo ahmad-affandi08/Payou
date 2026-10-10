@@ -5,6 +5,8 @@ import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/Komponen/Ui/popover';
 import { cn } from '@/Komponen/Ui/utils';
 
+import { GayaTinggiPopoverCari, usePerilakuPopoverCari } from './PerilakuPopoverCari';
+
 export type OpsiPilihan = { Nilai: string; Label: string; Keterangan?: string | null };
 
 export type PropsPilihanCari = {
@@ -76,7 +78,12 @@ export default function PilihanCari({
 
     const KunciItem = (o: OpsiPilihan) => (o.Nilai === '' ? '__kosong' : o.Nilai);
 
+    const { modal, isi, SiapkanBuka, SaatBukaFokus } = usePerilakuPopoverCari(pemicu, terbuka);
+
     const Buka = (buka: boolean) => {
+        if (buka) {
+            SiapkanBuka();
+        }
         AturTerbuka(buka);
         if (buka) {
             AturSorot(terpilih ? KunciItem(terpilih) : '');
@@ -111,14 +118,12 @@ export default function PilihanCari({
     };
 
     /*
-     * `modal` wajib: saat popover ini dipakai di dalam Dialog, react-remove-scroll milik Dialog memblokir
-     * `touchmove` untuk semua yang ada di luar subtree dialog — dan isi popover di-portal ke body. Akibatnya
-     * daftar tidak bisa digulir dengan jari di HP, sementara di desktop masih bisa karena scrollbar diseret
-     * dengan tetikus; itu sebabnya bug ini lama tidak terlihat. Dengan `modal`, popover mengurus scroll-lock
-     * sendiri dan isinya kembali bisa digulir sentuh.
+     * `modal` hanya bila pemicu berada di dalam Dialog/Sheet/Popover lain (lihat `PerilakuPopoverCari`): kunci
+     * gulir pembungkus itu memblokir `touchmove` di isi popover yang di-portal ke body. Di halaman biasa popover
+     * non-modal, jadi halaman tetap bisa digulir dan daftar tidak terkunci di bawah keyboard HP.
      */
     return (
-        <Popover modal open={terbuka} onOpenChange={Buka}>
+        <Popover modal={modal} open={terbuka} onOpenChange={Buka}>
             <PopoverTrigger asChild>
                 <button
                     ref={pemicu}
@@ -151,6 +156,8 @@ export default function PilihanCari({
                 </button>
             </PopoverTrigger>
             <PopoverContent
+                ref={isi}
+                style={GayaTinggiPopoverCari}
                 align="start"
                 side="bottom"
                 sideOffset={4}
@@ -164,11 +171,7 @@ export default function PilihanCari({
                         pemicu.current.focus();
                     }
                 }}
-                onOpenAutoFocus={(peristiwa) => {
-                    // Fokus ke kotak cari, bukan ke item pertama.
-                    peristiwa.preventDefault();
-                    (peristiwa.currentTarget as HTMLElement).querySelector('input')?.focus();
-                }}
+                onOpenAutoFocus={SaatBukaFokus}
             >
                 <Command
                     id={idDaftar}
