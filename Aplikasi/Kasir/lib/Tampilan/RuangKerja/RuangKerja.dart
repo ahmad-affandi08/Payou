@@ -42,6 +42,7 @@ import 'LayarKunci.dart';
 import 'BannerModeLatihan.dart';
 import 'BannerPengumuman.dart';
 import 'PanelWajibPembaruan.dart';
+import 'SidebarRuangKerja.dart';
 import 'TemaNavigasiRuangKerja.dart';
 
 /// Bingkai Ruang Kerja Kasir (PRD §17.2.7, D-16): bilah atas, rel navigasi (bilah bawah di HP), area kerja, dan bilah
@@ -482,43 +483,14 @@ class _RuangKerjaState extends ConsumerState<RuangKerja> {
     ];
   }
 
-  Widget _BangunRel(List<ItemNavigasi> item, int indeks, double lebar) {
-    final warna = TokenWarna.AmbilDari(context);
-    final lebarPenuh = lebar >= RuangKerja.lebarPanelSamping;
-    final diperluas = !_relDiciutkan && lebarPenuh;
-    return NavigationRailTheme(
-      data: TemaNavigasiRuangKerja.BuatTemaRel(warna, Theme.of(context).textTheme, diperluas: diperluas),
-      child: NavigationRail(
-        extended: diperluas,
-        minWidth: 72,
-        minExtendedWidth: 216,
-        groupAlignment: -1,
-        labelType: _relDiciutkan || diperluas ? NavigationRailLabelType.none : NavigationRailLabelType.all,
-        selectedIndex: indeks,
-        onDestinationSelected: (i) => _Buka(item[i].tujuan),
-        leading: Padding(
-          padding: const EdgeInsets.only(top: TokenJarak.jarak8, bottom: TokenJarak.jarak16),
-          child: IconButton(
-            tooltip: _relDiciutkan ? 'Lebarkan menu' : 'Ciutkan menu',
-            onPressed: () => setState(() => _relDiciutkan = !_relDiciutkan),
-            color: warna.permukaan,
-            style: IconButton.styleFrom(backgroundColor: warna.permukaan.withValues(alpha: 0.1)),
-            icon: Icon(_relDiciutkan ? Icons.menu : Icons.menu_open),
-          ),
-        ),
-        destinations: [
-          for (final i in item)
-            NavigationRailDestination(
-              // Tooltip: saat rel tertutup hanya ikon yang terlihat, nama menu muncul saat ditahan/disorot.
-              icon: Tooltip(message: i.label, child: Icon(i.ikon)),
-              selectedIcon: Tooltip(message: i.label, child: Icon(i.ikonAktif)),
-              label: Text(i.label),
-              padding: const EdgeInsets.symmetric(vertical: 2),
-            ),
-        ],
-      ),
-    );
-  }
+  Widget _BangunRel(List<ItemNavigasi> item, int indeks, {required bool lebarPenuh}) => SidebarRuangKerja(
+    item: item,
+    indeks: indeks,
+    diciutkan: _relDiciutkan,
+    lebarPenuh: lebarPenuh,
+    saatPilih: _Buka,
+    saatUbahLebar: () => setState(() => _relDiciutkan = !_relDiciutkan),
+  );
 
   Widget _BangunAreaKerja(List<ItemNavigasi> item, int indeks, double lebar) {
     final warna = TokenWarna.AmbilDari(context);
@@ -725,7 +697,7 @@ class _RuangKerjaState extends ConsumerState<RuangKerja> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (pakaiRel) ...[
-                    _BangunRel(item, indeks, lebar),
+                    _BangunRel(item, indeks, lebarPenuh: lebar >= RuangKerja.lebarPanelSamping),
                     VerticalDivider(width: TokenJarak.tebalGaris, thickness: TokenJarak.tebalGaris, color: warna.garis),
                   ],
                   // Batas lukis sendiri: perubahan keranjang tidak melukis ulang bilah atas, rel, dan bilah status.

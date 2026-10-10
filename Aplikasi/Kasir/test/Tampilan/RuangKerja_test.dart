@@ -10,6 +10,7 @@ import 'package:kasir/Domain/Perangkat/PengaturanPerangkat.dart';
 import 'package:kasir/Tampilan/RuangKerja/BilahAtasRuangKerja.dart';
 import 'package:kasir/Tampilan/RuangKerja/LayarKunci.dart';
 import 'package:kasir/Tampilan/RuangKerja/RuangKerja.dart';
+import 'package:kasir/Tampilan/RuangKerja/SidebarRuangKerja.dart';
 import 'package:kasir/Tampilan/RuangKerja/TemaNavigasiRuangKerja.dart';
 import 'package:sistem_desain/SistemDesain.dart';
 
@@ -43,13 +44,7 @@ void main() {
       await u.shift.BukaShift(kasir: await u.Staf('Rina Wulandari'), kasAwal: Uang.DariBulat(500000));
     });
     u.server.penangan = (_) async => throw http.ClientException('offline');
-    await PasangAplikasi(
-      tester,
-      u,
-      ukuran: ukuran,
-      penjagaLayar: penjagaLayar,
-      relAwalDiciutkan: relAwalDiciutkan,
-    );
+    await PasangAplikasi(tester, u, ukuran: ukuran, penjagaLayar: penjagaLayar, relAwalDiciutkan: relAwalDiciutkan);
     await PilihKasir(tester, 'Rina Wulandari');
     await tester.pump();
     await KetikPin(tester, KasusPin(0)['Pin']! as String);
@@ -79,7 +74,7 @@ void main() {
       expect(lega ? find.text('Kunci') : find.byTooltip('Kunci'), findsOneWidget);
 
       // Rel kiri di ≥ 600dp, bilah navigasi bawah di < 600dp. Beranda = Jual.
-      expect(find.byType(NavigationRail), ukuran.width >= 600 ? findsOneWidget : findsNothing);
+      expect(find.byType(SidebarRuangKerja), ukuran.width >= 600 ? findsOneWidget : findsNothing);
       expect(find.byType(NavigationBar), ukuran.width >= 600 ? findsNothing : findsOneWidget);
       expect(find.text('Katalog belum ada di perangkat ini.'), findsOneWidget);
       for (final label in ['Jual', 'Riwayat', 'Kas', 'Shift', 'Sinkron', lega ? 'Pengaturan' : 'Atur']) {
@@ -144,14 +139,20 @@ void main() {
 
       // Rel (≥ 600dp) atau bilah bawah (< 600dp) memakai warna merek yang sama, jadi bingkai terbaca satu kerangka.
       if (ukuran.width >= 600) {
-        final temaRel = NavigationRailTheme.of(tester.element(find.byType(NavigationRail)));
-        expect(temaRel.backgroundColor, warna.brandGelap, reason: 'Rel memakai warna merek di lebar $nama.');
-        expect(temaRel.selectedIconTheme?.color, warna.brandGelap);
-        expect(temaRel.indicatorColor, warna.aksen, reason: 'Item aktif berupa pil apricot (D-66).');
-        expect(
-          temaRel.unselectedIconTheme?.color,
-          warna.permukaan.withValues(alpha: TemaNavigasiRuangKerja.opasitasPasif),
+        final latarSidebar = tester.widget<Material>(
+          find.descendant(of: find.byType(SidebarRuangKerja), matching: find.byType(Material)).first,
         );
+        expect(latarSidebar.color, warna.brandGelap, reason: 'Sidebar memakai warna merek di lebar $nama.');
+        final pilAktif = tester.widget<Material>(find.byKey(const ValueKey('ItemSidebar.Jual')));
+        expect(pilAktif.color, warna.aksen, reason: 'Item aktif berupa pil apricot (D-66).');
+        final ikonAktif = tester.widget<Icon>(
+          find.descendant(of: find.byKey(const ValueKey('ItemSidebar.Jual')), matching: find.byType(Icon)),
+        );
+        expect(ikonAktif.color, warna.brandGelap, reason: 'Ikon item aktif gelap di atas pil apricot.');
+        final ikonPasif = tester.widget<Icon>(
+          find.descendant(of: find.byKey(const ValueKey('ItemSidebar.Riwayat')), matching: find.byType(Icon)),
+        );
+        expect(ikonPasif.color, warna.permukaan.withValues(alpha: TemaNavigasiRuangKerja.opasitasPasif));
       } else {
         final temaBilah = NavigationBarTheme.of(tester.element(find.byType(NavigationBar)));
         expect(temaBilah.backgroundColor, warna.brandGelap, reason: 'Bilah bawah memakai warna merek.');
@@ -170,23 +171,55 @@ void main() {
     });
   }
 
-  testWidgets('rel navigasi mulai tertutup (ikon saja) dan bisa dilebarkan lalu diciutkan lagi', (tester) async {
+  testWidgets('sidebar mulai tertutup (ikon saja) dan bisa dilebarkan lalu diciutkan lagi', (tester) async {
     final u = await MasukRuangKerja(tester, relAwalDiciutkan: true);
-    var rel = tester.widget<NavigationRail>(find.byType(NavigationRail));
-    expect(rel.extended, isFalse, reason: 'Bawaan: menu samping tertutup.');
-    expect(rel.labelType, NavigationRailLabelType.none);
+    var sidebar = tester.widget<SidebarRuangKerja>(find.byType(SidebarRuangKerja));
+    expect(sidebar.diciutkan, isTrue, reason: 'Bawaan: menu samping tertutup.');
+    expect(sidebar.susunan, SusunanSidebar.IkonSaja);
+    expect(find.text('Riwayat'), findsNothing, reason: 'Tertutup: hanya ikon, nama menu lewat tooltip.');
+    expect(find.byTooltip('Riwayat'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Lebarkan menu'));
     await Tunggu(tester);
-    expect(tester.widget<NavigationRail>(find.byType(NavigationRail)).extended, isTrue);
+    sidebar = tester.widget<SidebarRuangKerja>(find.byType(SidebarRuangKerja));
+    expect(sidebar.diciutkan, isFalse);
+    expect(sidebar.susunan, SusunanSidebar.Penuh, reason: 'Lebar 1280dp: ikon dan label sebaris.');
+    expect(find.text('Riwayat'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Ciutkan menu'));
     await Tunggu(tester);
-    rel = tester.widget<NavigationRail>(find.byType(NavigationRail));
-    expect(rel.extended, isFalse);
-    expect(rel.labelType, NavigationRailLabelType.none);
+    sidebar = tester.widget<SidebarRuangKerja>(find.byType(SidebarRuangKerja));
+    expect(sidebar.diciutkan, isTrue);
+    expect(find.text('Riwayat'), findsNothing);
     await Lepas(tester, u);
   });
+
+  for (final (nama, ukuran) in [('1280', ukuranDesktop), ('800', ukuranTablet)]) {
+    testWidgets(
+      'label item aktif sidebar terbaca di lebar $nama dp (label di dalam pil apricot, bukan di latar gelap)',
+      (tester) async {
+        final warna = TokenWarna.bawaan;
+        final u = await MasukRuangKerja(tester, ukuran: ukuran);
+
+        // Regresi aduan penguji: saat menu terbuka, label item aktif memakai warna merek gelap; kalau pil apricot hanya
+        // menutup ikon, tulisannya jatuh di atas latar rel yang juga gelap dan hilang.
+        await tester.tap(find.text('Kas'));
+        await Tunggu(tester);
+        final pil = find.byKey(const ValueKey('ItemSidebar.Kas'));
+        expect(tester.widget<Material>(pil).color, warna.aksen);
+        final label = find.descendant(of: pil, matching: find.text('Kas'));
+        expect(label, findsOneWidget, reason: 'Label item aktif ada di dalam pil apricot.');
+        expect(tester.widget<Text>(label).style?.color, warna.brandGelap);
+        expect(tester.getRect(label).overlaps(tester.getRect(pil)), isTrue);
+        expect(tester.getRect(pil).contains(tester.getRect(label).center), isTrue);
+
+        // Item tidak aktif tetap putih redup di atas latar merek.
+        final labelPasif = tester.widget<Text>(find.text('Riwayat'));
+        expect(labelPasif.style?.color, warna.permukaan.withValues(alpha: TemaNavigasiRuangKerja.opasitasPasif));
+        await Lepas(tester, u);
+      },
+    );
+  }
 
   testWidgets('kunci otomatis setelah diam 15 menit (bawaan); sentuhan mengulang hitungan; buka dengan PIN sama', (
     tester,
