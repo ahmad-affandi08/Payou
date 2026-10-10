@@ -173,8 +173,8 @@ Firebase Cloud Messaging hanya untuk notifikasi push; tidak ada analitik Firebas
 3. Aktifkan **Play App Signing** (Google memegang kunci aplikasi; keystore di atas = kunci unggah).
 4. Build AAB dengan alamat server produksi:
    ```bash
-   cd Aplikasi/Kasir   && flutter build appbundle --release --dart-define=ALAMAT_SERVER=https://dashboard.payoung.id/
-   cd Aplikasi/Pemilik && flutter build appbundle --release --dart-define=ALAMAT_SERVER=https://dashboard.payoung.id/
+   cd Aplikasi/Kasir   && flutter build appbundle --release -t lib/UtamaProduksi.dart --dart-define=ALAMAT_SERVER=https://dashboard.payoung.id/
+   cd Aplikasi/Pemilik && flutter build appbundle --release -t lib/UtamaProduksi.dart --dart-define=ALAMAT_SERVER=https://dashboard.payoung.id/
    ```
    Hasil: `build/app/outputs/bundle/release/app-release.aab`. Setiap unggahan wajib menaikkan angka build (`+N`).
 5. Pemilik: siapkan `google-services.json` proyek Firebase produksi (tidak di repo) sebelum build.
@@ -187,13 +187,49 @@ Firebase Cloud Messaging hanya untuk notifikasi push; tidak ada analitik Firebas
 3. **Produksi** bertahap 10% → 50% → 100% (P-10 rilis bertahap di konsol bisa dipakai bersamaan).
 4. Setelah tayang, daftarkan versi di konsol P-10 (versi minimum & catatan rilis) agar kasir lama diminta memperbarui.
 
+## 10. Langkah praktis di Play Console (akun pribadi baru)
+
+Diverifikasi 10 Okt 2026: AAB rilis Kasir (83,6 MB) dan Pemilik (55,3 MB) berhasil dibangun dan ditandatangani kunci unggah
+(target SDK 36, izin `INTERNET` masuk lewat plugin). Tanpa `-t lib/UtamaProduksi.dart`, build gagal ("lib/main.dart not found").
+
+1. **Selesaikan penyiapan aplikasi** (Dasbor › Selesaikan penyiapan): listing (§2), grafis (§1), kontak & privasi (§4),
+   akses aplikasi (§5), data safety (§6), rating & audiens (§7).
+2. **Uji dan rilis › Pengujian tertutup › Buat track**: buat daftar penguji (daftar email Google, ≥ 12 orang), unggah AAB,
+   isi catatan rilis, kirim. Salin **tautan opt-in** dan bagikan ke penguji.
+3. Penguji harus **menerima undangan (opt-in) lalu memasang dari Play Store dan tetap ikut sampai 14 hari penuh**. Hitungan
+   14 hari baru berjalan saat ≥ 12 penguji sudah ikut serta; pantau di Dasbor › Produksi ("0 penguji saat ini ikut serta").
+   Beri margin: ajak 15–20 orang karena sebagian bisa keluar.
+4. Setelah syarat terpenuhi, tombol **Ajukan permohonan untuk produksi** aktif; jawab kuesioner (cara mencari penguji,
+   umpan balik yang diterima, rencana perbaikan). Simpan catatan umpan balik penguji selama 14 hari sebagai bahan jawaban.
+5. Pengujian internal (opsional, bisa paralel) tidak dihitung untuk syarat ini.
+
+Contoh pesan ajakan penguji:
+
+```
+Halo, saya sedang menyiapkan aplikasi kasir Payoung POS. Boleh bantu jadi penguji? Caranya: (1) kirim email Google Anda
+ke saya, (2) buka tautan ini di HP Android: <tautan opt-in>, (3) klik "Jadi penguji" lalu pasang aplikasinya dari Play Store,
+(4) biarkan terpasang minimal 14 hari dan sesekali dibuka. Terima kasih!
+```
+
+**Tenant demo untuk peninjau** (bukan seeder lokal `DataDemoLokal`, yang dilarang jalan di produksi): daftar sungguhan di
+`payoung.id/daftar` memakai email khusus peninjau, pilih sektor yang datanya paling mudah dipahami (mis. FnB), selesaikan
+panduan awal, buat perangkat kasir + PIN demo, lalu tempel kode aktivasi di instruksi akses aplikasi. Untuk Owner, matikan
+2FA di akun demo itu.
+
+**Catatan teknis**
+- Payoung Owner dibangun tanpa `google-services.json`, jadi push notification **tidak aktif** di AAB itu. Letakkan berkasnya di
+  `Aplikasi/Pemilik/android/app/` (tidak di-commit) sebelum build bila push ingin ikut rilis.
+- Kedua aplikasi memakai keystore yang sama (`payou-release.jks`; pemilik sertifikat tertulis "Payou"). Itu tidak masalah
+  untuk kunci unggah, tetapi **cadangkan keystore + sandi di luar komputer ini**: kunci unggah hilang berarti harus minta reset ke Google.
+- Setiap unggahan ulang wajib menaikkan angka build (`version: 1.0.0+N` di `pubspec.yaml`).
+
 ## Daftar periksa
 
 - [ ] Email dukungan & kebijakan privasi terbit di `payoung.id/legal/kebijakan-privasi`
 - [ ] Tenant demo + kode aktivasi + akun Owner untuk peninjau
 - [x] Versi Pemilik dinaikkan ke 1.0.0, angka build naik tiap unggah
-- [ ] Keystore unggah tersimpan aman + Play App Signing aktif
-- [ ] AAB dibangun dengan `ALAMAT_SERVER` produksi
+- [ ] Keystore unggah dicadangkan di luar komputer + Play App Signing aktif (keystore sudah ada, lihat §10)
+- [x] AAB dibangun dengan `ALAMAT_SERVER` produksi (dibangun ulang tiap unggahan; Kasir & Pemilik terverifikasi 10 Okt 2026)
 - [ ] Ikon, grafis fitur, screenshot ponsel & tablet diunggah
 - [ ] Data safety, rating konten, audiens, iklan, akses aplikasi terisi
 - [ ] Uji internal di perangkat asli (printer Bluetooth, kamera, QRIS, offline) lulus

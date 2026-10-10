@@ -284,7 +284,7 @@ Selama pembaruan, pengunjung bisa diberi halaman perawatan: `php artisan down`, 
 Build dengan alamat server produksi:
 
 ```bash
-flutter build apk --dart-define=ALAMAT_SERVER=https://dashboard.payoung.id/
+flutter build apk --release -t lib/UtamaProduksi.dart --dart-define=ALAMAT_SERVER=https://dashboard.payoung.id/
 ```
 
 Tautan unduh hasilnya diisi di konsol → Situs pemasaran → Pengaturan → Tautan unduh aplikasi.
