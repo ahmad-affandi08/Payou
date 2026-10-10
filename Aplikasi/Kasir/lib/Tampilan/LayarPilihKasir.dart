@@ -43,7 +43,10 @@ class _LayarPilihKasirState extends ConsumerState<LayarPilihKasir> {
       // Data staf terbaru (PIN & izin bisa berubah di back-office sejak daftar ini dipilih).
       final segar = (await ref.read(penyediaStaf.future)).where((s) => s.uuid == staf.uuid).firstOrNull;
       if (segar == null) {
-        throw GalatKasir('StafTidakTerdaftar', '${staf.nama} tidak lagi terdaftar di perangkat ini. Perbarui data kasir.');
+        throw GalatKasir(
+          'StafTidakTerdaftar',
+          '${staf.nama} tidak lagi terdaftar di perangkat ini. Perbarui data kasir.',
+        );
       }
       await ref.read(penyediaSesi.notifier).Masuk(segar, pin, sebelumMasuk: _TawarkanAbsenMasuk);
     } on GalatKasir catch (galat) {

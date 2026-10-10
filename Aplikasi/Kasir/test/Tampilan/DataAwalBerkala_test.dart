@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -33,6 +35,20 @@ void main() {
       }
       if (jalur.endsWith('/produk-habis')) {
         return JsonUji({'Produk': <Object?>[]});
+      }
+      // Buka shift dari SiapkanAktif masih di outbox: sinkron harus dijawab, bila tidak perangkat ditandai offline dan
+      // tarikan berkala (hanya saat online) memang tidak jalan.
+      if (jalur.endsWith('/sinkron/kirim')) {
+        final item = ((jsonDecode(p.body) as Map<String, Object?>)['Item']! as List<Object?>)
+            .cast<Map<String, Object?>>();
+        return JsonUji({
+          'Hasil': [
+            for (final i in item) {'Uuid': i['Uuid'], 'Jenis': i['Jenis'], 'Status': 'Diterima', 'Galat': null},
+          ],
+          'WaktuServer': u.jam.toUtc().toIso8601String(),
+          'PerangkatDicabut': false,
+          'PerluTinjauan': <Object?>[],
+        });
       }
       throw http.ClientException('offline');
     };

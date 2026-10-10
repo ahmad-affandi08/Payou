@@ -144,10 +144,8 @@ class RepositoriPenjualan {
 
   /// BR-05.2: berubah setiap penjualan/detail/outbox ditulis (simpan, void, kirim, tolak). Dipakai layanan stok
   /// tersedia untuk menghitung ulang penjualan lokal yang belum tercakup salinan stok server.
-  Stream<void> PantauPerubahanPenjualan() => db
-      .customSelect('SELECT 1', readsFrom: {db.penjualan, db.penjualanDetail, db.outbox})
-      .watch()
-      .map((_) {});
+  Stream<void> PantauPerubahanPenjualan() =>
+      db.customSelect('SELECT 1', readsFrom: {db.penjualan, db.penjualanDetail, db.outbox}).watch().map((_) {});
 
   /// BR-05.2: Uuid penjualan perangkat ini yang masih menunggu di outbox (belum terkirim atau perlu tindakan).
   Future<Set<String>> AmbilUuidPenjualanTertunda() async {

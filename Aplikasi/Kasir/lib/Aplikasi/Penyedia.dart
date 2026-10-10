@@ -1304,8 +1304,8 @@ class PengaturSesi extends Notifier<KeadaanSesi> {
   /// PIN lama tetap diterima sampai data awal diunduh ulang. Hanya berjalan di layar pilih kasir atau saat terkunci,
   /// yaitu sebelum PIN diketik, dan tidak mengganggu transaksi yang sedang berjalan. [paksa] melewati jeda [jeda].
   Future<void> SegarkanStafBilaPerlu({bool paksa = false, Duration jeda = const Duration(minutes: 5)}) async {
-    final menungguPin = state.tahap == TahapSesi.PilihKasir ||
-        (state.tahap == TahapSesi.Masuk && state.kunci != KeadaanKunci.Bebas);
+    final menungguPin =
+        state.tahap == TahapSesi.PilihKasir || (state.tahap == TahapSesi.Masuk && state.kunci != KeadaanKunci.Bebas);
     if (_sedangDicabut || !menungguPin) {
       return;
     }

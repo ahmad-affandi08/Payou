@@ -36,7 +36,11 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('PilihKasir')));
     await tester.pumpAndSettle();
-    expect(find.text('apt. Dewi Anggraini'), findsWidgets, reason: 'Staf baru dari back-office tampil tanpa tombol Perbarui.');
+    expect(
+      find.text('apt. Dewi Anggraini'),
+      findsWidgets,
+      reason: 'Staf baru dari back-office tampil tanpa tombol Perbarui.',
+    );
     await Lepas(tester, u);
   });
 }

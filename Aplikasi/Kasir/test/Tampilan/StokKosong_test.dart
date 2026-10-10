@@ -110,6 +110,13 @@ void main() {
     final u = await MasukJual(tester, {UuidUji.roti: '0.0000'}, ukuran: const Size(360, 740));
     final wadah = ProviderScope.containerOf(tester.element(find.byType(RuangKerja)));
 
+    // Katalog di HP adalah grid malas (2 kolom): ubin di bawah layar belum terlihat, jadi gulir dulu.
+    await tester.scrollUntilVisible(
+      Ubin('Roti Tawar Gandum'),
+      120,
+      scrollable: find.descendant(of: find.byType(GridView), matching: find.byType(Scrollable)),
+    );
+    await tester.pump();
     expect(TeksHabis('Roti Tawar Gandum'), findsOneWidget);
     await Ketuk(tester, Ubin('Roti Tawar Gandum'));
 

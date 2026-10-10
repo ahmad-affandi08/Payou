@@ -99,10 +99,7 @@ class _BagianPrinterState extends ConsumerState<BagianPrinter> {
     final lain = [
       for (var i = 0; i < daftar.length; i++)
         if (i != indeks)
-          daftar[i].copyWith(
-            struk: _struk ? false : daftar[i].struk,
-            stasiun: daftar[i].stasiun.difference(_stasiun),
-          ),
+          daftar[i].copyWith(struk: _struk ? false : daftar[i].struk, stasiun: daftar[i].stasiun.difference(_stasiun)),
     ];
     // Printer yang kehilangan semua kegunaannya hilang dari daftar (tidak ada yang akan dicetak di sana).
     final hasil = [...lain.where((p) => p.struk || p.stasiun.isNotEmpty), baru];

@@ -13,9 +13,8 @@ import 'package:mesin_kasir/MesinKasir.dart';
 import '../../Pendukung/KatalogUji.dart';
 import '../../Pendukung/LingkunganUji.dart';
 
-Matcher GalatStok(String pesan) => throwsA(
-  isA<GalatKasir>().having((g) => g.kode, 'kode', 'StokTidakCukup').having((g) => g.pesan, 'pesan', pesan),
-);
+Matcher GalatStok(String pesan) =>
+    throwsA(isA<GalatKasir>().having((g) => g.kode, 'kode', 'StokTidakCukup').having((g) => g.pesan, 'pesan', pesan));
 
 /// F-07 + F-05, BR-05.2: keranjang kasir menolak menambah jumlah produk berstok melebihi sisa stok Toko, tetapi tidak
 /// memblokir pengurangan, produk di luar daftar server, dan keranjang yang menagih dokumen yang sudah ada.

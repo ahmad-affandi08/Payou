@@ -19,11 +19,8 @@ class PrinterPerangkat {
   /// Dua profil dianggap printer yang sama bila sambungannya sama.
   String get kunci => '${profil.jenis.name}|${profil.alamat}|${profil.port}';
 
-  PrinterPerangkat copyWith({ProfilPrinter? profil, bool? struk, Set<String>? stasiun}) => PrinterPerangkat(
-    profil: profil ?? this.profil,
-    struk: struk ?? this.struk,
-    stasiun: stasiun ?? this.stasiun,
-  );
+  PrinterPerangkat copyWith({ProfilPrinter? profil, bool? struk, Set<String>? stasiun}) =>
+      PrinterPerangkat(profil: profil ?? this.profil, struk: struk ?? this.struk, stasiun: stasiun ?? this.stasiun);
 }
 
 /// Hasil menyusun daftar kembali ke bentuk simpan: profil printer struk (null = tidak ada) dan printer per stasiun.

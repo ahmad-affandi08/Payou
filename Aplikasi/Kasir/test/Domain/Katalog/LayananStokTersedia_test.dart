@@ -145,7 +145,16 @@ void main() {
       await stok.Segarkan();
 
       expect(Efektif(KeranjangRoti(1, satuan: 'Lusin')), Jml(18));
-      expect(Efektif(KeranjangRoti(5, satuan: 'Pcs', dasar: KeranjangRoti(1, satuan: 'Lusin'))), Jml(13));
+      expect(
+        Efektif(
+          KeranjangRoti(
+            5,
+            satuan: 'Pcs',
+            dasar: KeranjangRoti(1, satuan: 'Lusin'),
+          ),
+        ),
+        Jml(13),
+      );
     });
 
     test('BR-05.2: baris yang sedang diubah dikecualikan lewat kecualiBaris', () async {
@@ -256,9 +265,9 @@ void main() {
       await stok.HitungUlangTerjual();
       expect(Efektif(Keranjang.kosong), Jml(6));
 
-      await (u.db.update(u.db.penjualan)..where((p) => p.Uuid.equals(uuid))).write(
-        const PenjualanCompanion(Status: Value(StatusPenjualanLokal.divoid)),
-      );
+      await (u.db.update(
+        u.db.penjualan,
+      )..where((p) => p.Uuid.equals(uuid))).write(const PenjualanCompanion(Status: Value(StatusPenjualanLokal.divoid)));
       await stok.HitungUlangTerjual();
 
       expect(Efektif(Keranjang.kosong), Jml(10));

@@ -47,7 +47,10 @@ class _LayarKunciState extends ConsumerState<LayarKunci> {
       // Pakai data staf terbaru (PIN & izin bisa berubah di back-office saat layar terkunci), bukan objek saat login.
       final segar = (await ref.read(penyediaStaf.future)).where((s) => s.uuid == staf.uuid).firstOrNull;
       if (segar == null) {
-        throw GalatKasir('StafTidakTerdaftar', '${staf.nama} tidak lagi terdaftar di perangkat ini. Minta pemilik memeriksa akunnya.');
+        throw GalatKasir(
+          'StafTidakTerdaftar',
+          '${staf.nama} tidak lagi terdaftar di perangkat ini. Minta pemilik memeriksa akunnya.',
+        );
       }
       await ref.read(penyediaSesi.notifier).Masuk(segar, pin);
     } on GalatKasir catch (galat) {

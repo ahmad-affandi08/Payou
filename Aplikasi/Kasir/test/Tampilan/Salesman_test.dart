@@ -196,11 +196,11 @@ void main() {
       expect(find.textContaining('1 produk | perkiraan Rp 132.000'), findsOneWidget);
       expect(find.text('Terkirim'), findsNWidgets(2));
       await tester.scrollUntilVisible(
-        find.text('Belum ada kunjungan yang diterima kantor hari ini.'),
+        find.text('Belum ada kunjungan yang diterima kantor hari ini'),
         200,
         scrollable: find.descendant(of: find.byType(BagianRiwayatSalesman), matching: find.byType(Scrollable)).first,
       );
-      expect(find.text('Belum ada kunjungan yang diterima kantor hari ini.'), findsOneWidget);
+      expect(find.text('Belum ada kunjungan yang diterima kantor hari ini'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await Lepas(tester, u);
     });

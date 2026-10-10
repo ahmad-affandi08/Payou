@@ -314,7 +314,10 @@ void main() {
     await profil.copyWith(umpanAkhir: 1).Simpan(u.repositori);
     expect((await ProfilPrinter.Muat(u.repositori))!.umpanAkhir, 1);
     // Profil lama tanpa kunci UmpanAkhir memakai bawaan baru (lebih pendek dari 4 baris dulu).
-    expect(ProfilPrinter.DariJson({...profil.KeJson()}..remove('UmpanAkhir'))!.umpanAkhir, PerintahEscPos.umpanAkhirBawaan);
+    expect(
+      ProfilPrinter.DariJson({...profil.KeJson()}..remove('UmpanAkhir'))!.umpanAkhir,
+      PerintahEscPos.umpanAkhirBawaan,
+    );
     await u.repositori.SimpanPengaturan(KunciPengaturan.profilPrinter, '{rusak');
     expect(await ProfilPrinter.Muat(u.repositori), isNull);
     await ProfilPrinter.Hapus(u.repositori);

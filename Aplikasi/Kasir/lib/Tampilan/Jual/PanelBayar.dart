@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:klien_api/KlienApi.dart';
 import 'package:mesin_kasir/MesinKasir.dart';
@@ -1417,7 +1416,11 @@ class TampilanSelesai extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: TokenJarak.jarak24),
-              Text('Kembalian', style: teks.titleMedium?.copyWith(color: putihRedup), textAlign: TextAlign.center),
+              Text(
+                'Kembalian',
+                style: teks.titleMedium?.copyWith(color: putihRedup),
+                textAlign: TextAlign.center,
+              ),
               Center(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -1436,7 +1439,9 @@ class TampilanSelesai extends StatelessWidget {
                   style: teks.titleMedium?.copyWith(color: putihRedup),
                   textAlign: TextAlign.center,
                 ),
-                Center(child: TeksUang(selisih, rataKanan: false, gaya: teks.headlineSmall?.copyWith(color: putih))),
+                Center(
+                  child: TeksUang(selisih, rataKanan: false, gaya: teks.headlineSmall?.copyWith(color: putih)),
+                ),
               ],
               if (hasil.nomorReturTukar case final nomorRetur?)
                 Text(
@@ -1461,7 +1466,9 @@ class TampilanSelesai extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 2),
                   child: Row(
                     children: [
-                      Expanded(child: Text(p.metode.Nama, style: teks.bodyMedium?.copyWith(color: putihRedup))),
+                      Expanded(
+                        child: Text(p.metode.Nama, style: teks.bodyMedium?.copyWith(color: putihRedup)),
+                      ),
                       TeksUang(p.jumlah, gaya: teks.bodyMedium?.copyWith(color: putihRedup)),
                     ],
                   ),

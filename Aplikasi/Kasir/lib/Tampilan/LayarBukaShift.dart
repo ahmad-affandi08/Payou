@@ -120,7 +120,9 @@ class _LayarBukaShiftState extends ConsumerState<LayarBukaShift> {
             kasAwal: kasAwal,
             pecahan: _hitungPecahan ? [for (final e in _pecahan.entries) BarisPecahan(e.key, e.value)] : null,
           );
-      UmpanAksi.Berhasil(akar, 'Shift dibuka dengan kas awal ${kasAwal.FormatRupiah()}. Selamat bertugas.');
+      if (akar.mounted) {
+        UmpanAksi.Berhasil(akar, 'Shift dibuka dengan kas awal ${kasAwal.FormatRupiah()}. Selamat bertugas.');
+      }
       await sesi.Sinkronkan();
     } on GalatKasir catch (galat) {
       if (mounted) {

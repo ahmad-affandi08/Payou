@@ -43,11 +43,7 @@ void main() {
       expect(PerintahEscPos.PotongKertas(0), [0x1D, 0x56, 0x42, 0x00]);
       expect(PerintahEscPos.PotongKertas(99).sublist(0, 3), [0x1B, 0x64, PerintahEscPos.umpanAkhirMaksimal]);
 
-      final byte = PengodeEscPos.Kodekan(
-        const DokumenStruk([BarisTeks('A')]),
-        LebarKertas.Mm58,
-        umpanAkhir: 5,
-      );
+      final byte = PengodeEscPos.Kodekan(const DokumenStruk([BarisTeks('A')]), LebarKertas.Mm58, umpanAkhir: 5);
       expect(byte.sublist(byte.length - 7), [0x1B, 0x64, 0x05, 0x1D, 0x56, 0x42, 0x00]);
     });
 
@@ -85,7 +81,10 @@ void main() {
 
     test('QR yang terlalu lebar untuk kertas mengecilkan ukuran modul, tetap muat', () {
       final url = 'https://payoung.id/s/${'A' * 80}';
-      final byte = PengodeEscPos.Kodekan(DokumenStruk([BarisQr(url, ukuranModul: 16)], potong: false), LebarKertas.Mm58);
+      final byte = PengodeEscPos.Kodekan(
+        DokumenStruk([BarisQr(url, ukuranModul: 16)], potong: false),
+        LebarKertas.Mm58,
+      );
       final awal = Cari(byte, [0x1D, 0x76, 0x30, 0x00]);
       expect(byte[awal + 4] | (byte[awal + 5] << 8), 48);
       expect(byte.length, lessThan(48 * 400 + 200));

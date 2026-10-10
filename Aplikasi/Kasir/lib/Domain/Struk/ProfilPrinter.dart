@@ -84,17 +84,16 @@ class ProfilPrinter {
     bool? cetakOtomatis,
     bool? bukaLaciTunai,
     int? umpanAkhir,
-  }) =>
-      ProfilPrinter(
-        alamat: alamat ?? this.alamat,
-        jenis: jenis,
-        nama: nama,
-        port: port ?? this.port,
-        lebar: lebar ?? this.lebar,
-        cetakOtomatis: cetakOtomatis ?? this.cetakOtomatis,
-        bukaLaciTunai: bukaLaciTunai ?? this.bukaLaciTunai,
-        umpanAkhir: umpanAkhir ?? this.umpanAkhir,
-      );
+  }) => ProfilPrinter(
+    alamat: alamat ?? this.alamat,
+    jenis: jenis,
+    nama: nama,
+    port: port ?? this.port,
+    lebar: lebar ?? this.lebar,
+    cetakOtomatis: cetakOtomatis ?? this.cetakOtomatis,
+    bukaLaciTunai: bukaLaciTunai ?? this.bukaLaciTunai,
+    umpanAkhir: umpanAkhir ?? this.umpanAkhir,
+  );
 
   Map<String, Object?> KeJson() => {
     'Jenis': jenis.name,

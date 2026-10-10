@@ -7,6 +7,7 @@ import 'package:kasir/Data/RepositoriKasir.dart';
 import 'package:kasir/Domain/Dapur/LayananTiketDapur.dart';
 import 'package:kasir/Domain/Struk/PemindaiPrinter.dart';
 import 'package:kasir/Domain/Struk/ProfilPrinter.dart';
+import 'package:kasir/Tampilan/LayarPengaturan.dart';
 import 'package:kasir/Tampilan/RuangKerja/RuangKerja.dart';
 import 'package:sistem_desain/SistemDesain.dart';
 
@@ -51,13 +52,24 @@ void main() {
     // Digulir ke tengah agar tidak tertutup bilah atas ruang kerja.
     await tester.runAsync(() => Scrollable.ensureVisible(tester.element(finder), alignment: 0.5));
     await tester.pump();
+    // Kolom teks yang masih fokus menggulir kursornya ke layar dengan animasi setelah lompatan di atas; selama animasi
+    // itu Scrollable mengabaikan sentuhan, jadi biarkan selesai lalu pastikan tombol masih terlihat sebelum mengetuk.
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.runAsync(() => Scrollable.ensureVisible(tester.element(finder), alignment: 0.5));
+    await tester.pump(const Duration(milliseconds: 600));
     await tester.tap(finder);
     await Tunggu(tester);
   }
 
   /// Gulir area kerja ke atas sampai [finder] terbangun (daftar Pengaturan dibangun lazy di layar sempit).
   Future<void> GulirKe(WidgetTester tester, Finder finder) async {
-    await tester.scrollUntilVisible(finder, -200, scrollable: find.byType(Scrollable).first);
+    // Pakai daftar Pengaturan, bukan Scrollable pertama di pohon (itu rel navigasi Ruang Kerja).
+    await tester.scrollUntilVisible(
+      finder,
+      -200,
+      scrollable: find.descendant(of: find.byType(LayarPengaturan), matching: find.byType(Scrollable)).first,
+    );
     await tester.pump();
   }
 
@@ -207,51 +219,52 @@ void main() {
   }
 
   for (final ukuran in const [Size(1280, 900), Size(360, 740)]) {
-    testWidgets(
-      'D-67 satu daftar printer: printer Bluetooth untuk tiket Dapur saja, printer struk tetap ($ukuran)',
-      (tester) async {
-        final u = await Masuk(tester, ukuran, meja: true, printer: const ProfilPrinter(alamat: '192.168.1.50'));
-        u.pemindai.hasil[JenisTransport.BluetoothKlasik] = const [
-          PrinterDitemukan(jenis: JenisTransport.BluetoothKlasik, alamat: '66:22:11:AA:BB:DD', nama: 'Printer Dapur'),
-        ];
-        await Ketuk(tester, NavPengaturan().last);
-        await GulirKe(tester, find.widgetWithText(OutlinedButton, 'Tambah printer'));
-        // Satu daftar: printer struk yang sudah ada tampil dengan lencana kegunaannya.
-        expect(find.text('Struk kasir'), findsOneWidget);
-        expect(find.text('Printer struk'), findsNothing, reason: 'Tidak ada lagi bagian terpisah untuk struk/dapur.');
+    testWidgets('D-67 satu daftar printer: printer Bluetooth untuk tiket Dapur saja, printer struk tetap ($ukuran)', (
+      tester,
+    ) async {
+      final u = await Masuk(tester, ukuran, meja: true, printer: const ProfilPrinter(alamat: '192.168.1.50'));
+      u.pemindai.hasil[JenisTransport.BluetoothKlasik] = const [
+        PrinterDitemukan(jenis: JenisTransport.BluetoothKlasik, alamat: '66:22:11:AA:BB:DD', nama: 'Printer Dapur'),
+      ];
+      await Ketuk(tester, NavPengaturan().last);
+      await GulirKe(tester, find.widgetWithText(OutlinedButton, 'Tambah printer'));
+      // Satu daftar: printer struk yang sudah ada tampil dengan lencana kegunaannya.
+      expect(find.text('Struk kasir'), findsOneWidget);
+      expect(find.text('Printer struk'), findsNothing, reason: 'Tidak ada lagi bagian terpisah untuk struk/dapur.');
 
-        await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Tambah printer'));
-        // Printer kedua: struk sudah dipakai printer lain, jadi kegunaan struk mati; pilih stasiun Dapur.
-        expect(tester.widget<SwitchListTile>(find.byKey(const ValueKey('KegunaanStruk'))).value, isFalse);
-        await Ketuk(tester, find.widgetWithText(FilterChip, 'Dapur'));
-        await Ketuk(tester, find.text('Bluetooth'));
-        await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cari printer'));
-        await Ketuk(tester, find.text('Printer Dapur'));
-        await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cetak uji'));
-        expect(u.printer.AmbilTeks(), contains('CETAK UJI'));
-        await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
-        await GulirKe(tester, find.text('Printer Bluetooth Printer Dapur | 80 mm'));
-        expect(find.text('Printer Bluetooth Printer Dapur | 80 mm'), findsOneWidget);
-        expect(find.text('Tiket Dapur'), findsOneWidget);
+      await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Tambah printer'));
+      // Printer kedua: struk sudah dipakai printer lain, jadi kegunaan struk mati; pilih stasiun Dapur.
+      expect(tester.widget<SwitchListTile>(find.byKey(const ValueKey('KegunaanStruk'))).value, isFalse);
+      await Ketuk(tester, find.widgetWithText(FilterChip, 'Dapur'));
+      await Ketuk(tester, find.text('Bluetooth'));
+      await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cari printer'));
+      await Ketuk(tester, find.text('Printer Dapur'));
+      await Ketuk(tester, find.widgetWithText(OutlinedButton, 'Cetak uji'));
+      expect(u.printer.AmbilTeks(), contains('CETAK UJI'));
+      await Ketuk(tester, find.widgetWithText(FilledButton, 'Simpan printer'));
+      await GulirKe(tester, find.text('Printer Bluetooth Printer Dapur | 80 mm'));
+      expect(find.text('Printer Bluetooth Printer Dapur | 80 mm'), findsOneWidget);
+      expect(find.text('Tiket Dapur'), findsOneWidget);
 
-        final tersimpan = await tester.runAsync(() => PrinterDapur.MuatSemua(u.repositori));
-        expect(tersimpan!.containsKey('01K5STAS1VN000000000BAR001'), isFalse);
-        expect(
-          (
-            tersimpan['01K5STAS1VN000000000DAPUR1']?.profil?.jenis,
-            tersimpan['01K5STAS1VN000000000DAPUR1']?.profil?.alamat,
-          ),
-          (JenisTransport.BluetoothKlasik, '66:22:11:AA:BB:DD'),
-        );
-        final struk = await tester.runAsync(() => ProfilPrinter.Muat(u.repositori));
-        expect(struk?.alamat, '192.168.1.50');
-        expect(tester.takeException(), isNull);
-        await Lepas(tester, u);
-      },
-    );
+      final tersimpan = await tester.runAsync(() => PrinterDapur.MuatSemua(u.repositori));
+      expect(tersimpan!.containsKey('01K5STAS1VN000000000BAR001'), isFalse);
+      expect(
+        (
+          tersimpan['01K5STAS1VN000000000DAPUR1']?.profil?.jenis,
+          tersimpan['01K5STAS1VN000000000DAPUR1']?.profil?.alamat,
+        ),
+        (JenisTransport.BluetoothKlasik, '66:22:11:AA:BB:DD'),
+      );
+      final struk = await tester.runAsync(() => ProfilPrinter.Muat(u.repositori));
+      expect(struk?.alamat, '192.168.1.50');
+      expect(tester.takeException(), isNull);
+      await Lepas(tester, u);
+    });
   }
 
-  testWidgets('D-67 satu printer untuk struk, dapur, dan bar sekaligus: kartu tunggal berlencana lengkap', (tester) async {
+  testWidgets('D-67 satu printer untuk struk, dapur, dan bar sekaligus: kartu tunggal berlencana lengkap', (
+    tester,
+  ) async {
     final u = await Masuk(tester, const Size(1280, 900), meja: true);
     await Ketuk(tester, NavPengaturan().last);
     await Ketuk(tester, find.widgetWithText(FilledButton, 'Atur printer'));

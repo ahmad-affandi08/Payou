@@ -118,11 +118,7 @@ class _LembarReturState extends ConsumerState<LembarRetur> {
   Future<void> _PindaiKamera() async {
     final hasil = await ref
         .read(penyediaPemindaiQr)
-        .Pindai(
-          context,
-          judul: 'Pindai QR struk',
-          petunjuk: 'Arahkan kamera ke kode QR di struk pembeli.',
-        );
+        .Pindai(context, judul: 'Pindai QR struk', petunjuk: 'Arahkan kamera ke kode QR di struk pembeli.');
     if (!mounted || hasil == null || hasil.trim().isEmpty) {
       return;
     }

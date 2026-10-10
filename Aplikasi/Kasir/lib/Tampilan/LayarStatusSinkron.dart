@@ -105,7 +105,9 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
       } else {
         UmpanAksi.Berhasil(
           context,
-          hasil.terkirim == 0 ? 'Tidak ada data yang menunggu. Semua sudah terkirim.' : '${hasil.terkirim} data terkirim ke server.',
+          hasil.terkirim == 0
+              ? 'Tidak ada data yang menunggu. Semua sudah terkirim.'
+              : '${hasil.terkirim} data terkirim ke server.',
         );
       }
     }
@@ -127,7 +129,10 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
     });
     try {
       final aktifLokal = (await ref.read(penyediaRepositori).AmbilShiftAktif())?.Uuid;
-      final lama = [for (final s in await layanan.AmbilShiftTerbukaServer()) if (s.uuid != aktifLokal) s];
+      final lama = [
+        for (final s in await layanan.AmbilShiftTerbukaServer())
+          if (s.uuid != aktifLokal) s,
+      ];
       if (!mounted) {
         return;
       }
@@ -137,7 +142,10 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
         return;
       }
       setState(() => _sibuk = false);
-      final alasan = await showDialog<String>(context: context, builder: (_) => _DialogShiftLama(shift: lama));
+      final alasan = await showDialog<String>(
+        context: context,
+        builder: (_) => _DialogShiftLama(shift: lama),
+      );
       if (alasan == null || !mounted) {
         return;
       }
@@ -299,7 +307,7 @@ class _LayarStatusSinkronState extends ConsumerState<LayarStatusSinkron> {
                   children: [
                     Icon(Icons.warning_amber_outlined, size: TokenJarak.ikonSedang, color: warna.peringatan),
                     const SizedBox(width: TokenJarak.jarak12),
-                    Expanded(
+                    const Expanded(
                       child: Text(
                         'Server masih menyimpan shift lama dari perangkat ini yang belum ditutup, jadi shift baru dan '
                         'transaksi di dalamnya ditolak. Tutup shift lama itu (perlu PIN supervisor), lalu semua data '

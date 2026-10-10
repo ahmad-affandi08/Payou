@@ -162,7 +162,9 @@ class PanelKeranjang extends StatelessWidget {
                   ),
                   IconButton(
                     tooltip: labelKosongkan,
-                    onPressed: kosong && keranjang.pesananMeja == null && keranjang.tukar == null ? null : saatKosongkan,
+                    onPressed: kosong && keranjang.pesananMeja == null && keranjang.tukar == null
+                        ? null
+                        : saatKosongkan,
                     icon: const Icon(Icons.remove_shopping_cart_outlined),
                   ),
                 ],

@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:inti/Inti.dart';
 import 'package:kasir/Domain/Diagnostik/LogLokal.dart';
+import 'package:kasir/Tampilan/LayarPengaturan.dart';
 import 'package:kasir/Tampilan/RuangKerja/RuangKerja.dart';
 
 import '../Pendukung/KatalogUji.dart';
@@ -51,21 +52,41 @@ void main() {
       await tester.tap(NavPengaturan().last);
       await Tunggu(tester);
       final kirim = find.text('Kirim laporan sekarang');
-      await tester.scrollUntilVisible(kirim, 300, scrollable: find.byType(Scrollable).first);
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
-      await Tunggu(tester);
+      final daftarPengaturan = find
+          .descendant(of: find.byType(LayarPengaturan), matching: find.byType(Scrollable))
+          .first;
+      // Gulir elemen yang akan diketuk ke dalam layar (tinggi layar 900 dp memotong "Lihat log" di bawahnya).
+      Future<void> Tampakkan(Finder finder) async {
+        // HP: daftar dibangun malas, jadi gulir dulu sampai elemennya ada; lalu bawa ke tengah layar (layar lebar dua
+        // kolom: elemen sudah ada tetapi bisa di bawah batas layar).
+        await tester.scrollUntilVisible(finder, 300, scrollable: daftarPengaturan);
+        await tester.runAsync(() => Scrollable.ensureVisible(tester.element(finder), alignment: 0.5));
+        await tester.pump();
+      }
+
+      await Tampakkan(kirim);
+      // Membaca berkas log memakai IO nyata (lebih lama saat mesin sibuk): tunggu teksnya dengan batas yang longgar.
+      for (var i = 0; i < 40 && find.text('1 galat belum terkirim.').evaluate().isEmpty; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+        await Tunggu(tester);
+      }
       expect(find.text('1 galat belum terkirim.'), findsOneWidget);
 
+      await Tampakkan(find.text('Lihat log'));
       await tester.tap(find.text('Lihat log'));
       await Tunggu(tester);
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
-      await Tunggu(tester);
+      for (var i = 0; i < 40 && find.text('Gagal cetak struk untuk [disamarkan]').evaluate().isEmpty; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+        await Tunggu(tester);
+      }
       expect(find.text('Gagal cetak struk untuk [disamarkan]'), findsOneWidget);
       await tester.tap(find.text('Tutup'));
       await Tunggu(tester);
 
+      await Tampakkan(kirim);
       await tester.tap(kirim);
-      for (var i = 0; i < 5 && find.text('Semua galat sudah terkirim.').evaluate().isEmpty; i++) {
+      // Menulis penanda terkirim ke berkas butuh waktu nyata (lebih lama saat mesin sibuk): beri batas yang longgar.
+      for (var i = 0; i < 40 && find.text('Semua galat sudah terkirim.').evaluate().isEmpty; i++) {
         await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
         await Tunggu(tester);
       }

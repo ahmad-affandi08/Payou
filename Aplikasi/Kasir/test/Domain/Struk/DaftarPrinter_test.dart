@@ -11,8 +11,8 @@ void main() {
   test('Gabung: stasiun yang memakai printer struk satu kartu dengan struk; printer sendiri kartu terpisah', () {
     final daftar = DaftarPrinter.Gabung(struk, {
       'bar': const PrinterDapur.Struk(),
-      'dapur': PrinterDapur.Sendiri(dapur),
-      'kue': PrinterDapur.Sendiri(dapur),
+      'dapur': const PrinterDapur.Sendiri(dapur),
+      'kue': const PrinterDapur.Sendiri(dapur),
     });
 
     expect(daftar, hasLength(2));
@@ -26,7 +26,7 @@ void main() {
   });
 
   test('Susun adalah kebalikan Gabung', () {
-    final asal = {'bar': const PrinterDapur.Struk(), 'dapur': PrinterDapur.Sendiri(dapur)};
+    final asal = {'bar': const PrinterDapur.Struk(), 'dapur': const PrinterDapur.Sendiri(dapur)};
     final hasil = DaftarPrinter.Susun(DaftarPrinter.Gabung(struk, asal));
 
     expect(hasil.struk?.alamat, '192.168.1.50');
@@ -35,7 +35,9 @@ void main() {
   });
 
   test('Susun: hanya printer struk pertama yang jadi struk; tanpa struk = tidak ada profil struk', () {
-    final tanpa = DaftarPrinter.Susun([const PrinterPerangkat(profil: dapur, stasiun: {'dapur'})]);
+    final tanpa = DaftarPrinter.Susun([
+      const PrinterPerangkat(profil: dapur, stasiun: {'dapur'}),
+    ]);
     expect(tanpa.struk, isNull);
     expect(tanpa.dapur['dapur']?.samaDenganStruk, isFalse);
 

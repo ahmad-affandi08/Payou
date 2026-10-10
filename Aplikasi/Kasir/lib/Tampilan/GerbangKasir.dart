@@ -80,7 +80,9 @@ class _GerbangKasirState extends ConsumerState<GerbangKasir> with WidgetsBinding
     if (keadaan == AppLifecycleState.resumed) {
       final sesi = ref.read(penyediaSesi.notifier);
       unawaited(
-        sesi.PeriksaPerangkat().then((_) => sesi.SegarkanStafBilaPerlu(paksa: true)).then((_) => sesi.SinkronkanSegera()),
+        sesi.PeriksaPerangkat()
+            .then((_) => sesi.SegarkanStafBilaPerlu(paksa: true))
+            .then((_) => sesi.SinkronkanSegera()),
       );
     }
   }

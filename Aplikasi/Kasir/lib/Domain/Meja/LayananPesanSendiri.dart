@@ -24,14 +24,12 @@ class LayananPesanSendiri {
     required this.pesananMeja,
     required this.repositoriMeja,
     required this.penjualan,
-    PembuatUlid? ulid,
-  }) : _ulid = ulid ?? PembuatUlid();
+  });
 
   final KlienPos klien;
   final LayananPesananMeja pesananMeja;
   final RepositoriPesananMeja repositoriMeja;
   final LayananPenjualan penjualan;
-  final PembuatUlid _ulid;
 
   Future<List<PesananSendiriPos>> AmbilMenunggu() => klien.AmbilPesanSendiri();
 

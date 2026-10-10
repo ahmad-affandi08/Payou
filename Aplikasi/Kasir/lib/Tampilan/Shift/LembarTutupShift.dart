@@ -168,6 +168,9 @@ class _LembarTutupShiftState extends ConsumerState<LembarTutupShift> {
       }
     }
 
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _sibuk = true;
       _galat = null;
@@ -189,7 +192,9 @@ class _LembarTutupShiftState extends ConsumerState<LembarTutupShift> {
         alasan: _alasan.text,
         penyetuju: penyetuju,
       );
-      UmpanAksi.Berhasil(akar, 'Shift ditutup. Laporan tutup shift tersimpan dan dikirim otomatis ke server.');
+      if (akar.mounted) {
+        UmpanAksi.Berhasil(akar, 'Shift ditutup. Laporan tutup shift tersimpan dan dikirim otomatis ke server.');
+      }
       await sesi.Sinkronkan();
     } on GalatKasir catch (galat) {
       if (mounted) {

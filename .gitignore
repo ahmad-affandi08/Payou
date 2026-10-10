@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+# Berkas rahasia lokal (kode aktivasi penguji, dst.): repo publik, jadi tidak pernah di-commit.
+Rahasia/
 
 # Cache & hasil build
 __pycache__/

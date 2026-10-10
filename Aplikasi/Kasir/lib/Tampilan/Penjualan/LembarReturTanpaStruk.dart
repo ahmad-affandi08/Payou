@@ -250,12 +250,7 @@ class _LembarReturTanpaStrukState extends ConsumerState<LembarReturTanpaStruk> {
     }
   }
 
-  void _MulaiTukar(
-    KonteksPenjualan k,
-    KatalogLokal katalog,
-    List<BarisReturTanpaStruk> baris,
-    Uang nilai,
-  ) {
+  void _MulaiTukar(KonteksPenjualan k, KatalogLokal katalog, List<BarisReturTanpaStruk> baris, Uang nilai) {
     final metode = k.metodeTukar;
     final saatTukar = widget.saatTukar;
     if (metode == null || saatTukar == null) {

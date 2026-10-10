@@ -131,17 +131,25 @@ class _LembarMutasiKasState extends ConsumerState<LembarMutasiKas> {
         // Konteks akar tetap hidup setelah lembar ditutup, jadi notifikasi tidak ikut hilang bersama lembar.
         final akar = Navigator.of(context, rootNavigator: true).context;
         widget.saatTersimpan();
-        UmpanAksi.Berhasil(
-          akar,
-          '${LembarMutasiKas.AmbilJudul(widget.jenis)} ${jumlah.FormatRupiah()} tercatat'
-          '${penyetuju == null ? '' : ', disetujui ${penyetuju.nama}'}. Dikirim otomatis ke server.',
-        );
+        if (akar.mounted) {
+          UmpanAksi.Berhasil(
+            akar,
+            '${LembarMutasiKas.AmbilJudul(widget.jenis)} ${jumlah.FormatRupiah()} tercatat'
+            '${penyetuju == null ? '' : ', disetujui ${penyetuju.nama}'}. Dikirim otomatis ke server.',
+          );
+        }
       }
       await sesi.Sinkronkan();
     } on GalatKasir catch (galat) {
       if (mounted) {
         setState(() => _galat = galat.pesan);
-        unawaited(UmpanAksi.Gagal(context, judul: '${LembarMutasiKas.AmbilJudul(widget.jenis)} belum tercatat', pesan: galat.pesan));
+        unawaited(
+          UmpanAksi.Gagal(
+            context,
+            judul: '${LembarMutasiKas.AmbilJudul(widget.jenis)} belum tercatat',
+            pesan: galat.pesan,
+          ),
+        );
       }
     } finally {
       if (mounted) {

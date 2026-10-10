@@ -555,7 +555,9 @@ class RepositoriKasir {
   /// Item "Perlu tindakan" dengan salah satu [kodeGalat] kembali ke antrean (urutan kirim tetap menurut `Id`, yaitu yang
   /// terlama dulu). Dipakai setelah penyebab penolakan massal diperbaiki, misal shift lama di server ditutup.
   Future<int> CobaLagiPerluTindakan(Set<String> kodeGalat, DateTime sekarang) =>
-      (db.update(db.outbox)..where((o) => o.Status.equals(StatusOutbox.perluTindakan) & o.KodeGalat.isIn(kodeGalat))).write(
+      (db.update(
+        db.outbox,
+      )..where((o) => o.Status.equals(StatusOutbox.perluTindakan) & o.KodeGalat.isIn(kodeGalat))).write(
         OutboxCompanion(
           Status: const Value(StatusOutbox.tertunda),
           Percobaan: const Value(0),

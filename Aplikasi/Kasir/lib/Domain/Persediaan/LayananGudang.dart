@@ -162,7 +162,7 @@ class LayananGudang {
       throw const GalatKasir('PerluOnline', pesanPerluOnline);
     } on GalatApi catch (galat) {
       final status = galat.statusHttp;
-      if (status != null && status >= 400 && status < 500) {
+      if (status >= 400 && status < 500) {
         draf.kunciIdempotensi = 'gudang-${_ulid.Buat()}';
         await SimpanDraf(draf);
       }
