@@ -220,6 +220,18 @@ ke saya, (2) buka tautan ini di HP Android: <tautan opt-in>, (3) klik "Jadi peng
 panduan awal, buat perangkat kasir + PIN demo, lalu tempel kode aktivasi di instruksi akses aplikasi. Untuk Owner, matikan
 2FA di akun demo itu.
 
+**Tenant untuk tim penguji** (v5.19): bila penguji perlu mencoba aplikasi sungguhan, buat tenant khusus lewat seeder, bukan akun toko sungguhan:
+
+```bash
+cd ~/domains/payoung.id/aplikasi/Aplikasi/Web
+export PENGUJI_EMAIL=...  PENGUJI_NO_HP=08...  PENGUJI_KATA_SANDI=...  PENGUJI_PIN=...   # atau biarkan kosong, nanti ditanya
+php artisan db:seed --class=TimPengujiSeeder --force
+```
+
+Seeder mencetak kode aktivasi tiap perangkat sekali ("Penguji 1" dst.), jadi salin saat itu juga. Bawaannya 50 perangkat
+(`PENGUJI_JUMLAH_PERANGKAT` untuk mengubah). Karena paket Pro hanya 5 per outlet, seeder memasang override batas perangkat selama
+60 hari untuk tenant itu (butuh akun pengelola; tercatat di audit). Naikkan `MENIT_BERLAKU_KODE_AKTIVASI` dulu bila kode dibagikan jauh hari. Kode baru: Kelola › Perangkat.
+
 **Catatan teknis**
 - Payoung Owner dibangun tanpa `google-services.json`, jadi push notification **tidak aktif** di AAB itu. Letakkan berkasnya di
   `Aplikasi/Pemilik/android/app/` (tidak di-commit) sebelum build bila push ingin ikut rilis.
