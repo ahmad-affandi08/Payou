@@ -4,7 +4,7 @@
         {
             "Kode": "OUTLET_TAMBAHAN",
             "Nama": "Outlet tambahan",
-            "HargaBulanan": "79000",
+            "HargaBulanan": "59000",
             "KunciFitur": null,
             "Status": "Aktif",
             "TambahanBatas": {
@@ -14,7 +14,7 @@
         {
             "Kode": "PERANGKAT_TAMBAHAN",
             "Nama": "Perangkat tambahan",
-            "HargaBulanan": "29000",
+            "HargaBulanan": "19000",
             "KunciFitur": null,
             "Status": "Aktif",
             "TambahanBatas": {
@@ -34,7 +34,7 @@
         {
             "Kode": "SELF_ORDER",
             "Nama": "Self-order QR",
-            "HargaBulanan": "49000",
+            "HargaBulanan": "39000",
             "KunciFitur": "kanal.self-order",
             "Status": "Aktif",
             "TambahanBatas": null
@@ -42,7 +42,7 @@
         {
             "Kode": "TOKO_ONLINE",
             "Nama": "Toko online",
-            "HargaBulanan": "79000",
+            "HargaBulanan": "59000",
             "KunciFitur": "kanal.toko-online",
             "Status": "Aktif",
             "TambahanBatas": null
@@ -50,7 +50,7 @@
         {
             "Kode": "INSIGHT",
             "Nama": "Forecast & insight",
-            "HargaBulanan": "49000",
+            "HargaBulanan": "39000",
             "KunciFitur": "laporan.insight",
             "Status": "Aktif",
             "TambahanBatas": null

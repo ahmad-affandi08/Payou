@@ -89,6 +89,7 @@ describe('Sakelar & tautan kios di back-office', function (): void {
         $alamat = "/kelola/outlet/{$k['Outlet']->Uuid}";
         BantuanOrganisasi::Masuk($this, $k['Pemilik'], $k['Tenant']->Id);
         OverrideTenant::query()->where('IdTenant', $k['Tenant']->Id)->delete();
+        BantuanPesanSendiri::CabutFiturDariPaket();
 
         $this->post("{$alamat}/kios", ['Aktif' => true])->assertSessionHasErrors('Umum');
         expect($k['Outlet']->refresh()->KiosAktif)->toBeFalse();

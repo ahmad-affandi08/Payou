@@ -1,5 +1,5 @@
 {
-    "_Keterangan": "Paket awal PRD §21 (harga per paket, D-11; harga Starter/Pro/Bisnis diperbarui D-86). Harga paket yang sudah terpasang diselaraskan lewat `php artisan katalog:terapkan`. Dimuat sebagai DRAF: harga wajib diajukan & disetujui (BR-P04.5), paket lalu diaktifkan Super Admin (BR-P04.6). Batas null = tak terbatas; di atas batas dibeli lewat add-on. Harga string desimal.",
+    "_Keterangan": "Paket PRD §21 (D-86). `Harga` = harga NORMAL per paket (D-11). `Promo` = harga peluncuran: dipasang sebagai versi harga yang berlaku hari ini sampai `BerlakuSampai`, lalu harga normal terbit otomatis sehari sesudahnya (langganan yang dimulai selama promo tetap di harga promo, BR-P04.1). Batas null = tak terbatas; di atas batas dibeli lewat add-on. Harga string desimal. Dimuat sebagai DRAF pada pemasangan baru (harga normal); server berjalan diselaraskan lewat `php artisan katalog:terapkan`.",
     "Paket": [
         {
             "Kode": "GRATIS",
@@ -49,7 +49,13 @@
                 "pelanggan.dasar",
                 "laporan.dasar",
                 "laporan.lengkap"
-            ]
+            ],
+            "Promo": {
+                "Nama": "Diskon Peluncuran",
+                "HargaBulanan": "59000",
+                "HargaTahunan": "566400",
+                "BerlakuSampai": "2027-01-31"
+            }
         },
         {
             "Kode": "PRO",
@@ -70,24 +76,32 @@
                 "HargaTahunan": "2390400"
             },
             "Fitur": [
-                "pos.retail",
-                "pos.mode-meja",
-                "pos.kds",
-                "struk.tanpa-watermark",
-                "stok.dasar",
-                "stok.opname",
-                "pembelian.po",
-                "pelanggan.dasar",
-                "pelanggan.loyalti",
-                "pelanggan.deposit",
-                "pelanggan.paket-sesi",
-                "promo.mesin",
+                "akuntansi.penuh",
+                "integrasi.whatsapp",
+                "kanal.self-order",
+                "kanal.toko-online",
                 "karyawan.komisi",
                 "laporan.dasar",
                 "laporan.lengkap",
-                "akuntansi.penuh",
-                "integrasi.whatsapp"
-            ]
+                "pelanggan.dasar",
+                "pelanggan.deposit",
+                "pelanggan.loyalti",
+                "pelanggan.paket-sesi",
+                "pembelian.po",
+                "pos.kds",
+                "pos.mode-meja",
+                "pos.retail",
+                "promo.mesin",
+                "stok.dasar",
+                "stok.opname",
+                "struk.tanpa-watermark"
+            ],
+            "Promo": {
+                "Nama": "Diskon Peluncuran",
+                "HargaBulanan": "149000",
+                "HargaTahunan": "1430400",
+                "BerlakuSampai": "2027-01-31"
+            }
         },
         {
             "Kode": "BISNIS",
@@ -108,32 +122,40 @@
                 "HargaTahunan": "4310400"
             },
             "Fitur": [
-                "pos.retail",
-                "pos.mode-meja",
-                "pos.kds",
-                "struk.tanpa-watermark",
-                "stok.dasar",
-                "stok.opname",
-                "stok.multi-gudang",
-                "stok.transfer",
-                "pembelian.po",
-                "pelanggan.dasar",
-                "pelanggan.loyalti",
-                "pelanggan.deposit",
-                "pelanggan.paket-sesi",
-                "promo.mesin",
+                "akuntansi.penuh",
+                "api.publik",
+                "harga.daftar-harga",
+                "integrasi.whatsapp",
+                "kanal.self-order",
+                "kanal.toko-online",
                 "karyawan.komisi",
+                "keamanan.2fa-wajib",
+                "keamanan.anti-fraud",
                 "laporan.dasar",
                 "laporan.lengkap",
-                "akuntansi.penuh",
+                "pelanggan.dasar",
+                "pelanggan.deposit",
+                "pelanggan.loyalti",
+                "pelanggan.paket-sesi",
+                "pembelian.po",
                 "persetujuan.jarak-jauh",
-                "keamanan.anti-fraud",
-                "keamanan.2fa-wajib",
-                "harga.daftar-harga",
                 "piutang.grosir",
-                "api.publik",
-                "integrasi.whatsapp"
-            ]
+                "pos.kds",
+                "pos.mode-meja",
+                "pos.retail",
+                "promo.mesin",
+                "stok.dasar",
+                "stok.multi-gudang",
+                "stok.opname",
+                "stok.transfer",
+                "struk.tanpa-watermark"
+            ],
+            "Promo": {
+                "Nama": "Diskon Peluncuran",
+                "HargaBulanan": "299000",
+                "HargaTahunan": "2870400",
+                "BerlakuSampai": "2027-01-31"
+            }
         },
         {
             "Kode": "ENTERPRISE",
@@ -151,32 +173,34 @@
             },
             "Harga": null,
             "Fitur": [
-                "pos.retail",
-                "pos.mode-meja",
-                "pos.kds",
-                "struk.tanpa-watermark",
-                "stok.dasar",
-                "stok.opname",
-                "stok.multi-gudang",
-                "stok.transfer",
-                "pembelian.po",
-                "pelanggan.dasar",
-                "pelanggan.loyalti",
-                "pelanggan.deposit",
-                "pelanggan.paket-sesi",
-                "promo.mesin",
-                "karyawan.komisi",
-                "laporan.dasar",
-                "laporan.lengkap",
                 "akuntansi.penuh",
-                "persetujuan.jarak-jauh",
-                "keamanan.anti-fraud",
-                "keamanan.2fa-wajib",
-                "harga.daftar-harga",
-                "piutang.grosir",
                 "api.publik",
                 "franchise.royalti",
-                "integrasi.whatsapp"
+                "harga.daftar-harga",
+                "integrasi.whatsapp",
+                "kanal.self-order",
+                "kanal.toko-online",
+                "karyawan.komisi",
+                "keamanan.2fa-wajib",
+                "keamanan.anti-fraud",
+                "laporan.dasar",
+                "laporan.lengkap",
+                "pelanggan.dasar",
+                "pelanggan.deposit",
+                "pelanggan.loyalti",
+                "pelanggan.paket-sesi",
+                "pembelian.po",
+                "persetujuan.jarak-jauh",
+                "piutang.grosir",
+                "pos.kds",
+                "pos.mode-meja",
+                "pos.retail",
+                "promo.mesin",
+                "stok.dasar",
+                "stok.multi-gudang",
+                "stok.opname",
+                "stok.transfer",
+                "struk.tanpa-watermark"
             ]
         }
     ]

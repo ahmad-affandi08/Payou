@@ -40,14 +40,15 @@ final class TerapkanKatalogPerintah extends Command
 
         foreach ($hasil['Harga'] as $baris) {
             $lama = $baris['HargaBulananLama'] ?? 'belum ada';
-            $this->line("{$awalan}harga paket {$baris['Paket']}: {$lama} → {$baris['HargaBulanan']} per bulan ({$baris['HargaTahunan']} per tahun), berlaku mulai {$baris['BerlakuMulai']}");
+            $sampai = $baris['BerlakuSampai'] === null ? 'seterusnya' : "sampai {$baris['BerlakuSampai']}";
+            $this->line("{$awalan}harga {$baris['Jenis']} paket {$baris['Paket']}: {$lama} → {$baris['HargaBulanan']} per bulan ({$baris['HargaTahunan']} per tahun), berlaku {$baris['BerlakuMulai']} {$sampai}");
         }
 
         foreach ($hasil['Addon'] as $baris) {
             $this->line("{$awalan}add-on {$baris['Kode']} ({$baris['Tindakan']}): ".implode(', ', $baris['Perubahan']));
         }
 
-        $this->info(($kering ? 'Akan mengubah ' : 'Mengubah ').count($hasil['Harga']).' harga paket, '.count($hasil['Addon']).' add-on, '.count($hasil['FiturBaru']).' fitur katalog, dan '.count($hasil['PenambahanFitur']).' fitur paket.');
+        $this->info(($kering ? 'Akan mengubah ' : 'Mengubah ').count($hasil['Harga']).' versi harga paket, '.count($hasil['Addon']).' add-on, '.count($hasil['FiturBaru']).' fitur katalog, dan '.count($hasil['PenambahanFitur']).' fitur paket.');
 
         return self::SUCCESS;
     }

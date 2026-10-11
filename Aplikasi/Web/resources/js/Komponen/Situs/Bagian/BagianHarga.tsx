@@ -6,6 +6,7 @@ import TeksKaya from '@/Komponen/Situs/TeksKaya';
 import TombolSitus from '@/Komponen/Situs/TombolSitus';
 import { cn } from '@/Komponen/Ui/utils';
 import { FormatRupiah } from '@/Pustaka/Format';
+import { FormatTanggal } from '@/Pustaka/FormatWaktu';
 import type { BagianSitus, DataSitus, PaketHarga } from '@/Tipe/Situs';
 
 import { CekGelap, KepalaBagian, type LatarBagian, WadahBagian } from './KepalaBagian';
@@ -31,11 +32,30 @@ function TampilkanHarga({ paket, periode }: { paket: PaketHarga; periode: Period
         return <p className="text-tampilan font-bold text-teks-utama">Gratis</p>;
     }
 
+    const promo = paket.Promo;
+    const normal = promo === null ? null : periode === 'Tahunan' ? promo.HargaTahunanNormal : promo.HargaBulananNormal;
+
     return (
-        <p className="flex flex-wrap items-baseline gap-1">
-            <span className="text-tampilan font-bold text-teks-utama">{FormatRupiah(nilai)}</span>
-            <span className="text-isi text-teks-sekunder">/{periode === 'Tahunan' ? 'tahun' : 'bulan'}</span>
-        </p>
+        <div className="flex flex-col gap-1">
+            {promo !== null && normal !== null ? (
+                <p className="flex flex-wrap items-center gap-2">
+                    <span className="text-keterangan rounded-full bg-aksen px-2.5 py-0.5 font-semibold text-teks-utama">
+                        Diskon peluncuran {promo.PersenDiskon}%
+                    </span>
+                    <span className="text-isi text-teks-sekunder line-through">{FormatRupiah(normal)}</span>
+                </p>
+            ) : null}
+            <p className="flex flex-wrap items-baseline gap-1">
+                <span className="text-tampilan font-bold text-teks-utama">{FormatRupiah(nilai)}</span>
+                <span className="text-isi text-teks-sekunder">/{periode === 'Tahunan' ? 'tahun' : 'bulan'}</span>
+            </p>
+            {promo !== null ? (
+                <p className="text-label text-teks-sekunder">
+                    Promo sampai {FormatTanggal(promo.BerlakuSampai)}.
+                    {promo.HargaTerkunci ? ' Daftar sebelum itu, harga ini terkunci selama langganan Anda aktif.' : ''}
+                </p>
+            ) : null}
+        </div>
     );
 }
 

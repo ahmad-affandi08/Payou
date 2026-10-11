@@ -66,7 +66,7 @@ it('Pemilik meminta add-on → tiket dukungan; fitur aktif/tanpa add-on ditolak;
     BantuanOrganisasi::AturKonteks($t['Tenant']->Id);
     $tiket = TiketDukungan::query()->sole();
     expect($tiket->Judul)->toBe('Permintaan add-on Self-order QR')
-        ->and($tiket->Pesan()->value('Isi'))->toContain('Rp 49.000/bulan');
+        ->and($tiket->Pesan()->value('Isi'))->toContain('Rp 39.000/bulan');
 
     $masuk()->post('/kelola/langganan/addon', ['KunciFitur' => 'stok.dasar'])->assertSessionHasErrors('Umum');
     $masuk()->post('/kelola/langganan/addon', ['KunciFitur' => 'promo.mesin'])->assertSessionHasErrors('Umum');

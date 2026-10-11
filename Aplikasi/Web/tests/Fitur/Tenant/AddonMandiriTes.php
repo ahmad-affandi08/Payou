@@ -20,6 +20,7 @@ use App\Domain\Tenant\Layanan\PenghitungProrataAddon;
 use App\Domain\Tenant\Model\Addon;
 use App\Domain\Tenant\Model\Langganan;
 use App\Domain\Tenant\Model\LanggananAddon;
+use App\Domain\Tenant\Model\PaketFitur;
 use App\Domain\Tenant\Model\TagihanLangganan;
 use App\Domain\Tenant\Model\TagihanLanggananAddon;
 use Illuminate\Support\Carbon;
@@ -49,6 +50,8 @@ beforeEach(function (): void {
         'PeriodeMulai' => Carbon::parse('2026-09-01 10:00:00', 'Asia/Jakarta')->utc(),
         'PeriodeSelesai' => Carbon::parse('2026-10-01 10:00:00', 'Asia/Jakarta')->utc(),
     ]);
+    // D-86: Pro sudah memuat toko online; alur beli add-on diuji untuk fitur di luar paket, jadi dicabut di database uji.
+    PaketFitur::query()->where('KunciFitur', 'kanal.toko-online')->delete();
     Addon::query()->where('Kode', 'TOKO_ONLINE')->update(['Status' => StatusPaket::Aktif->value, 'HargaBulanan' => '60000']);
     $this->keuangan = BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::Keuangan);
 });

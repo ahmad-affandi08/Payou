@@ -33,6 +33,7 @@ describe('F-17 QR meja & sakelar pesan sendiri', function (): void {
             ->and(LogAudit::query()->where('Peristiwa', 'outlet.pesan-sendiri.ubah')->count())->toBe(2);
 
         OverrideTenant::query()->where('IdTenant', $k['Tenant']->Id)->delete();
+        BantuanPesanSendiri::CabutFiturDariPaket();
         $this->get($alamat)->assertInertia(fn (AssertableInertia $h) => $h->where('PesanSendiri', ['FiturAktif' => false, 'Aktif' => true]));
         $this->post("{$alamat}/pesan-sendiri", ['Aktif' => false])->assertSessionHasNoErrors();
         $this->post("{$alamat}/pesan-sendiri", ['Aktif' => true])->assertSessionHasErrors('Umum');

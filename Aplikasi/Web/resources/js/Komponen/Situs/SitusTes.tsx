@@ -233,6 +233,7 @@ describe('Situs pemasaran D-21: tata letak & blok', () => {
                                 HargaBulanan: '0.00',
                                 HargaTahunan: '0.00',
                                 HematTahunan: null,
+                                Promo: null,
                                 Batas: ['1 outlet'],
                                 Fitur: [],
                             },
@@ -245,6 +246,7 @@ describe('Situs pemasaran D-21: tata letak & blok', () => {
                                 HargaBulanan: '199000.00',
                                 HargaTahunan: '1990000.00',
                                 HematTahunan: '398000.00',
+                                Promo: null,
                                 Batas: [],
                                 Fitur: ['Promo'],
                             },
@@ -257,6 +259,7 @@ describe('Situs pemasaran D-21: tata letak & blok', () => {
                                 HargaBulanan: null,
                                 HargaTahunan: null,
                                 HematTahunan: null,
+                                Promo: null,
                                 Batas: [],
                                 Fitur: [],
                             },
@@ -286,6 +289,58 @@ describe('Situs pemasaran D-21: tata letak & blok', () => {
         expect(screen.getByText('Hemat Rp 398.000 per tahun')).toBeTruthy();
 
         expect(screen.getByText('Bisa offline?').closest('details')).toBeTruthy();
+    });
+    it('harga dengan diskon peluncuran: harga normal dicoret, persen diskon, tanggal akhir, dan kunci harga (D-86)', () => {
+        situs = BuatSitus();
+        const BuatPaket = (kunci: boolean) =>
+            ({
+                Jenis: 'Harga',
+                Label: null,
+                Judul: 'Harga',
+                Subjudul: null,
+                TampilkanTahunan: true,
+                PaketDisorot: 'PRO',
+                TeksTombol: null,
+                CatatanKaki: null,
+                TautanDaftar: '/daftar',
+                Paket: [
+                    {
+                        Kode: 'PRO',
+                        Nama: 'Pro',
+                        Keterangan: null,
+                        HargaNegosiasi: false,
+                        MasaTrialHari: 14,
+                        HargaBulanan: '149000.00',
+                        HargaTahunan: '1430400.00',
+                        HematTahunan: '357600.00',
+                        Promo: {
+                            HargaBulananNormal: '249000.00',
+                            HargaTahunanNormal: '2390400.00',
+                            BerlakuSampai: '2027-01-31',
+                            PersenDiskon: 40,
+                            HargaTerkunci: kunci,
+                        },
+                        Batas: [],
+                        Fitur: [],
+                    },
+                ],
+            }) as BagianSitus;
+
+        render(<RenderBagian bagian={[BuatPaket(true)]} />);
+
+        expect(screen.getByText('Diskon peluncuran 40%')).toBeTruthy();
+        expect(screen.getByText('Rp 249.000').className).toContain('line-through');
+        expect(screen.getByText('Rp 149.000')).toBeTruthy();
+        expect(screen.getByText(/Promo sampai 31 Jan 2027\./).textContent).toContain('harga ini terkunci');
+
+        fireEvent.click(screen.getByRole('radio', { name: 'Tahunan' }));
+        expect(screen.getByText('Rp 2.390.400').className).toContain('line-through');
+        expect(screen.getByText('Rp 1.430.400')).toBeTruthy();
+
+        cleanup();
+        render(<RenderBagian bagian={[BuatPaket(false)]} />);
+        // Tanpa kunci harga, janji "terkunci" tidak boleh muncul.
+        expect(screen.getByText(/Promo sampai 31 Jan 2027\./).textContent).not.toContain('terkunci');
     });
     it('blok Keunggulan: tanpa kotak ikon berwarna, dan tiga tata letak punya bentuk berbeda (D-25)', () => {
         situs = BuatSitus();

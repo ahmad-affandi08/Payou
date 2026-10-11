@@ -76,6 +76,14 @@ export type PaketHarga = {
     HargaBulanan: string | null;
     HargaTahunan: string | null;
     HematTahunan: string | null;
+    /** Diskon peluncuran (D-86): harga normal yang pasti terbit setelah `BerlakuSampai`; null bila tidak ada. */
+    Promo: {
+        HargaBulananNormal: string;
+        HargaTahunanNormal: string;
+        BerlakuSampai: string;
+        PersenDiskon: number;
+        HargaTerkunci: boolean;
+    } | null;
     Batas: string[];
     Fitur: string[];
 };

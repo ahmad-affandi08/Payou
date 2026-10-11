@@ -75,6 +75,7 @@ describe('F-17 halaman publik pesan sendiri', function (): void {
         BantuanOrganisasi::AturKonteks($k['Tenant']->Id);
         $k['Outlet']->forceFill(['PesanSendiriAktif' => true])->save();
         OverrideTenant::query()->where('IdTenant', $k['Tenant']->Id)->delete();
+        BantuanPesanSendiri::CabutFiturDariPaket();
         $this->get($k['Alamat'])->assertInertia(fn (AssertableInertia $h) => $h->where('Aktif', false));
         $this->postJson("{$k['Alamat']}/pesan", $kiriman)->assertStatus(409)->assertJsonPath('Galat.Kode', 'PesanSendiriTidakAktif');
 

@@ -15,6 +15,7 @@ use App\Domain\Pengelola\TimInternal\Enum\PeranPengelolaBawaan;
 use App\Domain\Tenant\Enum\JenisOverride;
 use App\Domain\Tenant\Layanan\PemeriksaFiturTenant;
 use App\Domain\Tenant\Model\OverrideTenant;
+use App\Domain\Tenant\Model\PaketFitur;
 use App\Domain\Tenant\Model\Tenant;
 use Illuminate\Support\Str;
 use Tests\Pendukung\Organisasi\BantuanOrganisasi;
@@ -55,6 +56,15 @@ final class BantuanPesanSendiri
             'Alamat' => "/{$slug}/meja/{$token}",
             'Alamat9' => "/{$slug}/meja/{$token9}",
         ];
+    }
+
+    /**
+     * D-86: Pro ke atas sudah memuat `kanal.self-order` (paritas Majoo Advance). Test yang menguji perilaku "fitur di
+     * luar paket" mencabutnya dari paket di database uji, seperti keadaan paket yang belum memuatnya.
+     */
+    public static function CabutFiturDariPaket(): void
+    {
+        PaketFitur::query()->where('KunciFitur', 'kanal.self-order')->delete();
     }
 
     public static function AktifkanFitur(Tenant $tenant): void

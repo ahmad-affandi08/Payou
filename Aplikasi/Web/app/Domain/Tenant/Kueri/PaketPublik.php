@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Tenant\Kueri;
 
 use App\Domain\Bersama\Nilai\Uang;
+use App\Domain\Bersama\Status\StatusDataMaster;
 use App\Domain\Tenant\Enum\StatusPaket;
 use App\Domain\Tenant\Model\Fitur;
+use App\Domain\Tenant\Model\HargaPaket;
 use App\Domain\Tenant\Model\Paket;
 use Carbon\CarbonImmutable;
 
@@ -29,7 +31,7 @@ final class PaketPublik
     public function __construct(private readonly HargaPaketBerlaku $harga) {}
 
     /**
-     * @return list<array{Kode: string, Nama: string, Keterangan: string|null, HargaNegosiasi: bool, MasaTrialHari: int, HargaBulanan: string|null, HargaTahunan: string|null, HematTahunan: string|null, Batas: list<string>, Fitur: list<string>}>
+     * @return list<array{Kode: string, Nama: string, Keterangan: string|null, HargaNegosiasi: bool, MasaTrialHari: int, HargaBulanan: string|null, HargaTahunan: string|null, HematTahunan: string|null, Promo: array{HargaBulananNormal: string, HargaTahunanNormal: string, BerlakuSampai: string, PersenDiskon: int, HargaTerkunci: bool}|null, Batas: list<string>, Fitur: list<string>}>
      */
     public function Ambil(): array
     {
@@ -57,6 +59,7 @@ final class PaketPublik
                 'HargaBulanan' => $bulanan?->KeString(),
                 'HargaTahunan' => $tahunan?->KeString(),
                 'HematTahunan' => $hemat !== null && $hemat->Bandingkan(Uang::Nol()) > 0 ? $hemat->KeString() : null,
+                'Promo' => $harga === null || $bulanan === null ? null : $this->AmbilPromo($paket, $harga, $bulanan, $hariIni),
                 'Batas' => self::SusunBatas($paket),
                 'Fitur' => array_values(array_filter(array_map(
                     fn (string $kunci): ?string => $namaFitur[$kunci] ?? null,
@@ -66,6 +69,49 @@ final class PaketPublik
         }
 
         return $hasil;
+    }
+
+    /**
+     * Harga yang berlaku hari ini disebut promo bila sudah dijadwalkan versi harga terbit yang LEBIH MAHAL sesudah
+     * `BerlakuSampai` (D-86): harga normal yang dicoret tampil hanya bila benar-benar akan berlaku, bukan coretan kosong.
+     * `HargaTerkunci` = langganan yang dimulai selama promo tetap di harga promo (versi normal tidak diterapkan ke
+     * pelanggan lama, BR-P04.1).
+     *
+     * @return array{HargaBulananNormal: string, HargaTahunanNormal: string, BerlakuSampai: string, PersenDiskon: int, HargaTerkunci: bool}|null
+     */
+    private function AmbilPromo(Paket $paket, HargaPaket $berlaku, Uang $bulanan, CarbonImmutable $hariIni): ?array
+    {
+        if ($berlaku->BerlakuSampai === null) {
+            return null;
+        }
+
+        $berikut = HargaPaket::query()
+            ->where('IdPaket', $paket->Id)
+            ->where('Status', StatusDataMaster::Terbit->value)
+            ->whereDate('BerlakuMulai', '>', $hariIni->toDateString())
+            ->orderBy('BerlakuMulai')
+            ->first();
+
+        if ($berikut === null || $berikut->AmbilHargaBulanan()->Bandingkan($bulanan) <= 0) {
+            return null;
+        }
+
+        $normal = $berikut->AmbilHargaBulanan();
+        $persen = intdiv(self::RupiahBulat($normal->Kurangi($bulanan)) * 100, max(1, self::RupiahBulat($normal)));
+
+        return [
+            'HargaBulananNormal' => $normal->KeString(),
+            'HargaTahunanNormal' => $berikut->AmbilHargaTahunan()->KeString(),
+            'BerlakuSampai' => $berlaku->BerlakuSampai->toDateString(),
+            'PersenDiskon' => $persen,
+            'HargaTerkunci' => ! $berikut->TerapkanKePelangganLama,
+        ];
+    }
+
+    /** Rupiah utuh dari string desimal ("99000.00" → 99000), tanpa float. */
+    private static function RupiahBulat(Uang $uang): int
+    {
+        return (int) explode('.', $uang->KeString())[0];
     }
 
     /** 12500 → "12.500" (tanpa number_format, D-05 arsitektur). */

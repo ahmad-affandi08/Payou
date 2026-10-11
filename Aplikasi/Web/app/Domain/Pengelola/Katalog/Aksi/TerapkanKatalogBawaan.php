@@ -13,6 +13,7 @@ use App\Domain\Tenant\Model\Fitur;
 use App\Domain\Tenant\Model\HargaPaket;
 use App\Domain\Tenant\Model\Paket;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -21,11 +22,13 @@ use RuntimeException;
  * dengan SATU perintah (`php artisan katalog:terapkan`), tanpa lewat konsol satu per satu:
  *
  * 1. Fitur katalog & fitur paket: `LengkapiFiturPaketBawaan` (hanya menambah).
- * 2. Harga paket: bila harga di berkas berbeda dari harga terbit terakhir sebuah paket, dibuat versi harga BARU yang
- *    langsung terbit (berlaku mulai hari ini WIB, atau sehari setelah versi terakhir bila versi itu berlaku hari ini
- *    atau nanti). Versi lama tidak diubah selain `BerlakuSampai` (BR-P04.5). Bawaan `TerapkanKePelangganLama` = true
- *    sehingga seluruh tenant yang sudah ada memakai harga baru pada TAGIHAN BERIKUTNYA (BR-P04.1: tagihan yang sudah
- *    terbit menyimpan salinan harganya, tidak berubah). Paket tanpa harga tetap (Gratis tanpa baris, Enterprise
+ * 2. Harga paket: berkas memuat harga NORMAL (`Harga`) dan, bila ada, harga peluncuran (`Promo` + `BerlakuSampai`).
+ *    Selama promo berjalan dibuat DUA versi harga terbit: versi promo (berlaku hari ini sampai `BerlakuSampai`;
+ *    `TerapkanKePelangganLama` = true sehingga seluruh tenant yang sudah ada langsung ikut) dan versi normal yang
+ *    terbit sehari sesudah promo berakhir (`TerapkanKePelangganLama` = false: langganan yang dimulai sebelumnya, termasuk
+ *    semua yang daftar selama promo, tetap di harga promo; BR-P04.1). Tanpa promo (atau promo sudah lewat) hanya versi
+ *    normal. Versi lama tidak diubah selain `BerlakuSampai` (BR-P04.5). Harga baru berlaku pada TAGIHAN BERIKUTNYA:
+ *    tagihan yang sudah terbit menyimpan salinan harganya. Paket tanpa harga tetap (Gratis tanpa baris, Enterprise
  *    negosiasi) dilewati.
  * 3. Add-on: dibuat bila belum ada; yang sudah ada diselaraskan nama, harga, fitur, dan tambahan batasnya (harga
  *    add-on berlaku di tagihan berikutnya, termasuk langganan add-on yang sedang berjalan). Add-on bertanda
@@ -49,7 +52,7 @@ final class TerapkanKatalogBawaan
      * @return array{
      *     FiturBaru: list<string>,
      *     PenambahanFitur: list<array{Paket: string, Fitur: string}>,
-     *     Harga: list<array{Paket: string, HargaBulananLama: string|null, HargaBulanan: string, HargaTahunan: string, BerlakuMulai: string}>,
+     *     Harga: list<array{Paket: string, Jenis: string, HargaBulananLama: string|null, HargaBulanan: string, HargaTahunan: string, BerlakuMulai: string, BerlakuSampai: string|null}>,
      *     Addon: list<array{Kode: string, Tindakan: string, Perubahan: list<string>}>
      * }
      */
@@ -88,7 +91,7 @@ final class TerapkanKatalogBawaan
 
     /**
      * @param  list<array<string, mixed>>  $dataPaket
-     * @return list<array{Paket: string, HargaBulananLama: string|null, HargaBulanan: string, HargaTahunan: string, BerlakuMulai: string}>
+     * @return list<array{Paket: string, Jenis: string, HargaBulananLama: string|null, HargaBulanan: string, HargaTahunan: string, BerlakuMulai: string, BerlakuSampai: string|null}>
      */
     private function SelaraskanHarga(array $dataPaket, bool $terapkan, bool $pelangganLama): array
     {
@@ -109,65 +112,104 @@ final class TerapkanKatalogBawaan
                 continue;
             }
 
-            $bulanan = Uang::Dari(SiapkanKatalogBawaan::AmbilTeks($harga, 'HargaBulanan'));
-            $tahunan = Uang::Dari(SiapkanKatalogBawaan::AmbilTeks($harga, 'HargaTahunan'));
+            $normalBulanan = Uang::Dari(SiapkanKatalogBawaan::AmbilTeks($harga, 'HargaBulanan'));
+            $normalTahunan = Uang::Dari(SiapkanKatalogBawaan::AmbilTeks($harga, 'HargaTahunan'));
             $terbit = HargaPaket::query()
                 ->where('IdPaket', $paket->Id)
                 ->where('Status', StatusDataMaster::Terbit->value)
                 ->orderByDesc('BerlakuMulai')
                 ->lockForUpdate()
                 ->get();
-            $terakhir = $terbit->first();
+            $berlaku = $terbit->first(fn (HargaPaket $versi): bool => $versi->BerlakuMulai->toDateString() <= $hariIni->toDateString());
 
-            if ($terakhir !== null && $terakhir->AmbilHargaBulanan()->SamaDengan($bulanan) && $terakhir->AmbilHargaTahunan()->SamaDengan($tahunan)) {
-                continue;
+            /** @var list<array{Jenis: string, Bulanan: Uang, Tahunan: Uang, Mulai: Carbon, Sampai: Carbon|null, Lama: bool}> $rencana */
+            $rencana = [];
+            $promo = is_array($data['Promo'] ?? null) ? $data['Promo'] : null;
+            $akhirPromo = $promo === null ? null : Carbon::parse(SiapkanKatalogBawaan::AmbilTeks($promo, 'BerlakuSampai'), 'Asia/Jakarta')->startOfDay();
+            $mulaiPromo = $hariIni->copy();
+            $versiTerakhir = $terbit->first();
+
+            if ($versiTerakhir !== null && $versiTerakhir->BerlakuMulai->greaterThanOrEqualTo($mulaiPromo)) {
+                $mulaiPromo = Carbon::parse($versiTerakhir->BerlakuMulai->toDateString(), 'Asia/Jakarta')->addDay();
             }
 
-            $mulai = $hariIni->copy();
+            if ($promo !== null && $akhirPromo !== null && $mulaiPromo->lessThanOrEqualTo($akhirPromo)) {
+                $promoBulanan = Uang::Dari(SiapkanKatalogBawaan::AmbilTeks($promo, 'HargaBulanan'));
+                $promoTahunan = Uang::Dari(SiapkanKatalogBawaan::AmbilTeks($promo, 'HargaTahunan'));
+                $mulaiNormal = $akhirPromo->copy()->addDay();
+                $adaPromo = $terbit->contains(fn (HargaPaket $versi): bool => $versi->AmbilHargaBulanan()->SamaDengan($promoBulanan)
+                    && $versi->AmbilHargaTahunan()->SamaDengan($promoTahunan)
+                    && $versi->BerlakuSampai?->toDateString() === $akhirPromo->toDateString());
+                $adaNormal = $terbit->contains(fn (HargaPaket $versi): bool => $versi->AmbilHargaBulanan()->SamaDengan($normalBulanan)
+                    && $versi->AmbilHargaTahunan()->SamaDengan($normalTahunan)
+                    && $versi->BerlakuMulai->toDateString() === $mulaiNormal->toDateString());
 
-            if ($terakhir !== null && $terakhir->BerlakuMulai->greaterThanOrEqualTo($mulai)) {
-                $mulai = Carbon::parse($terakhir->BerlakuMulai->toDateString(), 'Asia/Jakarta')->addDay();
+                if (! $adaPromo) {
+                    $rencana[] = ['Jenis' => 'promo', 'Bulanan' => $promoBulanan, 'Tahunan' => $promoTahunan, 'Mulai' => $mulaiPromo, 'Sampai' => $akhirPromo, 'Lama' => $pelangganLama];
+                }
+
+                // Harga normal terbit sehari setelah promo; langganan yang dimulai sebelumnya tetap di harga promo (BR-P04.1).
+                if (! $adaNormal) {
+                    $rencana[] = ['Jenis' => 'normal', 'Bulanan' => $normalBulanan, 'Tahunan' => $normalTahunan, 'Mulai' => $mulaiNormal, 'Sampai' => null, 'Lama' => false];
+                }
+            } elseif ($versiTerakhir === null || ! ($versiTerakhir->AmbilHargaBulanan()->SamaDengan($normalBulanan) && $versiTerakhir->AmbilHargaTahunan()->SamaDengan($normalTahunan))) {
+                $rencana[] = ['Jenis' => 'normal', 'Bulanan' => $normalBulanan, 'Tahunan' => $normalTahunan, 'Mulai' => $mulaiPromo, 'Sampai' => null, 'Lama' => $pelangganLama];
             }
 
-            $hasil[] = [
-                'Paket' => $kode,
-                'HargaBulananLama' => $terakhir?->AmbilHargaBulanan()->KeString(),
-                'HargaBulanan' => $bulanan->KeString(),
-                'HargaTahunan' => $tahunan->KeString(),
-                'BerlakuMulai' => $mulai->toDateString(),
-            ];
+            foreach ($rencana as $langkah) {
+                $hasil[] = [
+                    'Paket' => $kode,
+                    'Jenis' => $langkah['Jenis'],
+                    'HargaBulananLama' => $berlaku?->AmbilHargaBulanan()->KeString(),
+                    'HargaBulanan' => $langkah['Bulanan']->KeString(),
+                    'HargaTahunan' => $langkah['Tahunan']->KeString(),
+                    'BerlakuMulai' => $langkah['Mulai']->toDateString(),
+                    'BerlakuSampai' => $langkah['Sampai']?->toDateString(),
+                ];
 
-            if (! $terapkan) {
-                continue;
-            }
-
-            $sampai = $mulai->copy()->subDay();
-
-            foreach ($terbit as $lama) {
-                if ($lama->BerlakuSampai === null || $lama->BerlakuSampai->greaterThan($sampai)) {
-                    $lama->update(['BerlakuSampai' => $sampai->toDateString()]);
+                if ($terapkan) {
+                    $this->TerbitkanVersi($paket, $kode, $terbit, $berlaku, $langkah);
                 }
             }
-
-            $baru = HargaPaket::query()->create([
-                'IdPaket' => $paket->Id,
-                'HargaBulanan' => $bulanan->KeString(),
-                'HargaTahunan' => $tahunan->KeString(),
-                'BerlakuMulai' => $mulai->toDateString(),
-                'TerapkanKePelangganLama' => $pelangganLama,
-                'Status' => StatusDataMaster::Terbit,
-            ]);
-
-            $this->audit->Catat(
-                'katalog.harga.terapkan-rilis',
-                $baru,
-                nilaiLama: $terakhir === null ? null : ['HargaBulanan' => $terakhir->HargaBulanan, 'HargaTahunan' => $terakhir->HargaTahunan, 'BerlakuMulai' => $terakhir->BerlakuMulai->toDateString()],
-                nilaiBaru: ['Paket' => $kode, 'HargaBulanan' => $bulanan->KeString(), 'HargaTahunan' => $tahunan->KeString(), 'BerlakuMulai' => $mulai->toDateString(), 'TerapkanKePelangganLama' => $pelangganLama],
-                alasan: self::ALASAN,
-            );
         }
 
         return $hasil;
+    }
+
+    /**
+     * @param  Collection<int, HargaPaket>  $terbit
+     * @param  array{Jenis: string, Bulanan: Uang, Tahunan: Uang, Mulai: Carbon, Sampai: Carbon|null, Lama: bool}  $langkah
+     */
+    private function TerbitkanVersi(Paket $paket, string $kode, Collection $terbit, ?HargaPaket $berlaku, array $langkah): void
+    {
+        $sampaiLama = $langkah['Mulai']->copy()->subDay();
+
+        // Versi lama yang mulai sebelum versi baru diakhiri sehari sebelumnya (BR-P04.5: hanya BerlakuSampai yang boleh berubah).
+        foreach ($terbit as $lama) {
+            if ($lama->BerlakuMulai->lessThan($langkah['Mulai']) && ($lama->BerlakuSampai === null || $lama->BerlakuSampai->greaterThan($sampaiLama))) {
+                $lama->update(['BerlakuSampai' => $sampaiLama->toDateString()]);
+            }
+        }
+
+        $baru = HargaPaket::query()->create([
+            'IdPaket' => $paket->Id,
+            'HargaBulanan' => $langkah['Bulanan']->KeString(),
+            'HargaTahunan' => $langkah['Tahunan']->KeString(),
+            'BerlakuMulai' => $langkah['Mulai']->toDateString(),
+            'BerlakuSampai' => $langkah['Sampai']?->toDateString(),
+            'TerapkanKePelangganLama' => $langkah['Lama'],
+            'Status' => StatusDataMaster::Terbit,
+        ]);
+
+        $this->audit->Catat(
+            'katalog.harga.terapkan-rilis',
+            $baru,
+            nilaiLama: $berlaku === null ? null : ['HargaBulanan' => $berlaku->HargaBulanan, 'HargaTahunan' => $berlaku->HargaTahunan, 'BerlakuMulai' => $berlaku->BerlakuMulai->toDateString()],
+            nilaiBaru: ['Paket' => $kode, 'Jenis' => $langkah['Jenis'], 'HargaBulanan' => $langkah['Bulanan']->KeString(), 'HargaTahunan' => $langkah['Tahunan']->KeString(), 'BerlakuMulai' => $langkah['Mulai']->toDateString(), 'BerlakuSampai' => $langkah['Sampai']?->toDateString(), 'TerapkanKePelangganLama' => $langkah['Lama']],
+            alasan: self::ALASAN,
+        );
+
+        $terbit->push($baru);
     }
 
     /**
