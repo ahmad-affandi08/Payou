@@ -69,8 +69,8 @@ describe('Halaman langganan Owner (P-08, F-19 Fase 0)', function (): void {
                 ->where('Langganan.KodePaket', 'PRO')
                 ->has('PilihanPaket', 3)
                 ->where('PilihanPaket.1.Kode', 'PRO')
-                ->where('PilihanPaket.1.HargaBulanan', '199000.00')
-                ->where('PilihanPaket.1.HargaTahunan', '1910400.00')
+                ->where('PilihanPaket.1.HargaBulanan', '249000.00')
+                ->where('PilihanPaket.1.HargaTahunan', '2390400.00')
                 ->where('PilihanPaket.1.BisaDipilih', true));
     });
 
@@ -117,14 +117,14 @@ describe('Membuat tagihan (BR-P08.1, BR-P04.1, BR-P04.7, §12.2)', function (): 
             ->and($tagihan->Status)->toBe(StatusTagihanLangganan::Terbit)
             ->and($tagihan->Jenis)->toBe(JenisTagihanLangganan::Aktivasi)
             ->and($tagihan->Siklus)->toBe(SiklusTagihan::Bulanan)
-            ->and($tagihan->Subtotal)->toBe('199000.00')
+            ->and($tagihan->Subtotal)->toBe('249000.00')
             ->and($tagihan->Diskon)->toBe('0.00')
             ->and($tagihan->TarifPpn)->toBe('12.000000')
             ->and([$tagihan->PengaliDppPembilang, $tagihan->PengaliDppPenyebut])->toBe([11, 12])
-            // DPP = ⌊199.000 × 11/12⌋ = 182.416; PPN = ⌊182.416 × 12%⌋ = 21.889.
-            ->and($tagihan->DasarPengenaanPajak)->toBe('182416.00')
-            ->and($tagihan->JumlahPpn)->toBe('21889.00')
-            ->and($tagihan->Total)->toBe('220889.00')
+            // DPP = ⌊249.000 × 11/12⌋ = 228.250; PPN = ⌊228.250 × 12%⌋ = 27.390.
+            ->and($tagihan->DasarPengenaanPajak)->toBe('228250.00')
+            ->and($tagihan->JumlahPpn)->toBe('27390.00')
+            ->and($tagihan->Total)->toBe('276390.00')
             ->and($tagihan->IdTarifPajak)->not->toBeNull()
             ->and($tagihan->JatuhTempoPada->equalTo(now()->addDays(7)))->toBeTrue();
 
@@ -133,7 +133,7 @@ describe('Membuat tagihan (BR-P08.1, BR-P04.1, BR-P04.7, §12.2)', function (): 
             ->assertInertia(fn (AssertableInertia $halaman) => $halaman
                 ->component('Kelola/Langganan/Tagihan')
                 ->where('Tagihan.Nomor', 'INV/2026/09/000001')
-                ->where('Tagihan.Total', '220889.00')
+                ->where('Tagihan.Total', '276390.00')
                 ->where('BolehBayarOnline', true));
     });
 
@@ -141,20 +141,20 @@ describe('Membuat tagihan (BR-P08.1, BR-P04.1, BR-P04.7, §12.2)', function (): 
         BuatKuponUji('HEMAT50', 'Persen', '50', 3);
         $tagihan = BuatTagihanUji($this, $this->pemilik, $this->tenant, siklus: 'Tahunan', kupon: 'hemat50');
 
-        // Diskon = 1.910.400 × 50% × 3/12 = 238.800; DPP = 1.671.600 × 11/12 = 1.532.300; PPN = 183.876.
-        expect($tagihan->Subtotal)->toBe('1910400.00')
+        // Diskon = 2.390.400 × 50% × 3/12 = 298.800; DPP = 2.091.600 × 11/12 = 1.917.300; PPN = 230.076.
+        expect($tagihan->Subtotal)->toBe('2390400.00')
             ->and($tagihan->JumlahBulan)->toBe(12)
             ->and($tagihan->KodeKupon)->toBe('HEMAT50')
-            ->and($tagihan->Diskon)->toBe('238800.00')
-            ->and($tagihan->DasarPengenaanPajak)->toBe('1532300.00')
-            ->and($tagihan->JumlahPpn)->toBe('183876.00')
-            ->and($tagihan->Total)->toBe('1855476.00');
+            ->and($tagihan->Diskon)->toBe('298800.00')
+            ->and($tagihan->DasarPengenaanPajak)->toBe('1917300.00')
+            ->and($tagihan->JumlahPpn)->toBe('230076.00')
+            ->and($tagihan->Total)->toBe('2321676.00');
 
         $pemakaian = KuponLanggananPemakaian::query()->sole();
         expect($pemakaian->IdTagihanLangganan)->toBe($tagihan->Id)
             ->and($pemakaian->IdTenant)->toBe($this->tenant->Id)
             ->and($pemakaian->BulanDiskon)->toBe(3)
-            ->and($pemakaian->Diskon)->toBe('238800.00');
+            ->and($pemakaian->Diskon)->toBe('298800.00');
     });
 
     it('invariant: Total = Subtotal − Diskon + PPN dan DPP = ⌊(Subtotal − Diskon) × 11/12⌋ untuk semua paket & siklus', function (string $paket, string $siklus): void {
@@ -206,7 +206,7 @@ describe('Membuat tagihan (BR-P08.1, BR-P04.1, BR-P04.7, §12.2)', function (): 
         $tagihan = BuatTagihanUji($this, $this->pemilik, $this->tenant);
         expect($tagihan->JumlahPpn)->toBe('0.00')
             ->and($tagihan->IdTarifPajak)->toBeNull()
-            ->and($tagihan->Total)->toBe('199000.00')
+            ->and($tagihan->Total)->toBe('249000.00')
             // Percobaan yang gagal tidak memakan nomor (BR-P08.1).
             ->and($tagihan->Nomor)->toBe('INV/2026/09/000001');
     });
@@ -260,7 +260,7 @@ describe('Kupon langganan (BR-P04.7)', function (): void {
         BantuanTagihan::Masuk($this, $this->pemilik, $this->tenant)->post("/kelola/langganan/tagihan/{$tagihanA->Uuid}/batalkan");
         $tagihanB = BuatTagihanUji($this, $pemilikB, $tenantB, kupon: 'PERDANA');
 
-        expect($tagihanB->Diskon)->toBe('39800.00')
+        expect($tagihanB->Diskon)->toBe('49800.00')
             ->and(KuponLanggananPemakaian::query()->whereNull('DibatalkanPada')->pluck('IdTenant')->all())->toBe([$tenantB->Id]);
     });
 

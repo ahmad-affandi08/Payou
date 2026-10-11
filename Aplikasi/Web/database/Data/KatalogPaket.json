@@ -1,5 +1,5 @@
 {
-    "_Keterangan": "Paket awal PRD §21 (harga indikatif per paket, D-11). Dimuat sebagai DRAF: harga wajib diajukan & disetujui (BR-P04.5), paket lalu diaktifkan Super Admin (BR-P04.6). Batas null = tak terbatas; di atas batas dibeli lewat add-on. Harga string desimal.",
+    "_Keterangan": "Paket awal PRD §21 (harga per paket, D-11; harga Starter/Pro/Bisnis diperbarui D-86). Harga paket yang sudah terpasang diselaraskan lewat `php artisan katalog:terapkan`. Dimuat sebagai DRAF: harga wajib diajukan & disetujui (BR-P04.5), paket lalu diaktifkan Super Admin (BR-P04.6). Batas null = tak terbatas; di atas batas dibeli lewat add-on. Harga string desimal.",
     "Paket": [
         {
             "Kode": "GRATIS",
@@ -39,8 +39,8 @@
                 "BatasPenyimpananMb": 1024
             },
             "Harga": {
-                "HargaBulanan": "79000",
-                "HargaTahunan": "758400"
+                "HargaBulanan": "99000",
+                "HargaTahunan": "950400"
             },
             "Fitur": [
                 "pos.retail",
@@ -66,8 +66,8 @@
                 "BatasPenyimpananMb": 5120
             },
             "Harga": {
-                "HargaBulanan": "199000",
-                "HargaTahunan": "1910400"
+                "HargaBulanan": "249000",
+                "HargaTahunan": "2390400"
             },
             "Fitur": [
                 "pos.retail",
@@ -104,8 +104,8 @@
                 "BatasPenyimpananMb": 20480
             },
             "Harga": {
-                "HargaBulanan": "399000",
-                "HargaTahunan": "3830400"
+                "HargaBulanan": "449000",
+                "HargaTahunan": "4310400"
             },
             "Fitur": [
                 "pos.retail",

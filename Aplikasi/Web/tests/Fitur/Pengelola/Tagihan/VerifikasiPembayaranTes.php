@@ -84,7 +84,7 @@ describe('Hak akses tagihan (§19.3)', function (): void {
         $teknis = BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::Teknis);
         MasukTagihanPengelola($this, $teknis)->get(BantuanPengelola::Url('/tagihan'))->assertForbidden();
         $this->get(BantuanPengelola::Url("/tagihan/pembayaran/{$pembayaran->Uuid}/bukti"))->assertForbidden();
-        $this->post(BantuanPengelola::Url("/tagihan/pembayaran/{$pembayaran->Uuid}/terima"), ['JumlahDiterima' => '220889'])->assertForbidden();
+        $this->post(BantuanPengelola::Url("/tagihan/pembayaran/{$pembayaran->Uuid}/terima"), ['JumlahDiterima' => '276390'])->assertForbidden();
     });
 
     it('rute tagihan pengelola tidak terbuka di domain tenant', function (): void {
@@ -104,7 +104,7 @@ describe('Antrean verifikasi (P-08 langkah 3)', function (): void {
                 ->where('Antrean.0.Uuid', $pembayaran->Uuid)
                 ->where('Antrean.0.NamaTenant', 'Kopi Nusantara')
                 ->where('Antrean.0.NomorTagihan', 'INV/2026/09/000001')
-                ->where('Antrean.0.Jumlah', '220889.00')
+                ->where('Antrean.0.Jumlah', '276390.00')
                 ->where('Ringkasan.MenungguVerifikasi', 1)
                 ->where('Tagihan.Data.0.NamaTenant', 'Kopi Nusantara'));
 
@@ -113,7 +113,7 @@ describe('Antrean verifikasi (P-08 langkah 3)', function (): void {
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $halaman) => $halaman
                 ->component('Pengelola/Tagihan/Detail')
-                ->where('Tagihan.Total', '220889.00')
+                ->where('Tagihan.Total', '276390.00')
                 ->where('Pembayaran.0.Status', 'Menunggu'));
     });
 
@@ -152,7 +152,7 @@ describe('Terima pembayaran → tagihan Lunas → langganan Aktif (BR-00.7)', fu
         $this->travel(2)->hours();
 
         MasukTagihanPengelola($this, $this->keuangan)
-            ->post(BantuanPengelola::Url("/tagihan/pembayaran/{$pembayaran->Uuid}/terima"), ['JumlahDiterima' => '220889', 'Catatan' => 'Mutasi BCA 23/09'])
+            ->post(BantuanPengelola::Url("/tagihan/pembayaran/{$pembayaran->Uuid}/terima"), ['JumlahDiterima' => '276390', 'Catatan' => 'Mutasi BCA 23/09'])
             ->assertSessionHasNoErrors();
 
         $pembayaran->refresh();
@@ -160,7 +160,7 @@ describe('Terima pembayaran → tagihan Lunas → langganan Aktif (BR-00.7)', fu
         $langganan = LanggananTagihanUji($this->tenant);
         expect($pembayaran->Status)->toBe(StatusPembayaranLangganan::Diterima)
             ->and($pembayaran->IdPenggunaPengelolaVerifikator)->toBe($this->keuangan->Id)
-            ->and($pembayaran->JumlahDiterima)->toBe('220889.00')
+            ->and($pembayaran->JumlahDiterima)->toBe('276390.00')
             ->and($tagihan->Status)->toBe(StatusTagihanLangganan::Lunas)
             ->and($tagihan->DibayarPada?->equalTo(now()))->toBeTrue()
             ->and($tagihan->PeriodeMulai?->equalTo(now()))->toBeTrue()
@@ -196,9 +196,9 @@ describe('Terima pembayaran → tagihan Lunas → langganan Aktif (BR-00.7)', fu
         MasukTagihanPengelola($this, $this->keuangan);
         $url = BantuanPengelola::Url("/tagihan/pembayaran/{$pembayaran->Uuid}");
 
-        $this->post("{$url}/terima", ['JumlahDiterima' => '220889'])->assertSessionHasNoErrors();
+        $this->post("{$url}/terima", ['JumlahDiterima' => '276390'])->assertSessionHasNoErrors();
         $periodeSelesai = LanggananTagihanUji($this->tenant)->PeriodeSelesai;
-        $this->post("{$url}/terima", ['JumlahDiterima' => '220889'])->assertSessionHasErrors(['Umum' => 'Pembayaran ini sudah Diterima.']);
+        $this->post("{$url}/terima", ['JumlahDiterima' => '276390'])->assertSessionHasErrors(['Umum' => 'Pembayaran ini sudah Diterima.']);
         $this->post("{$url}/tolak", ['Alasan' => 'Salah klik, seharusnya ditolak'])->assertSessionHasErrors('Umum');
 
         expect(LanggananTagihanUji($this->tenant)->PeriodeSelesai?->equalTo($periodeSelesai))->toBeTrue()
@@ -211,9 +211,9 @@ describe('Terima pembayaran → tagihan Lunas → langganan Aktif (BR-00.7)', fu
         $keuanganLain = BantuanPengelola::BuatAnggota(PeranPengelolaBawaan::Keuangan);
         // Keduanya membuka halaman saat masih Menunggu; verifikator pertama menang.
         $aksi = app(TerimaPembayaranLangganan::class);
-        $aksi->Jalankan($this->keuangan, $pembayaran->Uuid, '220889');
+        $aksi->Jalankan($this->keuangan, $pembayaran->Uuid, '276390');
 
-        expect(fn () => app(TerimaPembayaranLangganan::class)->Jalankan($keuanganLain, $pembayaran->Uuid, '220889'))
+        expect(fn () => app(TerimaPembayaranLangganan::class)->Jalankan($keuanganLain, $pembayaran->Uuid, '276390'))
             ->toThrow(PelanggaranAturanBisnis::class, 'Pembayaran ini sudah Diterima.');
         expect($pembayaran->refresh()->IdPenggunaPengelolaVerifikator)->toBe($this->keuangan->Id)
             ->and(TagihanLangganan::query()->withoutGlobalScopes()->sole()->Status)->toBe(StatusTagihanLangganan::Lunas);
@@ -244,7 +244,7 @@ describe('Tolak pembayaran', function (): void {
 describe('Perpanjangan, tunggakan, dan grandfathering (BR-P04.1)', function (): void {
     it('perpanjangan saat Aktif menyambung dari akhir periode berjalan', function (): void {
         $pertama = BayarTagihanUji($this, $this->pemilik, $this->tenant);
-        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pertama->Uuid, '220889');
+        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pertama->Uuid, '276390');
         $akhirPertama = LanggananTagihanUji($this->tenant)->PeriodeSelesai;
         $this->travel(20)->days();
 
@@ -253,7 +253,7 @@ describe('Perpanjangan, tunggakan, dan grandfathering (BR-P04.1)', function (): 
         expect($tagihanKedua->Jenis->value)->toBe('Perpanjangan')
             ->and($tagihanKedua->JatuhTempoPada->equalTo($akhirPertama))->toBeTrue();
 
-        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $kedua->Uuid, '220889');
+        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $kedua->Uuid, '276390');
         $langganan = LanggananTagihanUji($this->tenant);
         expect($langganan->PeriodeMulai?->equalTo($akhirPertama))->toBeTrue()
             ->and($langganan->PeriodeSelesai?->equalTo($akhirPertama?->copy()->addMonthNoOverflow()))->toBeTrue()
@@ -262,7 +262,7 @@ describe('Perpanjangan, tunggakan, dan grandfathering (BR-P04.1)', function (): 
 
     it('Tertunggak → Aktif lewat pembayaran tagihan yang sudah lewat jatuh tempo; periode tetap menyambung', function (): void {
         $pertama = BayarTagihanUji($this, $this->pemilik, $this->tenant);
-        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pertama->Uuid, '220889');
+        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pertama->Uuid, '276390');
         $akhirPertama = LanggananTagihanUji($this->tenant)->PeriodeSelesai;
         $this->travel(25)->days();
         $kedua = BayarTagihanUji($this, $this->pemilik, $this->tenant);
@@ -272,7 +272,7 @@ describe('Perpanjangan, tunggakan, dan grandfathering (BR-P04.1)', function (): 
         expect(LanggananTagihanUji($this->tenant)->Status)->toBe(StatusLangganan::Tertunggak)
             ->and(TagihanLangganan::query()->withoutGlobalScopes()->findOrFail($kedua->IdTagihanLangganan)->Status)->toBe(StatusTagihanLangganan::JatuhTempo);
 
-        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $kedua->Uuid, '220889');
+        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $kedua->Uuid, '276390');
         $langganan = LanggananTagihanUji($this->tenant);
         expect($langganan->Status)->toBe(StatusLangganan::Aktif)
             ->and($langganan->PeriodeMulai?->equalTo($akhirPertama))->toBeTrue();
@@ -280,7 +280,7 @@ describe('Perpanjangan, tunggakan, dan grandfathering (BR-P04.1)', function (): 
 
     it('harga baru yang tidak diterapkan ke pelanggan lama: perpanjangan tetap harga lama, tenant baru harga baru', function (): void {
         $pertama = BayarTagihanUji($this, $this->pemilik, $this->tenant);
-        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pertama->Uuid, '220889');
+        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pertama->Uuid, '276390');
 
         HargaPaket::query()->create([
             'IdPaket' => Paket::query()->where('Kode', 'PRO')->sole()->Id,
@@ -296,7 +296,7 @@ describe('Perpanjangan, tunggakan, dan grandfathering (BR-P04.1)', function (): 
         ['Tenant' => $tenantBaru, 'Pengguna' => $pemilikBaru] = BantuanTagihan::DaftarTenant('budi@tokobudi.id', '081298765432', 'Toko Budi');
         $baru = BayarTagihanUji($this, $pemilikBaru, $tenantBaru);
 
-        expect(TagihanLangganan::query()->withoutGlobalScopes()->findOrFail($perpanjangan->IdTagihanLangganan)->Subtotal)->toBe('199000.00')
+        expect(TagihanLangganan::query()->withoutGlobalScopes()->findOrFail($perpanjangan->IdTagihanLangganan)->Subtotal)->toBe('249000.00')
             ->and(TagihanLangganan::query()->withoutGlobalScopes()->findOrFail($baru->IdTagihanLangganan)->Subtotal)->toBe('249000.00');
     });
 });
@@ -308,7 +308,7 @@ describe('Penangguhan manual tidak dicabut lewat tagihan (BR-P07.4 × BR-P08.9)'
         $asal = $langganan->Status;
         $langganan->update(['Status' => StatusLangganan::Ditangguhkan, 'StatusSebelumDitangguhkan' => $asal]);
 
-        expect(fn () => app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pembayaran->Uuid, '220889'))
+        expect(fn () => app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pembayaran->Uuid, '276390'))
             ->toThrow(PelanggaranAturanBisnis::class, 'ditangguhkan manual');
         expect(LanggananTagihanUji($this->tenant)->Status)->toBe(StatusLangganan::Ditangguhkan)
             ->and($pembayaran->refresh()->Status)->toBe(StatusPembayaranLangganan::Menunggu);
@@ -326,7 +326,7 @@ describe('Penangguhan manual tidak dicabut lewat tagihan (BR-P07.4 × BR-P08.9)'
             'StatusSebelumDitangguhkan' => null,
         ]);
 
-        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pembayaran->Uuid, '220889');
+        app(TerimaPembayaranLangganan::class)->Jalankan($this->keuangan, $pembayaran->Uuid, '276390');
 
         expect(LanggananTagihanUji($this->tenant)->Status)->toBe(StatusLangganan::Aktif);
     });

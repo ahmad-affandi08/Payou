@@ -71,7 +71,7 @@ describe('P-08 langkah 1: tagihan perpanjangan otomatis H-7', function (): void 
             ->and($tagihan->Status)->toBe(StatusTagihanLangganan::Terbit)
             ->and($tagihan->Nomor)->toBe('INV/2026/09/000001')
             ->and($tagihan->Siklus)->toBe(SiklusTagihan::Bulanan)
-            ->and($tagihan->Subtotal)->toBe('199000.00')
+            ->and($tagihan->Subtotal)->toBe('249000.00')
             ->and($tagihan->JatuhTempoPada->equalTo(Carbon::parse('2026-10-01 10:00:00', 'Asia/Jakarta')))->toBeTrue()
             ->and($tagihan->IdPenggunaPembuat)->toBeNull()
             ->and($tagihan->PengingatTerakhir)->toBe(TahapPengingatTagihan::HMinus7->value);
@@ -130,7 +130,7 @@ describe('P-08 langkah 1: tagihan perpanjangan otomatis H-7', function (): void 
         $otomatis = TagihanOtomatisUji($this->tenant->Id)[1];
 
         expect($otomatis->KodeKupon)->toBe('HEMAT3')
-            ->and($otomatis->Diskon)->toBe('39800.00')
+            ->and($otomatis->Diskon)->toBe('49800.00')
             ->and(DB::table('KuponLanggananPemakaian')->where('IdTenant', $this->tenant->Id)->sum('BulanDiskon'))->toEqual(2);
     });
 });

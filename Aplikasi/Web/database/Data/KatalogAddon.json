@@ -1,11 +1,12 @@
 {
-    "_Keterangan": "Add-on awal PRD §21 (harga indikatif). Dimuat sebagai Diarsipkan (belum dijual); Keuangan mengaktifkan setelah harga ditetapkan (D-11). TambahanBatas per unit. Harga string desimal.",
+    "_Keterangan": "Add-on PRD §21 (D-11, harga diperbarui D-86). Pemasangan baru memuatnya Diarsipkan; `php artisan katalog:terapkan` menyelaraskan harga & mengaktifkan add-on yang bertanda Status Aktif di server yang sudah berjalan. TambahanBatas per unit. Harga string desimal.",
     "Addon": [
         {
             "Kode": "OUTLET_TAMBAHAN",
             "Nama": "Outlet tambahan",
-            "HargaBulanan": "99000",
+            "HargaBulanan": "79000",
             "KunciFitur": null,
+            "Status": "Aktif",
             "TambahanBatas": {
                 "BatasOutlet": 1
             }
@@ -15,6 +16,7 @@
             "Nama": "Perangkat tambahan",
             "HargaBulanan": "29000",
             "KunciFitur": null,
+            "Status": "Aktif",
             "TambahanBatas": {
                 "BatasPerangkatPerOutlet": 1
             }
@@ -24,6 +26,7 @@
             "Nama": "Kuota WhatsApp 1.000 pesan",
             "HargaBulanan": "49000",
             "KunciFitur": "integrasi.whatsapp",
+            "Status": "Aktif",
             "TambahanBatas": {
                 "KuotaPesanWaBulanan": 1000
             }
@@ -33,6 +36,7 @@
             "Nama": "Self-order QR",
             "HargaBulanan": "49000",
             "KunciFitur": "kanal.self-order",
+            "Status": "Aktif",
             "TambahanBatas": null
         },
         {
@@ -40,13 +44,15 @@
             "Nama": "Toko online",
             "HargaBulanan": "79000",
             "KunciFitur": "kanal.toko-online",
+            "Status": "Aktif",
             "TambahanBatas": null
         },
         {
             "Kode": "INSIGHT",
             "Nama": "Forecast & insight",
-            "HargaBulanan": "59000",
+            "HargaBulanan": "49000",
             "KunciFitur": "laporan.insight",
+            "Status": "Aktif",
             "TambahanBatas": null
         }
     ]

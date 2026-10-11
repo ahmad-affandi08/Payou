@@ -183,7 +183,7 @@ describe('Perpanjangan, berhenti, dan tagihan terbuka', function (): void {
 
         $perpanjangan = TagihanLangganan::query()->withoutGlobalScopes()->where('IdTenant', $this->tenant->Id)->where('Jenis', JenisTagihanLangganan::Perpanjangan->value)->sole();
         $baris = TagihanLanggananAddon::query()->where('IdTagihanLangganan', $perpanjangan->Id)->sole();
-        expect($perpanjangan->Subtotal)->toBe('259000.00')
+        expect($perpanjangan->Subtotal)->toBe('309000.00')
             ->and($baris->Subtotal)->toBe('60000.00')
             ->and($baris->Prorata)->toBeFalse()
             ->and(Uang::Dari($perpanjangan->Total)->KeString())->toBe(Uang::Dari($perpanjangan->Subtotal)->Tambah(Uang::Dari($perpanjangan->JumlahPpn))->KeString());
@@ -218,7 +218,7 @@ describe('Perpanjangan, berhenti, dan tagihan terbuka', function (): void {
         $this->travelTo(Carbon::parse('2026-09-24 08:20', 'Asia/Jakarta'));
         $this->artisan('tagihan:terbitkan-perpanjangan')->assertSuccessful();
         $perpanjangan = TagihanLangganan::query()->withoutGlobalScopes()->where('IdTenant', $this->tenant->Id)->where('Jenis', JenisTagihanLangganan::Perpanjangan->value)->sole();
-        expect($perpanjangan->Subtotal)->toBe('199000.00')
+        expect($perpanjangan->Subtotal)->toBe('249000.00')
             ->and(TagihanLanggananAddon::query()->where('IdTagihanLangganan', $perpanjangan->Id)->count())->toBe(0);
         BayarTagihanAddonUji($this, $this->pemilik, $this->tenant, $this->keuangan, $perpanjangan);
 
